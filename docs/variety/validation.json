@@ -1,0 +1,45 @@
+{
+  "date": "2026-09-11",
+  "logic": {
+    "passed": 83,
+    "failed": 0,
+    "command": "npm test"
+  },
+  "build": {
+    "passed": true,
+    "command": "npm run build"
+  },
+  "browser": {
+    "distinctScenariosPassed": 19,
+    "fullRegressionPassed": 16,
+    "additionalScenarios": [
+      "seed 1: police expedition and return",
+      "seed 3: police expedition and return",
+      "Spitter: telegraph, acid, escape and headshot"
+    ],
+    "execution": "Separate regression and targeted runs; not a single 19-test run.",
+    "latestRun": {
+      "scenario": "Spitter: acid visibility after floor correction",
+      "passed": 1,
+      "failed": 0,
+      "durationSeconds": 32.5
+    }
+  },
+  "visualInspection": {
+    "acidOnRaisedCourtyard": "Visible pool and perimeter verified in acid.png",
+    "specialWounds": "Shared anatomical attachment points inspected in arsenal-and-specials.png"
+  },
+  "limitations": [
+    "GPU hardware FPS not measured; browser uses SwiftShader.",
+    "Long human sessions through nights 4–6 remain recommended for balancing."
+  ],
+  "evidence": [
+    "performance.json",
+    "simulation-performance.json",
+    "expedition-seed-1.json",
+    "expedition-seed-3.json",
+    "loop-playthrough.json",
+    "acid.png",
+    "arsenal-and-specials.png"
+  ]
+}

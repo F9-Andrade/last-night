@@ -8,6 +8,9 @@ import { createWeaponVisual } from './weapon-assets';
 import { voxelMesh, voxelMaterial } from './voxel';
 import { batch } from './models';
 
+// The courtyard path/sign reaches y=.25; hazards must clear raised walking surfaces.
+const HAZARD_FLOOR = .28;
+
 /** Bounded presentation pools. Item geometry is shared by family, even after repeated swaps. */
 export class ExpeditionView {
   private guns:{root:THREE.Mesh;uid:number}[]=[];private gunGeometry=new Map<WeaponId,THREE.BufferGeometry>();
@@ -61,9 +64,9 @@ export class ExpeditionView {
     let acidCount=0,flightCount=0,warningCount=0;
     for(const a of sim.acids){const t=Math.min(1,a.age/ACID.flight),fade=Math.min(1,(ACID.flight+ACID.lifetime-a.age)*2);
       this.dummy.rotation.set(0,0,0);this.dummy.scale.setScalar(1);
-      if(t<1){this.dummy.position.set(a.from.x+(a.x-a.from.x)*t,1.8*(1-t)+Math.sin(t*Math.PI)*1.8,a.from.z+(a.z-a.from.z)*t);this.dummy.updateMatrix();this.splash.setMatrixAt(flightCount++,this.dummy.matrix);}
-      else{this.dummy.position.set(a.x,.1,a.z);this.dummy.scale.set(fade,1,fade);this.dummy.updateMatrix();this.acid.setMatrixAt(acidCount++,this.dummy.matrix);}
-      this.dummy.position.set(a.x,.13,a.z);this.dummy.rotation.set(-Math.PI/2,0,time*.1);this.dummy.scale.setScalar(t<1?.7+.3*t:fade);this.dummy.updateMatrix();this.warning.setMatrixAt(warningCount++,this.dummy.matrix);
+      if(t<1){this.dummy.position.set(a.from.x+(a.x-a.from.x)*t,1.8*(1-t)+HAZARD_FLOOR*t+Math.sin(t*Math.PI)*1.8,a.from.z+(a.z-a.from.z)*t);this.dummy.updateMatrix();this.splash.setMatrixAt(flightCount++,this.dummy.matrix);}
+      else{this.dummy.position.set(a.x,HAZARD_FLOOR,a.z);this.dummy.scale.set(fade,1,fade);this.dummy.updateMatrix();this.acid.setMatrixAt(acidCount++,this.dummy.matrix);}
+      this.dummy.position.set(a.x,HAZARD_FLOOR+.025,a.z);this.dummy.rotation.set(-Math.PI/2,0,time*.1);this.dummy.scale.setScalar(t<1?.7+.3*t:fade);this.dummy.updateMatrix();this.warning.setMatrixAt(warningCount++,this.dummy.matrix);
     }
     this.acid.count=acidCount;this.splash.count=flightCount;this.warning.count=warningCount;for(const mesh of [this.acid,this.splash,this.warning])mesh.instanceMatrix.needsUpdate=true;
     sim.facilities.forEach((f,i)=>{const v=this.facilities[i];v.root.visible=Math.hypot(f.x-sim.player.x,f.z-sim.player.z)<65;v.lid.rotation.x=f.state==='opened'?-1.35:0;});

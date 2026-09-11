@@ -1,6 +1,6 @@
 # LAST NIGHT — arsenal, infectados e decisões de expedição
 
-Etapa de 10/09/2026. Trabalho realizado no projeto existente, preservando o mapa, a identidade visual, o ciclo de sobrevivência, a navegação, as barricadas e o combate anatômico. O envio inicial ao GitHub foi autorizado posteriormente pelo usuário, em 11/09/2026. A validação final desta etapa foi pausada para registrar o estado atual do projeto.
+Etapa de 10–11/09/2026. Trabalho realizado no projeto existente, preservando o mapa, a identidade visual, o ciclo de sobrevivência, a navegação, as barricadas e o combate anatômico. O projeto está vinculado a `F9-Andrade/last-night`; commit e push foram autorizados pelo usuário ao concluir esta etapa.
 
 ## Arsenal e diferenças de uso
 
@@ -119,12 +119,29 @@ A interface mantém fontes, ícones e cores do projeto. Slots úteis ficam no ca
 
 - **83 testes de lógica passaram:** 48 de regressão e 35 novos. Cobrem as seis armas, recarga vazia/interrompida, três reservas, acertos anatômicos, chumbos, queda de dano, cadência em 30/60/144 passos, troca sem duplicação, raridades, perks, especiais, gerador, alarme, eventos, sementes e caminhos.
 - **Build de produção e verificação TypeScript passaram.**
-- **Navegador:** a primeira rodada dos quatro testes novos passou em três. O quarto encontrou uma mochila 15 px além da borda inferior em 1024×640; a altura foi corrigida e o cenário passou na regressão seguinte.
-- A inspeção das capturas também encontrou compartilhamento indevido do material de transparência do telhado com móveis/ambiente. O telhado passou a usar o material exclusivo do prédio.
-- Testes antigos de movimento esperavam 400–500 ms de relógio e podiam perder completamente um frame em renderização por software. Agora mantêm a tecla pressionada até observar deslocamento real. O hook de teleporte não reposiciona mais silenciosamente o jogador para favorecer a captura.
-- As fixtures de inventário foram atualizadas para os dois novos recursos. A verificação de reinício preserva as reservas garantidas e permite containers opcionais inativos sorteados na nova partida.
+- **Navegador:** 16 cenários passaram na regressão completa; três cenários adicionais cobrem duas sementes de expedição e o ataque do Cuspidor. As verificações adicionais foram executadas em rodadas separadas, totalizando 19 cenários distintos aprovados. Após a última correção visual, o teste do Cuspidor passou novamente em 32,5 s e a captura confirmou a poça visível sobre o abrigo. O build e os 83 testes de lógica também passaram nesta retomada.
+- A mochila ultrapassava a borda inferior em 15 px em 1024×640. A altura foi corrigida e a captura final confirma que o painel cabe na tela.
+- A transparência do telhado afetava móveis e ambiente porque compartilhava material. Cada telhado agora usa o material exclusivo do prédio, mantendo os móveis visíveis.
+- Marcas de ferimento dos torsos maiores podiam ficar dentro da geometria. Os novos pontos de fixação acompanham cada anatomia; os cadáveres reutilizam esses pontos e as transformações dos membros. A galeria foi inspecionada após a correção.
+- A poça de ácido e seu contorno estavam abaixo do piso elevado do abrigo. Ambos foram elevados acima da superfície transitável, mantendo o teste de profundidade; a trajetória do projétil termina na mesma altura.
+- A comparação ganhou cadência e precisão, além de recarga completa e alcance. A escolha de perk ignora Escape para impedir uma pausa invisível atrás das opções. Armas sorteadas em containers são colocadas ao lado de uma posição acessível.
+- Testes antigos de movimento esperavam 400–500 ms de relógio e podiam perder um frame em renderização por software. Agora mantêm a tecla pressionada até observar deslocamento real. O hook de teleporte não reposiciona silenciosamente o jogador para favorecer a captura.
+- Uma rota automática de retorno cortava a esquina de um carro; o teste passou a contorná-lo por pontos intermediários. A movimentação do jogo permaneceu intacta.
+- Fixtures de inventário contemplam as duas novas reservas. Reinício preserva os suprimentos garantidos e permite containers opcionais inativos sorteados na nova partida.
 
-A consolidação final permanece pendente. Antes da pausa, a regressão de 16 cenários no navegador passou, assim como verificações adicionais de comparação, ácido e galeria. As duas expedições por sementes possuem registros em `docs/variety/`. A inspeção visual identificou que a poça de ácido pode ficar encoberta pelo piso elevado do abrigo; esse ajuste e sua validação ainda precisam ser concluídos. Os ferimentos dos novos modelos receberam pontos de fixação próprios, compartilhados com os cadáveres; a galeria e o build passaram após esse ajuste.
+### Expedições e decisões observadas
+
+A partida contínua percorreu quatro containers, construiu uma barricada, enfrentou a primeira horda, escolheu **Catador** ao amanhecer e chegou à segunda noite. Terminou a verificação com 30 eliminações, 100 de vida, abrigo com 1.000 de integridade e apenas 25 tiros restantes entre pente e reserva. A barricada inicial foi destruída durante a defesa. O controlador usou teclado/mouse; tempo ocioso foi abreviado e combate acelerado, sem injetar vida, munição ou eliminações.
+
+Duas expedições adicionais fizeram o trajeto até o armário policial, buscaram e equiparam o loot real, combateram e retornaram à base. Essas duas usaram tempo normal, sem teleporte ou injeção de equipamento, recursos, inimigos ou saúde:
+
+| Semente | Equipamento encontrado | Reserva ao retornar | Vida | Tempo simulado |
+| --- | --- | --- | ---: | ---: |
+| 1 | Rifle de precisão incomum, recarga −3% | 8 carregados + 22 de rifle | 100 | 30,45 s |
+| 3 | SMG rara Pesada, +6% de dano sorteado | 30 carregados + 121 leves | 100 | 27,10 s |
+
+O loot levou a categorias e reservas diferentes. A precisão permite escolher tiros fortes; a SMG compete pela munição da pistola e aumenta o consumo. São evidências de variedade funcional, não uma medida objetiva de diversão. Preferências de arma e o balanceamento das noites avançadas ainda precisam de sessões humanas mais longas.
+
 
 ## Performance e limites
 
@@ -151,11 +168,17 @@ Dados/lógica: `src/game/weapons.ts`, `enemies.ts`, `perks.ts`, `expedition.ts`,
 
 Apresentação: `src/render/weapon-assets.ts`, `character-assets.ts`, `models.ts`, `corpses.ts`, `expedition-view.ts`, `survival-assets.ts`, `building-assets.ts`, `town.ts`, `scene.ts`; `src/ui/variety.ts`, `variety.css`, `hud.ts`, `layout.ts`, `icons.ts` e `map.ts`.
 
-Validação: `tests/variety.test.ts`, `tests/variety.spec.ts`, galeria em `tests/fixtures/variety-gallery.*`, ajustes nos testes de regressão, `package.json` e este relatório.
+Validação: `tests/variety.test.ts`, `tests/variety.spec.ts`, `tests/expedition.spec.ts`, galeria em `tests/fixtures/variety-gallery.*`, ajustes nos testes de regressão, `package.json` e este relatório.
 
 Capturas anteriores à alteração: `docs/variety/before.png` e `before-inventory.png`.
 
-Capturas em `docs/variety/`: seis `weapon-*.png`, `rare-ground.png`, `equipment.png`, `perk-choice.png`, `arsenal-and-specials.png`, três `*-interior.png`, `inventory-compact.png` e seis `horde-*.png`.
+Capturas em `docs/variety/`: seis `weapon-*.png`, `rare-ground.png`, `equipment.png`, `perk-choice.png`, `arsenal-and-specials.png`, três `*-interior.png`, `inventory-compact.png` seis `horde-*.png`, `spitter-telegraph.png`, `acid.png`, `spitter-corpse.png` e duas `expedition-seed-*.png`. As expedições também têm registros JSON de estado e rota.
+
+![Arsenal e infectados](docs/variety/arsenal-and-specials.png)
+
+![Escolha de vantagem](docs/variety/perk-choice.png)
+
+![Ácido visível sobre o piso elevado do abrigo](docs/variety/acid.png)
 
 ## Limitações e próxima fase recomendada
 
