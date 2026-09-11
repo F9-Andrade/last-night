@@ -1,0 +1,68 @@
+[
+  {
+    "name": "walkers30",
+    "count": 30,
+    "steps": 300,
+    "simulatedSeconds": 5,
+    "medianMS": 2.051,
+    "p95MS": 4.314,
+    "maxMS": 43.89,
+    "active": 30,
+    "acids": 0
+  },
+  {
+    "name": "walkers40",
+    "count": 40,
+    "steps": 300,
+    "simulatedSeconds": 5,
+    "medianMS": 2.786,
+    "p95MS": 5.366,
+    "maxMS": 38.519,
+    "active": 40,
+    "acids": 0
+  },
+  {
+    "name": "runners",
+    "count": 30,
+    "steps": 300,
+    "simulatedSeconds": 5,
+    "medianMS": 2.02,
+    "p95MS": 3.822,
+    "maxMS": 22.87,
+    "active": 30,
+    "acids": 0
+  },
+  {
+    "name": "spitter",
+    "count": 30,
+    "steps": 300,
+    "simulatedSeconds": 5,
+    "medianMS": 2.095,
+    "p95MS": 4.112,
+    "maxMS": 23.241,
+    "active": 30,
+    "acids": 1
+  },
+  {
+    "name": "tank",
+    "count": 30,
+    "steps": 300,
+    "simulatedSeconds": 5,
+    "medianMS": 2.181,
+    "p95MS": 3.99,
+    "maxMS": 26.544,
+    "active": 30,
+    "acids": 0
+  },
+  {
+    "name": "mixed40",
+    "count": 40,
+    "steps": 300,
+    "simulatedSeconds": 5,
+    "medianMS": 1.827,
+    "p95MS": 4.009,
+    "maxMS": 32.074,
+    "active": 40,
+    "acids": 1
+  }
+]

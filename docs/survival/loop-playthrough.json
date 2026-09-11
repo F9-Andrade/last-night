@@ -1,0 +1,495 @@
+{
+  "state": {
+    "player": {
+      "x": 1.2878788488612307,
+      "z": 4.370662637273899,
+      "hp": 100,
+      "stamina": 100,
+      "angle": 2.3374276511680105,
+      "moving": false,
+      "running": false,
+      "invulnerable": 0
+    },
+    "ammo": 1,
+    "reserve": 104,
+    "phase": "night",
+    "time": 242.01666666666665,
+    "day": 2,
+    "kills": 22,
+    "baseHP": 1000,
+    "inventory": {
+      "ammo": 104,
+      "med": 5,
+      "wood": 2,
+      "scrap": 10,
+      "rare": 0
+    },
+    "storage": {
+      "ammo": 0,
+      "med": 0,
+      "wood": 0,
+      "scrap": 3,
+      "rare": 1
+    },
+    "weight": 11.1,
+    "loot": [
+      {
+        "id": "base-ammo",
+        "x": -2,
+        "z": 3,
+        "area": "base",
+        "label": "Reserva do pátio",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": "ammo"
+      },
+      {
+        "id": "base-wood",
+        "x": 4.8,
+        "z": 5,
+        "area": "outside",
+        "label": "Tábuas recuperadas",
+        "guaranteed": {
+          "wood": 6,
+          "scrap": 2
+        },
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": "wood"
+      },
+      {
+        "id": "market-crate",
+        "x": -22,
+        "z": 0.5,
+        "area": "market",
+        "label": "Caixa de entregas",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-locker",
+        "x": -29,
+        "z": 1.5,
+        "area": "market",
+        "label": "Armário do mercado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-case",
+        "x": 23,
+        "z": -17,
+        "area": "hospital",
+        "label": "Caixa médica",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": "med"
+      },
+      {
+        "id": "hospital-locker",
+        "x": 29,
+        "z": -17,
+        "area": "hospital",
+        "label": "Armário de emergência",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-locker",
+        "x": 23,
+        "z": 19,
+        "area": "police",
+        "label": "Locker de munição",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": "ammo"
+      },
+      {
+        "id": "police-case",
+        "x": 29,
+        "z": 33,
+        "area": "police",
+        "label": "Equipamento de patrulha",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-tools",
+        "x": -28,
+        "z": 24,
+        "area": "gas",
+        "label": "Caixa de ferramentas",
+        "guaranteed": {
+          "scrap": 4
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-crate",
+        "x": -20,
+        "z": 33,
+        "area": "gas",
+        "label": "Material de manutenção",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-north",
+        "x": 3,
+        "z": -20.5,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-west",
+        "x": -27,
+        "z": -21,
+        "area": "house",
+        "label": "Baú da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-east",
+        "x": 29,
+        "z": 3,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-south",
+        "x": 4,
+        "z": 35,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "street-materials",
+        "x": -7,
+        "z": 5,
+        "area": "outside",
+        "label": "Material recuperável",
+        "guaranteed": {
+          "wood": 4,
+          "scrap": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      }
+    ],
+    "barricades": [
+      {
+        "id": "gate",
+        "label": "Entrada principal",
+        "x": 1,
+        "z": 9,
+        "w": 6.6,
+        "d": 0.6,
+        "hp": 282,
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "west",
+        "label": "Acesso oeste",
+        "x": -4.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      },
+      {
+        "id": "east",
+        "label": "Acesso leste",
+        "x": 6.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      }
+    ],
+    "action": null,
+    "horde": {
+      "budget": 24,
+      "spawned": 2,
+      "complete": false
+    },
+    "threat": 24,
+    "phaseElapsed": 2.0166666666666644,
+    "inventoryOpen": false,
+    "paused": false,
+    "gameOver": false,
+    "reloadTimer": 0,
+    "shotTimer": 0,
+    "zombies": [
+      {
+        "x": -31.25173400900723,
+        "z": -36.68022607358066,
+        "hp": 90
+      },
+      {
+        "x": -37.078868327927225,
+        "z": -33.078868327927225,
+        "hp": 90
+      }
+    ],
+    "fps": 4,
+    "calls": 52,
+    "triangles": 118954,
+    "render": {
+      "meshes": 493,
+      "materials": 74,
+      "geometries": 79,
+      "textures": 10,
+      "geometryMB": 5.1,
+      "cacheMB": 4.7,
+      "heapMB": 37.8,
+      "voxelAssets": 108
+    }
+  },
+  "log": [
+    {
+      "phase": "1:day",
+      "kills": 0,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 72,
+      "barricades": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "searched": "base-ammo",
+      "inventory": {
+        "ammo": 108,
+        "med": 1,
+        "wood": 2,
+        "scrap": 1,
+        "rare": 0
+      }
+    },
+    {
+      "searched": "base-wood",
+      "inventory": {
+        "ammo": 108,
+        "med": 1,
+        "wood": 8,
+        "scrap": 3,
+        "rare": 0
+      }
+    },
+    {
+      "searched": "police-locker",
+      "inventory": {
+        "ammo": 164,
+        "med": 1,
+        "wood": 8,
+        "scrap": 8,
+        "rare": 0
+      }
+    },
+    {
+      "searched": "hospital-case",
+      "inventory": {
+        "ammo": 164,
+        "med": 5,
+        "wood": 8,
+        "scrap": 12,
+        "rare": 0
+      }
+    },
+    {
+      "phase": "1:preparation",
+      "kills": 3,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 164,
+      "barricades": [
+        300,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "1:night",
+      "kills": 3,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 164,
+      "barricades": [
+        300,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "1:dawn",
+      "kills": 22,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 104,
+      "barricades": [
+        282,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "2:day",
+      "kills": 22,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 104,
+      "barricades": [
+        282,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "2:preparation",
+      "kills": 22,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 104,
+      "barricades": [
+        282,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "2:night",
+      "kills": 22,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 104,
+      "barricades": [
+        282,
+        0,
+        0
+      ]
+    }
+  ],
+  "stage": "complete"
+}

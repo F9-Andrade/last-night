@@ -1,0 +1,31 @@
+{
+  "date": "2026-09-10",
+  "unit_tests": {
+    "passed": 48
+  },
+  "build": "passed (TypeScript + Vite)",
+  "browser": {
+    "unique_scenarios": 12,
+    "broad_run": {
+      "passed": 11,
+      "failed": 1,
+      "failure": "Vite dev reload interrupted playthrough"
+    },
+    "focused_combat_visual": {
+      "passed": 3
+    },
+    "playthrough_initial_completion": {
+      "gameplay_assertions": "passed",
+      "runner": "failed during trace teardown (ENOENT)"
+    },
+    "final_isolated_playthrough": {
+      "passed": 1,
+      "exit_code": 0,
+      "duration": "3.5 minutes",
+      "trace": "off",
+      "output": "/tmp/last-night-final-validation"
+    }
+  },
+  "performance_environment": "Chromium/SwiftShader; no hardware GPU benchmark",
+  "git_actions": []
+}

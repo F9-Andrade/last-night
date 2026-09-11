@@ -1,0 +1,15 @@
+{
+  "stage": "complete",
+  "returnVia": 4,
+  "path": [],
+  "player": {
+    "x": 1.162928261673404,
+    "z": 6.967423167638976,
+    "hp": 100,
+    "stamina": 0.8833333333329656,
+    "angle": 1.3207900923427967,
+    "moving": true,
+    "running": false,
+    "invulnerable": 0
+  }
+}

@@ -1,0 +1,178 @@
+[
+  {
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "boxes": {
+      "health": {
+        "x": 247,
+        "y": 910,
+        "right": 304,
+        "bottom": 945
+      },
+      "ammo": {
+        "x": 1586,
+        "y": 955,
+        "right": 1650,
+        "bottom": 1015
+      },
+      "timer": {
+        "x": 974,
+        "y": 94,
+        "right": 1032,
+        "bottom": 124
+      },
+      "minimap": {
+        "x": 1682,
+        "y": 124,
+        "right": 1879,
+        "bottom": 290
+      },
+      "pause": {
+        "x": 1850,
+        "y": 30,
+        "right": 1888,
+        "bottom": 68
+      }
+    },
+    "inventory": {
+      "x": 1486,
+      "y": 110,
+      "right": 1906,
+      "bottom": 845
+    }
+  },
+  {
+    "viewport": {
+      "width": 1600,
+      "height": 900
+    },
+    "boxes": {
+      "health": {
+        "x": 247,
+        "y": 730,
+        "right": 304,
+        "bottom": 765
+      },
+      "ammo": {
+        "x": 1266,
+        "y": 775,
+        "right": 1330,
+        "bottom": 835
+      },
+      "timer": {
+        "x": 814,
+        "y": 94,
+        "right": 872,
+        "bottom": 124
+      },
+      "minimap": {
+        "x": 1362,
+        "y": 124,
+        "right": 1559,
+        "bottom": 290
+      },
+      "pause": {
+        "x": 1530,
+        "y": 30,
+        "right": 1568,
+        "bottom": 68
+      }
+    },
+    "inventory": {
+      "x": 1174,
+      "y": 110,
+      "right": 1594,
+      "bottom": 830
+    }
+  },
+  {
+    "viewport": {
+      "width": 1366,
+      "height": 768
+    },
+    "boxes": {
+      "health": {
+        "x": 232,
+        "y": 598,
+        "right": 289,
+        "bottom": 633
+      },
+      "ammo": {
+        "x": 1052,
+        "y": 643,
+        "right": 1116,
+        "bottom": 703
+      },
+      "timer": {
+        "x": 697,
+        "y": 85,
+        "right": 755,
+        "bottom": 115
+      },
+      "minimap": {
+        "x": 1149,
+        "y": 124,
+        "right": 1325,
+        "bottom": 273
+      },
+      "pause": {
+        "x": 1296,
+        "y": 24,
+        "right": 1334,
+        "bottom": 62
+      }
+    },
+    "inventory": {
+      "x": 964,
+      "y": 65,
+      "right": 1360,
+      "bottom": 680
+    }
+  },
+  {
+    "viewport": {
+      "width": 1024,
+      "height": 640
+    },
+    "boxes": {
+      "health": {
+        "x": 195,
+        "y": 476,
+        "right": 252,
+        "bottom": 511
+      },
+      "ammo": {
+        "x": 747,
+        "y": 529,
+        "right": 805,
+        "bottom": 583
+      },
+      "timer": {
+        "x": 526,
+        "y": 81,
+        "right": 584,
+        "bottom": 111
+      },
+      "minimap": {
+        "x": 845,
+        "y": 110,
+        "right": 993,
+        "bottom": 234
+      },
+      "pause": {
+        "x": 964,
+        "y": 18,
+        "right": 1002,
+        "bottom": 56
+      }
+    },
+    "inventory": {
+      "x": 635,
+      "y": 65,
+      "right": 1000,
+      "bottom": 621
+    }
+  }
+]

@@ -1,0 +1,1192 @@
+{
+  "state": {
+    "player": {
+      "x": 0.7967931077311068,
+      "z": 4.719484724201065,
+      "hp": 100,
+      "stamina": 100,
+      "angle": -2.3807192868904363,
+      "moving": false,
+      "running": false,
+      "invulnerable": 0
+    },
+    "ammo": 12,
+    "reserve": 104,
+    "phase": "night",
+    "time": 241.98333333333332,
+    "day": 2,
+    "kills": 22,
+    "corpses": [
+      {
+        "x": -4.000571896074166,
+        "z": 0.34030031362325397,
+        "id": 16,
+        "hp": -10.299999999999997,
+        "angle": 0.3489293895348245,
+        "attack": -37.69999999999914,
+        "flash": 0.14,
+        "gait": 156.00628288862853,
+        "path": [],
+        "replan": 0,
+        "active": false,
+        "wounds": [
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5372975265471502
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5372965610198635
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5378816166501403
+          },
+          {
+            "zone": "TORSO",
+            "side": 1,
+            "y": 1.3993914873243427
+          }
+        ],
+        "reaction": 0.28,
+        "zone": "TORSO",
+        "side": 1,
+        "slow": 0,
+        "hearing": 7,
+        "heard": {
+          "x": 0.7967931077311068,
+          "z": 4.719484724201065,
+          "hp": 100,
+          "stamina": 100,
+          "angle": -2.308098046801678,
+          "moving": false,
+          "running": false,
+          "invulnerable": 0
+        },
+        "variant": 1,
+        "fall": -2.6613779572674536,
+        "age": 30.949999999999523
+      },
+      {
+        "x": 9.479528377614836,
+        "z": 16.033855929220596,
+        "id": 17,
+        "hp": -0.09999999999999432,
+        "angle": -2.0027899419953683,
+        "attack": -37.31666666666583,
+        "flash": 0.14,
+        "gait": 152.0220937548791,
+        "path": [],
+        "replan": 0,
+        "active": false,
+        "wounds": [
+          {
+            "zone": "ARMS",
+            "side": -1,
+            "y": 1.4700940522131918
+          },
+          {
+            "zone": "TORSO",
+            "side": 1,
+            "y": 1.394017974525152
+          },
+          {
+            "zone": "TORSO",
+            "side": 1,
+            "y": 1.3852894798186997
+          }
+        ],
+        "reaction": 0.28,
+        "zone": "TORSO",
+        "side": 1,
+        "slow": 0,
+        "hearing": 7,
+        "defense": "gate",
+        "heard": {
+          "x": 0.7967931077311068,
+          "z": 4.719484724201065,
+          "hp": 100,
+          "stamina": 100,
+          "angle": 0.6582280123169036,
+          "moving": false,
+          "running": false,
+          "invulnerable": 0
+        },
+        "variant": 1,
+        "fall": 2.6558310802306586,
+        "age": 29.316666666666283
+      },
+      {
+        "x": -6.78396988689992,
+        "z": 19.826974873261936,
+        "id": 18,
+        "hp": -0.09999999999999432,
+        "angle": 1.7196035346330527,
+        "attack": -35.76666666666592,
+        "flash": 0.14,
+        "gait": 147.33327540602832,
+        "path": [],
+        "replan": 0,
+        "active": false,
+        "wounds": [
+          {
+            "zone": "ARMS",
+            "side": -1,
+            "y": 1.5388353728192816
+          },
+          {
+            "zone": "TORSO",
+            "side": 1,
+            "y": 1.539072569790917
+          },
+          {
+            "zone": "TORSO",
+            "side": 1,
+            "y": 1.538324578608236
+          }
+        ],
+        "reaction": 0.28,
+        "zone": "TORSO",
+        "side": 1,
+        "slow": 0,
+        "hearing": 7,
+        "defense": "gate",
+        "heard": {
+          "x": 0.7967931077311068,
+          "z": 4.719484724201065,
+          "hp": 100,
+          "stamina": 100,
+          "angle": -0.440875071511306,
+          "moving": false,
+          "running": false,
+          "invulnerable": 0
+        },
+        "variant": 0,
+        "fall": -2.1602205967765036,
+        "age": 28.849999999999643
+      },
+      {
+        "x": 9.688802241775635,
+        "z": 18.021762777951217,
+        "id": 19,
+        "hp": -22.199999999999996,
+        "angle": -3.0708064784291778,
+        "attack": -35.88333333333258,
+        "flash": 0.14,
+        "gait": 151.35990792487712,
+        "path": [],
+        "replan": 0,
+        "active": false,
+        "wounds": [
+          {
+            "zone": "ARMS",
+            "side": -1,
+            "y": 1.4704429499371803
+          },
+          {
+            "zone": "ARMS",
+            "side": -1,
+            "y": 1.4319291850285687
+          },
+          {
+            "zone": "TORSO",
+            "side": 1,
+            "y": 1.4698051967055086
+          },
+          {
+            "zone": "TORSO",
+            "side": 1,
+            "y": 1.4529904586945985
+          }
+        ],
+        "reaction": 0.28,
+        "zone": "TORSO",
+        "side": 1,
+        "slow": 0,
+        "hearing": 7,
+        "defense": "gate",
+        "heard": {
+          "x": 0.7967931077311068,
+          "z": 4.719484724201065,
+          "hp": 100,
+          "stamina": 100,
+          "angle": 0.5932689290833666,
+          "moving": false,
+          "running": false,
+          "invulnerable": 0
+        },
+        "variant": 2,
+        "fall": 3.6702477184883904,
+        "age": 26.71666666666643
+      },
+      {
+        "x": -4.500000588048477,
+        "z": -0.8776860407242285,
+        "id": 21,
+        "hp": -20.5,
+        "angle": 4.660403652960235e-7,
+        "attack": -37.01666666666585,
+        "flash": 0.14,
+        "gait": 152.19091124400768,
+        "path": [],
+        "replan": 0,
+        "active": false,
+        "wounds": [
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5374739479155703
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.537537943916774
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5344410700411277
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.533648085014081
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5345998323479777
+          }
+        ],
+        "reaction": 0.28,
+        "zone": "ARMS",
+        "side": 1,
+        "slow": 0,
+        "hearing": 7,
+        "heard": {
+          "x": 0.7967931077311068,
+          "z": 4.719484724201065,
+          "hp": 100,
+          "stamina": 100,
+          "angle": -2.383643846353553,
+          "moving": false,
+          "running": false,
+          "invulnerable": 0
+        },
+        "variant": 2,
+        "fall": -2.380822076061109,
+        "age": 21.550000000000058
+      },
+      {
+        "x": -4.500000000008464,
+        "z": -0.8580010435137291,
+        "id": 15,
+        "hp": -20.5,
+        "angle": 6.821047200612704e-12,
+        "attack": -54.61666666666485,
+        "flash": 0.14,
+        "gait": 228.19841228421618,
+        "path": [],
+        "replan": 0,
+        "active": false,
+        "wounds": [
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5391194077588108
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5361088660825932
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5352928702205997
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5337699166510557
+          },
+          {
+            "zone": "ARMS",
+            "side": 1,
+            "y": 1.5316066035691067
+          }
+        ],
+        "reaction": 0.28,
+        "zone": "ARMS",
+        "side": 1,
+        "slow": 0,
+        "hearing": 7,
+        "heard": {
+          "x": 0.7967931077311068,
+          "z": 4.719484724201065,
+          "hp": 100,
+          "stamina": 100,
+          "angle": -2.3821128561118985,
+          "moving": false,
+          "running": false,
+          "invulnerable": 0
+        },
+        "variant": 0,
+        "fall": -2.3918170655812263,
+        "age": 16.05000000000037
+      }
+    ],
+    "baseHP": 1000,
+    "inventory": {
+      "ammo": 104,
+      "med": 3,
+      "wood": 2,
+      "scrap": 1,
+      "rare": 2
+    },
+    "storage": {
+      "ammo": 0,
+      "med": 0,
+      "wood": 0,
+      "scrap": 3,
+      "rare": 1
+    },
+    "weight": 8.85,
+    "loot": [
+      {
+        "id": "base-ammo",
+        "x": -2,
+        "z": 3,
+        "area": "base",
+        "label": "Reserva do pátio",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": "ammo"
+      },
+      {
+        "id": "base-wood",
+        "x": 4.8,
+        "z": 5,
+        "area": "outside",
+        "label": "Tábuas recuperadas",
+        "guaranteed": {
+          "wood": 6,
+          "scrap": 2
+        },
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": "wood"
+      },
+      {
+        "id": "market-crate",
+        "x": -22,
+        "z": 0.5,
+        "area": "market",
+        "label": "Caixa de entregas",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-locker",
+        "x": -29,
+        "z": 1.5,
+        "area": "market",
+        "label": "Armário do mercado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-case",
+        "x": 23,
+        "z": -17,
+        "area": "hospital",
+        "label": "Caixa médica",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": "med"
+      },
+      {
+        "id": "hospital-locker",
+        "x": 29,
+        "z": -17,
+        "area": "hospital",
+        "label": "Armário de emergência",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-locker",
+        "x": 23,
+        "z": 19,
+        "area": "police",
+        "label": "Locker de munição",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": "ammo"
+      },
+      {
+        "id": "police-case",
+        "x": 29,
+        "z": 33,
+        "area": "police",
+        "label": "Equipamento de patrulha",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-tools",
+        "x": -28,
+        "z": 24,
+        "area": "gas",
+        "label": "Caixa de ferramentas",
+        "guaranteed": {
+          "scrap": 4
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-crate",
+        "x": -20,
+        "z": 33,
+        "area": "gas",
+        "label": "Material de manutenção",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-north",
+        "x": 3,
+        "z": -20.5,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-west",
+        "x": -27,
+        "z": -21,
+        "area": "house",
+        "label": "Baú da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-east",
+        "x": 29,
+        "z": 3,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-south",
+        "x": 4,
+        "z": 35,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "street-materials",
+        "x": -7,
+        "z": 5,
+        "area": "outside",
+        "label": "Material recuperável",
+        "guaranteed": {
+          "wood": 4,
+          "scrap": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-pallet",
+        "x": 56,
+        "z": 69,
+        "area": "gas",
+        "label": "Carga de construção",
+        "guaranteed": {
+          "wood": 10,
+          "scrap": 8
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-locker",
+        "x": 71,
+        "z": 50,
+        "area": "gas",
+        "label": "Armário emperrado · barulhento",
+        "guaranteed": {
+          "scrap": 8
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-cache",
+        "x": 72,
+        "z": 72,
+        "area": "gas",
+        "label": "Reserva escondida",
+        "guaranteed": {
+          "rare": 1,
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "triage-case",
+        "x": 64,
+        "z": -60,
+        "area": "hospital",
+        "label": "Reserva da triagem",
+        "guaranteed": {
+          "med": 3
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "triage-cache",
+        "x": 69,
+        "z": -69,
+        "area": "hospital",
+        "label": "Maleta selada",
+        "guaranteed": {
+          "rare": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "checkpoint-locker",
+        "x": 39,
+        "z": 36,
+        "area": "police",
+        "label": "Locker reforçado · barulhento",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-ambulance",
+        "x": 43,
+        "z": -28,
+        "area": "hospital",
+        "label": "Kit da ambulância",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "north-house",
+        "x": -64,
+        "z": -60,
+        "area": "house",
+        "label": "Baú do jardim",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "north-garage",
+        "x": -43,
+        "z": -59,
+        "area": "gas",
+        "label": "Ferramentas da garagem",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "acacia-house",
+        "x": 3,
+        "z": -59,
+        "area": "house",
+        "label": "Baú das Acácias",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "acacia-east",
+        "x": 24,
+        "z": -56,
+        "area": "house",
+        "label": "Armário da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-pharmacy",
+        "x": -63,
+        "z": -16,
+        "area": "hospital",
+        "label": "Entrega da farmácia",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-store",
+        "x": -63,
+        "z": 6,
+        "area": "market",
+        "label": "Porta de serviço · barulhenta",
+        "guaranteed": {
+          "wood": 6
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-south",
+        "x": -63,
+        "z": 30,
+        "area": "market",
+        "label": "Caixa de mantimentos",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "maintenance",
+        "x": -62,
+        "z": 71,
+        "area": "gas",
+        "label": "Material da oficina",
+        "guaranteed": {
+          "scrap": 7,
+          "wood": 6
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "plaza-camp",
+        "x": 5,
+        "z": 64,
+        "area": "outside",
+        "label": "Suprimentos da evacuação",
+        "guaranteed": {
+          "med": 1,
+          "ammo": 24
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "plaza-cache",
+        "x": -6,
+        "z": 72,
+        "area": "outside",
+        "label": "Baú sob as raízes",
+        "guaranteed": {
+          "rare": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "east-house",
+        "x": 63,
+        "z": 7,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "east-south",
+        "x": 63,
+        "z": 31,
+        "area": "house",
+        "label": "Baú de viagem",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "west-yard",
+        "x": -64,
+        "z": -37,
+        "area": "house",
+        "label": "Depósito do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      }
+    ],
+    "barricades": [
+      {
+        "id": "gate",
+        "label": "Entrada principal",
+        "x": 1,
+        "z": 9,
+        "w": 6.6,
+        "d": 0.6,
+        "hp": 300,
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "west",
+        "label": "Acesso oeste",
+        "x": -4.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      },
+      {
+        "id": "east",
+        "label": "Acesso leste",
+        "x": 6.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      }
+    ],
+    "action": null,
+    "horde": {
+      "budget": 24,
+      "spawned": 2,
+      "complete": false
+    },
+    "threat": 24,
+    "phaseElapsed": 1.9833333333333312,
+    "inventoryOpen": false,
+    "paused": false,
+    "gameOver": false,
+    "reloadTimer": 0,
+    "shotTimer": 0,
+    "zombies": [
+      {
+        "x": 10.591470668208963,
+        "z": -36.09571946777773,
+        "hp": 90,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": -37.064932192846044,
+        "z": 11.93506780715395,
+        "hp": 90,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      }
+    ],
+    "fps": 5,
+    "calls": 65,
+    "triangles": 149584,
+    "audio": {
+      "voices": 1,
+      "peak": 10,
+      "state": "running"
+    },
+    "render": {
+      "meshes": 811,
+      "materials": 116,
+      "geometries": 122,
+      "textures": 12,
+      "geometryMB": 12.1,
+      "cacheMB": 7.8,
+      "heapMB": 48.1,
+      "voxelAssets": 149
+    }
+  },
+  "log": [
+    {
+      "phase": "1:day",
+      "kills": 0,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 72,
+      "barricades": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "searched": "base-ammo",
+      "inventory": {
+        "ammo": 108,
+        "med": 1,
+        "wood": 2,
+        "scrap": 1,
+        "rare": 0
+      }
+    },
+    {
+      "searched": "base-wood",
+      "inventory": {
+        "ammo": 108,
+        "med": 1,
+        "wood": 8,
+        "scrap": 3,
+        "rare": 0
+      }
+    },
+    {
+      "searched": "police-locker",
+      "inventory": {
+        "ammo": 200,
+        "med": 1,
+        "wood": 8,
+        "scrap": 3,
+        "rare": 0
+      }
+    },
+    {
+      "searched": "hospital-case",
+      "inventory": {
+        "ammo": 188,
+        "med": 3,
+        "wood": 8,
+        "scrap": 3,
+        "rare": 2
+      }
+    },
+    {
+      "phase": "1:preparation",
+      "kills": 4,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 188,
+      "barricades": [
+        300,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "1:night",
+      "kills": 4,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 188,
+      "barricades": [
+        300,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "1:dawn",
+      "kills": 22,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 104,
+      "barricades": [
+        300,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "2:day",
+      "kills": 22,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 104,
+      "barricades": [
+        300,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "2:preparation",
+      "kills": 22,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 104,
+      "barricades": [
+        300,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "2:night",
+      "kills": 22,
+      "hp": 100,
+      "baseHP": 1000,
+      "reserve": 104,
+      "barricades": [
+        300,
+        0,
+        0
+      ]
+    }
+  ],
+  "stage": "complete"
+}

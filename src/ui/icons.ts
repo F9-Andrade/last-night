@@ -1,0 +1,38 @@
+/** LAST NIGHT field marks: original 24-unit silhouettes and 1.65-unit cut lines. */
+const paths = {
+  health: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>',
+  stamina: '<path d="m13 2-8 12h6l-1 8 9-13h-6z"/>',
+  ammo: '<path d="M5 19V7l2-4 2 4v12zm10 0V7l2-4 2 4v12zM4 21h6m4 0h6M5 15h4m6 0h4"/>',
+  shells: '<path d="M4 5h6v16H4zm10 0h6v16h-6M4 16h6m4 0h6M4 7h6m4 0h6"/>',
+  rifleAmmo: '<path d="m5 21 1-13 2-6 2 6 1 13zm8 0 1-13 2-6 2 6 1 13zM5 17h6m2 0h6"/>',
+  wood: '<path d="m3 7 15-4 3 5-15 4zm0 8 15-4 3 5-15 4zM7 7l6-1m-6 10 6-2"/>',
+  scrap: '<path d="m5 3 6 2-1 5 4 4 5-1 2 6-5 3-6-7-7-6zM6 6l1 1m10 10 1 1"/>',
+  med: '<path d="m4 7 3-3h10l3 3v10l-3 3H7l-3-3zM9 9l6 6m0-6-6 6M4 10h4m8 4h4"/>',
+  bag: '<path d="M8 6V3h8v3M6 6h12l2 5v10H4V11zM4 12h16M8 10v5m8-5v5M8 18h8"/>',
+  map: '<path d="m3 5 6-2 6 3 6-2v16l-6 2-6-3-6 2zM9 3v16m6-13v16"/>',
+  shelter: '<path d="m2 11 10-8 10 8M5 9v12h14V9M9 21v-7h6v7M5 11h14"/>',
+  danger: '<path d="m12 3 10 18H2zM12 9v5m0 3v1"/>',
+  night: '<path d="M18 3A10 10 0 1 0 21 18 11 11 0 0 1 18 3Z"/>',
+  sun: '<path d="M3 17h18M6 15a6 6 0 0 1 12 0M12 2v4M3 7l3 3m15-3-3 3M6 21h12"/>',
+  hand: '<path d="M7 12V5a2 2 0 0 1 4 0v7m0-5h6l3 3-2 10H8l-5-7 1-2z"/>',
+  gun: '<path d="M2 6h18v3h2v4H12l-2 8H5l2-8H2zM14 13v4h-3M4 3v3m12-3v3"/>',
+  rare: '<path d="m3 7 9-4 9 4v13H3zM3 9h18M9 9v11m6-11v11M7 6l10 2"/>',
+  hospital: '<path d="M4 21V5h16v16M9 21v-5h6v5M12 7v6m-3-3h6"/>',
+  police: '<path d="m12 2 9 4v7c0 5-9 9-9 9s-9-4-9-9V6zM7 10h10m-5-4v9"/>',
+  market: '<path d="M3 10h18l-2-7H5zm2 0v11h14V10M9 21v-7h6v7M8 3l-1 7m9-7 1 7"/>',
+  gas: '<path d="M3 21V3h11v18M5 5h7v6H5m9 2h3v6h4V7l-3-3M1 21h15"/>',
+  industry: '<path d="M2 21V10l7-4v5l7-5v15M18 21V3h3v18M5 15v2m6-2v2"/>',
+  sound: '<path d="M3 9h4l5-5v16l-5-5H3zM16 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14"/>',
+  pause: '<path d="M8 4v16m8-16v16"/>',
+  close: '<path d="m5 5 14 14M19 5 5 19"/>',
+  arrow: '<path d="M3 12h18m-7-7 7 7-7 7"/>',
+  deposit: '<path d="M3 13v8h18v-8M12 2v13m-5-5 5 5 5-5"/>',
+  withdraw: '<path d="M3 13v8h18v-8M12 15V2M7 7l5-5 5 5"/>',
+  discard: '<path d="M5 7h14l-1 14H6zM3 4h18M9 4V2h6v2M9 10v8m6-8v8"/>',
+  settings: '<path d="M3 6h18M3 12h18M3 18h18M8 3v6m8 0v6M7 15v6"/>',
+  radio: '<path d="M5 8 18 2M3 8h18v13H3zM6 12h8v5H6m11-5h1m-1 4h1"/>',
+  light: '<path d="m3 11 5-4 5 6-5 4zm9-7 3-2m0 5 5-2m-3 6h5M8 17l-3 4-4-5 3-4"/>',
+};
+export type Icon = keyof typeof paths;
+export const icon = (name: Icon, cls = ''): string => `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="square" stroke-linejoin="bevel" aria-hidden="true">${paths[name]}</svg>`;
+export const emblem = '<svg class="emblem" viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" d="M10 36a22 22 0 0 1 44 0h-6a16 16 0 0 0-32 0zM7 40h50v6H7zm7 11h36v5H14zM29 1h6v8h-6zM7 12l4-4 6 6-4 4zm40 2 6-6 4 4-6 6z"/></svg>';

@@ -1,0 +1,391 @@
+{
+  "renderer": "Chromium / SwiftShader (software)",
+  "viewport": "1440×900",
+  "quality": "high",
+  "metrics": [
+    {
+      "name": "walkers-30",
+      "count": 30,
+      "composition": {
+        "walker": 30
+      },
+      "samples": [
+        {
+          "fps": 11,
+          "calls": 274,
+          "triangles": 167474,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 127,
+          "textures": 12,
+          "geometryMB": 11.9,
+          "cacheMB": 7.8,
+          "heapMB": 51,
+          "voxelAssets": 157,
+          "audio": {
+            "voices": 0,
+            "peak": 2,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 3,
+          "calls": 270,
+          "triangles": 167246,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 127,
+          "textures": 12,
+          "geometryMB": 11.9,
+          "cacheMB": 7.8,
+          "heapMB": 51,
+          "voxelAssets": 157,
+          "audio": {
+            "voices": 0,
+            "peak": 2,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 3,
+          "calls": 270,
+          "triangles": 167246,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 127,
+          "textures": 12,
+          "geometryMB": 11.9,
+          "cacheMB": 7.8,
+          "heapMB": 51,
+          "voxelAssets": 157,
+          "audio": {
+            "voices": 0,
+            "peak": 2,
+            "state": "running"
+          }
+        }
+      ]
+    },
+    {
+      "name": "walkers-40",
+      "count": 40,
+      "composition": {
+        "walker": 40
+      },
+      "samples": [
+        {
+          "fps": 3,
+          "calls": 339,
+          "triangles": 174512,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 127,
+          "textures": 12,
+          "geometryMB": 11.9,
+          "cacheMB": 7.8,
+          "heapMB": 51,
+          "voxelAssets": 157,
+          "audio": {
+            "voices": 0,
+            "peak": 2,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 3,
+          "calls": 339,
+          "triangles": 174512,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 127,
+          "textures": 12,
+          "geometryMB": 11.9,
+          "cacheMB": 7.8,
+          "heapMB": 51,
+          "voxelAssets": 157,
+          "audio": {
+            "voices": 0,
+            "peak": 2,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 2,
+          "calls": 339,
+          "triangles": 174512,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 127,
+          "textures": 12,
+          "geometryMB": 11.9,
+          "cacheMB": 7.8,
+          "heapMB": 51,
+          "voxelAssets": 157,
+          "audio": {
+            "voices": 0,
+            "peak": 2,
+            "state": "running"
+          }
+        }
+      ]
+    },
+    {
+      "name": "runners",
+      "count": 30,
+      "composition": {
+        "runner": 3,
+        "walker": 27
+      },
+      "samples": [
+        {
+          "fps": 2,
+          "calls": 269,
+          "triangles": 166558,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 145,
+          "textures": 12,
+          "geometryMB": 12.1,
+          "cacheMB": 8,
+          "heapMB": 51,
+          "voxelAssets": 175,
+          "audio": {
+            "voices": 0,
+            "peak": 3,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 3,
+          "calls": 269,
+          "triangles": 166558,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 145,
+          "textures": 12,
+          "geometryMB": 12.1,
+          "cacheMB": 8,
+          "heapMB": 51,
+          "voxelAssets": 175,
+          "audio": {
+            "voices": 0,
+            "peak": 3,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 3,
+          "calls": 269,
+          "triangles": 166558,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 145,
+          "textures": 12,
+          "geometryMB": 12.1,
+          "cacheMB": 8,
+          "heapMB": 51,
+          "voxelAssets": 175,
+          "audio": {
+            "voices": 0,
+            "peak": 3,
+            "state": "running"
+          }
+        }
+      ]
+    },
+    {
+      "name": "spitter",
+      "count": 30,
+      "composition": {
+        "spitter": 1,
+        "walker": 29
+      },
+      "samples": [
+        {
+          "fps": 2,
+          "calls": 269,
+          "triangles": 166854,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 151,
+          "textures": 12,
+          "geometryMB": 12,
+          "cacheMB": 8.1,
+          "heapMB": 51,
+          "voxelAssets": 181,
+          "audio": {
+            "voices": 0,
+            "peak": 3,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 2,
+          "calls": 269,
+          "triangles": 166854,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 151,
+          "textures": 12,
+          "geometryMB": 12,
+          "cacheMB": 8.1,
+          "heapMB": 51,
+          "voxelAssets": 181,
+          "audio": {
+            "voices": 0,
+            "peak": 3,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 2,
+          "calls": 269,
+          "triangles": 166854,
+          "meshes": 798,
+          "materials": 105,
+          "geometries": 151,
+          "textures": 12,
+          "geometryMB": 12,
+          "cacheMB": 8.1,
+          "heapMB": 51,
+          "voxelAssets": 181,
+          "audio": {
+            "voices": 0,
+            "peak": 3,
+            "state": "running"
+          }
+        }
+      ]
+    },
+    {
+      "name": "tank",
+      "count": 30,
+      "composition": {
+        "tank": 1,
+        "walker": 29
+      },
+      "samples": [
+        {
+          "fps": 3,
+          "calls": 276,
+          "triangles": 167220,
+          "meshes": 798,
+          "materials": 107,
+          "geometries": 158,
+          "textures": 12,
+          "geometryMB": 12,
+          "cacheMB": 8.1,
+          "heapMB": 51,
+          "voxelAssets": 187,
+          "audio": {
+            "voices": 2,
+            "peak": 4,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 3,
+          "calls": 275,
+          "triangles": 167208,
+          "meshes": 798,
+          "materials": 107,
+          "geometries": 158,
+          "textures": 12,
+          "geometryMB": 12,
+          "cacheMB": 8.1,
+          "heapMB": 51,
+          "voxelAssets": 187,
+          "audio": {
+            "voices": 1,
+            "peak": 4,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 2,
+          "calls": 272,
+          "triangles": 167172,
+          "meshes": 798,
+          "materials": 107,
+          "geometries": 158,
+          "textures": 12,
+          "geometryMB": 12,
+          "cacheMB": 8.1,
+          "heapMB": 51,
+          "voxelAssets": 187,
+          "audio": {
+            "voices": 1,
+            "peak": 4,
+            "state": "running"
+          }
+        }
+      ]
+    },
+    {
+      "name": "mixed",
+      "count": 40,
+      "composition": {
+        "runner": 2,
+        "tank": 1,
+        "spitter": 1,
+        "walker": 36
+      },
+      "samples": [
+        {
+          "fps": 3,
+          "calls": 340,
+          "triangles": 174418,
+          "meshes": 798,
+          "materials": 107,
+          "geometries": 164,
+          "textures": 12,
+          "geometryMB": 12.2,
+          "cacheMB": 8.2,
+          "heapMB": 51,
+          "voxelAssets": 193,
+          "audio": {
+            "voices": 0,
+            "peak": 4,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 3,
+          "calls": 343,
+          "triangles": 174454,
+          "meshes": 798,
+          "materials": 107,
+          "geometries": 164,
+          "textures": 12,
+          "geometryMB": 12.2,
+          "cacheMB": 8.2,
+          "heapMB": 51,
+          "voxelAssets": 193,
+          "audio": {
+            "voices": 0,
+            "peak": 4,
+            "state": "running"
+          }
+        },
+        {
+          "fps": 3,
+          "calls": 340,
+          "triangles": 174418,
+          "meshes": 798,
+          "materials": 107,
+          "geometries": 164,
+          "textures": 12,
+          "geometryMB": 12.2,
+          "cacheMB": 8.2,
+          "heapMB": 51,
+          "voxelAssets": 193,
+          "audio": {
+            "voices": 1,
+            "peak": 4,
+            "state": "running"
+          }
+        }
+      ]
+    }
+  ]
+}

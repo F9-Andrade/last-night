@@ -1,0 +1,15 @@
+{
+  "horde40": {
+    "fps": 3,
+    "calls": 338,
+    "triangles": 174198,
+    "meshes": 764,
+    "materials": 101,
+    "geometries": 107,
+    "textures": 12,
+    "geometryMB": 11.8,
+    "cacheMB": 7.8,
+    "heapMB": 77.6,
+    "voxelAssets": 149
+  }
+}

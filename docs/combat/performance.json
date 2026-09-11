@@ -1,0 +1,85 @@
+[
+  {
+    "count": 10,
+    "audio": {
+      "voices": 0,
+      "peak": 16,
+      "state": "running"
+    },
+    "fps": 3,
+    "calls": 130,
+    "triangles": 152342,
+    "meshes": 808,
+    "materials": 117,
+    "geometries": 129,
+    "textures": 12,
+    "geometryMB": 12,
+    "cacheMB": 7.8,
+    "heapMB": 48.1,
+    "voxelAssets": 157
+  },
+  {
+    "count": 20,
+    "audio": {
+      "voices": 0,
+      "peak": 16,
+      "state": "running"
+    },
+    "fps": 2,
+    "calls": 138,
+    "triangles": 159998,
+    "meshes": 818,
+    "materials": 127,
+    "geometries": 129,
+    "textures": 12,
+    "geometryMB": 12,
+    "cacheMB": 7.8,
+    "heapMB": 48.1,
+    "voxelAssets": 157
+  },
+  {
+    "count": 40,
+    "audio": {
+      "voices": 0,
+      "peak": 16,
+      "state": "running"
+    },
+    "fps": 3,
+    "calls": 159,
+    "triangles": 175370,
+    "meshes": 838,
+    "materials": 147,
+    "geometries": 129,
+    "textures": 12,
+    "geometryMB": 12,
+    "cacheMB": 7.8,
+    "heapMB": 48.1,
+    "voxelAssets": 157
+  },
+  {
+    "walkers": 40,
+    "corpses": 40,
+    "calls": 380,
+    "triangles": 205196,
+    "meshes": 838,
+    "materials": 147,
+    "geometries": 129,
+    "textures": 12,
+    "geometryMB": 12,
+    "cacheMB": 7.8,
+    "heapMB": 48.1,
+    "voxelAssets": 157
+  },
+  {
+    "cleanup": true,
+    "calls": 58,
+    "meshes": 838,
+    "materials": 147,
+    "geometries": 129,
+    "textures": 12,
+    "geometryMB": 12,
+    "cacheMB": 7.8,
+    "heapMB": 48.1,
+    "voxelAssets": 157
+  }
+]
