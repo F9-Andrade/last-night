@@ -1,4 +1,4 @@
-> Registro da fase inicial. A validação da etapa atual está em [VARIETY_REPORT.md](VARIETY_REPORT.md).
+> Registro da fase inicial. A validação da expansão atual está em [CITY_REPORT.md](CITY_REPORT.md). O restante deste arquivo preserva o registro histórico.
 
 # Validação do vertical slice — 09/09/2026
 

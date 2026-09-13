@@ -1,0 +1,140 @@
+[
+  {
+    "wallSeconds": 7,
+    "label": "Início: sair do pátio e seguir pela avenida leste",
+    "path": "docs/city/walk-00.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:28\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nE\nCONSTRUIR BARRICADA\n6 madeira + 2 sucata\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 12,
+    "label": "Sair pelo portão e evitar o primeiro errante",
+    "path": "docs/city/walk-01.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:23\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 28,
+    "label": "Seguir a rua leste, conservando munição",
+    "path": "docs/city/walk-02.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:18\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nDelegacia\nM\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 45,
+    "label": "Virar para o norte e buscar a rota do hospital",
+    "path": "docs/city/walk-03.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:11\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz\nM\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nE\nVASCULHAR\nCaixa médica\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 64,
+    "label": "Passar pela triagem e recusar confronto com o grupo que se aproxima",
+    "path": "docs/city/walk-04.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:04\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz\nM\nH Uma bandagem pode ajudar.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nE\nVASCULHAR\nCaixa médica\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 82,
+    "label": "Recuar da parede da triagem e recuperar espaço na rua",
+    "path": "docs/city/walk-05.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:59\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz\nM\nH Uma bandagem pode ajudar.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 106,
+    "label": "Seguir pela rua ao norte; usar bandagem depois de se afastar",
+    "path": "docs/city/walk-06.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:48\nAntes que escureça\n\nAbrigo a 57 m · reserve ~17 s para voltar.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nVila das acácias\nM\n-1\nBandagem\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 123,
+    "label": "Cruzar o bairro residencial e consultar o mapa antes da zona norte",
+    "path": "docs/city/walk-07.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:42\nAntes que escureça\n\nAbrigo a 92 m · reserve ~26 s para voltar.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nExausto\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nCasa 3 · jardins\nM\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nGuia de campo / região urbana\nSanta Luz\nLocais de referência\n\nAbrigo 07\n\nMercado\n\nHospital santa luz\n\nDelegacia\n\nÚltima parada\n\nZona industrial\n\nO traço claro marca os lugares por onde você passou.\n\nO mapa não pausa a expedição.\n\n Abrigo   ·   △ Você\nM Guardar mapa"
+  },
+  {
+    "wallSeconds": 134,
+    "label": "Escolher a ala norte do hospital como destino, sem bandagens restantes",
+    "path": "docs/city/walk-08.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:35\nAntes que escureça\n\nAbrigo a 92 m · reserve ~26 s para voltar.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nCasa 3 · jardins\nM\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 146,
+    "label": "Seguir pela avenida ao leste, alternando corrida e recuperação",
+    "path": "docs/city/walk-09.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:23\nAntes que escureça\n\nAbrigo a 119 m · reserve ~34 s para voltar.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nCasa 4 · jardins\nM\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 169,
+    "label": "Aproximar da entrada frontal da ala norte",
+    "path": "docs/city/walk-10.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:17\nAntes que escureça\n\nAbrigo a 139 m · reserve ~40 s para voltar.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz · ala norte\nM\nCorredor\n\nRápido. Mantenha distância e uma rota de fuga.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 188,
+    "label": "Tentar abrir o hospital antes de o grupo alcançar a entrada",
+    "path": "docs/city/walk-11.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:12\nAntes que escureça\n\nAbrigo a 150 m · reserve ~43 s para voltar.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz · ala norte\nM\nCuspidor\n\nInterrompa a preparação e saia do ácido.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 203,
+    "label": "Alinhar-se com a porta e forçar o acesso",
+    "path": "docs/city/walk-12.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:08\nAntes que escureça\n\nAbrigo a 150 m · reserve ~43 s para voltar.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n81\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz · ala norte\nM\nCuspidor\n\nInterrompa a preparação e saia do ácido.\n\nE\nFECHAR PORTA\nX · Barricar com 2 madeiras\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 222,
+    "label": "Tentar interromper o Cuspidor antes de entrar",
+    "path": "docs/city/walk-13.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:04\nAntes que escureça\n\nAbrigo a 150 m · reserve ~43 s para voltar.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz · ala norte\nM\nDefesa rompida\n\nJanela · proteja a entrada do abrigo.\n\nE\nFECHAR PORTA\nX · Barricar com 2 madeiras\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 244,
+    "label": "Abortar entrada sem bandagens e recuar para a avenida",
+    "path": "docs/city/walk-14.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:59\nAntes que escureça\n\nAbrigo a 122 m · reserve ~35 s para voltar.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nCasa 8 · vila nova\nM\nDefesa rompida\n\nJanela · proteja a entrada do abrigo.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 277,
+    "label": "Retornar pelo eixo oeste antes de buscar abrigo no centro",
+    "path": "docs/city/walk-15.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:46\nAntes que escureça\n\nAbrigo a 85 m · reserve ~25 s para voltar.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nVila das acácias\nM\nDefesa rompida\n\nJanela · proteja a entrada do abrigo.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 294,
+    "label": "Alinhar retorno à avenida central",
+    "path": "docs/city/walk-16.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:42\nAntes que escureça\n\nAbrigo a 82 m · reserve ~24 s para voltar.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nVila das acácias\nM\nDefesa rompida\n\nJanela · proteja a entrada do abrigo.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 306,
+    "label": "Atravessar o residencial em direção ao abrigo",
+    "path": "docs/city/walk-17.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:30\nAntes que escureça\n\nAbrigo a 72 m · reserve ~21 s para voltar.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nVila das acácias\nM\nSinal na casa barricada\n\nUm sinal distante foi marcado no mapa; avalie o tempo de retorno.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 327,
+    "label": "Corrigir o trajeto ao encontrar a lateral de uma casa",
+    "path": "docs/city/walk-18.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:27\nAntes que escureça\n\nAbrigo a 71 m · reserve ~21 s para voltar.\n\nAbrigo\n1000\nVIVO\nFerido\n46\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nVila das acácias\nM\nSinal na casa barricada\n\nUm sinal distante foi marcado no mapa; avalie o tempo de retorno.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 340,
+    "label": "Priorizar o retorno e ignorar o novo sinal de suprimentos",
+    "path": "docs/city/walk-19.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:15\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nPrecisa de cuidados\n1\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz\nM\nSinal na casa barricada\n\nUm sinal distante foi marcado no mapa; avalie o tempo de retorno.\n\nLAST NIGHT / pausa\nRespire.\n\nA cidade pode esperar.\n\nContinuar\nConfigurações\nReiniciar expedição\nSair para o menu\nQualidade visual\nLEVE\nEsc Continuar"
+  },
+  {
+    "wallSeconds": 363,
+    "label": "Contornar a ambulância que bloqueou a passagem",
+    "path": "docs/city/walk-20.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:13\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nPrecisa de cuidados\n1\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz\nM\nSinal na casa barricada\n\nUm sinal distante foi marcado no mapa; avalie o tempo de retorno.\n\nÚltimo registro\nSua última noite.\n\nA cidade fica para trás. Você pode tentar de novo.\n\nDia alcançado\n01\nEliminações\n01\nTempo vivo\n02:17\n0 tiros na cabeça\n0 itens coletados\n0 noites sobrevividas\n145 de dano sofrido\n1 especiais eliminados\n0 armas encontradas · Comum\n0 reparos de barricada\nTentar novamente\nMenu"
+  },
+  {
+    "wallSeconds": 373,
+    "label": "Tentar alcançar o abrigo com vida crítica",
+    "path": "docs/city/walk-21.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:13\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nPrecisa de cuidados\n1\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz\nM\nSinal na casa barricada\n\nUm sinal distante foi marcado no mapa; avalie o tempo de retorno.\n\nÚltimo registro\nSua última noite.\n\nA cidade fica para trás. Você pode tentar de novo.\n\nDia alcançado\n01\nEliminações\n01\nTempo vivo\n02:17\n0 tiros na cabeça\n0 itens coletados\n0 noites sobrevividas\n145 de dano sofrido\n1 especiais eliminados\n0 armas encontradas · Comum\n0 reparos de barricada\nTentar novamente\nMenu"
+  },
+  {
+    "wallSeconds": 395,
+    "label": "Fim da exploração manual",
+    "path": "docs/city/walk-22.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n02:13\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nPrecisa de cuidados\n1\nFôlego\nTab\n2\n1\n0\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n09\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nHospital santa luz\nM\nSinal na casa barricada\n\nUm sinal distante foi marcado no mapa; avalie o tempo de retorno.\n\nÚltimo registro\nSua última noite.\n\nA cidade fica para trás. Você pode tentar de novo.\n\nDia alcançado\n01\nEliminações\n01\nTempo vivo\n02:17\n0 tiros na cabeça\n0 itens coletados\n0 noites sobrevividas\n145 de dano sofrido\n1 especiais eliminados\n0 armas encontradas · Comum\n0 reparos de barricada\nTentar novamente\nMenu"
+  }
+]

@@ -32,7 +32,7 @@ test('all loot points are accessible and medical/police tables favor their purpo
 test('search can be cancelled and full inventory retains rolled loot without rerolling', () => {
   const s = clean(); s.player.x = -2; s.player.z = 3;
   s.update(.1, { ...idle, interact: true }); step(s, .2, { ...idle, moveZ: 1 }); assert.equal(s.loot[0].searched, false);
-  s.inventory.items = { ammo: 0, shells:0, rifleAmmo:0, med: 18, wood: 0, scrap: 0, rare: 0 }; search(s, 'base-ammo');
+  s.inventory.items = { ammo: 0, shells:0, rifleAmmo:0, med: s.inventory.capacity, wood: 0, scrap: 0, rare: 0 }; search(s, 'base-ammo');
   assert.equal(s.loot[0].contents.ammo, 36); const seed = s.seed;
   search(s, 'base-ammo'); assert.equal(s.seed, seed); assert.equal(s.loot[0].contents.ammo, 36);
   s.inventory.take('med', 1); search(s, 'base-ammo'); assert.equal(s.reserve, 36); assert.equal(s.loot[0].contents.ammo, 0);
@@ -65,7 +65,7 @@ test('repair requires holding, charges on completion, caps health, and destructi
   step(s, 2.2, { ...idle, heldInteract: true }); assert.equal(b.hp, 300); assert.equal(s.resource('wood'), wood - 1);
   step(s, 3, { ...idle, heldInteract: true }); assert.equal(s.resource('wood'), wood - 1);
   s.damageBarricade(b, 210); assert.equal(damageStage(b.hp), 2); s.update(.1, { ...idle, heldInteract: true }); s.damageBarricade(b, 500);
-  assert.equal(b.hp, 0); assert.equal(s.action, null); assert.equal(s.solidDefenses.length, 0);
+  assert.equal(b.hp, 0); assert.equal(s.action, null); assert.ok(!s.solidDefenses.some(d=>d.id===b.id));
 });
 test('dismantling releases passage and returns only partial wood to storage', () => {
   const s = clean(), b = s.barricades[0]; b.hp = 300; b.built = true;
@@ -92,8 +92,8 @@ test('horde has internal pauses, bounded scaling and never consumes a failed spa
   const h = new Horde(); h.start(1); h.update(.1, 1, () => false); assert.equal(h.spawned, 0);
   let time = 0; const times: number[] = [];
   for (let i = 0; i < 1000; i++) { time += .1; h.update(.1, 1, () => { times.push(time); return true; }); }
-  assert.equal(times.length, 18); assert.equal(times.filter((t, i) => i && t - times[i - 1] > 10).length, 2);
-  h.start(2); assert.equal(h.budget, 24); h.start(999); assert.equal(h.budget, 60);
+  assert.equal(times.length, 22); assert.equal(times.filter((t, i) => i && t - times[i - 1] > 10).length, 2);
+  h.start(2); assert.equal(h.budget, 31); h.start(999); assert.equal(h.budget, 76);
 });
 test('edge spawns are distant, collision-free and do not exceed the active pool', () => {
   const s = clean(); s.player.x = -25; s.player.z = 15;
@@ -117,7 +117,7 @@ test('night completion rewards once, partially restocks and reaches Night 2', ()
   step(s, .25); assert.equal(s.phase, 'dawn'); assert.equal(s.storage.items.rare, 1);
   step(s, .25); assert.equal(s.day, 2); const restocked = s.loot.filter(l => !l.searched).length;
   assert.ok(restocked > 0 && restocked < s.loot.length); assert.equal(s.loot[0].searched, true);
-  step(s, .4); assert.equal(s.phase, 'night'); assert.equal(s.horde.budget, 24); assert.equal(s.storage.items.rare, 1);
+  step(s, .4); assert.equal(s.phase, 'night'); assert.equal(s.horde.budget, 31); assert.equal(s.storage.items.rare, 1);
 });
 test('failure freezes state and a new expedition has no retained resources, enemies or defenses', () => {
   const s = clean(); s.baseHP = 0; s.update(.1, idle); assert.ok(s.gameOver); const time = s.time; step(s, 3); assert.equal(s.time, time);
@@ -129,6 +129,6 @@ test('a complete siege from all edge zones breaches every route without stranded
   const s = clean(); s.setPhase('night'); s.player.x = -25; s.player.z = 15;
   // Large HP keeps the fixture alive long enough to observe navigation, not game balance.
   s.baseHP = 100000; s.player.hp = 100000; s.barricades.forEach(b => { b.hp = 300; b.built = true; });
-  step(s, 180); assert.equal(s.horde.spawned, 18); assert.ok(s.barricades.every(b => b.hp === 0));
+  step(s, 180); assert.equal(s.horde.spawned, 22); assert.ok(s.barricades.every(b => b.hp === 0));
   assert.ok(s.zombies.filter(z => z.active).every(z => distance(z, BASE) < 12)); assert.ok(s.baseHP < 100000);
 });

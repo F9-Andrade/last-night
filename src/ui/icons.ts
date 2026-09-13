@@ -1,5 +1,9 @@
 /** LAST NIGHT field marks: original 24-unit silhouettes and 1.65-unit cut lines. */
 const paths = {
+  school: '<path d="M3 21V8l9-5 9 5v13M8 21v-7h8v7M12 6v5m-3-2h6M5 11h2m10 0h2"/>',
+  fire: '<path d="M13 2c2 5-1 6 2 9l3-4c5 7 2 14-6 14S1 14 8 7c-1 5 1 6 2 7 3-3 1-7 3-12Z"/>',
+  cemetery: '<path d="M5 21V9a7 7 0 0 1 14 0v12M3 21h18M12 6v10m-4-6h8"/>',
+  quarantine: '<path d="M3 21V6l9-4 9 4v15M3 8h18M7 8v13m5-13v13m5-13v13M3 14h18"/>',
   health: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>',
   stamina: '<path d="m13 2-8 12h6l-1 8 9-13h-6z"/>',
   ammo: '<path d="M5 19V7l2-4 2 4v12zm10 0V7l2-4 2 4v12zM4 21h6m4 0h6M5 15h4m6 0h4"/>',

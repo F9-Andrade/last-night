@@ -1,0 +1,13 @@
+import {test,expect} from '@playwright/test';
+import {writeFile} from 'node:fs/promises';
+async function walk(page:any,x:number,z:number){await page.evaluate(([x,z]:number[])=>{const g=(window as any).__LAST_NIGHT__;const path=g.pathTo(x,z);const r={done:false,failed:!path.length,keys:[]as string[],path};(window as any).__cityWalk=r;const keys=(next:string[])=>{for(const code of r.keys)if(!next.includes(code))window.dispatchEvent(new KeyboardEvent('keyup',{code}));for(const code of next)if(!r.keys.includes(code))window.dispatchEvent(new KeyboardEvent('keydown',{code}));r.keys=next;};const tick=()=>{const s=g.state();if(s.gameOver||r.failed){keys([]);r.failed=true;r.done=true;return;}while(r.path.length&&Math.hypot(r.path[0].x-s.player.x,r.path[0].z-s.player.z)<.5)r.path.shift();if(!r.path.length){keys([]);r.done=true;return;}const p=r.path[0],dx=p.x-s.player.x,dz=p.z-s.player.z,n=Math.hypot(dx,dz),h=(dx-dz)/n,v=(dx+dz)/n;keys([...(h>.35?['KeyD']:h<-.35?['KeyA']:[]),...(v>.35?['KeyS']:v<-.35?['KeyW']:[])]);requestAnimationFrame(tick);};requestAnimationFrame(tick);},[x,z]);await page.waitForFunction(()=>(window as any).__cityWalk.done,null,{timeout:180000});expect(await page.evaluate(()=>(window as any).__cityWalk.failed)).toBe(false);}
+test('keyboard routes connect industry, quarantine and a night return to the original shelter',async({page})=>{
+ test.setTimeout(300000);await page.setViewportSize({width:960,height:600});await page.goto('/?test');await page.locator('#start').click();await page.keyboard.press('Escape');await page.locator('#quality').click();await page.locator('#resume').click();
+ // Navigation fixture: start once at east avenue; high HP isolates route validation from combat.
+ await page.evaluate(()=>{const g=(window as any).__LAST_NIGHT__;g.setPlayer(88,40);g.clearWalkers();g.setHealth(1000);g.setBase(10000);g.setPhase('dusk');});const stages:any[]=[];
+ for(const [name,x,z]of [['industry',113,92],['quarantine',114,144],['return',1,10]]as const){
+  if(name==='return')await page.evaluate(()=>(window as any).__LAST_NIGHT__.setPhase('night'));
+  await walk(page,x,z);const s=await page.evaluate(()=>(window as any).__LAST_NIGHT__.state());expect(Math.hypot(s.player.x-x,s.player.z-z)).toBeLessThan(1);stages.push({name,player:s.player,phase:s.phase,seconds:s.stats.seconds,active:s.zombies.length,calls:s.calls});await page.screenshot({path:`docs/city/route-${name}.png`,animations:'disabled'});
+ }
+ await writeFile('docs/city/keyboard-routes.json',JSON.stringify({method:'Controlled navigation fixture, one initial positioning and high health/baseHP; subsequent travel uses keyboard and path readout. Not a survival or balance test.',stages},null,2));
+});

@@ -38,7 +38,7 @@ function applySettings():void {
 }
 function openSettings():void {settingsReturn=started?'pause':'menu';if(started&&!paused)togglePause();hud.settingsOpen=true;hud.el('settings-screen').hidden=false;hud.root.classList.add('paused');input.clear();}
 function closeSettings():void {hud.settingsOpen=false;hud.el('settings-screen').hidden=true;if(settingsReturn==='menu')hud.root.classList.remove('paused');input.clear();}
-function menu():void {started=false;paused=false;sim=new Simulation();view.reset();hud.reset();hud.paused(false);hud.showMenu(true);hud.el('game-over').hidden=true;hud.el('settings-screen').hidden=true;hud.settingsOpen=false;input.clear();sound.suspend();}
+function menu():void {sound.reset();started=false;paused=false;sim=new Simulation();view.reset();hud.reset();hud.paused(false);hud.showMenu(true);hud.el('game-over').hidden=true;hud.el('settings-screen').hidden=true;hud.settingsOpen=false;input.clear();sound.suspend();}
 function toggleMap():void {if(!started||paused||sim.gameOver||sim.pendingPerks.length)return;hud.map(!hud.mapOpen);input.clear();sound.event('inventory');}
 function toggleInventory(): void {
   if (!started || paused || sim.gameOver || sim.pendingPerks.length) return;
@@ -54,6 +54,7 @@ function togglePause(): void {
   if (paused) sound.suspend(); else sound.start();
 }
 function start(): void {
+  sound.reset();
   const parameters=new URLSearchParams(location.search);
   const seed=import.meta.env.DEV&&parameters.has('test')?Number(parameters.get('seed')??1977):crypto.getRandomValues(new Uint32Array(1))[0];
   sim = new Simulation(undefined,seed); sim.spawnBlockedByView = p => view.inSpawnView(p.x, p.z); started = true; paused = false; input.clear(); accumulator = 0; elapsed = 0; testSpeed = 1;
@@ -75,6 +76,8 @@ hud.el('settings-close').onclick=closeSettings;
 for(const id of ['pause-menu','end-menu'])hud.el(id).onclick=menu;
 hud.el('credits-open').onclick=()=>{hud.el('credits-screen').hidden=false;};hud.el('credits-close').onclick=()=>{hud.el('credits-screen').hidden=true;};
 hud.variety.onSlot=slot=>{if(started&&!paused&&!sim.gameOver&&!sim.pendingPerks.length)sim.switchWeapon(slot);};
+hud.variety.onStore=slot=>{if(started&&!paused&&sim.storeWeapon(slot)){sound.event('inventory');hud.variety.update(sim);}};
+hud.variety.onRetrieve=uid=>{if(started&&!paused&&sim.retrieveWeapon(uid)){sound.event('switch');hud.variety.update(sim);}};
 hud.variety.onPerk=id=>{if(started&&!paused&&sim.choosePerk(id)){input.clear();accumulator=0;hud.variety.update(sim);hud.canvas.focus();}};
 hud.root.addEventListener('item-select',()=>sound.event('select'));
 for(const key of Object.keys(settings) as (keyof Settings)[]){const control=hud.el(`setting-${key}`) as HTMLInputElement;control.oninput=()=>{Object.assign(settings,{[key]:control.type==='checkbox'?control.checked:key==='quality'?control.value:Number(control.value)});applySettings();};}
@@ -105,11 +108,12 @@ function frame(now: number): void {
       }
       sim.events.length = 0;
     }
-    sound.music(dt,sim); sound.threats(dt,sim); sound.ambience(sim.cycle.darkness); sound.step(dt, sim.player.moving, sim.player.running);
+    sound.music(dt,sim); sound.threats(dt,sim); sound.breathing(dt,sim); sound.ambience(sim.cycle.darkness); sound.step(dt, sim.player.moving, sim.player.running);
     if (sim.gameOver) { hud.inventory(false); input.clear(); hud.end(sim); sound.music(dt,sim,true); }
   } else accumulator = 0;
   if(!started)elapsed+=dt;
   if(sim.gameOver)sound.music(dt,sim,true);
+  sound.sync(sim,started&&!sim.gameOver&&!sim.pendingPerks.length);
   view.render(sim, paused || sim.gameOver || sim.pendingPerks.length ? 0 : dt, elapsed, !started);
   hud.update(sim, paused || sim.gameOver ? 0 : dt, input.mouse,(x,z,y)=>view.project(x,z,y),view.aimTarget);
   requestAnimationFrame(frame);
@@ -120,7 +124,7 @@ requestAnimationFrame(frame);
 if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   debugStats = document.createElement('div'); debugStats.id = 'debug-stats'; debugStats.style.cssText = 'position:absolute;right:34px;top:190px;color:#d7e0bb;font:10px monospace;pointer-events:none;z-index:9;background:#152b2bcc;padding:6px'; document.body.append(debugStats);
   Object.assign(window, { __LAST_NIGHT__: {
-    state: () => ({ player: { ...sim.player }, runSeed:sim.runSeed, weapon:sim.equipped, loadout:sim.loadout, groundWeapons:sim.groundWeapons, perks:[...sim.perks], pendingPerks:sim.pendingPerks, facilities:sim.facilities, worldEvent:sim.worldEvent, acids:sim.acids, switchTimer:sim.switchTimer, stats:{...sim.stats}, mapOpen:hud.mapOpen, settings:{...settings}, flashlight:view.flashlightOn, ui:{nodes:document.querySelectorAll('*').length,updates:hud.updates,mutations:hud.mutations}, ammo: sim.ammo, reserve: sim.reserve, phase: sim.phase, time: sim.time, day: sim.day, kills: sim.kills, corpses: sim.corpses.bodies, baseHP: sim.baseHP, inventory: { ...sim.inventory.items }, storage: { ...sim.storage.items }, weight: sim.inventory.weight, loot: sim.loot, barricades: sim.barricades, action: sim.action, horde: { budget: sim.horde.budget, spawned: sim.horde.spawned, complete: sim.horde.complete }, threat: sim.threat, phaseElapsed: sim.cycle.elapsed, inventoryOpen: hud.inventoryOpen, paused, gameOver: sim.gameOver, reloadTimer: sim.reloadTimer, shotTimer: sim.shotTimer, zombies: sim.zombies.filter(z => z.active).map(z => ({ x: z.x, z: z.z, hp: z.hp, kind:z.kind, windup:z.windup, spitTarget:z.spitTarget, zone:z.zone, wounds:z.wounds, hearing:z.hearing })), fps, calls: view.renderer.info.render.calls, triangles: view.renderer.info.render.triangles, audio: sound.metrics(), render: view.metrics() }),
+    state: () => ({ player: { ...sim.player }, runSeed:sim.runSeed, portals:sim.portals, discoveredSites:[...sim.discoveredSites], activatedSites:[...sim.activatedSites], dormant:sim.dormantZombies.length, weaponStorage:sim.weaponStorage, weapon:sim.equipped, loadout:sim.loadout, groundWeapons:sim.groundWeapons, perks:[...sim.perks], pendingPerks:sim.pendingPerks, facilities:sim.facilities, worldEvent:sim.worldEvent, acids:sim.acids, switchTimer:sim.switchTimer, stats:{...sim.stats}, mapOpen:hud.mapOpen, settings:{...settings}, flashlight:view.flashlightOn, ui:{nodes:document.querySelectorAll('*').length,updates:hud.updates,mutations:hud.mutations}, ammo: sim.ammo, reserve: sim.reserve, phase: sim.phase, time: sim.time, day: sim.day, kills: sim.kills, corpses: sim.corpses.bodies, baseHP: sim.baseHP, inventory: { ...sim.inventory.items }, storage: { ...sim.storage.items }, weight: sim.inventory.weight, loot: sim.loot, barricades: sim.barricades, action: sim.action, horde: { budget: sim.horde.budget, spawned: sim.horde.spawned, complete: sim.horde.complete }, threat: sim.threat, phaseElapsed: sim.cycle.elapsed, inventoryOpen: hud.inventoryOpen, paused, gameOver: sim.gameOver, reloadTimer: sim.reloadTimer, shotTimer: sim.shotTimer, zombies: sim.zombies.filter(z => z.active).map(z => ({ x: z.x, z: z.z, hp: z.hp, kind:z.kind, windup:z.windup, spitTarget:z.spitTarget,screamTimer:z.screamTimer,screamCooldown:z.screamCooldown,siege:z.siege,patrol:z.patrol, zone:z.zone, wounds:z.wounds, hearing:z.hearing })), fps, calls: view.renderer.info.render.calls, triangles: view.renderer.info.render.triangles, audio: sound.metrics(), render: view.metrics() }),
     project: (x: number, z: number, y=1.1) => view.project(x, z, y),
     combatStress: (count:number) => {
       sim.zombies=[];sim.corpses.bodies=[];sim.setPhase('dusk',0);const original={...sim.player};
@@ -142,6 +146,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     dropWeapon: (type:WeaponId,x:number,z:number,rarity:Rarity='common') => sim.dropWeapon(type,{x,z},rarity),
     offerPerks: () => {sim.pendingPerks=['cold','opening','engineer'];},
     setDay: (day:number) => {sim.cycle.day=day;},
+    spawnRoaming: () => sim.spawnRoaming(),
     setEventTimer: (time:number) => {sim.eventTimer=time;},
     setHealth: (hp: number) => { sim.player.hp = hp; },
     setBase: (hp: number) => { sim.baseHP = hp; },

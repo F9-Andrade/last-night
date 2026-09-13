@@ -13,3 +13,7 @@
 @media(max-height:760px){.inventory-panel{--inventory-top:65px}}
 
 .comparison-deltas{display:grid;grid-template-columns:repeat(2,1fr);gap:9px 14px}.comparison-deltas b{display:inline;margin-left:4px}.weapon-compare{max-height:calc(100vh - 255px);overflow:auto}
+
+.weapon-stash{display:grid;gap:8px;margin:10px 0}.weapon-stash button{display:flex;align-items:center;gap:10px;text-align:left;border-bottom:1px solid #b7bea345;padding:8px;color:var(--green)}.weapon-stash .weapon-silhouette{width:48px;height:34px}.weapon-stash small{display:block;color:var(--muted);font-size:11px}
+
+.weapon-stash button{background:#b7bea30d;border:1px solid #b7bea32b}.weapon-stash button:hover{background:#b7bea31a}

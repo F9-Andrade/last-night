@@ -1,9 +1,10 @@
 import { hasInterior, roomObstacles } from './interiors.ts';
+import { CITY_LIMIT, CITY_SITES, siteObstacles } from './city.ts';
 import { OUTER_HOUSES, OUTER_CARS, WAREHOUSES, ROADS, CARGO_OBSTACLES, PLAZA_MONUMENT } from './districts.ts';
 export interface Vec2 { x: number; z: number }
 export interface Obstacle { x: number; z: number; w: number; d: number }
 export interface Building extends Obstacle { kind: 'base' | 'market' | 'hospital' | 'police' | 'house'; label: string; color: number; h: number }
-export const WORLD_LIMIT = 78;
+export const WORLD_LIMIT = CITY_LIMIT;
 export const BASE = { x: 1, z: 2 };
 export const BUILDINGS: Building[] = [
   { kind: 'base', label: 'ABRIGO 07', x: 1, z: -4, w: 9, d: 8, h: 3.7, color: 0xc7b99b },
@@ -34,7 +35,18 @@ export const OBSTACLES: Obstacle[] = [
   ...CARS.map(c => ({ x: c.x, z: c.z, w: Math.abs(Math.sin(c.angle)) * 3.7 + Math.abs(Math.cos(c.angle)) * 1.8, d: Math.abs(Math.cos(c.angle)) * 3.7 + Math.abs(Math.sin(c.angle)) * 1.8 })),
   { x: -27, z: 29, w: 10, d: 5 },
   { x: -25, z: 22, w: 1.3, d: 1.3 }, { x: -21, z: 22, w: 1.3, d: 1.3 },
+  ...CITY_SITES.flatMap(siteObstacles),
 ];
+const SPATIAL_CELL=8;
+const obstacleBins=new Map<string,Obstacle[]>();
+for(const o of OBSTACLES)for(let x=Math.floor((o.x-o.w/2)/SPATIAL_CELL);x<=Math.floor((o.x+o.w/2)/SPATIAL_CELL);x++)for(let z=Math.floor((o.z-o.d/2)/SPATIAL_CELL);z<=Math.floor((o.z+o.d/2)/SPATIAL_CELL);z++){
+  const key=`${x}:${z}`,bucket=obstacleBins.get(key)??[];bucket.push(o);obstacleBins.set(key,bucket);
+}
+function nearbyObstacles(minX:number,minZ:number,maxX:number,maxZ:number):Obstacle[]{
+  const found=new Set<Obstacle>();
+  for(let x=Math.floor(minX/SPATIAL_CELL);x<=Math.floor(maxX/SPATIAL_CELL);x++)for(let z=Math.floor(minZ/SPATIAL_CELL);z<=Math.floor(maxZ/SPATIAL_CELL);z++)for(const o of obstacleBins.get(`${x}:${z}`)??[])found.add(o);
+  return [...found];
+}
 export const SUPPLIES = [
   { x: -2, z: 3, kind: 'ammo' as const },
   { x: -22, z: .5, kind: 'ammo' as const },
@@ -45,7 +57,7 @@ export const SUPPLIES = [
 ];
 export function collides(p: Vec2, radius = .45, extra: Obstacle[] = []): boolean {
   if (Math.abs(p.x) > WORLD_LIMIT - radius || Math.abs(p.z) > WORLD_LIMIT - radius) return true;
-  return [...OBSTACLES, ...extra].some(o => {
+  return [...nearbyObstacles(p.x-radius,p.z-radius,p.x+radius,p.z+radius), ...extra].some(o => {
     const dx = Math.max(Math.abs(p.x - o.x) - o.w / 2, 0);
     const dz = Math.max(Math.abs(p.z - o.z) - o.d / 2, 0);
     return dx * dx + dz * dz < radius * radius;
@@ -59,7 +71,8 @@ export function distance(a: Vec2, b: Vec2): number { return Math.hypot(a.x - b.x
 /** Segment versus expanded AABB. Returns world-space distance to the first obstruction. */
 export function wallDistance(origin: Vec2, dir: Vec2, range: number, extra: Obstacle[] = [], radius = 0): number {
   let nearest = range;
-  for (const o of [...OBSTACLES, ...extra]) {
+  const end={x:origin.x+dir.x*range,z:origin.z+dir.z*range};
+  for (const o of [...nearbyObstacles(Math.min(origin.x,end.x)-radius,Math.min(origin.z,end.z)-radius,Math.max(origin.x,end.x)+radius,Math.max(origin.z,end.z)+radius), ...extra]) {
     let near = 0, far = range;
     for (const axis of ['x', 'z'] as const) {
       const half = (axis === 'x' ? o.w : o.d) / 2 + radius;
@@ -77,10 +90,10 @@ export function wallDistance(origin: Vec2, dir: Vec2, range: number, extra: Obst
 }
 
 // One-unit cells resolve the narrow side passages of the existing courtyard.
-// Static connectivity is cached once; the eight possible defense masks reuse it.
-const GRID = 158, CELL = 1, NODES = GRID * GRID;
-const position = (n: number): Vec2 => ({ x: (n % GRID) * CELL - 78.5, z: Math.floor(n / GRID) * CELL - 78.5 });
-const node = (p: Vec2): number => Math.max(0, Math.min(GRID - 1, Math.round(p.z + 78.5))) * GRID + Math.max(0, Math.min(GRID - 1, Math.round(p.x + 78.5)));
+// Static connectivity is cached once; at most 16 dynamic portal masks are retained.
+const GRID = WORLD_LIMIT*2+2, CELL = 1, NODES = GRID * GRID, ORIGIN=WORLD_LIMIT+.5;
+const position = (n: number): Vec2 => ({ x: (n % GRID) * CELL - ORIGIN, z: Math.floor(n / GRID) * CELL - ORIGIN });
+const node = (p: Vec2): number => Math.max(0, Math.min(GRID - 1, Math.round(p.z + ORIGIN))) * GRID + Math.max(0, Math.min(GRID - 1, Math.round(p.x + ORIGIN)));
 const walkable = Uint8Array.from({ length: NODES }, (_, n) => Number(!collides(position(n), .49)));
 const links: number[][] = Array.from({ length: NODES }, () => []);
 for (let n = 0; n < NODES; n++) if (walkable[n]) {
@@ -98,12 +111,18 @@ function navigationMask(extra: Obstacle[]): Uint8Array {
   let mask = masks.get(key);
   if (!mask) {
     mask = walkable.slice();
-    for (let n = 0; n < NODES; n++) if (mask[n] && extra.some(b => { const p = position(n); return Math.hypot(Math.max(0, Math.abs(p.x - b.x) - b.w / 2), Math.max(0, Math.abs(p.z - b.z) - b.d / 2)) < .5; })) mask[n] = 0;
+    for(const b of extra){
+      const minX=Math.max(0,Math.floor(b.x-b.w/2-.5+ORIGIN)),maxX=Math.min(GRID-1,Math.ceil(b.x+b.w/2+.5+ORIGIN));
+      const minZ=Math.max(0,Math.floor(b.z-b.d/2-.5+ORIGIN)),maxZ=Math.min(GRID-1,Math.ceil(b.z+b.d/2+.5+ORIGIN));
+      for(let z=minZ;z<=maxZ;z++)for(let x=minX;x<=maxX;x++){const n=z*GRID+x,p=position(n);if(Math.hypot(Math.max(0,Math.abs(p.x-b.x)-b.w/2),Math.max(0,Math.abs(p.z-b.z)-b.d/2))<.5)mask[n]=0;}
+    }
     if (masks.size >= 16) masks.clear(); masks.set(key, mask);
   }
   return mask;
 }
 export function findPath(from: Vec2, to: Vec2, extra: Obstacle[] = []): Vec2[] {
+  const direct=distance(from,to);
+  if(direct>.01&&wallDistance(from,{x:(to.x-from.x)/direct,z:(to.z-from.z)/direct},direct,extra,.49)>=direct&&!collides(to,.49,extra))return Array.from({length:Math.ceil(direct/8)},(_,i)=>{const t=(i+1)/Math.ceil(direct/8);return {x:from.x+(to.x-from.x)*t,z:from.z+(to.z-from.z)*t};});
   const mask = navigationMask(extra);
   const connects = (p: Vec2, q: Vec2): boolean => {
     const steps = Math.max(1, Math.ceil(distance(p, q) / .15));

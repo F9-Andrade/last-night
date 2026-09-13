@@ -1,0 +1,162 @@
+npm notice run last-night@0.1.0 test
+npm notice run node --experimental-strip-types tests/simulation.test.ts && node --experimental-strip-types tests/voxel.test.ts && node --experimental-strip-types tests/survival.test.ts && node --experimental-strip-types tests/combat.test.ts && node --experimental-strip-types tests/variety.test.ts && node --experimental-strip-types tests/stamina.test.ts && node --experimental-strip-types tests/city.test.ts
+✔ movement slides along colliders and respects map boundaries (0.844168ms)
+✔ diagonal motion is normalized; sprint consumes stamina (4.302724ms)
+✔ pistol damages nearest Walker, honors cadence and kills in three hits (1.143832ms)
+✔ walls stop bullets even with a muzzle close to the wall (0.285116ms)
+✔ reload conserves ammunition, prevents firing and cannot overfill magazine (0.900534ms)
+✔ searched ammunition enters reserve once; medicine is carried for timed use (4.701114ms)
+✔ navigation routes around the safe house instead of walking through it (0.996394ms)
+✔ night budget is bounded and dawn requires clearing every remaining Walker (10.218754ms)
+✔ Walkers hurt the player and destroy an unattended base at night (9.198234ms)
+✔ identical commands and seed produce repeatable simulations (46.024972ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 83.347893
+✔ solid voxel blocks merge to six exterior quads, with outward-facing triangles (4.349613ms)
+✔ different colors retain boundaries while shared internal faces disappear (0.372841ms)
+✔ empty volumes and signed coordinate limits are handled without aliasing (0.651786ms)
+✔ cache reuses immutable geometry and supports independent editable parts (2.181383ms)
+✔ greedy surface area agrees with exposed cells, including cavities and disconnected fragments (2.74835ms)
+✔ detailed asset recipes stay within geometry budgets and regenerate deterministically (19.357585ms)
+✔ articulated characters reuse part geometry and use a bounded mesh count (2.64704ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36.863467
+✔ inventory capacity and atomic transfers conserve all resources (0.80768ms)
+✔ all loot points are accessible and medical/police tables favor their purpose (0.852935ms)
+✔ search can be cancelled and full inventory retains rolled loot without rerolling (4.524171ms)
+✔ medicine is consumed only on completion and movement or attack interrupts it (4.567182ms)
+✔ starting nearby supplies fund a defense; build blocks movement and debits exact cost (2.82324ms)
+✔ build rejects occupied points and insufficient resources without loss (2.290048ms)
+✔ repair requires holding, charges on completion, caps health, and destruction cancels action (7.831413ms)
+✔ dismantling releases passage and returns only partial wood to storage (1.70093ms)
+✔ base storage is accessible only locally; base repair and rare supply have real costs (2.094219ms)
+✔ cycle emits one phase transition, final countdown and silence before dawn (0.33509ms)
+✔ horde has internal pauses, bounded scaling and never consumes a failed spawn (0.451268ms)
+✔ edge spawns are distant, collision-free and do not exceed the active pool (1.137319ms)
+✔ dynamic navigation changes when the gate is built and all three routes are attackable (97.539068ms)
+✔ night completion rewards once, partially restocks and reaches Night 2 (3.285871ms)
+✔ failure freezes state and a new expedition has no retained resources, enemies or defenses (0.290286ms)
+✔ a complete siege from all edge zones breaches every route without stranded Walkers (2367.004578ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2502.770358
+✔ anatomical rays distinguish head, torso, arms and legs with ordered damage (1.037682ms)
+✔ fatal headshot disables AI, retains wounds and leaves a corpse through 30 seconds then fades (2.90263ms)
+✔ leg hit slows; bounded wounds and corpse manager do not become collision obstacles (1.229653ms)
+✔ noise is bounded by distance, creates no new actors, and expires (25.256522ms)
+✔ reload stages occur once; sprint/action/damage cancellation never grants ammunition (1.418108ms)
+✔ all expanded loot and authored encounters have traversable paths from the preserved base (75.336893ms)
+✔ wood, metal and concrete impacts have distinct classification (0.184116ms)
+✔ alarms trigger once and attract existing Walkers without consuming horde budget (13.202126ms)
+✔ front, back and side deaths preserve shot direction in the independent corpse state (0.614556ms)
+✔ body reservation bounds the combined population without dropping a corpse at death (0.567889ms)
+✔ damage and starting another action cancel reload without consuming reserve ammunition (0.402046ms)
+✔ a constructed barricade preserves the defender firing lane while still blocking movement (0.49421ms)
+✔ a walking sweep reaches every supply point across the expanded region without crossing solids (67.255309ms)
+✔ industrial containers and the plaza monument are solid, with metal impact feedback (0.139081ms)
+✔ misses end on the ground or at range without manufacturing a mid-air concrete impact (0.373633ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 195.427134
+✔ pistol: cadence, empty reload, reserve isolation and interrupt conserve rounds (5.158755ms)
+✔ pistol: head, legs, noise, wounds and corpse integration (0.854718ms)
+✔ revolver: cadence, empty reload, reserve isolation and interrupt conserve rounds (1.261924ms)
+✔ revolver: head, legs, noise, wounds and corpse integration (0.376999ms)
+✔ smg: cadence, empty reload, reserve isolation and interrupt conserve rounds (0.922595ms)
+✔ smg: head, legs, noise, wounds and corpse integration (0.325453ms)
+✔ shotgun: cadence, empty reload, reserve isolation and interrupt conserve rounds (2.645897ms)
+✔ shotgun: head, legs, noise, wounds and corpse integration (1.113374ms)
+✔ rifle: cadence, empty reload, reserve isolation and interrupt conserve rounds (1.154833ms)
+✔ rifle: head, legs, noise, wounds and corpse integration (0.485674ms)
+✔ marksman: cadence, empty reload, reserve isolation and interrupt conserve rounds (1.098096ms)
+✔ marksman: head, legs, noise, wounds and corpse integration (0.353986ms)
+✔ automatic cadence remains stable at 30, 60 and 144 simulation steps per second (7.720143ms)
+✔ semi automatic weapons require a new trigger and cannot accidentally auto-fire (0.714635ms)
+✔ shotgun aggregates pellets before death, damages several actors and falls off with distance (2.325415ms)
+✔ shell reload transfers exactly one at completion, then can be interrupted to fire (0.398981ms)
+✔ two slots and repeated swaps preserve unique identities and every loaded round (0.634704ms)
+✔ rarities remain modest and derived modifiers never stack on repeated reads (1.1213ms)
+✔ piercing is limited to two bodies and never penetrates a building wall (0.458342ms)
+✔ one generated weapon per searched locker, with leftovers retained and no reroll (1.910374ms)
+✔ perk offers are unique; choice is single-use and fresh runs reset all bonuses (0.366138ms)
+✔ behavioral perks reward headshots, the last round, reload timing and bandages (0.98896ms)
+✔ health, capacity and economical build perks apply once and charge correct resources (0.172204ms)
+✔ walker: anatomical head, bounded health and own corpse kind (0.285247ms)
+✔ runner: anatomical head, bounded health and own corpse kind (0.180419ms)
+✔ tank: anatomical head, bounded health and own corpse kind (0.181021ms)
+✔ spitter: anatomical head, bounded health and own corpse kind (0.156925ms)
+✔ screamer: anatomical head, bounded health and own corpse kind (0.151796ms)
+✔ runner gains ground faster; tank telegraphs and deals stronger structure damage (8.601661ms)
+✔ spitter telegraphs, can be interrupted and acid gives time to escape before damage (8.802729ms)
+✔ spitter does not fire through walls; acid and living actors stay bounded (164.038016ms)
+✔ night compositions introduce specials progressively and preserve a Walker majority (0.200678ms)
+✔ all facilities, temporary event anchors and furnished interiors remain reachable (10.140907ms)
+✔ generator gates the medical cache, makes noise and persists until a fresh run (2.505333ms)
+✔ trunk alarm can be disabled with a timed action; event lifecycle ends without retry duplication (1273.356877ms)
+✔ seeded runs vary optional caches and equipment without removing opening supplies (0.566957ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1512.349325
+✔ held sprint uses stable exhaustion/recovery at 30 Hz (0.911645ms)
+✔ held sprint uses stable exhaustion/recovery at 60 Hz (0.371399ms)
+✔ held sprint uses stable exhaustion/recovery at 144 Hz (0.418667ms)
+✔ regeneration delay is smooth; release/repress cannot bypass exhaustion (0.107492ms)
+✔ exhausted movement keeps normal speed and normalized diagonal control (3.509753ms)
+✔ exhausted held Shift permits walking reload and firing without resource duplication (3.398393ms)
+✔ death freezes exhaustion and a new run resets every stamina state (3.134697ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16.147937
+✔ city has 4x useful area, distinct sites, two entrances and reachable loot in every room (35.375808ms)
+✔ closed portals stop travel and bullets; real action opens, boards, breaks and retry resets (7.664348ms)
+✔ window breaks on unobstructed shot, never behind a nearer victim; wooden boards resist a bullet (1.143681ms)
+✔ Screamer telegraphs, calls existing actors once, respects cooldown and cannot chain spawn (21.824767ms)
+✔ Screamer is interrupted by a torso hit and cannot see through the shelter (4.171057ms)
+✔ local encounters activate outside view once; visited rooms never roll delayed guards (2.033405ms)
+✔ dormant actors retain damage and IDs, restore into dead slots and respect shared body cap (1.037602ms)
+✔ roaming packs have ten mobile walkers and cannot appear inside camera or houses (37.085004ms)
+✔ quarantine is optional, stronger than residential, with bounded special composition (0.185919ms)
+✔ stash preserves weapon IDs, affixes and loaded rounds without duplicate pickup or remote access (0.559913ms)
+✔ microevent anchors are navigable; no reward duplication or reset of visited house (10.213443ms)
+✔ dawn ignores distant town guards but still requires clearing siege actors (6.684224ms)
+✔ wide open portals cannot close or consume boarding wood while an actor overlaps the edge (3.080285ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 136.097504

@@ -1,6 +1,8 @@
 import { REGIONS } from '../game/districts';
 import { WEAPONS } from '../game/weapons';
 import { ExpeditionView } from './expedition-view';
+import { CityView } from './city-view';
+import { WORLD_LIMIT } from '../game/world';
 import { bodyHit } from '../game/combat';
 import { CorpseView } from './corpses';
 import * as THREE from 'three';
@@ -20,6 +22,7 @@ export class GameScene {
   renderer: THREE.WebGLRenderer;
   private survival: SurvivalView;
   private expedition:ExpeditionView; town: Town; survivor = new Character(); walkers: Character[] = [];
+  private city:CityView;
   private sun = new THREE.DirectionalLight(0xffdeb0, 3.1);
   private ambient = new THREE.HemisphereLight(0xc5ddd3, 0x626e59, 2.3);
   private focus = new THREE.Vector3(1, 0, 7); private target = new THREE.Vector3(); private offset = new THREE.Vector3(25, 32, 25);
@@ -41,6 +44,7 @@ export class GameScene {
     this.sun.shadow.bias = -.0004; this.sun.shadow.normalBias = .07;
     this.scene.add(this.sun, this.sun.target, this.ambient, this.flashLight,this.torch,this.torch.target);
     this.town = createTown(this.scene);this.expedition=new ExpeditionView(this.scene); this.corpses=new CorpseView(this.scene); this.survival = new SurvivalView(this.scene); this.scene.add(this.survivor.root);
+    this.city=new CityView(this.scene);
     for (let i = 0; i < BALANCE.walker.capacity; i++) { const c = new Character(true, i); c.root.visible = false; this.walkers.push(c); this.scene.add(c.root); }
     this.ring = new THREE.Mesh(new THREE.RingGeometry(.69, .74, 40), new THREE.MeshBasicMaterial({ color: 0xe8d7a5, transparent: true, opacity: .65, depthWrite: false }));
     this.ring.rotation.x = -Math.PI / 2; this.scene.add(this.ring);
@@ -57,12 +61,12 @@ export class GameScene {
     this.resize();
   }
   reset(): void { this.particles.forEach(p => { p.life = 0; p.mesh.visible = false; }); this.tracers.forEach(t => { t.life = 0; t.mesh.visible = false; }); this.flashLight.intensity = 0;this.flashlightOn=false; }
-  metrics(): { meshes: number; materials: number; geometries: number; textures: number; geometryMB: number; cacheMB: number; heapMB: number | null; voxelAssets: number } {
+  metrics(): { meshes: number; materials: number; geometries: number; textures: number; geometryMB: number; cacheMB: number; heapMB: number | null; voxelAssets: number; activeChunks:number } {
     const materials = new Set<THREE.Material>(), geometries = new Set<THREE.BufferGeometry>(); let meshes = 0, bytes = 0;
     this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Points) { meshes++; geometries.add(o.geometry); for (const m of Array.isArray(o.material) ? o.material : [o.material]) materials.add(m); } });
     geometries.forEach(g => { for (const a of Object.values(g.attributes)) bytes += a.array.byteLength; bytes += g.index?.array.byteLength ?? 0; });
     const cache = voxelStats(), memory = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
-    return { meshes, materials: materials.size, geometries: this.renderer.info.memory.geometries, textures: this.renderer.info.memory.textures, geometryMB: Math.round(bytes / 104857.6) / 10, cacheMB: Math.round(cache.geometryBytes / 104857.6) / 10, heapMB: memory ? Math.round(memory.usedJSHeapSize / 104857.6) / 10 : null, voxelAssets: cache.assets };
+    return { meshes, materials: materials.size, geometries: this.renderer.info.memory.geometries, textures: this.renderer.info.memory.textures, geometryMB: Math.round(bytes / 104857.6) / 10, cacheMB: Math.round(cache.geometryBytes / 104857.6) / 10, heapMB: memory ? Math.round(memory.usedJSHeapSize / 104857.6) / 10 : null, voxelAssets: cache.assets,activeChunks:this.city.active+this.town.chunks.filter(g=>g.visible).length };
   }
   setQuality(quality: string): void {
     this.quality = quality; this.renderer.setPixelRatio(Math.min(devicePixelRatio, quality === 'high' ? 1.75 : 1));
@@ -110,6 +114,7 @@ export class GameScene {
     this.target.set(sim.player.x, 0, sim.player.z);
     if(!menu){const dx=this.destination.x-sim.player.x,dz=this.destination.z-sim.player.z,len=Math.max(1,Math.hypot(dx,dz));this.target.x+=dx/len*.8;this.target.z+=dz/len*.8;}
     if (menu) this.target.set(-4, 0, 0);
+    this.target.x=THREE.MathUtils.clamp(this.target.x,-WORLD_LIMIT+12,WORLD_LIMIT-12);this.target.z=THREE.MathUtils.clamp(this.target.z,-WORLD_LIMIT+12,WORLD_LIMIT-12);
     this.focus.lerp(this.target, blend); this.viewSize += ((menu ? 39 : this.gameplaySpan) - this.viewSize) * blend;
     this.projection(); this.camera.position.copy(this.focus).add(this.offset); this.camera.lookAt(this.focus); this.camera.position.y+=this.kick; this.kick*=Math.exp(-dt*24);
     this.survivor.root.position.set(sim.player.x, .18, sim.player.z);
@@ -117,16 +122,17 @@ export class GameScene {
     this.survivor.root.rotation.y += difference * (1 - Math.exp(-dt * 25*this.aimResponse));
     this.survivor.setWeapon(sim.equipped.type);this.survivor.animate(elapsed, sim.player.moving && !menu, sim.player.running, sim.recoil, sim.player.invulnerable > .35 ? 1 : 0);
     this.survivor.reloadPose(sim.reloadTimer,sim.reloadDuration,sim.switchTimer); this.corpses.update(sim.corpses.bodies);
-    this.ring.position.set(sim.player.x, .24, sim.player.z);
+    this.ring.position.set(sim.player.x, .24, sim.player.z);this.dust.position.set(sim.player.x,0,sim.player.z);
     for (let i = 0; i < this.walkers.length; i++) {
       const c = this.walkers[i], z = sim.zombies[i]; c.root.visible = !!z?.active;
-      if (z?.active) { c.setKind(z.kind);c.root.position.set(z.x, .1, z.z); c.root.rotation.y = z.angle; c.animate(z.gait, z.path.length > 0, false, z.attack > .8 ? .4 : 0, z.flash); c.wounds(z);if(z.spitTarget){c.body.rotation.x=-.16;c.head.rotation.x=-.35;c.arms.rotation.x=-.4;}else if(z.winding){c.arms.rotation.x=-.7;c.body.rotation.x=-.12;} }
+      if (z?.active) { c.setKind(z.kind);c.root.position.set(z.x, .1, z.z); c.root.rotation.y = z.angle; c.animate(z.gait, z.path.length > 0, false, z.attack > .8 ? .4 : 0, z.flash); c.wounds(z);if(z.screamTimer){c.body.rotation.x=-.22;c.head.rotation.x=-.6;c.arms.rotation.x=-1.8;}else if(z.spitTarget){c.body.rotation.x=-.16;c.head.rotation.x=-.35;c.arms.rotation.x=-.4;}else if(z.winding){c.arms.rotation.x=-.7;c.body.rotation.x=-.12;} }
     }
     this.survival.update(sim, dt, elapsed, menu);this.expedition.update(sim,elapsed);
     if (sim.action) { this.survivor.arms.rotation.x = -.35 + Math.sin(elapsed * 8) * .08; this.survivor.body.rotation.x = .08; }
-    else this.survivor.body.rotation.x = sim.player.running?.12:0;
+    else this.survivor.body.rotation.x = sim.player.running?.12:sim.player.exhausted?.05+Math.sin(elapsed*4)*.012:0;
     const smooth = (x: number): number => { x = THREE.MathUtils.clamp(x, 0, 1); return x * x * (3 - 2 * x); };
     const night = menu ? .9 : smooth(sim.cycle.darkness);
+    this.city.update(sim,night);
     this.sky.copy(this.dayColor).lerp(this.nightColor, night); (this.scene.background as THREE.Color).copy(this.sky);
     const fog = this.scene.fog as THREE.FogExp2; fog.color.copy(this.sky); fog.density = .009 + night * .003;
     this.sun.intensity = 2.85 - night * 2.1; this.sun.color.setHex(0xffdeb0).lerp(new THREE.Color(0x88b4e4), night);

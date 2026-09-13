@@ -10,7 +10,7 @@ function step(s: Simulation, seconds: number, command = input): void { for (let 
 
 test('movement slides along colliders and respects map boundaries', () => {
   const p = { x: 1, z: 1 }; move(p, .1, -1); assert.equal(p.z, 1); assert.equal(p.x, 1.1);
-  move(p, 100, 0); assert.equal(p.x, 1.1);
+  move(p, 400, 0); assert.equal(p.x, 1.1);
   assert.ok(collides({ x: 1, z: -4 })); assert.ok(!collides({ x: 1, z: 7 }));
 });
 test('diagonal motion is normalized; sprint consumes stamina', () => {
@@ -36,9 +36,9 @@ test('reload conserves ammunition, prevents firing and cannot overfill magazine'
   s.reload(); assert.equal(s.reloadTimer, 0);
 });
 test('searched ammunition enters reserve once; medicine is carried for timed use', () => {
-  const s = clean(); step(s, 1 / 60, { ...input, interact: true }); assert.equal(s.reserve, 72);
-  s.player.x = -2; s.player.z = 3; step(s, 1 / 60, { ...input, interact: true }); assert.equal(s.reserve, 72);
-  step(s, 1); assert.equal(s.reserve, 108); step(s, 1, { ...input, interact: true }); assert.equal(s.reserve, 108);
+  const s = clean(); step(s, 1 / 60, { ...input, interact: true }); assert.equal(s.reserve, 60);
+  s.player.x = -2; s.player.z = 3; step(s, 1 / 60, { ...input, interact: true }); assert.equal(s.reserve, 60);
+  step(s, 1); assert.equal(s.reserve, 96); step(s, 1, { ...input, interact: true }); assert.equal(s.reserve, 96);
   s.player.x = 23; s.player.z = -17; step(s, 1 / 60, { ...input, interact: true }); step(s, 1);
   assert.ok(s.inventory.items.med >= 3); assert.equal(s.player.hp, 100);
   s.player.hp = 40; step(s, 1 / 60, { ...input, heal: true }); step(s, 2.5); assert.equal(s.player.hp, 85);
@@ -52,7 +52,7 @@ test('night budget is bounded and dawn requires clearing every remaining Walker'
   s.horde.spawned = s.horde.budget; s.zombies = []; step(s, 3.1); assert.equal(s.phase, 'dawn');
   assert.equal(s.storage.items.rare, 1); assert.equal(s.storage.items.scrap, 3);
   step(s, 10.1); assert.equal(s.day, 2); assert.equal(s.phase, 'day');
-  s.setPhase('night'); assert.equal(s.horde.budget, 24);
+  s.setPhase('night'); assert.equal(s.horde.budget, 31);
   for (let i = 0; i < 100; i++) s.spawn({ x: 1, z: 13 }); assert.equal(s.zombies.filter(z => z.active).length, 40);
 });
 test('Walkers hurt the player and destroy an unattended base at night', () => {

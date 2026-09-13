@@ -1,0 +1,15 @@
+[
+  {
+    "x": 88,
+    "z": -66.99500000000008,
+    "hp": 100,
+    "stamina": 43.66666666666658,
+    "exhausted": false,
+    "staminaDelay": 0.75,
+    "angle": -0.9464553861970009,
+    "moving": true,
+    "running": true,
+    "invulnerable": 0,
+    "time": 8.199999999999987
+  }
+]

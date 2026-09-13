@@ -1,11 +1,12 @@
 import * as THREE from 'three';
+import {CITY_LIMIT} from '../game/city';
 import { box, batch, textSign } from './models';
 import { voxelMesh } from './voxel';
 import { propRecipe, treeRecipe, voxelBox } from './environment-assets';
 import { WAREHOUSES, REGIONS, OUTER_HOUSES } from '../game/districts';
 export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Group[] {
   const chunks:THREE.Group[]=[];
-  for(const region of REGIONS.slice(2)) {
+  for(const region of REGIONS.slice(2,12)) {
     const g=new THREE.Group();g.position.set(region.x,0,region.z);g.name=region.name;scene.add(g);chunks.push(g);
     const prop=(kind:Parameters<typeof propRecipe>[0],x:number,z:number,angle=0)=>{const m=voxelMesh(propRecipe(kind));m.position.set(x,.15,z);m.rotation.y=angle;g.add(m);};
     for(let i=0;i<6;i++){prop(i%3===0?'rubble':i%3===1?'bag':'pallet',-7+i*2,8+Math.sin(i*2)*2,i*.8);}
@@ -73,7 +74,7 @@ export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Gr
     const tree=voxelMesh(treeRecipe(0));tree.position.set(7,0,-5);g.add(tree);batchDistrict(g);
   }
   const edge=new THREE.Group();scene.add(edge);
-  for(let i=0;i<40;i++){const tree=voxelMesh(treeRecipe(i%3));const side=i%4,offset=-78+Math.floor(i/4)*17;tree.position.set(side<2?(side===0?-83:83):offset,0,side>=2?(side===2?-83:83):offset);tree.castShadow=false;edge.add(tree);}
+  for(let i=0;i<40;i++){const tree=voxelMesh(treeRecipe(i%3));const side=i%4,offset=-CITY_LIMIT+Math.floor(i/4)*(CITY_LIMIT*2/9);tree.position.set(side<2?(side===0?-CITY_LIMIT-6:CITY_LIMIT+6):offset,0,side>=2?(side===2?-CITY_LIMIT-6:CITY_LIMIT+6):offset);tree.castShadow=false;edge.add(tree);}
   return chunks;
 }
 

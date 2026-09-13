@@ -2,7 +2,7 @@
 
 **Só preciso sobreviver a mais uma noite.**
 
-Jogo de sobrevivência **3D isométrica com voxel detalhado** para navegador. Explore Santa Luz, vasculhe containers, escolha o que carregar e prepare as defesas do Abrigo 07. A noite termina quando a horda é eliminada. O amanhecer traz recursos, uma escolha de vantagem para a expedição e um próximo dia mais difícil. Há seis armas, loot de equipamento e três tipos de infectado especial. Veja [o relatório desta etapa](VARIETY_REPORT.md).
+Jogo de sobrevivência **3D isométrica com voxel detalhado** para navegador. Explore Santa Luz, vasculhe containers, escolha o que carregar e prepare as defesas do Abrigo 07. A noite termina quando a horda é eliminada. O amanhecer traz recursos, uma escolha de vantagem para a expedição e um próximo dia mais difícil. Há seis armas, loot de equipamento e quatro tipos de infectado especial. Santa Luz tem 312 × 312 unidades, com hospital distante, escola, motel, indústria e quarentena. Veja [o relatório desta etapa](CITY_REPORT.md).
 
 ## Executar
 
@@ -45,16 +45,24 @@ O inventário permite guardar, retirar e descartar recursos. O depósito só est
 
 ## Uma expedição
 
-1. Comece no pátio com pistola, 12 cartuchos no pente, 72 de reserva, uma bandagem e poucos materiais. As duas caixas do pátio garantem munição e material para a primeira barricada.
+1. Comece no pátio com pistola, 12 cartuchos no pente, 60 de reserva, uma bandagem e poucos materiais. As duas caixas do pátio garantem munição e material para a primeira barricada.
 2. Explore: hospital favorece medicina; delegacia favorece munição; mercado, posto, casas e áreas externas oferecem materiais e recursos variados. Os marcadores do minimapa indicam os locais principais, sem revelar todo loot.
 3. Vasculhar demora 0,75 s. Itens vão para a mochila; o que não couber permanece no container. Mover, disparar ou sofrer dano interrompe ações. Loot já sorteado não é sorteado novamente.
 4. Volte e construa nos três pontos de defesa. A construção usa madeira e sucata da mochila e do depósito. Barricadas bloqueiam jogador e inimigos; desmonte uma se precisar abrir passagem.
 5. Há avisos a 60 e 30 segundos do anoitecer, com contagem destacada nos últimos 10. Recarregue e prepare as defesas.
 6. Enfrente a horda, distribuída em três grupos com intervalos. Inimigos próximos perseguem você; os demais avançam para o abrigo e atacam barricadas que bloqueiam a rota.
-7. Elimine **todos os inimigos restantes**, depois da chegada do último grupo. Há três segundos de silêncio, recompensa no depósito e escolha de uma entre três vantagens. A escolha pausa a simulação; depois, seguem dez segundos de amanhecer. A noite não acaba simplesmente por um cronômetro.
-8. No Dia 2, metade dos containers esvaziados fora da reserva inicial pode voltar a ter recursos. A próxima horda traz Corredores. Cuspidor entra na terceira noite e Brutamontes na quarta; Errantes continuam sendo a maioria.
+7. Elimine **os inimigos do cerco e os que permanecem perto do abrigo**, depois da chegada do último grupo. Há três segundos de silêncio, recompensa no depósito e escolha de uma entre três vantagens. A escolha pausa a simulação; depois, seguem dez segundos de amanhecer. A noite não acaba simplesmente por um cronômetro.
+8. No próximo dia, 20% dos containers vazios do núcleo podem receber uma única reposição reduzida. Os novos POIs não se renovam. A próxima horda traz Corredores. Cuspidor entra na terceira noite e Brutamontes na quarta e Arauto na quinta; Errantes continuam sendo a maioria.
 
 Perder toda a vida ou os 1.000 HP do abrigo encerra a expedição. **TENTAR OUTRA VEZ** reinicia os recursos, interações, containers, inimigos, defesas e ciclo sem atualizar a página.
+
+## A cidade ampliada
+
+Dezoito locais novos têm interiores, móveis e duas entradas. Use **E** na porta ou janela; entradas barricadas demoram mais e fazem barulho. Use **X** perto de uma entrada aberta para barricar com duas madeiras. Vidro quebra com um disparo livre; madeira continua bloqueando a abertura. O depósito de equipamentos, em **Tab → Equipamento**, guarda até quatro armas no abrigo e preserva a munição carregada.
+
+A exaustão não trava a caminhada: sprint consome 22/s, o fôlego volta 18/s após 0,75 s sem corrida, e correr fica bloqueado até recuperar 25%. Segurar Shift retoma a corrida somente depois desse limite.
+
+Guardas dos locais persistem, grupos de dez Errantes atravessam ruas e o Arauto anuncia seu grito antes de atrair infectados já existentes. Há suprimentos médicos, mochilas de sobreviventes, cargas antigas e sinais em uma casa barricada. O mapa registra descobertas; longe da base, o objetivo mostra distância e uma estimativa de retorno. Ela não inclui combate, obstáculos ou tempo de busca: deixe margem.
 
 ## Recursos e balanceamento
 
@@ -68,16 +76,16 @@ Perder toda a vida ou os 1.000 HP do abrigo encerra a expedição. **TENTAR OUTR
 | Sucata | Barricadas e reparo do abrigo | 0,25 |
 | Reserva selada | Recuperação de emergência de até 250 HP do abrigo | 1 |
 
-A mochila suporta **18 unidades de carga**. O depósito local não tem esse limite. A reserva selada é usada pelo botão **REFORÇAR ABRIGO**, perto da base. Sem dano no abrigo, ela não é consumida.
+A mochila suporta **16 unidades de carga**. O depósito local não tem esse limite. A reserva selada é usada pelo botão **REFORÇAR ABRIGO**, perto da base. Sem dano no abrigo, ela não é consumida.
 
 | Parâmetro | Padrão |
 | --- | --- |
-| Dia / aviso de anoitecer / preparação | 180 / 30 / 30 s; 4 minutos até a noite |
+| Dia / aviso de anoitecer / preparação | 210 / 30 / 30 s; 4,5 minutos até a noite |
 | Noite | Duração variável: chegada dos grupos + eliminação dos sobreviventes |
 | Silêncio / amanhecer | 3 / 10 s |
-| Horda 1 / horda 2 | 18 Errantes / 24 infectados, incluindo 2 Corredores |
-| Escala | +6 por noite, orçamento limitado a 60; até 40 ativos |
-| Intervalo entre grupos | 13 s adicionais |
+| Horda 1 / horda 2 | 22 Errantes / 31 infectados, incluindo 2 Corredores |
+| Escala | +9 por noite, orçamento limitado a 76; até 40 ativos |
+| Intervalo entre grupos | 11 s adicionais |
 | Barricada | 6 madeira + 2 sucata; 300 HP; 1,2 s para construir |
 | Reparo de barricada | 1 madeira + 1 sucata; até +90 HP em 2 s |
 | Reparo do abrigo | 4 sucata; até +120 HP em 3 s, junto à entrada |
@@ -106,7 +114,7 @@ A pistola mantém 34 de dano, pente de 12, intervalo de 0,23 s, recarga de 1,35 
 | `src/game/simulation.ts` | Integração do loop, ações temporizadas, combate e alvos dos Walkers |
 | `src/game/world.ts` | Mapa preservado, colisão, raycasts e A* com máscara dinâmica |
 | `src/game/input.ts`, `src/main.ts` | Entradas, pausa, reinício, eventos e integração com a interface |
-| `src/game/audio.ts` | Áudio sintetizado e ambiente por fase |
+| `src/game/audio.ts` | Gravações locais, áudio sintetizado e ambiente por fase |
 | `src/render/voxel.ts` | Volumes esparsos, greedy meshing e cache de receitas |
 | `src/render/survival-assets.ts` | Receitas voxel de recursos, containers e quatro estados das barricadas |
 | `src/render/survival-view.ts` | Instâncias persistentes, tampa dos containers, ações e troca de geometria |
@@ -150,3 +158,9 @@ Mire na anatomia. Com a pistola comum, a cabeça causa 102 de dano, torso 34, br
 A recarga tem magazine e sons sincronizados; correr, sofrer dano ou iniciar outra ação a cancela. A munição transfere no final de cada recarga; a escopeta transfere um cartucho por etapa. O disparo da pistola comum atrai inimigos em 30 m, com ruído próprio para cada arma e modificador; correr atrai em 7 m.
 
 Novos módulos: `src/game/combat.ts` (anatomia e cadáveres), `src/game/districts.ts` (região autoral), `src/render/corpses.ts` (pool visual), `src/render/districts.ts` (cenário), `tests/combat.test.ts` e `tests/combat-visual.spec.ts`. Galeria de inspeção: `/tests/fixtures/combat-gallery.html`.
+
+### Efeitos de áudio fornecidos
+
+Os seis MP3 em `public/audio` foram fornecidos pelo usuário: tiro, gatilho sem munição e recarga da pistola, alarme de carro, vocalização e ataque de zumbi. Compartilham os controles de volume/efeitos e pausa. A recarga acompanha sua duração e cancelamento; o alarme toca em loop enquanto ativo, com distância e direção, e para ao ser desligado. Os originais foram preservados: o player recorta um clique da sequência sem munição e remove o silêncio inicial/final do loop de alarme. As demais armas mantêm seus sons próprios; se um MP3 não carregar, o efeito sintetizado continua disponível.
+
+`zumbisom.mp3` fornece gemidos variados dos Errantes próximos, em trechos separados pelas pausas do original, com uma vocalização por vez. `zumbiataque.mp3` toca nos golpes corpo a corpo contra jogador, barricadas ou abrigo, com até duas vozes simultâneas. Distância e direção afetam ambos; os avisos próprios dos especiais continuam ativos.

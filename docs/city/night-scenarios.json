@@ -1,0 +1,8671 @@
+{
+  "before": {
+    "player": {
+      "x": 88,
+      "z": -30,
+      "hp": 100,
+      "stamina": 100,
+      "exhausted": false,
+      "staminaDelay": 0,
+      "angle": -0.6226194852060496,
+      "moving": false,
+      "running": false,
+      "invulnerable": 0
+    },
+    "runSeed": 1977,
+    "portals": [
+      {
+        "id": "school-front",
+        "site": "school",
+        "x": -112,
+        "z": -101,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "school-side",
+        "site": "school",
+        "x": -99,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hospital-main-front",
+        "site": "hospital-main",
+        "x": 112,
+        "z": -99,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hospital-main-side",
+        "site": "hospital-main",
+        "x": 127,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "motel-front",
+        "site": "motel",
+        "x": -113,
+        "z": -13,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "barred",
+        "state": "barred",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "motel-side",
+        "site": "motel",
+        "x": -100,
+        "z": -24,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hypermarket-front",
+        "site": "hypermarket",
+        "x": -113,
+        "z": 77,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hypermarket-side",
+        "site": "hypermarket",
+        "x": -98,
+        "z": 65,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "foundry-front",
+        "site": "foundry",
+        "x": 113,
+        "z": 89,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "foundry-side",
+        "site": "foundry",
+        "x": 127,
+        "z": 78,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "open",
+        "state": "open",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "firehouse-front",
+        "site": "firehouse",
+        "x": 16,
+        "z": 126,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "firehouse-side",
+        "site": "firehouse",
+        "x": 29,
+        "z": 116,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "cemetery-front",
+        "site": "cemetery",
+        "x": -56,
+        "z": 132,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "open",
+        "state": "open",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "cemetery-side",
+        "site": "cemetery",
+        "x": -41,
+        "z": 119,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "open",
+        "state": "open",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "quarantine-front",
+        "site": "quarantine",
+        "x": 114,
+        "z": 141,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "barred",
+        "state": "barred",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "quarantine-side",
+        "site": "quarantine",
+        "x": 130,
+        "z": 129,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "highway-front",
+        "site": "highway",
+        "x": -114,
+        "z": 135,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "highway-side",
+        "site": "highway",
+        "x": -102,
+        "z": 126,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "precinct-front",
+        "site": "precinct",
+        "x": 113,
+        "z": 27,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "precinct-side",
+        "site": "precinct",
+        "x": 125,
+        "z": 16,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-0-front",
+        "site": "home-0",
+        "x": -113,
+        "z": -61.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-0-side",
+        "site": "home-0",
+        "x": -107,
+        "z": -67,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-1-front",
+        "site": "home-1",
+        "x": -65,
+        "z": -106.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-1-side",
+        "site": "home-1",
+        "x": -59,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-2-front",
+        "site": "home-2",
+        "x": 17,
+        "z": -109.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-2-side",
+        "site": "home-2",
+        "x": 23,
+        "z": -115,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-3-front",
+        "site": "home-3",
+        "x": 62,
+        "z": -109.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-3-side",
+        "site": "home-3",
+        "x": 68,
+        "z": -115,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-4-front",
+        "site": "home-4",
+        "x": -114,
+        "z": 27.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-4-side",
+        "site": "home-4",
+        "x": -108,
+        "z": 22,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-5-front",
+        "site": "home-5",
+        "x": 63,
+        "z": 127.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-5-side",
+        "site": "home-5",
+        "x": 69,
+        "z": 122,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-6-front",
+        "site": "home-6",
+        "x": -64,
+        "z": 84.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-6-side",
+        "site": "home-6",
+        "x": -58,
+        "z": 79,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-7-front",
+        "site": "home-7",
+        "x": 113,
+        "z": -56.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-7-side",
+        "site": "home-7",
+        "x": 119,
+        "z": -62,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      }
+    ],
+    "discoveredSites": [],
+    "activatedSites": [
+      "precinct",
+      "home-7"
+    ],
+    "dormant": 0,
+    "weaponStorage": [],
+    "weapon": {
+      "uid": 0,
+      "type": "pistol",
+      "rarity": "common",
+      "magazine": 12,
+      "damageBonus": 0,
+      "reloadBonus": 0,
+      "stability": 0,
+      "capacityBonus": 0
+    },
+    "loadout": [
+      null,
+      {
+        "uid": 0,
+        "type": "pistol",
+        "rarity": "common",
+        "magazine": 12,
+        "damageBonus": 0,
+        "reloadBonus": 0,
+        "stability": 0,
+        "capacityBonus": 0
+      }
+    ],
+    "groundWeapons": [],
+    "perks": [],
+    "pendingPerks": [],
+    "facilities": [
+      {
+        "id": "hospital-power",
+        "name": "Gerador da triagem",
+        "x": 38,
+        "z": -33,
+        "kind": "generator",
+        "area": "hospital",
+        "state": "ready"
+      },
+      {
+        "id": "hospital-store",
+        "name": "Estoque refrigerado",
+        "x": 25,
+        "z": -26,
+        "kind": "cache",
+        "requires": "hospital-power",
+        "area": "hospital",
+        "state": "ready"
+      },
+      {
+        "id": "police-vault",
+        "name": "Armário de apreensões",
+        "x": 27,
+        "z": 24,
+        "kind": "cache",
+        "area": "police",
+        "state": "ready"
+      },
+      {
+        "id": "industrial-vault",
+        "name": "Reserva da oficina",
+        "x": 70,
+        "z": 69,
+        "kind": "cache",
+        "area": "gas",
+        "state": "ready"
+      },
+      {
+        "id": "car-trunk",
+        "name": "Porta-malas travado",
+        "x": -51,
+        "z": 10,
+        "kind": "trunk",
+        "area": "house",
+        "state": "ready"
+      }
+    ],
+    "acids": [],
+    "switchTimer": 0,
+    "stats": {
+      "seconds": 6.299999999999983,
+      "headshots": 0,
+      "loot": 0,
+      "damage": 0,
+      "nights": 0,
+      "specials": 0,
+      "weapons": 0,
+      "bestRarity": "common",
+      "repairs": 0
+    },
+    "mapOpen": false,
+    "settings": {
+      "master": 80,
+      "music": 35,
+      "effects": 85,
+      "sensitivity": 1,
+      "uiScale": 1,
+      "quality": "high",
+      "shadows": true,
+      "shake": true,
+      "captions": true
+    },
+    "flashlight": false,
+    "ui": {
+      "nodes": 591,
+      "updates": 34,
+      "mutations": 96
+    },
+    "ammo": 12,
+    "reserve": 60,
+    "phase": "night",
+    "time": 270.05,
+    "day": 1,
+    "kills": 0,
+    "corpses": [],
+    "baseHP": 1000,
+    "inventory": {
+      "ammo": 60,
+      "shells": 0,
+      "rifleAmmo": 0,
+      "med": 1,
+      "wood": 2,
+      "scrap": 1,
+      "rare": 0
+    },
+    "storage": {
+      "ammo": 0,
+      "shells": 0,
+      "rifleAmmo": 0,
+      "med": 0,
+      "wood": 0,
+      "scrap": 0,
+      "rare": 0
+    },
+    "weight": 3.75,
+    "loot": [
+      {
+        "id": "base-ammo",
+        "x": -2,
+        "z": 3,
+        "area": "base",
+        "label": "Reserva do pátio",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "base-wood",
+        "x": 4.8,
+        "z": 5,
+        "area": "outside",
+        "label": "Tábuas recuperadas",
+        "guaranteed": {
+          "wood": 6,
+          "scrap": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-crate",
+        "x": -22,
+        "z": 0.5,
+        "area": "market",
+        "label": "Caixa de entregas",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-locker",
+        "x": -29,
+        "z": 1.5,
+        "area": "market",
+        "label": "Armário do mercado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-case",
+        "x": 23,
+        "z": -17,
+        "area": "hospital",
+        "label": "Caixa médica",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-locker",
+        "x": 29,
+        "z": -17,
+        "area": "hospital",
+        "label": "Armário de emergência",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-locker",
+        "x": 23,
+        "z": 19,
+        "area": "police",
+        "label": "Locker de munição",
+        "guaranteed": {
+          "ammo": 24
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-case",
+        "x": 29,
+        "z": 33,
+        "area": "police",
+        "label": "Equipamento de patrulha",
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-tools",
+        "x": -28,
+        "z": 24,
+        "area": "gas",
+        "label": "Caixa de ferramentas",
+        "guaranteed": {
+          "scrap": 4
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-crate",
+        "x": -20,
+        "z": 33,
+        "area": "gas",
+        "label": "Material de manutenção",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-north",
+        "x": 3,
+        "z": -20.5,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-west",
+        "x": -27,
+        "z": -21,
+        "area": "house",
+        "label": "Baú da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-east",
+        "x": 29,
+        "z": 3,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-south",
+        "x": 4,
+        "z": 35,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "street-materials",
+        "x": -7,
+        "z": 5,
+        "area": "outside",
+        "label": "Material recuperável",
+        "guaranteed": {
+          "wood": 4,
+          "scrap": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-shelves",
+        "x": -25,
+        "z": -8,
+        "area": "market",
+        "label": "Suprimentos das prateleiras",
+        "guaranteed": {
+          "med": 1,
+          "wood": 4
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-drawer",
+        "x": 25,
+        "z": -21,
+        "area": "hospital",
+        "label": "Gaveta da recepção",
+        "guaranteed": {
+          "med": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-desk",
+        "x": 25,
+        "z": 28,
+        "area": "police",
+        "label": "Mesa de apreensões",
+        "guaranteed": {
+          "shells": 4,
+          "rifleAmmo": 12
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-pallet",
+        "x": 56,
+        "z": 69,
+        "area": "gas",
+        "label": "Carga de construção",
+        "guaranteed": {
+          "wood": 10,
+          "scrap": 8
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-locker",
+        "x": 71,
+        "z": 50,
+        "area": "gas",
+        "label": "Armário emperrado · barulhento",
+        "guaranteed": {
+          "scrap": 8
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-cache",
+        "x": 72,
+        "z": 72,
+        "area": "gas",
+        "label": "Reserva escondida",
+        "guaranteed": {
+          "rare": 1,
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "triage-case",
+        "x": 64,
+        "z": -60,
+        "area": "hospital",
+        "label": "Reserva da triagem",
+        "guaranteed": {
+          "med": 3
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "triage-cache",
+        "x": 69,
+        "z": -69,
+        "area": "hospital",
+        "label": "Maleta selada",
+        "guaranteed": {
+          "rare": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "checkpoint-locker",
+        "x": 39,
+        "z": 36,
+        "area": "police",
+        "label": "Locker reforçado · barulhento",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-ambulance",
+        "x": 43,
+        "z": -28,
+        "area": "hospital",
+        "label": "Kit da ambulância",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "north-house",
+        "x": -64,
+        "z": -60,
+        "area": "house",
+        "label": "Baú do jardim",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "north-garage",
+        "x": -43,
+        "z": -59,
+        "area": "gas",
+        "label": "Ferramentas da garagem",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "acacia-house",
+        "x": 3,
+        "z": -59,
+        "area": "house",
+        "label": "Baú das Acácias",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "acacia-east",
+        "x": 24,
+        "z": -56,
+        "area": "house",
+        "label": "Armário da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-pharmacy",
+        "x": -63,
+        "z": -16,
+        "area": "hospital",
+        "label": "Entrega da farmácia",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-store",
+        "x": -63,
+        "z": 6,
+        "area": "market",
+        "label": "Porta de serviço · barulhenta",
+        "guaranteed": {
+          "wood": 6
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-south",
+        "x": -63,
+        "z": 30,
+        "area": "market",
+        "label": "Caixa de mantimentos",
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "maintenance",
+        "x": -62,
+        "z": 71,
+        "area": "gas",
+        "label": "Material da oficina",
+        "guaranteed": {
+          "scrap": 7,
+          "wood": 6
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "plaza-camp",
+        "x": 5,
+        "z": 64,
+        "area": "outside",
+        "label": "Suprimentos da evacuação",
+        "guaranteed": {
+          "med": 1,
+          "ammo": 24
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "plaza-cache",
+        "x": -6,
+        "z": 72,
+        "area": "outside",
+        "label": "Baú sob as raízes",
+        "guaranteed": {
+          "rare": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "east-house",
+        "x": 63,
+        "z": 7,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "east-south",
+        "x": 63,
+        "z": 31,
+        "area": "house",
+        "label": "Baú de viagem",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "west-yard",
+        "x": -64,
+        "z": -37,
+        "area": "house",
+        "label": "Depósito do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-entry",
+        "x": -114,
+        "z": -106.5,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-deep",
+        "x": -110,
+        "z": -118.16,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-yard",
+        "x": -96,
+        "z": -103,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-entry",
+        "x": 110,
+        "z": -105.5,
+        "area": "hospital",
+        "label": "Carrinho de curativos",
+        "site": "hospital-main",
+        "valuable": false,
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-deep",
+        "x": 114,
+        "z": -119.28,
+        "area": "hospital",
+        "label": "Reserva da área isolada",
+        "site": "hospital-main",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-yard",
+        "x": 130,
+        "z": -101,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "hospital-main",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-entry",
+        "x": -115,
+        "z": -18.5,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "motel",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-deep",
+        "x": -111,
+        "z": -30.16,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "motel",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-yard",
+        "x": -97,
+        "z": -15,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "motel",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-entry",
+        "x": -115,
+        "z": 71,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "hypermarket",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-deep",
+        "x": -111,
+        "z": 58.28,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "hypermarket",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-yard",
+        "x": -95,
+        "z": 75,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "hypermarket",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-entry",
+        "x": 111,
+        "z": 83.5,
+        "area": "gas",
+        "label": "Suprimentos abandonados",
+        "site": "foundry",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-deep",
+        "x": 115,
+        "z": 71.84,
+        "area": "gas",
+        "label": "Reserva da área isolada",
+        "site": "foundry",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-yard",
+        "x": 130,
+        "z": 87,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "foundry",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-entry",
+        "x": 14,
+        "z": 121,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-deep",
+        "x": 18,
+        "z": 110.4,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-yard",
+        "x": 32,
+        "z": 124,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-entry",
+        "x": -58,
+        "z": 125.5,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "cemetery",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-deep",
+        "x": -54,
+        "z": 111.72,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "cemetery",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-yard",
+        "x": -38,
+        "z": 130,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "cemetery",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-entry",
+        "x": 112,
+        "z": 135,
+        "area": "police",
+        "label": "Suprimentos abandonados",
+        "site": "quarantine",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-deep",
+        "x": 116,
+        "z": 122.28,
+        "area": "police",
+        "label": "Reserva da área isolada",
+        "site": "quarantine",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-yard",
+        "x": 133,
+        "z": 139,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "quarantine",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-entry",
+        "x": -116,
+        "z": 130.5,
+        "area": "gas",
+        "label": "Suprimentos abandonados",
+        "site": "highway",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-deep",
+        "x": -112,
+        "z": 120.96,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "highway",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-yard",
+        "x": -99,
+        "z": 133,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "highway",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-entry",
+        "x": 111,
+        "z": 21.5,
+        "area": "police",
+        "label": "Locker da patrulha",
+        "site": "precinct",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-deep",
+        "x": 115,
+        "z": 9.84,
+        "area": "police",
+        "label": "Reserva da área isolada",
+        "site": "precinct",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-yard",
+        "x": 128,
+        "z": 25,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "precinct",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-entry",
+        "x": -115,
+        "z": -64.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-deep",
+        "x": -111,
+        "z": -70.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-yard",
+        "x": -104,
+        "z": -63.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-entry",
+        "x": -67,
+        "z": -109.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-deep",
+        "x": -63,
+        "z": -115.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-yard",
+        "x": -56,
+        "z": -108.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-entry",
+        "x": 15,
+        "z": -112.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-deep",
+        "x": 19,
+        "z": -118.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-yard",
+        "x": 26,
+        "z": -111.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-entry",
+        "x": 60,
+        "z": -112.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-3",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-deep",
+        "x": 64,
+        "z": -118.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-3",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-yard",
+        "x": 71,
+        "z": -111.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-3",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-entry",
+        "x": -116,
+        "z": 24.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-deep",
+        "x": -112,
+        "z": 18.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-yard",
+        "x": -105,
+        "z": 25.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-entry",
+        "x": 61,
+        "z": 124.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-5",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-deep",
+        "x": 65,
+        "z": 118.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-5",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-yard",
+        "x": 72,
+        "z": 125.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-5",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-entry",
+        "x": -66,
+        "z": 81.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-6",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-deep",
+        "x": -62,
+        "z": 75.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-6",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-yard",
+        "x": -55,
+        "z": 82.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-6",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-entry",
+        "x": 111,
+        "z": -59.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-7",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-deep",
+        "x": 115,
+        "z": -65.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-7",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-yard",
+        "x": 122,
+        "z": -58.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-7",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      }
+    ],
+    "barricades": [
+      {
+        "id": "gate",
+        "label": "Entrada principal",
+        "x": 1,
+        "z": 9,
+        "w": 6.6,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      },
+      {
+        "id": "west",
+        "label": "Acesso oeste",
+        "x": -4.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      },
+      {
+        "id": "east",
+        "label": "Acesso leste",
+        "x": 6.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      }
+    ],
+    "action": null,
+    "horde": {
+      "budget": 22,
+      "spawned": 1,
+      "complete": false
+    },
+    "threat": 40,
+    "phaseElapsed": 0.05,
+    "inventoryOpen": false,
+    "paused": false,
+    "gameOver": false,
+    "reloadTimer": 0,
+    "shotTimer": 0,
+    "zombies": [
+      {
+        "x": 111,
+        "z": 8.3,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115,
+        "z": 8.3,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111,
+        "z": 13.36,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115,
+        "z": 13.36,
+        "hp": 78,
+        "kind": "spitter",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111,
+        "z": 19.96,
+        "hp": 65,
+        "kind": "screamer",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115,
+        "z": 19.96,
+        "hp": 58,
+        "kind": "runner",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111,
+        "z": -65.85,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115,
+        "z": -63.32,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 118.24234546957899,
+        "z": -14.868621224649175,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 119.61223986745257,
+        "z": -14.818863710079814,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 122.10723384063738,
+        "z": -15.596521051560115,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 123.50475818260284,
+        "z": -15.529043424469341,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 118.31953303914133,
+        "z": -13.493643942345221,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 119.71350110882639,
+        "z": -13.461364602782934,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 121.0905063421582,
+        "z": -13.421761535091047,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 123.63684308647471,
+        "z": -14.122138435824263,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 118.42401273802435,
+        "z": -12.126608810466772,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 119.80488361808719,
+        "z": -12.084088251371497,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 33.952744112055086,
+        "z": 36.952744112055086,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      }
+    ],
+    "fps": 8,
+    "calls": 23,
+    "triangles": 65244,
+    "audio": {
+      "voices": 1,
+      "peak": 2,
+      "state": "running"
+    },
+    "render": {
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 146,
+      "textures": 12,
+      "geometryMB": 17,
+      "cacheMB": 8.4,
+      "heapMB": 57.5,
+      "voxelAssets": 179,
+      "activeChunks": 8
+    }
+  },
+  "after": {
+    "player": {
+      "x": 88,
+      "z": -30,
+      "hp": 100,
+      "stamina": 100,
+      "exhausted": false,
+      "staminaDelay": 0,
+      "angle": -0.6225923332833544,
+      "moving": false,
+      "running": false,
+      "invulnerable": 0
+    },
+    "runSeed": 1977,
+    "portals": [
+      {
+        "id": "school-front",
+        "site": "school",
+        "x": -112,
+        "z": -101,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "school-side",
+        "site": "school",
+        "x": -99,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hospital-main-front",
+        "site": "hospital-main",
+        "x": 112,
+        "z": -99,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hospital-main-side",
+        "site": "hospital-main",
+        "x": 127,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "motel-front",
+        "site": "motel",
+        "x": -113,
+        "z": -13,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "barred",
+        "state": "barred",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "motel-side",
+        "site": "motel",
+        "x": -100,
+        "z": -24,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hypermarket-front",
+        "site": "hypermarket",
+        "x": -113,
+        "z": 77,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hypermarket-side",
+        "site": "hypermarket",
+        "x": -98,
+        "z": 65,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "foundry-front",
+        "site": "foundry",
+        "x": 113,
+        "z": 89,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "foundry-side",
+        "site": "foundry",
+        "x": 127,
+        "z": 78,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "open",
+        "state": "open",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "firehouse-front",
+        "site": "firehouse",
+        "x": 16,
+        "z": 126,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "firehouse-side",
+        "site": "firehouse",
+        "x": 29,
+        "z": 116,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "cemetery-front",
+        "site": "cemetery",
+        "x": -56,
+        "z": 132,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "open",
+        "state": "open",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "cemetery-side",
+        "site": "cemetery",
+        "x": -41,
+        "z": 119,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "open",
+        "state": "open",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "quarantine-front",
+        "site": "quarantine",
+        "x": 114,
+        "z": 141,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "barred",
+        "state": "barred",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "quarantine-side",
+        "site": "quarantine",
+        "x": 130,
+        "z": 129,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "highway-front",
+        "site": "highway",
+        "x": -114,
+        "z": 135,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "highway-side",
+        "site": "highway",
+        "x": -102,
+        "z": 126,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "precinct-front",
+        "site": "precinct",
+        "x": 113,
+        "z": 27,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "precinct-side",
+        "site": "precinct",
+        "x": 125,
+        "z": 16,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-0-front",
+        "site": "home-0",
+        "x": -113,
+        "z": -61.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-0-side",
+        "site": "home-0",
+        "x": -107,
+        "z": -67,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-1-front",
+        "site": "home-1",
+        "x": -65,
+        "z": -106.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-1-side",
+        "site": "home-1",
+        "x": -59,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-2-front",
+        "site": "home-2",
+        "x": 17,
+        "z": -109.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-2-side",
+        "site": "home-2",
+        "x": 23,
+        "z": -115,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-3-front",
+        "site": "home-3",
+        "x": 62,
+        "z": -109.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-3-side",
+        "site": "home-3",
+        "x": 68,
+        "z": -115,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-4-front",
+        "site": "home-4",
+        "x": -114,
+        "z": 27.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-4-side",
+        "site": "home-4",
+        "x": -108,
+        "z": 22,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-5-front",
+        "site": "home-5",
+        "x": 63,
+        "z": 127.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-5-side",
+        "site": "home-5",
+        "x": 69,
+        "z": 122,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-6-front",
+        "site": "home-6",
+        "x": -64,
+        "z": 84.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-6-side",
+        "site": "home-6",
+        "x": -58,
+        "z": 79,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-7-front",
+        "site": "home-7",
+        "x": 113,
+        "z": -56.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-7-side",
+        "site": "home-7",
+        "x": 119,
+        "z": -62,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      }
+    ],
+    "discoveredSites": [],
+    "activatedSites": [
+      "precinct",
+      "home-7"
+    ],
+    "dormant": 0,
+    "weaponStorage": [],
+    "weapon": {
+      "uid": 0,
+      "type": "pistol",
+      "rarity": "common",
+      "magazine": 12,
+      "damageBonus": 0,
+      "reloadBonus": 0,
+      "stability": 0,
+      "capacityBonus": 0
+    },
+    "loadout": [
+      null,
+      {
+        "uid": 0,
+        "type": "pistol",
+        "rarity": "common",
+        "magazine": 12,
+        "damageBonus": 0,
+        "reloadBonus": 0,
+        "stability": 0,
+        "capacityBonus": 0
+      }
+    ],
+    "groundWeapons": [],
+    "perks": [],
+    "pendingPerks": [],
+    "facilities": [
+      {
+        "id": "hospital-power",
+        "name": "Gerador da triagem",
+        "x": 38,
+        "z": -33,
+        "kind": "generator",
+        "area": "hospital",
+        "state": "ready"
+      },
+      {
+        "id": "hospital-store",
+        "name": "Estoque refrigerado",
+        "x": 25,
+        "z": -26,
+        "kind": "cache",
+        "requires": "hospital-power",
+        "area": "hospital",
+        "state": "ready"
+      },
+      {
+        "id": "police-vault",
+        "name": "Armário de apreensões",
+        "x": 27,
+        "z": 24,
+        "kind": "cache",
+        "area": "police",
+        "state": "ready"
+      },
+      {
+        "id": "industrial-vault",
+        "name": "Reserva da oficina",
+        "x": 70,
+        "z": 69,
+        "kind": "cache",
+        "area": "gas",
+        "state": "ready"
+      },
+      {
+        "id": "car-trunk",
+        "name": "Porta-malas travado",
+        "x": -51,
+        "z": 10,
+        "kind": "trunk",
+        "area": "house",
+        "state": "ready"
+      }
+    ],
+    "acids": [],
+    "switchTimer": 0,
+    "stats": {
+      "seconds": 14.400000000000295,
+      "headshots": 0,
+      "loot": 0,
+      "damage": 0,
+      "nights": 0,
+      "specials": 0,
+      "weapons": 0,
+      "bestRarity": "common",
+      "repairs": 0
+    },
+    "mapOpen": false,
+    "settings": {
+      "master": 80,
+      "music": 35,
+      "effects": 85,
+      "sensitivity": 1,
+      "uiScale": 1,
+      "quality": "high",
+      "shadows": true,
+      "shake": true,
+      "captions": true
+    },
+    "flashlight": false,
+    "ui": {
+      "nodes": 590,
+      "updates": 92,
+      "mutations": 97
+    },
+    "ammo": 12,
+    "reserve": 60,
+    "phase": "night",
+    "time": 278.15,
+    "day": 1,
+    "kills": 0,
+    "corpses": [],
+    "baseHP": 1000,
+    "inventory": {
+      "ammo": 60,
+      "shells": 0,
+      "rifleAmmo": 0,
+      "med": 1,
+      "wood": 2,
+      "scrap": 1,
+      "rare": 0
+    },
+    "storage": {
+      "ammo": 0,
+      "shells": 0,
+      "rifleAmmo": 0,
+      "med": 0,
+      "wood": 0,
+      "scrap": 0,
+      "rare": 0
+    },
+    "weight": 3.75,
+    "loot": [
+      {
+        "id": "base-ammo",
+        "x": -2,
+        "z": 3,
+        "area": "base",
+        "label": "Reserva do pátio",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "base-wood",
+        "x": 4.8,
+        "z": 5,
+        "area": "outside",
+        "label": "Tábuas recuperadas",
+        "guaranteed": {
+          "wood": 6,
+          "scrap": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-crate",
+        "x": -22,
+        "z": 0.5,
+        "area": "market",
+        "label": "Caixa de entregas",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-locker",
+        "x": -29,
+        "z": 1.5,
+        "area": "market",
+        "label": "Armário do mercado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-case",
+        "x": 23,
+        "z": -17,
+        "area": "hospital",
+        "label": "Caixa médica",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-locker",
+        "x": 29,
+        "z": -17,
+        "area": "hospital",
+        "label": "Armário de emergência",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-locker",
+        "x": 23,
+        "z": 19,
+        "area": "police",
+        "label": "Locker de munição",
+        "guaranteed": {
+          "ammo": 24
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-case",
+        "x": 29,
+        "z": 33,
+        "area": "police",
+        "label": "Equipamento de patrulha",
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-tools",
+        "x": -28,
+        "z": 24,
+        "area": "gas",
+        "label": "Caixa de ferramentas",
+        "guaranteed": {
+          "scrap": 4
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-crate",
+        "x": -20,
+        "z": 33,
+        "area": "gas",
+        "label": "Material de manutenção",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-north",
+        "x": 3,
+        "z": -20.5,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-west",
+        "x": -27,
+        "z": -21,
+        "area": "house",
+        "label": "Baú da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-east",
+        "x": 29,
+        "z": 3,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-south",
+        "x": 4,
+        "z": 35,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "street-materials",
+        "x": -7,
+        "z": 5,
+        "area": "outside",
+        "label": "Material recuperável",
+        "guaranteed": {
+          "wood": 4,
+          "scrap": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-shelves",
+        "x": -25,
+        "z": -8,
+        "area": "market",
+        "label": "Suprimentos das prateleiras",
+        "guaranteed": {
+          "med": 1,
+          "wood": 4
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-drawer",
+        "x": 25,
+        "z": -21,
+        "area": "hospital",
+        "label": "Gaveta da recepção",
+        "guaranteed": {
+          "med": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-desk",
+        "x": 25,
+        "z": 28,
+        "area": "police",
+        "label": "Mesa de apreensões",
+        "guaranteed": {
+          "shells": 4,
+          "rifleAmmo": 12
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-pallet",
+        "x": 56,
+        "z": 69,
+        "area": "gas",
+        "label": "Carga de construção",
+        "guaranteed": {
+          "wood": 10,
+          "scrap": 8
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-locker",
+        "x": 71,
+        "z": 50,
+        "area": "gas",
+        "label": "Armário emperrado · barulhento",
+        "guaranteed": {
+          "scrap": 8
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-cache",
+        "x": 72,
+        "z": 72,
+        "area": "gas",
+        "label": "Reserva escondida",
+        "guaranteed": {
+          "rare": 1,
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "triage-case",
+        "x": 64,
+        "z": -60,
+        "area": "hospital",
+        "label": "Reserva da triagem",
+        "guaranteed": {
+          "med": 3
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "triage-cache",
+        "x": 69,
+        "z": -69,
+        "area": "hospital",
+        "label": "Maleta selada",
+        "guaranteed": {
+          "rare": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "checkpoint-locker",
+        "x": 39,
+        "z": 36,
+        "area": "police",
+        "label": "Locker reforçado · barulhento",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-ambulance",
+        "x": 43,
+        "z": -28,
+        "area": "hospital",
+        "label": "Kit da ambulância",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "north-house",
+        "x": -64,
+        "z": -60,
+        "area": "house",
+        "label": "Baú do jardim",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "north-garage",
+        "x": -43,
+        "z": -59,
+        "area": "gas",
+        "label": "Ferramentas da garagem",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "acacia-house",
+        "x": 3,
+        "z": -59,
+        "area": "house",
+        "label": "Baú das Acácias",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "acacia-east",
+        "x": 24,
+        "z": -56,
+        "area": "house",
+        "label": "Armário da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-pharmacy",
+        "x": -63,
+        "z": -16,
+        "area": "hospital",
+        "label": "Entrega da farmácia",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-store",
+        "x": -63,
+        "z": 6,
+        "area": "market",
+        "label": "Porta de serviço · barulhenta",
+        "guaranteed": {
+          "wood": 6
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-south",
+        "x": -63,
+        "z": 30,
+        "area": "market",
+        "label": "Caixa de mantimentos",
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "maintenance",
+        "x": -62,
+        "z": 71,
+        "area": "gas",
+        "label": "Material da oficina",
+        "guaranteed": {
+          "scrap": 7,
+          "wood": 6
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "plaza-camp",
+        "x": 5,
+        "z": 64,
+        "area": "outside",
+        "label": "Suprimentos da evacuação",
+        "guaranteed": {
+          "med": 1,
+          "ammo": 24
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "plaza-cache",
+        "x": -6,
+        "z": 72,
+        "area": "outside",
+        "label": "Baú sob as raízes",
+        "guaranteed": {
+          "rare": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "east-house",
+        "x": 63,
+        "z": 7,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "east-south",
+        "x": 63,
+        "z": 31,
+        "area": "house",
+        "label": "Baú de viagem",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "west-yard",
+        "x": -64,
+        "z": -37,
+        "area": "house",
+        "label": "Depósito do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-entry",
+        "x": -114,
+        "z": -106.5,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-deep",
+        "x": -110,
+        "z": -118.16,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-yard",
+        "x": -96,
+        "z": -103,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-entry",
+        "x": 110,
+        "z": -105.5,
+        "area": "hospital",
+        "label": "Carrinho de curativos",
+        "site": "hospital-main",
+        "valuable": false,
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-deep",
+        "x": 114,
+        "z": -119.28,
+        "area": "hospital",
+        "label": "Reserva da área isolada",
+        "site": "hospital-main",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-yard",
+        "x": 130,
+        "z": -101,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "hospital-main",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-entry",
+        "x": -115,
+        "z": -18.5,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "motel",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-deep",
+        "x": -111,
+        "z": -30.16,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "motel",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-yard",
+        "x": -97,
+        "z": -15,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "motel",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-entry",
+        "x": -115,
+        "z": 71,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "hypermarket",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-deep",
+        "x": -111,
+        "z": 58.28,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "hypermarket",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-yard",
+        "x": -95,
+        "z": 75,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "hypermarket",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-entry",
+        "x": 111,
+        "z": 83.5,
+        "area": "gas",
+        "label": "Suprimentos abandonados",
+        "site": "foundry",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-deep",
+        "x": 115,
+        "z": 71.84,
+        "area": "gas",
+        "label": "Reserva da área isolada",
+        "site": "foundry",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-yard",
+        "x": 130,
+        "z": 87,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "foundry",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-entry",
+        "x": 14,
+        "z": 121,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-deep",
+        "x": 18,
+        "z": 110.4,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-yard",
+        "x": 32,
+        "z": 124,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-entry",
+        "x": -58,
+        "z": 125.5,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "cemetery",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-deep",
+        "x": -54,
+        "z": 111.72,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "cemetery",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-yard",
+        "x": -38,
+        "z": 130,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "cemetery",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-entry",
+        "x": 112,
+        "z": 135,
+        "area": "police",
+        "label": "Suprimentos abandonados",
+        "site": "quarantine",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-deep",
+        "x": 116,
+        "z": 122.28,
+        "area": "police",
+        "label": "Reserva da área isolada",
+        "site": "quarantine",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-yard",
+        "x": 133,
+        "z": 139,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "quarantine",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-entry",
+        "x": -116,
+        "z": 130.5,
+        "area": "gas",
+        "label": "Suprimentos abandonados",
+        "site": "highway",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-deep",
+        "x": -112,
+        "z": 120.96,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "highway",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-yard",
+        "x": -99,
+        "z": 133,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "highway",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-entry",
+        "x": 111,
+        "z": 21.5,
+        "area": "police",
+        "label": "Locker da patrulha",
+        "site": "precinct",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-deep",
+        "x": 115,
+        "z": 9.84,
+        "area": "police",
+        "label": "Reserva da área isolada",
+        "site": "precinct",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-yard",
+        "x": 128,
+        "z": 25,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "precinct",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-entry",
+        "x": -115,
+        "z": -64.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-deep",
+        "x": -111,
+        "z": -70.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-yard",
+        "x": -104,
+        "z": -63.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-entry",
+        "x": -67,
+        "z": -109.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-deep",
+        "x": -63,
+        "z": -115.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-yard",
+        "x": -56,
+        "z": -108.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-entry",
+        "x": 15,
+        "z": -112.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-deep",
+        "x": 19,
+        "z": -118.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-yard",
+        "x": 26,
+        "z": -111.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-entry",
+        "x": 60,
+        "z": -112.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-3",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-deep",
+        "x": 64,
+        "z": -118.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-3",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-yard",
+        "x": 71,
+        "z": -111.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-3",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-entry",
+        "x": -116,
+        "z": 24.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-deep",
+        "x": -112,
+        "z": 18.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-yard",
+        "x": -105,
+        "z": 25.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-entry",
+        "x": 61,
+        "z": 124.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-5",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-deep",
+        "x": 65,
+        "z": 118.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-5",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-yard",
+        "x": 72,
+        "z": 125.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-5",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-entry",
+        "x": -66,
+        "z": 81.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-6",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-deep",
+        "x": -62,
+        "z": 75.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-6",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-yard",
+        "x": -55,
+        "z": 82.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-6",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-entry",
+        "x": 111,
+        "z": -59.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-7",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-deep",
+        "x": 115,
+        "z": -65.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-7",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-yard",
+        "x": 122,
+        "z": -58.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-7",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      }
+    ],
+    "barricades": [
+      {
+        "id": "gate",
+        "label": "Entrada principal",
+        "x": 1,
+        "z": 9,
+        "w": 6.6,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      },
+      {
+        "id": "west",
+        "label": "Acesso oeste",
+        "x": -4.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      },
+      {
+        "id": "east",
+        "label": "Acesso leste",
+        "x": 6.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      }
+    ],
+    "action": null,
+    "horde": {
+      "budget": 22,
+      "spawned": 5,
+      "complete": false
+    },
+    "threat": 40,
+    "phaseElapsed": 8.149999999999984,
+    "inventoryOpen": false,
+    "paused": false,
+    "gameOver": false,
+    "reloadTimer": 0,
+    "shotTimer": 0,
+    "zombies": [
+      {
+        "x": 111,
+        "z": 8.3,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115,
+        "z": 8.3,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111,
+        "z": 13.36,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115,
+        "z": 13.36,
+        "hp": 78,
+        "kind": "spitter",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111,
+        "z": 19.96,
+        "hp": 65,
+        "kind": "screamer",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115,
+        "z": 19.96,
+        "hp": 58,
+        "kind": "runner",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111,
+        "z": -65.85,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115,
+        "z": -63.32,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 109.73229042076144,
+        "z": -8.554466528160539,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 110.60239019068844,
+        "z": -8.237676625816585,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 114.84308483696447,
+        "z": -10.570814007688032,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 115.79124257478642,
+        "z": -10.194731560890848,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 110.24955425944485,
+        "z": -7.568405085185462,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111.04221916236416,
+        "z": -7.338320958883564,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111.91906791513391,
+        "z": -7.092402861162291,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 116.28648092752516,
+        "z": -9.282710482349765,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 110.80176930353934,
+        "z": -6.580961140276287,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 111.77281006470643,
+        "z": -6.202967932488641,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": false,
+        "patrol": {
+          "x": 98,
+          "z": 2
+        },
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 32.500559765859656,
+        "z": 26.91025875806094,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": -28.992868713100766,
+        "z": -12.499969447123897,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 10.644602912202368,
+        "z": 32.687372902462,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 9.85095745247275,
+        "z": -37.17831259612551,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 36.9295436289322,
+        "z": -12.070456371067795,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      }
+    ],
+    "fps": 9,
+    "calls": 23,
+    "triangles": 65244,
+    "audio": {
+      "voices": 0,
+      "peak": 2,
+      "state": "running"
+    },
+    "render": {
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 146,
+      "textures": 12,
+      "geometryMB": 17,
+      "cacheMB": 8.4,
+      "heapMB": 57.5,
+      "voxelAssets": 179,
+      "activeChunks": 8
+    }
+  },
+  "advanced": {
+    "player": {
+      "x": 1,
+      "z": 6.8633333333333635,
+      "hp": 100,
+      "stamina": 100,
+      "exhausted": false,
+      "staminaDelay": 0,
+      "angle": -0.6214182044022223,
+      "moving": false,
+      "running": false,
+      "invulnerable": 0
+    },
+    "runSeed": 1977,
+    "portals": [
+      {
+        "id": "school-front",
+        "site": "school",
+        "x": -112,
+        "z": -101,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "school-side",
+        "site": "school",
+        "x": -99,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hospital-main-front",
+        "site": "hospital-main",
+        "x": 112,
+        "z": -99,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hospital-main-side",
+        "site": "hospital-main",
+        "x": 127,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "motel-front",
+        "site": "motel",
+        "x": -113,
+        "z": -13,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "barred",
+        "state": "barred",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "motel-side",
+        "site": "motel",
+        "x": -100,
+        "z": -24,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hypermarket-front",
+        "site": "hypermarket",
+        "x": -113,
+        "z": 77,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "hypermarket-side",
+        "site": "hypermarket",
+        "x": -98,
+        "z": 65,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "foundry-front",
+        "site": "foundry",
+        "x": 113,
+        "z": 89,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "foundry-side",
+        "site": "foundry",
+        "x": 127,
+        "z": 78,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "open",
+        "state": "open",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "firehouse-front",
+        "site": "firehouse",
+        "x": 16,
+        "z": 126,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "firehouse-side",
+        "site": "firehouse",
+        "x": 29,
+        "z": 116,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "cemetery-front",
+        "site": "cemetery",
+        "x": -56,
+        "z": 132,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "open",
+        "state": "open",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "cemetery-side",
+        "site": "cemetery",
+        "x": -41,
+        "z": 119,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "open",
+        "state": "open",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "quarantine-front",
+        "site": "quarantine",
+        "x": 114,
+        "z": 141,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "barred",
+        "state": "barred",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "quarantine-side",
+        "site": "quarantine",
+        "x": 130,
+        "z": 129,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "highway-front",
+        "site": "highway",
+        "x": -114,
+        "z": 135,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "highway-side",
+        "site": "highway",
+        "x": -102,
+        "z": 126,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "precinct-front",
+        "site": "precinct",
+        "x": 113,
+        "z": 27,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": true,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "precinct-side",
+        "site": "precinct",
+        "x": 125,
+        "z": 16,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-0-front",
+        "site": "home-0",
+        "x": -113,
+        "z": -61.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-0-side",
+        "site": "home-0",
+        "x": -107,
+        "z": -67,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-1-front",
+        "site": "home-1",
+        "x": -65,
+        "z": -106.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-1-side",
+        "site": "home-1",
+        "x": -59,
+        "z": -112,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-2-front",
+        "site": "home-2",
+        "x": 17,
+        "z": -109.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-2-side",
+        "site": "home-2",
+        "x": 23,
+        "z": -115,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-3-front",
+        "site": "home-3",
+        "x": 62,
+        "z": -109.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-3-side",
+        "site": "home-3",
+        "x": 68,
+        "z": -115,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-4-front",
+        "site": "home-4",
+        "x": -114,
+        "z": 27.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-4-side",
+        "site": "home-4",
+        "x": -108,
+        "z": 22,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-5-front",
+        "site": "home-5",
+        "x": 63,
+        "z": 127.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-5-side",
+        "site": "home-5",
+        "x": 69,
+        "z": 122,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-6-front",
+        "site": "home-6",
+        "x": -64,
+        "z": 84.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-6-side",
+        "site": "home-6",
+        "x": -58,
+        "z": 79,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-7-front",
+        "site": "home-7",
+        "x": 113,
+        "z": -56.5,
+        "w": 3.2,
+        "d": 0.35,
+        "kind": "door",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 120,
+        "heavy": false,
+        "label": "Porta",
+        "built": true,
+        "flash": 0
+      },
+      {
+        "id": "home-7-side",
+        "site": "home-7",
+        "x": 119,
+        "z": -62,
+        "w": 0.35,
+        "d": 2.8,
+        "kind": "window",
+        "initial": "closed",
+        "state": "closed",
+        "hp": 35,
+        "heavy": false,
+        "label": "Janela",
+        "built": true,
+        "flash": 0
+      }
+    ],
+    "discoveredSites": [],
+    "activatedSites": [
+      "precinct",
+      "home-7"
+    ],
+    "dormant": 0,
+    "weaponStorage": [],
+    "weapon": {
+      "uid": 0,
+      "type": "pistol",
+      "rarity": "common",
+      "magazine": 12,
+      "damageBonus": 0,
+      "reloadBonus": 0,
+      "stability": 0,
+      "capacityBonus": 0
+    },
+    "loadout": [
+      null,
+      {
+        "uid": 0,
+        "type": "pistol",
+        "rarity": "common",
+        "magazine": 12,
+        "damageBonus": 0,
+        "reloadBonus": 0,
+        "stability": 0,
+        "capacityBonus": 0
+      }
+    ],
+    "groundWeapons": [],
+    "perks": [],
+    "pendingPerks": [],
+    "facilities": [
+      {
+        "id": "hospital-power",
+        "name": "Gerador da triagem",
+        "x": 38,
+        "z": -33,
+        "kind": "generator",
+        "area": "hospital",
+        "state": "ready"
+      },
+      {
+        "id": "hospital-store",
+        "name": "Estoque refrigerado",
+        "x": 25,
+        "z": -26,
+        "kind": "cache",
+        "requires": "hospital-power",
+        "area": "hospital",
+        "state": "ready"
+      },
+      {
+        "id": "police-vault",
+        "name": "Armário de apreensões",
+        "x": 27,
+        "z": 24,
+        "kind": "cache",
+        "area": "police",
+        "state": "ready"
+      },
+      {
+        "id": "industrial-vault",
+        "name": "Reserva da oficina",
+        "x": 70,
+        "z": 69,
+        "kind": "cache",
+        "area": "gas",
+        "state": "ready"
+      },
+      {
+        "id": "car-trunk",
+        "name": "Porta-malas travado",
+        "x": -51,
+        "z": 10,
+        "kind": "trunk",
+        "area": "house",
+        "state": "ready"
+      }
+    ],
+    "acids": [],
+    "switchTimer": 0,
+    "stats": {
+      "seconds": 36.799999999999194,
+      "headshots": 0,
+      "loot": 0,
+      "damage": 0,
+      "nights": 0,
+      "specials": 0,
+      "weapons": 0,
+      "bestRarity": "common",
+      "repairs": 0
+    },
+    "mapOpen": false,
+    "settings": {
+      "master": 80,
+      "music": 35,
+      "effects": 85,
+      "sensitivity": 1,
+      "uiScale": 1,
+      "quality": "high",
+      "shadows": true,
+      "shake": true,
+      "captions": true
+    },
+    "flashlight": false,
+    "ui": {
+      "nodes": 593,
+      "updates": 135,
+      "mutations": 164
+    },
+    "ammo": 12,
+    "reserve": 60,
+    "phase": "night",
+    "time": 288.0000000000003,
+    "day": 5,
+    "kills": 0,
+    "corpses": [],
+    "baseHP": 1000,
+    "inventory": {
+      "ammo": 60,
+      "shells": 0,
+      "rifleAmmo": 0,
+      "med": 1,
+      "wood": 2,
+      "scrap": 1,
+      "rare": 0
+    },
+    "storage": {
+      "ammo": 0,
+      "shells": 0,
+      "rifleAmmo": 0,
+      "med": 0,
+      "wood": 0,
+      "scrap": 0,
+      "rare": 0
+    },
+    "weight": 3.75,
+    "loot": [
+      {
+        "id": "base-ammo",
+        "x": -2,
+        "z": 3,
+        "area": "base",
+        "label": "Reserva do pátio",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "base-wood",
+        "x": 4.8,
+        "z": 5,
+        "area": "outside",
+        "label": "Tábuas recuperadas",
+        "guaranteed": {
+          "wood": 6,
+          "scrap": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-crate",
+        "x": -22,
+        "z": 0.5,
+        "area": "market",
+        "label": "Caixa de entregas",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-locker",
+        "x": -29,
+        "z": 1.5,
+        "area": "market",
+        "label": "Armário do mercado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-case",
+        "x": 23,
+        "z": -17,
+        "area": "hospital",
+        "label": "Caixa médica",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-locker",
+        "x": 29,
+        "z": -17,
+        "area": "hospital",
+        "label": "Armário de emergência",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-locker",
+        "x": 23,
+        "z": 19,
+        "area": "police",
+        "label": "Locker de munição",
+        "guaranteed": {
+          "ammo": 24
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-case",
+        "x": 29,
+        "z": 33,
+        "area": "police",
+        "label": "Equipamento de patrulha",
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-tools",
+        "x": -28,
+        "z": 24,
+        "area": "gas",
+        "label": "Caixa de ferramentas",
+        "guaranteed": {
+          "scrap": 4
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gas-crate",
+        "x": -20,
+        "z": 33,
+        "area": "gas",
+        "label": "Material de manutenção",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-north",
+        "x": 3,
+        "z": -20.5,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-west",
+        "x": -27,
+        "z": -21,
+        "area": "house",
+        "label": "Baú da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-east",
+        "x": 29,
+        "z": 3,
+        "area": "house",
+        "label": "Baú abandonado",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "house-south",
+        "x": 4,
+        "z": 35,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "street-materials",
+        "x": -7,
+        "z": 5,
+        "area": "outside",
+        "label": "Material recuperável",
+        "guaranteed": {
+          "wood": 4,
+          "scrap": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "market-shelves",
+        "x": -25,
+        "z": -8,
+        "area": "market",
+        "label": "Suprimentos das prateleiras",
+        "guaranteed": {
+          "med": 1,
+          "wood": 4
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-drawer",
+        "x": 25,
+        "z": -21,
+        "area": "hospital",
+        "label": "Gaveta da recepção",
+        "guaranteed": {
+          "med": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "police-desk",
+        "x": 25,
+        "z": 28,
+        "area": "police",
+        "label": "Mesa de apreensões",
+        "guaranteed": {
+          "shells": 4,
+          "rifleAmmo": 12
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-pallet",
+        "x": 56,
+        "z": 69,
+        "area": "gas",
+        "label": "Carga de construção",
+        "guaranteed": {
+          "wood": 10,
+          "scrap": 8
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-locker",
+        "x": 71,
+        "z": 50,
+        "area": "gas",
+        "label": "Armário emperrado · barulhento",
+        "guaranteed": {
+          "scrap": 8
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "industrial-cache",
+        "x": 72,
+        "z": 72,
+        "area": "gas",
+        "label": "Reserva escondida",
+        "guaranteed": {
+          "rare": 1,
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "triage-case",
+        "x": 64,
+        "z": -60,
+        "area": "hospital",
+        "label": "Reserva da triagem",
+        "guaranteed": {
+          "med": 3
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "triage-cache",
+        "x": 69,
+        "z": -69,
+        "area": "hospital",
+        "label": "Maleta selada",
+        "guaranteed": {
+          "rare": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "checkpoint-locker",
+        "x": 39,
+        "z": 36,
+        "area": "police",
+        "label": "Locker reforçado · barulhento",
+        "guaranteed": {
+          "ammo": 36
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-ambulance",
+        "x": 43,
+        "z": -28,
+        "area": "hospital",
+        "label": "Kit da ambulância",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "north-house",
+        "x": -64,
+        "z": -60,
+        "area": "house",
+        "label": "Baú do jardim",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "north-garage",
+        "x": -43,
+        "z": -59,
+        "area": "gas",
+        "label": "Ferramentas da garagem",
+        "guaranteed": {
+          "wood": 5
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "acacia-house",
+        "x": 3,
+        "z": -59,
+        "area": "house",
+        "label": "Baú das Acácias",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "acacia-east",
+        "x": 24,
+        "z": -56,
+        "area": "house",
+        "label": "Armário da varanda",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-pharmacy",
+        "x": -63,
+        "z": -16,
+        "area": "hospital",
+        "label": "Entrega da farmácia",
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-store",
+        "x": -63,
+        "z": 6,
+        "area": "market",
+        "label": "Porta de serviço · barulhenta",
+        "guaranteed": {
+          "wood": 6
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "gallery-south",
+        "x": -63,
+        "z": 30,
+        "area": "market",
+        "label": "Caixa de mantimentos",
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "maintenance",
+        "x": -62,
+        "z": 71,
+        "area": "gas",
+        "label": "Material da oficina",
+        "guaranteed": {
+          "scrap": 7,
+          "wood": 6
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "plaza-camp",
+        "x": 5,
+        "z": 64,
+        "area": "outside",
+        "label": "Suprimentos da evacuação",
+        "guaranteed": {
+          "med": 1,
+          "ammo": 24
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "plaza-cache",
+        "x": -6,
+        "z": 72,
+        "area": "outside",
+        "label": "Baú sob as raízes",
+        "guaranteed": {
+          "rare": 1
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "east-house",
+        "x": 63,
+        "z": 7,
+        "area": "house",
+        "label": "Caixa do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "east-south",
+        "x": 63,
+        "z": 31,
+        "area": "house",
+        "label": "Baú de viagem",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "west-yard",
+        "x": -64,
+        "z": -37,
+        "area": "house",
+        "label": "Depósito do quintal",
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-entry",
+        "x": -114,
+        "z": -106.5,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-deep",
+        "x": -110,
+        "z": -118.16,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "school-yard",
+        "x": -96,
+        "z": -103,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "school",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-entry",
+        "x": 110,
+        "z": -105.5,
+        "area": "hospital",
+        "label": "Carrinho de curativos",
+        "site": "hospital-main",
+        "valuable": false,
+        "guaranteed": {
+          "med": 2
+        },
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-deep",
+        "x": 114,
+        "z": -119.28,
+        "area": "hospital",
+        "label": "Reserva da área isolada",
+        "site": "hospital-main",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hospital-main-yard",
+        "x": 130,
+        "z": -101,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "hospital-main",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-entry",
+        "x": -115,
+        "z": -18.5,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "motel",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-deep",
+        "x": -111,
+        "z": -30.16,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "motel",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "motel-yard",
+        "x": -97,
+        "z": -15,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "motel",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-entry",
+        "x": -115,
+        "z": 71,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "hypermarket",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-deep",
+        "x": -111,
+        "z": 58.28,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "hypermarket",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "hypermarket-yard",
+        "x": -95,
+        "z": 75,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "hypermarket",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-entry",
+        "x": 111,
+        "z": 83.5,
+        "area": "gas",
+        "label": "Suprimentos abandonados",
+        "site": "foundry",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-deep",
+        "x": 115,
+        "z": 71.84,
+        "area": "gas",
+        "label": "Reserva da área isolada",
+        "site": "foundry",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "foundry-yard",
+        "x": 130,
+        "z": 87,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "foundry",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-entry",
+        "x": 14,
+        "z": 121,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-deep",
+        "x": 18,
+        "z": 110.4,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "firehouse-yard",
+        "x": 32,
+        "z": 124,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "firehouse",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-entry",
+        "x": -58,
+        "z": 125.5,
+        "area": "market",
+        "label": "Suprimentos abandonados",
+        "site": "cemetery",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-deep",
+        "x": -54,
+        "z": 111.72,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "cemetery",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "cemetery-yard",
+        "x": -38,
+        "z": 130,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "cemetery",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-entry",
+        "x": 112,
+        "z": 135,
+        "area": "police",
+        "label": "Suprimentos abandonados",
+        "site": "quarantine",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-deep",
+        "x": 116,
+        "z": 122.28,
+        "area": "police",
+        "label": "Reserva da área isolada",
+        "site": "quarantine",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "quarantine-yard",
+        "x": 133,
+        "z": 139,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "quarantine",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-entry",
+        "x": -116,
+        "z": 130.5,
+        "area": "gas",
+        "label": "Suprimentos abandonados",
+        "site": "highway",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-deep",
+        "x": -112,
+        "z": 120.96,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "highway",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "highway-yard",
+        "x": -99,
+        "z": 133,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "highway",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-entry",
+        "x": 111,
+        "z": 21.5,
+        "area": "police",
+        "label": "Locker da patrulha",
+        "site": "precinct",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-deep",
+        "x": 115,
+        "z": 9.84,
+        "area": "police",
+        "label": "Reserva da área isolada",
+        "site": "precinct",
+        "valuable": true,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "precinct-yard",
+        "x": 128,
+        "z": 25,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "precinct",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-entry",
+        "x": -115,
+        "z": -64.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-deep",
+        "x": -111,
+        "z": -70.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-0-yard",
+        "x": -104,
+        "z": -63.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-0",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-entry",
+        "x": -67,
+        "z": -109.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-deep",
+        "x": -63,
+        "z": -115.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-1-yard",
+        "x": -56,
+        "z": -108.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-1",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-entry",
+        "x": 15,
+        "z": -112.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-deep",
+        "x": 19,
+        "z": -118.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-2-yard",
+        "x": 26,
+        "z": -111.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-2",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-entry",
+        "x": 60,
+        "z": -112.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-3",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-deep",
+        "x": 64,
+        "z": -118.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-3",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-3-yard",
+        "x": 71,
+        "z": -111.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-3",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-entry",
+        "x": -116,
+        "z": 24.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-deep",
+        "x": -112,
+        "z": 18.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-4-yard",
+        "x": -105,
+        "z": 25.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-4",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-entry",
+        "x": 61,
+        "z": 124.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-5",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-deep",
+        "x": 65,
+        "z": 118.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-5",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-5-yard",
+        "x": 72,
+        "z": 125.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-5",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-entry",
+        "x": -66,
+        "z": 81.75,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-6",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-deep",
+        "x": -62,
+        "z": 75.92,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-6",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-6-yard",
+        "x": -55,
+        "z": 82.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-6",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-entry",
+        "x": 111,
+        "z": -59.25,
+        "area": "house",
+        "label": "Suprimentos abandonados",
+        "site": "home-7",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-deep",
+        "x": 115,
+        "z": -65.08,
+        "area": "house",
+        "label": "Armário do fundo",
+        "site": "home-7",
+        "valuable": false,
+        "searched": true,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      },
+      {
+        "id": "home-7-yard",
+        "x": 122,
+        "z": -58.5,
+        "area": "outside",
+        "label": "Mochila junto à saída",
+        "site": "home-7",
+        "valuable": false,
+        "searched": false,
+        "contents": {
+          "ammo": 0,
+          "shells": 0,
+          "rifleAmmo": 0,
+          "med": 0,
+          "wood": 0,
+          "scrap": 0,
+          "rare": 0
+        },
+        "lastFound": null
+      }
+    ],
+    "barricades": [
+      {
+        "id": "gate",
+        "label": "Entrada principal",
+        "x": 1,
+        "z": 9,
+        "w": 6.6,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      },
+      {
+        "id": "west",
+        "label": "Acesso oeste",
+        "x": -4.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      },
+      {
+        "id": "east",
+        "label": "Acesso leste",
+        "x": 6.35,
+        "z": 0,
+        "w": 1.7,
+        "d": 0.6,
+        "hp": 0,
+        "built": false,
+        "flash": 0
+      }
+    ],
+    "action": null,
+    "horde": {
+      "budget": 58,
+      "spawned": 12,
+      "complete": false
+    },
+    "threat": 58,
+    "phaseElapsed": 18.00000000000026,
+    "inventoryOpen": false,
+    "paused": false,
+    "gameOver": false,
+    "reloadTimer": 0,
+    "shotTimer": 0,
+    "zombies": [
+      {
+        "x": 13.878050041588592,
+        "z": -12.486838951081054,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 14.47710640477575,
+        "z": -12.516144869409672,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 27.881436965891407,
+        "z": 18.55307842710819,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": -17.844595216293946,
+        "z": 10.50001817490975,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 21.240071322368934,
+        "z": -30.500952474030075,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": -4.5000342705442975,
+        "z": -10.496465663913188,
+        "hp": 58,
+        "kind": "runner",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 25.747036745857873,
+        "z": -12.48924641529,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 35.480445025360964,
+        "z": 25.66752179297503,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": -32.69968810074859,
+        "z": 29.852263730356352,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": 32.57006870643992,
+        "z": 10.076357892041871,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": -11.10197547235118,
+        "z": 35.13021004569627,
+        "hp": 90,
+        "kind": "walker",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      },
+      {
+        "x": -36.37763982133845,
+        "z": 33.613394940857546,
+        "hp": 58,
+        "kind": "runner",
+        "windup": 0,
+        "screamCooldown": 0,
+        "siege": true,
+        "zone": "TORSO",
+        "wounds": [],
+        "hearing": 0
+      }
+    ],
+    "fps": 3,
+    "calls": 75,
+    "triangles": 153254,
+    "audio": {
+      "voices": 0,
+      "peak": 2,
+      "state": "running"
+    },
+    "render": {
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 153,
+      "textures": 12,
+      "geometryMB": 16.9,
+      "cacheMB": 8.4,
+      "heapMB": 57.5,
+      "voxelAssets": 179,
+      "activeChunks": 12
+    }
+  }
+}

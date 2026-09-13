@@ -15,7 +15,7 @@ const HAZARD_FLOOR = .28;
 export class ExpeditionView {
   private guns:{root:THREE.Mesh;uid:number}[]=[];private gunGeometry=new Map<WeaponId,THREE.BufferGeometry>();
   private bands:THREE.InstancedMesh;private acid:THREE.InstancedMesh;private splash:THREE.InstancedMesh;private warning:THREE.InstancedMesh;
-  private facilities:{root:THREE.Group;lid:THREE.Mesh}[]=[];private eventRoot:THREE.Group;
+  private facilities:{root:THREE.Group;lid:THREE.Mesh}[]=[];private eventRoot:THREE.Group;private eventBody:THREE.Mesh;
   private generatorLight=new THREE.PointLight(0xd6dba1,0,12,2);private dummy=new THREE.Object3D();
   constructor(private scene:THREE.Scene){
     this.bands=new THREE.InstancedMesh(new THREE.BoxGeometry(.55,.025,.06),new THREE.MeshBasicMaterial({color:0xffffff}),48);this.bands.count=0;this.bands.frustumCulled=false;scene.add(this.bands);
@@ -26,6 +26,7 @@ export class ExpeditionView {
     for(const f of FACILITIES){const model=this.facility(f.kind);model.root.position.set(f.x,0,f.z);scene.add(model.root);this.facilities.push(model);}
     this.generatorLight.position.set(25,3.2,-24);scene.add(this.generatorLight);
     this.eventRoot=this.facility('cache').root;scene.add(this.eventRoot);this.eventRoot.visible=false;
+    this.eventBody=voxelMesh({id:'city:fallen-survivor:v1',unit:.1,build(g){g.fill(-3,1,-4,6,3,8,0x596c62).fill(-2,1,4,4,3,4,0xb5a386).fill(-3,1,-11,2,2,7,0x394f48).fill(1,1,-11,2,2,7,0x394f48).fill(-6,1,-3,3,2,7,0x6c7d67).fill(3,1,-5,3,2,7,0x6c7d67);}});scene.add(this.eventBody);this.eventBody.visible=false;
   }
   private facility(kind:string):{root:THREE.Group;lid:THREE.Mesh}{
     const root=new THREE.Group();root.name=`expedition-${kind}`;
@@ -71,6 +72,6 @@ export class ExpeditionView {
     this.acid.count=acidCount;this.splash.count=flightCount;this.warning.count=warningCount;for(const mesh of [this.acid,this.splash,this.warning])mesh.instanceMatrix.needsUpdate=true;
     sim.facilities.forEach((f,i)=>{const v=this.facilities[i];v.root.visible=Math.hypot(f.x-sim.player.x,f.z-sim.player.z)<65;v.lid.rotation.x=f.state==='opened'?-1.35:0;});
     this.generatorLight.intensity=sim.facilities[0].state==='powered'?12:0;
-    const event=sim.worldEvent;this.eventRoot.visible=event?.kind==='cache'&&!event.triggered;if(event)this.eventRoot.position.set(event.x,0,event.z);
+    const event=sim.worldEvent;this.eventRoot.visible=event?.kind==='cache'&&!event.triggered;if(event)this.eventRoot.position.set(event.x,0,event.z);this.eventBody.visible=this.eventRoot.visible&&event?.flavor==='survivor';if(event)this.eventBody.position.set(event.x-1.4,0,event.z);
   }
 }

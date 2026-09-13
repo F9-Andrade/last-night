@@ -1,0 +1,62 @@
+{
+  "method": "Controlled navigation fixture, one initial positioning and high health/baseHP; subsequent travel uses keyboard and path readout. Not a survival or balance test.",
+  "stages": [
+    {
+      "name": "industry",
+      "player": {
+        "x": 112.59299338546775,
+        "z": 91.88632671880156,
+        "hp": 1000,
+        "stamina": 100,
+        "exhausted": false,
+        "staminaDelay": 0,
+        "angle": -1.0470605716940413,
+        "moving": true,
+        "running": false,
+        "invulnerable": 0
+      },
+      "phase": "dusk",
+      "seconds": 17.266666666666968,
+      "active": 22,
+      "calls": 85
+    },
+    {
+      "name": "quarantine",
+      "player": {
+        "x": 113.9784419177108,
+        "z": 143.8246081015413,
+        "hp": 1000,
+        "stamina": 100,
+        "exhausted": false,
+        "staminaDelay": 0,
+        "angle": -1.0445445218956095,
+        "moving": true,
+        "running": false,
+        "invulnerable": 0
+      },
+      "phase": "preparation",
+      "seconds": 37.48333333333249,
+      "active": 16,
+      "calls": 80
+    },
+    {
+      "name": "return",
+      "player": {
+        "x": 0.5291690808395416,
+        "z": 9.982001931338727,
+        "hp": 961,
+        "stamina": 100,
+        "exhausted": false,
+        "staminaDelay": 0,
+        "angle": -0.8126156805348329,
+        "moving": true,
+        "running": false,
+        "invulnerable": 0
+      },
+      "phase": "night",
+      "seconds": 92.88333333332935,
+      "active": 17,
+      "calls": 121
+    }
+  ]
+}

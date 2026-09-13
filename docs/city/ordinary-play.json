@@ -1,0 +1,26 @@
+[
+  {
+    "wallSeconds": 10,
+    "label": "Início: decidir rota e recolher reserva",
+    "path": "docs/city/play-00.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:27\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nE\nCONSTRUIR BARRICADA\n6 madeira + 2 sucata"
+  },
+  {
+    "wallSeconds": 25,
+    "label": "Aproximar da reserva do pátio",
+    "path": "docs/city/play-01.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:22\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer."
+  },
+  {
+    "wallSeconds": 51,
+    "label": "Vasculhar a reserva, sem gastar munição com os errantes distantes",
+    "path": "docs/city/play-02.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:16\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer."
+  },
+  {
+    "wallSeconds": 67,
+    "label": "Alcançar a caixa e recolher munição",
+    "path": "docs/city/play-03.png",
+    "visible": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:10\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nPrecisa de cuidados\n10\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nH Uma bandagem pode ajudar.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nE\nVASCULHAR\nReserva do pátio"
+  }
+]

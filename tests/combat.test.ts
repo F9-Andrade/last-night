@@ -25,11 +25,11 @@ test('leg hit slows; bounded wounds and corpse manager do not become collision o
 });
 test('noise is bounded by distance, creates no new actors, and expires',()=>{
   const s=new Simulation();s.zombies=[];const near=s.spawn({x:1,z:21})!,far=s.spawn({x:1,z:55})!;const count=s.activeWalkers;s.noise(s.player,30);assert.ok(near.hearing>0);assert.equal(far.hearing,0);assert.equal(s.activeWalkers,count);
-  for(let i=0;i<480;i++)s.update(1/60,idle);assert.equal(near.hearing,0);
+  for(let i=0;i<660;i++)s.update(1/60,idle);assert.equal(near.hearing,0);
 });
 test('reload stages occur once; sprint/action/damage cancellation never grants ammunition',()=>{
-  const s=new Simulation();s.zombies=[];s.ammo=3;s.reload();for(let i=0;i<20;i++)s.update(.016,idle);s.update(.016,{...idle,moveX:1,run:true});assert.equal(s.reloadTimer,0);assert.equal(s.ammo,3);assert.equal(s.reserve,72);
-  s.events=[];s.reload();for(let i=0;i<90;i++)s.update(.016,idle);assert.equal(s.ammo,12);assert.equal(s.reserve,63);
+  const s=new Simulation();s.zombies=[];s.ammo=3;s.reload();for(let i=0;i<20;i++)s.update(.016,idle);s.update(.016,{...idle,moveX:1,run:true});assert.equal(s.reloadTimer,0);assert.equal(s.ammo,3);assert.equal(s.reserve,60);
+  s.events=[];s.reload();for(let i=0;i<90;i++)s.update(.016,idle);assert.equal(s.ammo,12);assert.equal(s.reserve,51);
   for(const stage of ['reload-out','reload-in','reload-slide','reload-done'])assert.equal(s.events.filter(e=>e.type===stage).length,1);
 });
 test('all expanded loot and authored encounters have traversable paths from the preserved base',()=>{
@@ -54,7 +54,7 @@ test('body reservation bounds the combined population without dropping a corpse 
   s.update(.016,{...idle,aimY:1.9,fire:true});assert.equal(s.corpses.bodies.length,BALANCE.combat.corpseLimit);assert.equal(s.activeWalkers,0);
 });
 test('damage and starting another action cancel reload without consuming reserve ammunition',()=>{
-  const s=new Simulation();s.zombies=[];s.player.hp=50;s.ammo=2;s.reload();s.update(.016,{...idle,heal:true});assert.equal(s.reloadTimer,0);assert.equal(s.ammo,2);assert.equal(s.reserve,72);
+  const s=new Simulation();s.zombies=[];s.player.hp=50;s.ammo=2;s.reload();s.update(.016,{...idle,heal:true});assert.equal(s.reloadTimer,0);assert.equal(s.ammo,2);assert.equal(s.reserve,60);
   s.action=null;const z=s.spawn({x:1,z:8})!;z.attack=0;s.reload();s.update(.016,idle);assert.equal(s.reloadTimer,0);assert.ok(s.player.hp<50);assert.equal(s.ammo,2);
 });
 test('a constructed barricade preserves the defender firing lane while still blocking movement',()=>{

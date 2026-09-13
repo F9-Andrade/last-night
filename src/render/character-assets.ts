@@ -63,6 +63,14 @@ export function characterPart(part: CharacterPart, walker: boolean, variant = 0,
 
 /** Separate anatomical recipes retain shared attachment points and wound groups. */
 function specialPart(g:VoxelGrid,part:CharacterPart,kind:EnemyKind,variant:number):void {
+  if(kind==='screamer'){
+    const skin=0xb2ad86,cloth=0x777a79;
+    if(part==='torso'){g.fill(-3,10,-2,6,10,4,cloth).fill(-4,15,-3,8,4,5,cloth).fill(-1,19,-1,2,7,3,skin).fill(-2,11,2,4,6,1,0x505f55).fill(-3,10,-3,6,2,1,0x918c75);}
+    else if(part==='head'){g.fill(-3,-1,-2,6,8,5,skin).fill(-4,1,-1,8,4,3,skin).fill(-3,5,-3,6,3,4,0x535951).fill(-2,-1,3,4,6,2,0x3e5147).fill(-3,-2,2,6,1,3,skin).fill(-2,5,3,4,1,2,0xc5bd95).set(-2,6,2,0xe0ce9e).set(1,6,2,0xe0ce9e);}
+    else if(part.endsWith('leg')){g.fill(-2,-9,-2,4,9,4,0x495d54).fill(-2,-11,-2,4,3,6,0x33473d).fill(-1,-5,2,2,3,1,skin);}
+    else{g.fill(-2,-6,-2,4,7,4,cloth).fill(-1,-10,-1,3,5,3,skin).fill(-2,-11,1,4,2,3,skin).fill(-2,-10,4,1,1,2,0x8a886d);}
+    return;
+  }
   const tank=kind==='tank',runner=kind==='runner',skin=tank?0x98977a:runner?0xa0a887:0xa4ac75;
   const cloth=tank?0x776951:runner?0x805f52:0x647969;
   if(part==='torso'){

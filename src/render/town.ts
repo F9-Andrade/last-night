@@ -2,7 +2,7 @@ import { hasInterior, ROOM_PROPS } from '../game/interiors';
 import { createDistricts } from './districts';
 import { ROADS } from '../game/districts';
 import * as THREE from 'three';
-import { BUILDINGS, CARS, FENCES, collides } from '../game/world';
+import { BUILDINGS, CARS, FENCES, collides, WORLD_LIMIT } from '../game/world';
 import type { Building } from '../game/world';
 import { box, textSign, batch } from './models';
 import { voxelGeometry, voxelMesh, voxelMaterial } from './voxel';
@@ -54,8 +54,8 @@ export function createTown(scene: THREE.Scene): Town {
   const staticWorld = new THREE.Group(); scene.add(staticWorld);
   const town: Town = { chunks: [], buildings: [], lamps: new THREE.MeshStandardMaterial({ color: 0xf5cc83, emissive: 0xffc77c, emissiveIntensity: .1 }), lights: [], emergency: new THREE.MeshStandardMaterial({ color: 0xb58b6c, emissive: 0xe39b65, emissiveIntensity: 0 }), supplies: [] };
   town.chunks=createDistricts(scene,town.lamps);
-  box(staticWorld, 0, -.45, 0, 260, .7, 260, 0x6e8065);
-  for(const r of ROADS) {box(staticWorld,r.x,-.065,r.z,r.w,.12,r.d,0x4c5c5a);for(let n=-74;n<76;n+=6){if(r.w>r.d)box(staticWorld,n,.015,r.z,2,.02,.12,0xb5af85);else box(staticWorld,r.x,.015,n,.12,.02,2,0xb5af85);}}
+  box(staticWorld, 0, -.45, 0, WORLD_LIMIT*2+90, .7, WORLD_LIMIT*2+90, 0x6e8065);
+  for(const r of ROADS) {box(staticWorld,r.x,-.065,r.z,r.w,.12,r.d,0x4c5c5a);for(let n=-WORLD_LIMIT+4;n<WORLD_LIMIT-4;n+=6){if(r.w>r.d)box(staticWorld,n,.015,r.z,2,.02,.12,0xb5af85);else box(staticWorld,r.x,.015,n,.12,.02,2,0xb5af85);}}
   // Four orderly city blocks, with weathered asphalt and raised sidewalks.
   box(staticWorld, -12, -.055, 0, 9, .14, 80, 0x4c5c5a); box(staticWorld, 15, -.055, 0, 7, .14, 80, 0x4c5c5a);
   box(staticWorld, 0, -.04, 13, 80, .16, 8, 0x4c5c5a); box(staticWorld, 0, -.04, -16, 80, .16, 5, 0x4c5c5a);

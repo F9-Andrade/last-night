@@ -1,4 +1,5 @@
 /** Authored expansion: the original district remains inside the central 78 m square. */
+import {CITY_ROADS,CITY_SITES,CITY_LIMIT} from './city.ts';
 export const REGIONS = [
   {x:1,z:2,name:'ABRIGO 07',icon:'07'}, {x:-25,z:-6,name:'MERCADO',icon:'M'},
   {x:30,z:-30,name:'HOSPITAL SANTA LUZ',icon:'+'},{x:30,z:29,name:'DELEGACIA',icon:'P'},
@@ -6,6 +7,7 @@ export const REGIONS = [
   {x:-59,z:-57,name:'JARDINS DO NORTE',icon:'R'},{x:-60,z:3,name:'GALERIA SANTA LUZ',icon:'C'},
   {x:0,z:59,name:'PRAÇA DA EVACUAÇÃO',icon:'E'},{x:5,z:-59,name:'VILA DAS ACÁCIAS',icon:'R'},
   {x:61,z:-58,name:'TRIAGEM EXTERNA',icon:'+'},{x:-59,z:58,name:'PÁTIO DE MANUTENÇÃO',icon:'S'},
+  ...CITY_SITES.map(s=>({x:s.x,z:s.z,name:s.name,icon:s.kind==='hospital'?'+':s.kind==='quarantine'?'Q':s.kind==='school'?'A':s.kind==='cemetery'?'C':s.kind==='industry'?'I':s.kind==='fire'?'F':s.kind==='gas'?'G':s.kind==='market'?'M':s.kind==='police'?'P':'R'})),
 ];
 export const OUTER_HOUSES = [
   [-65,-66,0xb08c75],[-44,-65,0x809d91],[-64,-43,0xb5a07c],[-43,-43,0x9f9a80],
@@ -31,6 +33,7 @@ export const ENCOUNTERS = [
 ];
 export const ALARMS=[{x:-54,z:9},{x:40,z:28},{x:-49,z:-58}];
 export const ROADS = [{x:-12,z:0,w:9,d:156},{x:15,z:0,w:7,d:156},{x:0,z:13,w:156,d:8},{x:0,z:-16,w:156,d:5},{x:-49,z:0,w:7,d:156},{x:49,z:0,w:7,d:156},{x:0,z:-50,w:156,d:7},{x:0,z:49,w:156,d:7}];
+ROADS.forEach(r=>{if(r.w>r.d)r.w=CITY_LIMIT*2;else r.d=CITY_LIMIT*2;});ROADS.push(...CITY_ROADS);
 
 /** Large solid props share authored footprints with the visual placement. */
 export const CARGO_OBSTACLES = [53,57,61].map(x=>({x,z:49,w:2.7,d:6})).concat([-66,-62,-58].map(x=>({x,z:54,w:2.7,d:6})));

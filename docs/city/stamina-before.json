@@ -1,0 +1,126 @@
+{
+  "duration": 10,
+  "runStateChanges": 316,
+  "samples": [
+    {
+      "step": 226,
+      "stamina": 0.9166666666662731,
+      "running": false
+    },
+    {
+      "step": 227,
+      "stamina": 1.2333333333329397,
+      "running": false
+    },
+    {
+      "step": 228,
+      "stamina": 0.7833333333329398,
+      "running": true
+    },
+    {
+      "step": 229,
+      "stamina": 1.0999999999996064,
+      "running": false
+    },
+    {
+      "step": 230,
+      "stamina": 0.6499999999996064,
+      "running": true
+    },
+    {
+      "step": 231,
+      "stamina": 0.9666666666662731,
+      "running": false
+    },
+    {
+      "step": 232,
+      "stamina": 1.2833333333329398,
+      "running": false
+    },
+    {
+      "step": 233,
+      "stamina": 0.8333333333329398,
+      "running": true
+    },
+    {
+      "step": 234,
+      "stamina": 1.1499999999996064,
+      "running": false
+    },
+    {
+      "step": 235,
+      "stamina": 0.6999999999996065,
+      "running": true
+    },
+    {
+      "step": 236,
+      "stamina": 1.0166666666662731,
+      "running": false
+    },
+    {
+      "step": 237,
+      "stamina": 0.5666666666662732,
+      "running": true
+    },
+    {
+      "step": 238,
+      "stamina": 0.8833333333329398,
+      "running": false
+    },
+    {
+      "step": 239,
+      "stamina": 1.1999999999996065,
+      "running": false
+    },
+    {
+      "step": 240,
+      "stamina": 0.7499999999996065,
+      "running": true
+    },
+    {
+      "step": 241,
+      "stamina": 1.0666666666662732,
+      "running": false
+    },
+    {
+      "step": 242,
+      "stamina": 0.6166666666662732,
+      "running": true
+    },
+    {
+      "step": 243,
+      "stamina": 0.9333333333329399,
+      "running": false
+    },
+    {
+      "step": 244,
+      "stamina": 1.2499999999996065,
+      "running": false
+    },
+    {
+      "step": 245,
+      "stamina": 0.7999999999996066,
+      "running": true
+    },
+    {
+      "step": 246,
+      "stamina": 1.1166666666662732,
+      "running": false
+    },
+    {
+      "step": 247,
+      "stamina": 0.6666666666662733,
+      "running": true
+    },
+    {
+      "step": 248,
+      "stamina": 0.9833333333329399,
+      "running": false
+    },
+    {
+      "step": 249,
+      "stamina": 1.2999999999996066,
+      "running": false
+    }
+  ]
+}

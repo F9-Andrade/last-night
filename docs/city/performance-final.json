@@ -1,0 +1,167 @@
+{
+  "renderer": "Chromium SwiftShader software, high quality, 1440×900",
+  "metrics": [
+    {
+      "id": "base",
+      "phase": "day",
+      "fps": 10,
+      "calls": 60,
+      "triangles": 151834,
+      "active": 0,
+      "dormant": 0,
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 122,
+      "textures": 12,
+      "geometryMB": 16.8,
+      "cacheMB": 8.2,
+      "heapMB": 73.1,
+      "voxelAssets": 161,
+      "activeChunks": 11,
+      "audio": {
+        "voices": 0,
+        "peak": 2,
+        "state": "running"
+      }
+    },
+    {
+      "id": "center",
+      "phase": "day",
+      "fps": 3,
+      "calls": 69,
+      "triangles": 143588,
+      "active": 3,
+      "dormant": 0,
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 126,
+      "textures": 12,
+      "geometryMB": 16.8,
+      "cacheMB": 8.2,
+      "heapMB": 73.1,
+      "voxelAssets": 161,
+      "activeChunks": 12,
+      "audio": {
+        "voices": 0,
+        "peak": 2,
+        "state": "running"
+      }
+    },
+    {
+      "id": "hospital-front",
+      "phase": "day",
+      "fps": 3,
+      "calls": 42,
+      "triangles": 55878,
+      "active": 4,
+      "dormant": 0,
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 149,
+      "textures": 14,
+      "geometryMB": 16.8,
+      "cacheMB": 8.2,
+      "heapMB": 73.1,
+      "voxelAssets": 161,
+      "activeChunks": 4,
+      "audio": {
+        "voices": 0,
+        "peak": 2,
+        "state": "running"
+      }
+    },
+    {
+      "id": "hospital-night",
+      "phase": "night",
+      "fps": 4,
+      "calls": 35,
+      "triangles": 57358,
+      "active": 2,
+      "dormant": 0,
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 149,
+      "textures": 14,
+      "geometryMB": 16.8,
+      "cacheMB": 8.2,
+      "heapMB": 73.1,
+      "voxelAssets": 161,
+      "activeChunks": 3,
+      "audio": {
+        "voices": 0,
+        "peak": 2,
+        "state": "running"
+      }
+    },
+    {
+      "id": "industry-night",
+      "phase": "night",
+      "fps": 6,
+      "calls": 54,
+      "triangles": 57318,
+      "active": 13,
+      "dormant": 0,
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 191,
+      "textures": 16,
+      "geometryMB": 17,
+      "cacheMB": 8.4,
+      "heapMB": 73.1,
+      "voxelAssets": 185,
+      "activeChunks": 6,
+      "audio": {
+        "voices": 0,
+        "peak": 2,
+        "state": "running"
+      }
+    },
+    {
+      "id": "quarantine-night",
+      "phase": "night",
+      "fps": 5,
+      "calls": 32,
+      "triangles": 55362,
+      "active": 2,
+      "dormant": 0,
+      "meshes": 1318,
+      "materials": 203,
+      "geometries": 198,
+      "textures": 17,
+      "geometryMB": 17,
+      "cacheMB": 8.4,
+      "heapMB": 73.1,
+      "voxelAssets": 185,
+      "activeChunks": 3,
+      "audio": {
+        "voices": 0,
+        "peak": 2,
+        "state": "running"
+      }
+    },
+    {
+      "id": "mixed-40",
+      "phase": "dusk",
+      "fps": 5,
+      "calls": 345,
+      "triangles": 181820,
+      "active": 40,
+      "dormant": 0,
+      "meshes": 1318,
+      "materials": 205,
+      "geometries": 227,
+      "textures": 19,
+      "geometryMB": 17,
+      "cacheMB": 8.7,
+      "heapMB": 73.1,
+      "voxelAssets": 209,
+      "activeChunks": 12,
+      "audio": {
+        "voices": 0,
+        "peak": 11,
+        "state": "running"
+      }
+    }
+  ],
+  "errors": []
+}

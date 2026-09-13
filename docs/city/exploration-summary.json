@@ -1,0 +1,145 @@
+{
+  "method": "Normal URL without test/debug; Playwright keyboard and pointer commands chosen from screenshots and visible HUD. Normal pause used between observations. Light quality 960×600 in SwiftShader. Wall times excluded; screenshot latency remains included in game time.",
+  "result": "Defeat on return near original triage, 2m17s alive. Reached new hospital and opened front door. 1 special killed, 3 rounds fired, 1 bandage used, 0 items collected, 0 nights survived.",
+  "sampledDecisionIntervalsSeconds": [
+    5,
+    5,
+    7,
+    7,
+    5,
+    11,
+    6,
+    7,
+    12,
+    6,
+    5,
+    4,
+    4,
+    5,
+    13,
+    4,
+    12,
+    3,
+    12,
+    2
+  ],
+  "medianSeconds": 5.5,
+  "largestSeconds": 13,
+  "rows": [
+    {
+      "decision": "Início: sair do pátio e seguir pela avenida leste",
+      "elapsedSimulation": 2,
+      "screenshot": "docs/city/walk-00.png"
+    },
+    {
+      "decision": "Sair pelo portão e evitar o primeiro errante",
+      "elapsedSimulation": 7,
+      "screenshot": "docs/city/walk-01.png"
+    },
+    {
+      "decision": "Seguir a rua leste, conservando munição",
+      "elapsedSimulation": 12,
+      "screenshot": "docs/city/walk-02.png"
+    },
+    {
+      "decision": "Virar para o norte e buscar a rota do hospital",
+      "elapsedSimulation": 19,
+      "screenshot": "docs/city/walk-03.png"
+    },
+    {
+      "decision": "Passar pela triagem e recusar confronto com o grupo que se aproxima",
+      "elapsedSimulation": 26,
+      "screenshot": "docs/city/walk-04.png"
+    },
+    {
+      "decision": "Recuar da parede da triagem e recuperar espaço na rua",
+      "elapsedSimulation": 31,
+      "screenshot": "docs/city/walk-05.png"
+    },
+    {
+      "decision": "Seguir pela rua ao norte; usar bandagem depois de se afastar",
+      "elapsedSimulation": 42,
+      "screenshot": "docs/city/walk-06.png"
+    },
+    {
+      "decision": "Cruzar o bairro residencial e consultar o mapa antes da zona norte",
+      "elapsedSimulation": 48,
+      "screenshot": "docs/city/walk-07.png"
+    },
+    {
+      "decision": "Escolher a ala norte do hospital como destino, sem bandagens restantes",
+      "elapsedSimulation": 55,
+      "screenshot": "docs/city/walk-08.png"
+    },
+    {
+      "decision": "Seguir pela avenida ao leste, alternando corrida e recuperação",
+      "elapsedSimulation": 67,
+      "screenshot": "docs/city/walk-09.png"
+    },
+    {
+      "decision": "Aproximar da entrada frontal da ala norte",
+      "elapsedSimulation": 73,
+      "screenshot": "docs/city/walk-10.png"
+    },
+    {
+      "decision": "Tentar abrir o hospital antes de o grupo alcançar a entrada",
+      "elapsedSimulation": 78,
+      "screenshot": "docs/city/walk-11.png"
+    },
+    {
+      "decision": "Alinhar-se com a porta e forçar o acesso",
+      "elapsedSimulation": 82,
+      "screenshot": "docs/city/walk-12.png"
+    },
+    {
+      "decision": "Tentar interromper o Cuspidor antes de entrar",
+      "elapsedSimulation": 86,
+      "screenshot": "docs/city/walk-13.png"
+    },
+    {
+      "decision": "Abortar entrada sem bandagens e recuar para a avenida",
+      "elapsedSimulation": 91,
+      "screenshot": "docs/city/walk-14.png"
+    },
+    {
+      "decision": "Retornar pelo eixo oeste antes de buscar abrigo no centro",
+      "elapsedSimulation": 104,
+      "screenshot": "docs/city/walk-15.png"
+    },
+    {
+      "decision": "Alinhar retorno à avenida central",
+      "elapsedSimulation": 108,
+      "screenshot": "docs/city/walk-16.png"
+    },
+    {
+      "decision": "Atravessar o residencial em direção ao abrigo",
+      "elapsedSimulation": 120,
+      "screenshot": "docs/city/walk-17.png"
+    },
+    {
+      "decision": "Corrigir o trajeto ao encontrar a lateral de uma casa",
+      "elapsedSimulation": 123,
+      "screenshot": "docs/city/walk-18.png"
+    },
+    {
+      "decision": "Priorizar o retorno e ignorar o novo sinal de suprimentos",
+      "elapsedSimulation": 135,
+      "screenshot": "docs/city/walk-19.png"
+    },
+    {
+      "decision": "Contornar a ambulância que bloqueou a passagem",
+      "elapsedSimulation": 137,
+      "screenshot": "docs/city/walk-20.png"
+    },
+    {
+      "decision": "Tentar alcançar o abrigo com vida crítica",
+      "elapsedSimulation": 137,
+      "screenshot": "docs/city/walk-21.png"
+    },
+    {
+      "decision": "Fim da exploração manual",
+      "elapsedSimulation": 137,
+      "screenshot": "docs/city/walk-22.png"
+    }
+  ]
+}
