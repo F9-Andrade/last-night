@@ -1,0 +1,56 @@
+{
+  "scenarioHooks": false,
+  "clockAcceleration": false,
+  "errors": [],
+  "snapshots": [
+    {
+      "name": "start",
+      "timer": "04:27",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "supplies",
+      "timer": "04:23",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "inventory",
+      "timer": "04:19",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "street",
+      "timer": "04:14",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "combat",
+      "timer": "04:07",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "map",
+      "timer": "04:02",
+      "health": "91",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "return",
+      "timer": "03:56",
+      "health": "91",
+      "ammo": "12",
+      "context": ""
+    }
+  ]
+}

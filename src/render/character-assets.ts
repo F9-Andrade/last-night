@@ -6,10 +6,10 @@ export type CharacterPart = 'torso' | 'head' | 'left-leg' | 'right-leg' | 'left-
 const SKIN = 0xc9a681, HAIR = 0x3b3c33, BOOT = 0x333b37, PANTS = 0x455654, GOLD = 0xbd9352;
 
 export function characterPart(part: CharacterPart, walker: boolean, variant = 0,kind:EnemyKind='walker'): VoxelRecipe {
-  return { id: `${walker ? `${kind}-${variant % 3}` : 'survivor'}:${part}:v2`, unit: .08, build(g) {
-    if(walker&&kind!=='walker'){specialPart(g,part,kind,variant);return;}
-    const skin = walker ? [0x9ba386, 0xa4a388, 0x91a18b][variant % 3] : SKIN;
-    const coat = walker ? [0x65746c, 0x887767, 0x6f8184][variant % 3] : GOLD;
+  return { id: `${walker ? `${kind}-${variant % 3}` : 'survivor'}:${part}:v11`, unit: .08, build(g) {
+    if(walker&&kind!=='walker'){specialPart(g,part,kind,variant);infectedPatina(g,part,variant);return;}
+    const skin = walker ? [0x96977d, 0xa59b81, 0x899480][variant % 3] : SKIN;
+    const coat = walker ? [0x58655d, 0x786d5f, 0x606c71][variant % 3] : GOLD;
     if (part === 'torso') {
       g.fill(-4, 10, -3, 8, 9, 6, coat).fill(-5, 13, -3, 10, 5, 6, coat).fill(-3, 19, -2, 6, 1, 4, coat);
       g.fill(-4, 10, -3, 8, 1, 6, 0x4b5141).fill(-1, 10, 3, 2, 1, 1, 0xb5ac86);
@@ -37,7 +37,7 @@ export function characterPart(part: CharacterPart, walker: boolean, variant = 0,
       g.fill(-3, 4, -2, 1, 2, 3, HAIR).fill(2, 4, -2, 1, 2, 2, HAIR);
       g.set(-2, 4, 3, 0x39433c).set(1, 4, 3, 0x39433c).fill(-2, 1, 4, 4, 1, 1, walker ? 0x65594b : 0x796c51);
       if (walker) {
-        g.carve(0, 7, -2, 3, 1, 4).set(2, 5, 2, skin).set(-2, 4, 4, 0xbcbc84).set(1, 4, 4, 0xbcbc84);
+        g.carve(0, 7, -2, 3, 1, 4).set(2, 5, 2, skin).set(-2, 4, 4, 0xaca580).set(1, 4, 4, 0xaca580);
         g.set(-3, 2, 3, 0x855e4d).set(-2, 2, 4, 0x855e4d).set(2, 0, 2, 0x65594b);
       } else { g.fill(-2, 7, -2, 4, 1, 4, 0x484b3b).set(-2, 5, 3, HAIR).set(1, 5, 3, HAIR); }
     } else if (part.endsWith('leg')) {
@@ -53,10 +53,11 @@ export function characterPart(part: CharacterPart, walker: boolean, variant = 0,
       if (walker) { g.carve(-2, -3, 2, 1, 2, 3).fill(-2, -3, 2, 1, 1, 3, skin).set(0, -2, 8, 0x775746); }
       else { g.fill(-2, -2, reach - 3, 4, 1, 1, 0x8d7b50).fill(-2, -3, reach - 1, 4, 1, 1, 0x4a5745); }
     }
+    if(walker)infectedPatina(g,part,variant);
     // Sparse wear; large calm color fields remain readable at gameplay scale.
     if (part !== 'head') for (const [key, color] of g.cells) {
       const [x, y, z] = VoxelGrid.coordinates(key);
-      if (color === coat && hash(x, y, z, variant) > .95) g.cells.set(key, walker ? 0x828775 : 0xc6a369);
+      if (color === coat && hash(x, y, z, variant) > .95) g.cells.set(key, walker ? 0x727564 : 0xc6a369);
     }
   } };
 }
@@ -111,4 +112,20 @@ function specialPart(g:VoxelGrid,part:CharacterPart,kind:EnemyKind,variant:numbe
     g.fill(-2,-5,long?8:4,4,2,3,0x90996b).set(0,-3,2,0xb3b488);
   }
   for(const [key,color] of g.cells){const [x,y,z]=VoxelGrid.coordinates(key);if(color===cloth&&hash(x,y,z,variant)>.94)g.cells.set(key,0x9b9374);}
+}
+
+/** Sparse dried wounds, recessed eye sockets and hems, contained in each existing body mesh. */
+function infectedPatina(g:VoxelGrid,part:CharacterPart,variant:number):void {
+  const dry=variant%2?0x52382f:0x633c31;
+  const stain=(x:number,y:number,color=dry)=>{for(let z=12;z>=-8;z--)if(g.get(x,y,z)!==undefined){g.set(x,y,z,color);break;}};
+  if(part==='head'){
+    g.fill(-3,4,3,2,2,1,0x393e33).fill(1,4,3,2,2,1,0x393e33);
+    g.set(-2,4,4,0xa49d79).set(1,4,4,0x999775);
+    g.set(-2,2,4,dry).set(-1,1,4,dry).set(-2,0,3,0x4c3b31);
+  }else if(part==='torso'){
+    for(let y=15;y<18;y++)stain(variant%2?-2:1,y);stain(0,12);stain(1,11,0x554336);
+    g.fill(-3,10,3,2,1,1,0x464a3d).set(-2,17,-4,0x494d3e);
+  }else if(part.endsWith('arm')){
+    stain(0,-3);stain(1,-2);
+  }else {stain(1,-4);stain(-1,-8,0x514936);}
 }

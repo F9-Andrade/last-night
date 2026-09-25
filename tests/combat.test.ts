@@ -69,6 +69,6 @@ test('industrial containers and the plaza monument are solid, with metal impact 
   assert.ok(collides({x:53,z:49}));assert.ok(collides({x:-62,z:54}));assert.ok(collides({x:0,z:59}));assert.equal(impactMaterial({x:53,z:46}),'metal');
 });
 test('misses end on the ground or at range without manufacturing a mid-air concrete impact',()=>{
-  const s=new Simulation();s.zombies=[];s.player.x=75;s.player.z=10;s.player.angle=0;s.shoot();const shot=s.events.find(e=>e.type==='shot');assert.equal(shot?.material,'air');
+  const s=new Simulation();s.zombies=[];s.player.x=153;s.player.z=10;s.player.angle=0;s.shoot();const shot=s.events.find(e=>e.type==='shot');assert.equal(shot?.material,'air');
   s.shotTimer=0;s.anatomicalAim=true;s.aimDistance=1;s.aimHeight=0;s.shoot();const last=s.events.filter(e=>e.type==='shot').at(-1);assert.ok(Math.abs(last?.y??10)<.001);
 });

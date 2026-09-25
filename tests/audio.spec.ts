@@ -84,7 +84,7 @@ test('game reload, car interaction and nearby zombie combat use the local record
   await page.goto('/?test');await page.locator('#start').click();
   await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().audio.samplesLoaded.length===6);
   await page.evaluate(()=>{const g=(window as any).__LAST_NIGHT__;g.clearWalkers();g.setPhase('dusk');});
-  await page.mouse.click(420,350);await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().ammo===11);
+  await page.evaluate(()=>{const canvas=document.querySelector('canvas')!;canvas.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));window.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true}));});await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().ammo===11);
   await page.keyboard.press('r');await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().audio.samplesPlaying.includes('reload'));
   await page.keyboard.press('Escape');await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().audio.state==='suspended');
   await page.locator('#resume').click();await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().ammo===12);

@@ -1,0 +1,358 @@
+{
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "quality": "low",
+  "viewport": "960x640",
+  "scale": 1,
+  "transport": "Observed frames on real Photon WSS; includes Photon framing, excludes TLS/TCP/IP overhead. Existing 40 living infected cap preserved. Interval standard deviation measures arrival variability of all WSS frame types, including browser scheduling, not isolated network latency. CPU is CDP renderer TaskDuration, excludes GPU.",
+  "samples": [
+    {
+      "requested": 10,
+      "actual": 10,
+      "seconds": 3.585,
+      "clients": [
+        {
+          "actor": 1,
+          "rendererTaskCpuMsPerSecond": 408.62705718270576,
+          "wssFrameIntervals": {
+            "samples": 309,
+            "meanMs": 11.601941747572816,
+            "standardDeviationMs": 7.981377766502644,
+            "maxMs": 54
+          },
+          "fps": 60,
+          "calls": 222,
+          "triangles": 130961,
+          "ping": 13,
+          "snapshotAgeMs": 336.69999999995343,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 59.047619047619044,
+          "webSocketTxBytesPerSecond": 23075.034867503487,
+          "webSocketRxBytesPerSecond": 10784.65829846583,
+          "infected": 10
+        },
+        {
+          "actor": 2,
+          "rendererTaskCpuMsPerSecond": 386.1386331938633,
+          "wssFrameIntervals": {
+            "samples": 259,
+            "meanMs": 13.845559845559846,
+            "standardDeviationMs": 12.067349994240006,
+            "maxMs": 71
+          },
+          "fps": 60,
+          "calls": 222,
+          "triangles": 131163,
+          "ping": 14,
+          "snapshotAgeMs": 322.5999999998603,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 59.047619047619044,
+          "webSocketTxBytesPerSecond": 3728.3124128312415,
+          "webSocketRxBytesPerSecond": 26547.559274755928,
+          "infected": 10
+        },
+        {
+          "actor": 3,
+          "rendererTaskCpuMsPerSecond": 390.3631799163181,
+          "wssFrameIntervals": {
+            "samples": 260,
+            "meanMs": 13.784615384615385,
+            "standardDeviationMs": 12.860783930756696,
+            "maxMs": 68
+          },
+          "fps": 60,
+          "calls": 215,
+          "triangles": 135289,
+          "ping": 14,
+          "snapshotAgeMs": 323.70000000018626,
+          "sendEventsPerSecond": 19,
+          "receiveEventsPerSecond": 59,
+          "webSocketTxBytesPerSecond": 3692.887029288703,
+          "webSocketRxBytesPerSecond": 26576.8479776848,
+          "infected": 10
+        },
+        {
+          "actor": 4,
+          "rendererTaskCpuMsPerSecond": 390.73472803347283,
+          "wssFrameIntervals": {
+            "samples": 259,
+            "meanMs": 13.837837837837839,
+            "standardDeviationMs": 7.223724637723749,
+            "maxMs": 55
+          },
+          "fps": 60,
+          "calls": 202,
+          "triangles": 132681,
+          "ping": 14,
+          "snapshotAgeMs": 329.70000000018626,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 59.047619047619044,
+          "webSocketTxBytesPerSecond": 3692.329149232915,
+          "webSocketRxBytesPerSecond": 26553.97489539749,
+          "infected": 10
+        }
+      ]
+    },
+    {
+      "requested": 25,
+      "actual": 25,
+      "seconds": 3.606,
+      "clients": [
+        {
+          "actor": 1,
+          "rendererTaskCpuMsPerSecond": 455.1442041042706,
+          "wssFrameIntervals": {
+            "samples": 312,
+            "meanMs": 11.583333333333334,
+            "standardDeviationMs": 8.211513440983522,
+            "maxMs": 68
+          },
+          "fps": 60,
+          "calls": 325,
+          "triangles": 144485,
+          "ping": 14,
+          "snapshotAgeMs": 450.5,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 60,
+          "webSocketTxBytesPerSecond": 50050.471436494736,
+          "webSocketRxBytesPerSecond": 10768.718801996672,
+          "infected": 25
+        },
+        {
+          "actor": 2,
+          "rendererTaskCpuMsPerSecond": 419.3416528008874,
+          "wssFrameIntervals": {
+            "samples": 267,
+            "meanMs": 13.52059925093633,
+            "standardDeviationMs": 11.942533546365565,
+            "maxMs": 58
+          },
+          "fps": 60,
+          "calls": 322,
+          "triangles": 144039,
+          "ping": 13,
+          "snapshotAgeMs": 434.4000000001397,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 61,
+          "webSocketTxBytesPerSecond": 3737.9367720465893,
+          "webSocketRxBytesPerSecond": 53812.81198003328,
+          "infected": 25
+        },
+        {
+          "actor": 3,
+          "rendererTaskCpuMsPerSecond": 423.09456461453146,
+          "wssFrameIntervals": {
+            "samples": 268,
+            "meanMs": 13.473880597014926,
+            "standardDeviationMs": 13.063395532992736,
+            "maxMs": 74
+          },
+          "fps": 60,
+          "calls": 310,
+          "triangles": 147521,
+          "ping": 15,
+          "snapshotAgeMs": 435.30000000004657,
+          "sendEventsPerSecond": 19.998000199978144,
+          "receiveEventsPerSecond": 59.994000599934424,
+          "webSocketTxBytesPerSecond": 3727.6760953965613,
+          "webSocketRxBytesPerSecond": 53817.249029395454,
+          "infected": 25
+        },
+        {
+          "actor": 4,
+          "rendererTaskCpuMsPerSecond": 420.5806988352746,
+          "wssFrameIntervals": {
+            "samples": 269,
+            "meanMs": 13.423791821561338,
+            "standardDeviationMs": 7.379184965306172,
+            "maxMs": 58
+          },
+          "fps": 60,
+          "calls": 293,
+          "triangles": 144597,
+          "ping": 15,
+          "snapshotAgeMs": 434.10000000009313,
+          "sendEventsPerSecond": 19.998000199982794,
+          "receiveEventsPerSecond": 59.994000599948386,
+          "webSocketTxBytesPerSecond": 3689.4065446478094,
+          "webSocketRxBytesPerSecond": 53859.67831392124,
+          "infected": 25
+        }
+      ]
+    },
+    {
+      "requested": 50,
+      "actual": 40,
+      "seconds": 3.62,
+      "clients": [
+        {
+          "actor": 1,
+          "rendererTaskCpuMsPerSecond": 503.9472375690608,
+          "wssFrameIntervals": {
+            "samples": 308,
+            "meanMs": 11.737012987012987,
+            "standardDeviationMs": 8.258348403311686,
+            "maxMs": 69
+          },
+          "fps": 60,
+          "calls": 432,
+          "triangles": 157167,
+          "ping": 13,
+          "snapshotAgeMs": 469.89999999990687,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 57,
+          "webSocketTxBytesPerSecond": 78081.21546961326,
+          "webSocketRxBytesPerSecond": 10710.497237569061,
+          "infected": 40
+        },
+        {
+          "actor": 2,
+          "rendererTaskCpuMsPerSecond": 450.881767955801,
+          "wssFrameIntervals": {
+            "samples": 283,
+            "meanMs": 12.780918727915195,
+            "standardDeviationMs": 12.801338401914103,
+            "maxMs": 91
+          },
+          "fps": 60,
+          "calls": 429,
+          "triangles": 156731,
+          "ping": 14,
+          "snapshotAgeMs": 459.80000000004657,
+          "sendEventsPerSecond": 18,
+          "receiveEventsPerSecond": 59,
+          "webSocketTxBytesPerSecond": 3698.0662983425414,
+          "webSocketRxBytesPerSecond": 83275.41436464088,
+          "infected": 40
+        },
+        {
+          "actor": 3,
+          "rendererTaskCpuMsPerSecond": 455.274585635359,
+          "wssFrameIntervals": {
+            "samples": 285,
+            "meanMs": 12.694736842105263,
+            "standardDeviationMs": 13.530270430157861,
+            "maxMs": 72
+          },
+          "fps": 60,
+          "calls": 408,
+          "triangles": 159285,
+          "ping": 15,
+          "snapshotAgeMs": 462.5,
+          "sendEventsPerSecond": 19.047619047619047,
+          "receiveEventsPerSecond": 59.047619047619044,
+          "webSocketTxBytesPerSecond": 3708.2872928176794,
+          "webSocketRxBytesPerSecond": 83317.95580110497,
+          "infected": 40
+        },
+        {
+          "actor": 4,
+          "rendererTaskCpuMsPerSecond": 450.6058011049723,
+          "wssFrameIntervals": {
+            "samples": 283,
+            "meanMs": 12.784452296819788,
+            "standardDeviationMs": 8.51850025580492,
+            "maxMs": 75
+          },
+          "fps": 60,
+          "calls": 383,
+          "triangles": 155095,
+          "ping": 15,
+          "snapshotAgeMs": 458.9000000001397,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 58,
+          "webSocketTxBytesPerSecond": 3708.2872928176794,
+          "webSocketRxBytesPerSecond": 83270.99447513813,
+          "infected": 40
+        }
+      ]
+    },
+    {
+      "requested": 100,
+      "actual": 40,
+      "seconds": 3.637,
+      "clients": [
+        {
+          "actor": 1,
+          "rendererTaskCpuMsPerSecond": 497.75584272752286,
+          "wssFrameIntervals": {
+            "samples": 310,
+            "meanMs": 11.751612903225807,
+            "standardDeviationMs": 8.796237134202537,
+            "maxMs": 91
+          },
+          "fps": 60,
+          "calls": 431,
+          "triangles": 157605,
+          "ping": 12,
+          "snapshotAgeMs": 14.800000000046566,
+          "sendEventsPerSecond": 19.998000199978144,
+          "receiveEventsPerSecond": 59.994000599934424,
+          "webSocketTxBytesPerSecond": 78553.47814132526,
+          "webSocketRxBytesPerSecond": 10683.80533406654,
+          "infected": 40
+        },
+        {
+          "actor": 2,
+          "rendererTaskCpuMsPerSecond": 434.5092108880946,
+          "wssFrameIntervals": {
+            "samples": 278,
+            "meanMs": 13.10431654676259,
+            "standardDeviationMs": 12.58867465497711,
+            "maxMs": 92
+          },
+          "fps": 60,
+          "calls": 421,
+          "triangles": 156543,
+          "ping": 14,
+          "snapshotAgeMs": 546.6000000000931,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 60,
+          "webSocketTxBytesPerSecond": 3714.8748968930436,
+          "webSocketRxBytesPerSecond": 82672.80725872972,
+          "infected": 40
+        },
+        {
+          "actor": 3,
+          "rendererTaskCpuMsPerSecond": 434.97827880120985,
+          "wssFrameIntervals": {
+            "samples": 278,
+            "meanMs": 13.10431654676259,
+            "standardDeviationMs": 13.881820680163003,
+            "maxMs": 106
+          },
+          "fps": 60,
+          "calls": 401,
+          "triangles": 158889,
+          "ping": 15,
+          "snapshotAgeMs": 547.5,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 59.047619047619044,
+          "webSocketTxBytesPerSecond": 3714.8748968930436,
+          "webSocketRxBytesPerSecond": 82677.20648886445,
+          "infected": 40
+        },
+        {
+          "actor": 4,
+          "rendererTaskCpuMsPerSecond": 438.06846301897144,
+          "wssFrameIntervals": {
+            "samples": 275,
+            "meanMs": 13.047272727272727,
+            "standardDeviationMs": 8.696997487021383,
+            "maxMs": 91
+          },
+          "fps": 60,
+          "calls": 380,
+          "triangles": 155131,
+          "ping": 14,
+          "snapshotAgeMs": 544.8000000000466,
+          "sendEventsPerSecond": 20,
+          "receiveEventsPerSecond": 60,
+          "webSocketTxBytesPerSecond": 3704.701677206489,
+          "webSocketRxBytesPerSecond": 82630.46466868298,
+          "infected": 40
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

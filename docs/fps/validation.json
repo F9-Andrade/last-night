@@ -1,0 +1,15 @@
+{
+  "build": "passed",
+  "typecheck": "passed",
+  "unitTests": 129,
+  "unitFailures": 0,
+  "browserScenarios": 8,
+  "browserFinalStatus": "all distinct scenarios passed across integration and targeted regression runs",
+  "browserIntegration": "7 passed; rapid Escape/Enter resume failed, then fixed",
+  "browserRegression": "pointer lock, immediate look, inventory, map, rapid resume, stamina, crouch, ADS, death/retry passed in 18.7s after duplicate unlock fix",
+  "browserRenderer": "Chromium SwiftShader (software), 1280x720",
+  "legacyIsometricUISuite": "preserved but requires migration; not claimed as passed",
+  "productionDebugHooks": false,
+  "gitWrites": false,
+  "limitations": "No physical mouse/GPU benchmark or prolonged human balance session"
+}

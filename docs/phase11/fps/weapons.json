@@ -1,0 +1,210 @@
+[
+  {
+    "type": "pistol",
+    "headshots": 1,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 1,
+      "peak": 6,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "reload",
+        "empty",
+        "zombie-attack",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": [
+        "empty"
+      ]
+    },
+    "camera": {
+      "fov": 88.13283330114197,
+      "position": [
+        88,
+        1.7400000000000002,
+        -31.625
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 146,
+    "triangles": 128665
+  },
+  {
+    "type": "revolver",
+    "headshots": 2,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 1,
+      "peak": 8,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "reload",
+        "empty",
+        "zombie-attack",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.01178670801207,
+      "position": [
+        88,
+        1.7400000000000002,
+        -31.455
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 145,
+    "triangles": 129281
+  },
+  {
+    "type": "smg",
+    "headshots": 3,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 1,
+      "peak": 8,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "reload",
+        "empty",
+        "zombie-attack",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.49783186244319,
+      "position": [
+        88,
+        1.7400000000000002,
+        -31.440000000000012
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 160,
+    "triangles": 131895
+  },
+  {
+    "type": "shotgun",
+    "headshots": 4,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 1,
+      "peak": 8,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "reload",
+        "empty",
+        "zombie-attack",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.00048411678156,
+      "position": [
+        88,
+        1.7400000000050293,
+        -31.35000000000001
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 148,
+    "triangles": 132047
+  },
+  {
+    "type": "rifle",
+    "headshots": 5,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 1,
+      "peak": 8,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "reload",
+        "empty",
+        "zombie-attack",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": [
+        "zombie-call"
+      ]
+    },
+    "camera": {
+      "fov": 88.28965267025322,
+      "position": [
+        88,
+        1.7400000000000002,
+        -31.39500000000001
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 160,
+    "triangles": 133339
+  },
+  {
+    "type": "marksman",
+    "headshots": 6,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 0,
+      "peak": 8,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "reload",
+        "empty",
+        "zombie-attack",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.00027930012315,
+      "position": [
+        88,
+        1.7400000000000002,
+        -31.29000000000002
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 153,
+    "triangles": 133703
+  }
+]

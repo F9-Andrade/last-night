@@ -1,0 +1,37 @@
+import * as THREE from 'three';
+import { Character } from './models';
+import type { RemotePlayerState } from '../network/protocol';
+
+interface Avatar {character:Character;tag:THREE.Sprite;name:string;crouch:number;shot:number}
+/** Rendered presence has no camera, input, health, collision or gameplay authority. */
+export class RemotePlayers {
+ private avatars=new Map<number,Avatar>();
+ constructor(private scene:THREE.Scene){}
+ get count(){return this.avatars.size;}
+ private nameTag(name:string){
+  const canvas=document.createElement('canvas');canvas.width=512;canvas.height=64;const ctx=canvas.getContext('2d')!;
+  ctx.fillStyle='#13271fd9';ctx.fillRect(0,0,512,64);ctx.fillStyle='#ecf3d5';ctx.font='500 29px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(name,256,32,490);
+  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthTest:true,depthWrite:false}));sprite.scale.set(2.7,.3375,1);sprite.position.y=2.35;return sprite;
+ }
+ private remove(actor:number){const avatar=this.avatars.get(actor);if(!avatar)return;avatar.tag.material.map?.dispose();avatar.tag.material.dispose();avatar.character.dispose();this.avatars.delete(actor);}
+ shot(actor:number){const a=this.avatars.get(actor);if(a)a.shot=1;}
+ clear(){for(const actor of this.avatars.keys())this.remove(actor);}
+ update(states:RemotePlayerState[],time:number,dt:number,camera:THREE.Camera){
+  const present=new Set(states.map(s=>s.identity.actorNumber));for(const actor of this.avatars.keys())if(!present.has(actor))this.remove(actor);
+  for(const {identity,snapshot:s,gameplay} of states){
+   if(identity.isLocal||!s)continue;
+   let avatar=this.avatars.get(identity.actorNumber);
+   if(avatar&&avatar.name!==identity.displayName){this.remove(identity.actorNumber);avatar=undefined;}
+   if(!avatar){const character=new Character(false,identity.actorNumber%4),tag=this.nameTag(identity.displayName);character.root.add(tag);this.scene.add(character.root);avatar={character,tag,name:identity.displayName,crouch:0,shot:0};this.avatars.set(identity.actorNumber,avatar);}
+   const c=avatar.character;c.root.position.set(s.x,s.y,s.z);c.root.rotation.y=s.yaw;
+   if(gameplay)c.setWeapon(gameplay.weapon);avatar.shot=Math.max(0,avatar.shot-dt*7);
+   c.animate(time,s.locomotion===1||s.locomotion===2||s.locomotion===3&&Math.hypot(s.vx,s.vz)>.1,s.locomotion===2,avatar.shot*2);
+   if(gameplay)c.reloadPose(gameplay.reload,gameplay.reloadDuration);
+   avatar.crouch+=((s.locomotion===3?1:0)-avatar.crouch)*(1-Math.exp(-dt*16));c.body.position.y-=avatar.crouch*.52;c.body.rotation.x+=avatar.crouch*.2;c.leftLeg.rotation.x+=avatar.crouch*.45;c.rightLeg.rotation.x+=avatar.crouch*.45;c.head.rotation.x=-s.pitch;c.arms.rotation.x=-s.pitch*.65;
+   const incapacitated=!!gameplay&&gameplay.life!=='alive';if(c.weapon)c.weapon.visible=!incapacitated;
+   if(incapacitated){c.body.rotation.z=Math.PI/2;c.body.position.y=.64;c.body.position.x=.85;c.head.rotation.x=0;}else c.body.position.x=0;
+   avatar.tag.position.y=incapacitated?.95:2.35-avatar.crouch*.52;const distance=c.root.position.distanceTo(camera.position);avatar.tag.visible=distance<22;avatar.tag.material.opacity=Math.min(1,Math.max(0,(22-distance)/6));
+  }
+ }
+}

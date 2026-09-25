@@ -1,0 +1,29 @@
+{
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "quality": "high",
+  "shadows": true,
+  "requestedQuality": "high",
+  "clients": [
+    {
+      "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+      "quality": "high",
+      "shadows": true
+    },
+    {
+      "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+      "quality": "high",
+      "shadows": true
+    }
+  ],
+  "players": 2,
+  "transport": "Photon Realtime",
+  "checks": [
+    "private lobby and ready controls",
+    "shared panel texture on both clients",
+    "six item images loaded on both clients",
+    "selection and equipment tabs",
+    "pause messaging and settings",
+    "resume pointer lock"
+  ],
+  "errors": []
+}

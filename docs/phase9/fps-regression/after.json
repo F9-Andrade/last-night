@@ -1,0 +1,55 @@
+{
+  "renderer": "Chromium SwiftShader software",
+  "viewport": "1280x720",
+  "quality": "high",
+  "samples": [
+    {
+      "fps": 6,
+      "calls": 305,
+      "triangles": 414070,
+      "render": {
+        "meshes": 1658,
+        "materials": 227,
+        "geometries": 239,
+        "textures": 14,
+        "geometryMB": 27,
+        "cacheMB": 8.9,
+        "heapMB": 92.9,
+        "voxelAssets": 192,
+        "activeChunks": 112
+      }
+    },
+    {
+      "fps": 3,
+      "calls": 305,
+      "triangles": 414070,
+      "render": {
+        "meshes": 1658,
+        "materials": 227,
+        "geometries": 239,
+        "textures": 14,
+        "geometryMB": 27,
+        "cacheMB": 8.9,
+        "heapMB": 92.9,
+        "voxelAssets": 192,
+        "activeChunks": 112
+      }
+    },
+    {
+      "fps": 3,
+      "calls": 305,
+      "triangles": 414070,
+      "render": {
+        "meshes": 1658,
+        "materials": 227,
+        "geometries": 239,
+        "textures": 14,
+        "geometryMB": 27,
+        "cacheMB": 8.9,
+        "heapMB": 92.9,
+        "voxelAssets": 192,
+        "activeChunks": 112
+      }
+    }
+  ]
+}

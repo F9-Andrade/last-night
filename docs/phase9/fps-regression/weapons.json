@@ -1,0 +1,208 @@
+[
+  {
+    "type": "pistol",
+    "headshots": 1,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 1,
+      "peak": 5,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "zombie-attack",
+        "reload",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": [
+        "empty"
+      ]
+    },
+    "camera": {
+      "fov": 88.40379303598826,
+      "position": [
+        88,
+        1.7400000000000002,
+        -53.625
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 101,
+    "triangles": 116754
+  },
+  {
+    "type": "revolver",
+    "headshots": 2,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 0,
+      "peak": 7,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "zombie-attack",
+        "reload",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.237010029663,
+      "position": [
+        88,
+        1.7400000000000002,
+        -50.97625000000053
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 103,
+    "triangles": 118364
+  },
+  {
+    "type": "smg",
+    "headshots": 4,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 0,
+      "peak": 10,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "zombie-attack",
+        "reload",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.18143590657802,
+      "position": [
+        88,
+        1.7400000000000002,
+        -53.75999999999955
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 101,
+    "triangles": 116844
+  },
+  {
+    "type": "shotgun",
+    "headshots": 5,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 0,
+      "peak": 10,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "zombie-attack",
+        "reload",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.01645949409776,
+      "position": [
+        88,
+        1.7400000000000002,
+        -51.26249999999953
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 103,
+    "triangles": 118436
+  },
+  {
+    "type": "rifle",
+    "headshots": 7,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 0,
+      "peak": 12,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "zombie-attack",
+        "reload",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.04777499853779,
+      "position": [
+        88,
+        1.7400000000000002,
+        -51.041250000000154
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 104,
+    "triangles": 118458
+  },
+  {
+    "type": "marksman",
+    "headshots": 8,
+    "empty": true,
+    "audio": {
+      "inside": false,
+      "generator": false,
+      "voices": 0,
+      "peak": 12,
+      "state": "running",
+      "samplesLoaded": [
+        "shot",
+        "zombie-attack",
+        "reload",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.4037930359853,
+      "position": [
+        88,
+        1.7400000000000002,
+        -50.31750000000032
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 106,
+    "triangles": 119084
+  }
+]

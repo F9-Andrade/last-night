@@ -1,0 +1,160 @@
+{
+  "renderer": "Chromium SwiftShader software",
+  "viewport": "1280x720",
+  "quality": "low",
+  "method": "Mean of three samples per view; frame time is 1000 / rounded HUD FPS, not a CPU/GPU profiler. Empty prepared scenes isolate urban rendering; horde metrics are separate.",
+  "comparison": [
+    {
+      "area": "shelter",
+      "before": {
+        "fps": 2.7,
+        "estimatedFrameMs": 388.9,
+        "drawCalls": 197,
+        "triangles": 281482,
+        "geometryMB": 16.8,
+        "heapMB": 73.1
+      },
+      "after": {
+        "fps": 2,
+        "estimatedFrameMs": 500,
+        "drawCalls": 236,
+        "triangles": 298242,
+        "geometryMB": 26.8,
+        "heapMB": 82.4
+      }
+    },
+    {
+      "area": "residential",
+      "before": {
+        "fps": 4.3,
+        "estimatedFrameMs": 233.3,
+        "drawCalls": 62,
+        "triangles": 82594,
+        "geometryMB": 17,
+        "heapMB": 73.1
+      },
+      "after": {
+        "fps": 4,
+        "estimatedFrameMs": 250,
+        "drawCalls": 83,
+        "triangles": 93286,
+        "geometryMB": 26.9,
+        "heapMB": 82.4
+      }
+    },
+    {
+      "area": "center",
+      "before": {
+        "fps": 5.7,
+        "estimatedFrameMs": 181,
+        "drawCalls": 122,
+        "triangles": 181170,
+        "geometryMB": 16.9,
+        "heapMB": 73.1
+      },
+      "after": {
+        "fps": 5.3,
+        "estimatedFrameMs": 194.4,
+        "drawCalls": 154,
+        "triangles": 199574,
+        "geometryMB": 26.9,
+        "heapMB": 82.4
+      }
+    },
+    {
+      "area": "hospital",
+      "before": {
+        "fps": 6,
+        "estimatedFrameMs": 169.8,
+        "drawCalls": 34,
+        "triangles": 68434,
+        "geometryMB": 16.9,
+        "heapMB": 73.1
+      },
+      "after": {
+        "fps": 4.3,
+        "estimatedFrameMs": 233.3,
+        "drawCalls": 53,
+        "triangles": 75998,
+        "geometryMB": 26.9,
+        "heapMB": 82.4
+      }
+    },
+    {
+      "area": "industry",
+      "before": {
+        "fps": 5,
+        "estimatedFrameMs": 200,
+        "drawCalls": 52,
+        "triangles": 80872,
+        "geometryMB": 17,
+        "heapMB": 73.1
+      },
+      "after": {
+        "fps": 4.7,
+        "estimatedFrameMs": 222.2,
+        "drawCalls": 122,
+        "triangles": 95662,
+        "geometryMB": 27,
+        "heapMB": 82.4
+      }
+    },
+    {
+      "area": "quarantine",
+      "before": {
+        "fps": 5,
+        "estimatedFrameMs": 222.2,
+        "drawCalls": 82,
+        "triangles": 178526,
+        "geometryMB": 17,
+        "heapMB": 73.1
+      },
+      "after": {
+        "fps": 4.3,
+        "estimatedFrameMs": 244.4,
+        "drawCalls": 134,
+        "triangles": 203796,
+        "geometryMB": 27,
+        "heapMB": 82.4
+      }
+    },
+    {
+      "area": "north-avenue",
+      "before": {
+        "fps": 3.7,
+        "estimatedFrameMs": 288.9,
+        "drawCalls": 101,
+        "triangles": 210498,
+        "geometryMB": 17,
+        "heapMB": 73.1
+      },
+      "after": {
+        "fps": 3.7,
+        "estimatedFrameMs": 288.9,
+        "drawCalls": 135,
+        "triangles": 224682,
+        "geometryMB": 27,
+        "heapMB": 82.4
+      }
+    },
+    {
+      "area": "south-avenue",
+      "before": {
+        "fps": 6.3,
+        "estimatedFrameMs": 158.7,
+        "drawCalls": 112,
+        "triangles": 189984,
+        "geometryMB": 17,
+        "heapMB": 73.1
+      },
+      "after": {
+        "fps": 5,
+        "estimatedFrameMs": 200,
+        "drawCalls": 181,
+        "triangles": 220832,
+        "geometryMB": 27,
+        "heapMB": 82.4
+      }
+    }
+  ]
+}

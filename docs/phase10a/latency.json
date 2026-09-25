@@ -1,0 +1,61 @@
+{
+  "transport": "Playwright frame relay to real Photon; ordered delay, no fabricated responses; byte counts include Photon JSON framing, exclude TLS/TCP/IP",
+  "rows": [
+    {
+      "injectedRoundTripMs": 50,
+      "jitterMs": [
+        -6,
+        12
+      ],
+      "positionError": 0.0026666666666796957,
+      "rtt": 206,
+      "sendRate": 11.93826213012516,
+      "receiveRate": 13.998600139984699,
+      "buffer": 7,
+      "webSocketTxBytesPerSecond": 473.53721547269936,
+      "webSocketRxBytesPerSecond": 1570.5906996229578
+    },
+    {
+      "injectedRoundTripMs": 100,
+      "jitterMs": [
+        -6,
+        12
+      ],
+      "positionError": 0.002333333333311316,
+      "rtt": 162,
+      "sendRate": 11.697046495760883,
+      "receiveRate": 11,
+      "buffer": 7,
+      "webSocketTxBytesPerSecond": 984.0236686390532,
+      "webSocketRxBytesPerSecond": 1519.230769230769
+    },
+    {
+      "injectedRoundTripMs": 150,
+      "jitterMs": [
+        -6,
+        12
+      ],
+      "positionError": 0.002666666666696571,
+      "rtt": 187,
+      "sendRate": 15.240998285390397,
+      "receiveRate": 11.990407673863142,
+      "buffer": 6,
+      "webSocketTxBytesPerSecond": 943.0485762144054,
+      "webSocketRxBytesPerSecond": 1519.5421552205473
+    },
+    {
+      "injectedRoundTripMs": 200,
+      "jitterMs": [
+        -6,
+        12
+      ],
+      "positionError": 0.004833333333298384,
+      "rtt": 303,
+      "sendRate": 11.193387291201173,
+      "receiveRate": 10,
+      "buffer": 5,
+      "webSocketTxBytesPerSecond": 869.6442482472086,
+      "webSocketRxBytesPerSecond": 1433.3939236561932
+    }
+  ]
+}

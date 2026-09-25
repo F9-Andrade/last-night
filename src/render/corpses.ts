@@ -1,3 +1,4 @@
+import {floorHeight} from '../game/world';
 import * as THREE from 'three';
 import { Character, batch, woundPart, woundPosition } from './models';
 import { voxelMaterial } from './voxel';
@@ -49,7 +50,7 @@ export class CorpseView {
         this.markMatrix.multiplyMatrices(slot.root.matrix,attachments[woundPart(w)]).multiply(this.dummy.matrix);
         this.marks.setMatrixAt(markIndex++,this.markMatrix);
       }
-      this.dummy.position.set(c.x,.075,c.z+.3);this.dummy.rotation.set(0,c.angle,0);this.dummy.scale.setScalar(Math.min(1,c.age)*slot.paint.opacity);this.dummy.updateMatrix();this.stains.setMatrixAt(stainIndex++,this.dummy.matrix);
+      this.dummy.position.set(c.x,floorHeight(c)+.025,c.z+.3);this.dummy.rotation.set(0,c.angle,0);this.dummy.scale.setScalar(Math.min(1,c.age)*slot.paint.opacity);this.dummy.updateMatrix();this.stains.setMatrixAt(stainIndex++,this.dummy.matrix);
 
     }
     this.marks.count=markIndex;this.marks.instanceMatrix.needsUpdate=true;this.stains.count=stainIndex;this.stains.instanceMatrix.needsUpdate=true;

@@ -1,0 +1,69 @@
+{
+  "renderer": "Chromium SwiftShader software",
+  "quality": "low",
+  "viewport": "1280x720",
+  "metrics": [
+    {
+      "count": 30,
+      "fps": 4,
+      "calls": 379,
+      "triangles": 267368,
+      "audio": {
+        "voices": 13,
+        "peak": 15,
+        "state": "running",
+        "samplesLoaded": [
+          "zombie-attack",
+          "shot",
+          "reload",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1348,
+        "materials": 207,
+        "geometries": 264,
+        "textures": 24,
+        "geometryMB": 17.1,
+        "cacheMB": 8.7,
+        "heapMB": 61,
+        "voxelAssets": 213,
+        "activeChunks": 45
+      }
+    },
+    {
+      "count": 40,
+      "fps": 3,
+      "calls": 458,
+      "triangles": 275416,
+      "audio": {
+        "voices": 0,
+        "peak": 16,
+        "state": "running",
+        "samplesLoaded": [
+          "zombie-attack",
+          "shot",
+          "reload",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1348,
+        "materials": 206,
+        "geometries": 264,
+        "textures": 24,
+        "geometryMB": 17,
+        "cacheMB": 8.7,
+        "heapMB": 61,
+        "voxelAssets": 213,
+        "activeChunks": 45
+      }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
-  testDir: './tests', outputDir: 'test-results/traces', testMatch: '**/*.spec.ts', timeout: 60000, workers: 1,
+  testDir: './tests', outputDir: 'test-results/traces', // Historical isometric UI fixtures remain available explicitly; FPS is the active gameplay suite.
+  testMatch: process.env.LAST_NIGHT_LEGACY_E2E ? '**/*.spec.ts' : ['**/fps*.spec.ts','**/audio.spec.ts','**/phase9.spec.ts'], timeout: 60000, workers: 1,
   use: { baseURL: 'http://127.0.0.1:5173', viewport: { width: 1440, height: 900 }, headless: true,
     launchOptions: { args: ['--enable-webgl', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
     screenshot: 'only-on-failure', trace: 'retain-on-failure' },

@@ -7,6 +7,9 @@ export const FACILITIES:Omit<Facility,'state'>[]=[
   {id:'police-vault',name:'Armário de apreensões',x:27,z:24,kind:'cache',area:'police'},
   {id:'industrial-vault',name:'Reserva da oficina',x:70,z:69,kind:'cache',area:'gas'},
   {id:'car-trunk',name:'Porta-malas travado',x:-51,z:10,kind:'trunk',area:'house'},
+  {id:'foundry-power',name:'Gerador da doca',x:96,z:78,kind:'generator',area:'gas'},
+  {id:'foundry-store',name:'Depósito elétrico',x:120,z:82,kind:'cache',requires:'foundry-power',area:'gas'},
+  {id:'terminal-radio',name:'Rádio · frequência 07',x:62,z:105,kind:'cache',area:'house'},
 ];
 export interface WorldEvent extends Vec2 {id:number;kind:'cache'|'alarm'|'roaming';name:string;life:number;triggered:boolean;flavor?:'survivor'|'medical'|'military'|'house'}
 export const CACHE_STORIES=[

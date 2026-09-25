@@ -1,0 +1,17 @@
+{
+  "status": "implementation-functional-validation-incomplete",
+  "build": "passed",
+  "unitTests": 150,
+  "unitFailures": 0,
+  "realPhoton": {
+    "twoClients": "passed",
+    "latency50_100_150_200": "passed",
+    "fourClients": "gameplay reached, test timed out on refresh",
+    "maximumConnected": 5,
+    "maximumInRoom": 4,
+    "fifthRejected": true
+  },
+  "pendingTestChange": "reload now waits for DOMContentLoaded, not rerun",
+  "blocker": "Automatic approval review rejected browser/network test rerun due to account usage limit",
+  "gitWrites": false
+}

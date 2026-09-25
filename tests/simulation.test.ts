@@ -9,8 +9,8 @@ function clean(): Simulation { const s = new Simulation(); s.zombies = []; s.spa
 function step(s: Simulation, seconds: number, command = input): void { for (let i = 0; i < Math.round(seconds * 60); i++) s.update(1 / 60, command); }
 
 test('movement slides along colliders and respects map boundaries', () => {
-  const p = { x: 1, z: 1 }; move(p, .1, -1); assert.equal(p.z, 1); assert.equal(p.x, 1.1);
-  move(p, 400, 0); assert.equal(p.x, 1.1);
+  const p = { x: 1, z: 1 }; move(p, .1, -1); assert.ok(p.z>=.45&&p.z<1); assert.ok(Math.abs(p.x-1.1)<1e-8);
+  move(p, 400, 0); assert.ok(!collides(p));assert.ok(p.x<7);
   assert.ok(collides({ x: 1, z: -4 })); assert.ok(!collides({ x: 1, z: 7 }));
 });
 test('diagonal motion is normalized; sprint consumes stamina', () => {

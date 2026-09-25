@@ -1,0 +1,56 @@
+{
+  "scenarioHooks": false,
+  "clockAcceleration": false,
+  "errors": [],
+  "snapshots": [
+    {
+      "name": "start",
+      "timer": "04:30",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "supplies",
+      "timer": "04:29",
+      "health": "100",
+      "ammo": "12",
+      "context": "E\nVASCULHAR\nTábuas recuperadas"
+    },
+    {
+      "name": "inventory",
+      "timer": "04:27",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "street",
+      "timer": "04:24",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "combat",
+      "timer": "04:19",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "map",
+      "timer": "04:16",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    },
+    {
+      "name": "return",
+      "timer": "04:10",
+      "health": "100",
+      "ammo": "12",
+      "context": ""
+    }
+  ]
+}

@@ -1,0 +1,1612 @@
+{
+  "stage": "08-optimized",
+  "quality": "high",
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "viewport": {
+    "width": 1600,
+    "height": 900
+  },
+  "dpr": 1,
+  "measurement": "5 live samples after 1.8 seconds settling; CDP TaskDuration is renderer CPU, excludes GPU",
+  "rows": [
+    {
+      "scene": {
+        "name": "A-residential",
+        "x": -12,
+        "z": 27,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 287,
+            "textures": 43,
+            "geometryMB": 36.8,
+            "cacheMB": 8.8,
+            "heapMB": 92.9,
+            "voxelAssets": 171,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 287,
+            "textures": 43,
+            "geometryMB": 36.8,
+            "cacheMB": 8.8,
+            "heapMB": 92.9,
+            "voxelAssets": 171,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 287,
+            "textures": 43,
+            "geometryMB": 36.8,
+            "cacheMB": 8.8,
+            "heapMB": 92.9,
+            "voxelAssets": 171,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 287,
+            "textures": 43,
+            "geometryMB": 36.8,
+            "cacheMB": 8.8,
+            "heapMB": 92.9,
+            "voxelAssets": 171,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 287,
+            "textures": 43,
+            "geometryMB": 36.8,
+            "cacheMB": 8.8,
+            "heapMB": 92.9,
+            "voxelAssets": 171,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 496.1950456980003
+    },
+    {
+      "scene": {
+        "name": "B-avenue",
+        "x": 88,
+        "z": -30,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 466,
+          "triangles": 534864,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 323,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 466,
+          "triangles": 534864,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 323,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 466,
+          "triangles": 534864,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 323,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 466,
+          "triangles": 534864,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 323,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 466,
+          "triangles": 534864,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 323,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 463.8967553603019
+    },
+    {
+      "scene": {
+        "name": "C-interior",
+        "x": 112,
+        "z": -105,
+        "yaw": 3.141592653589793,
+        "pitch": 0,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 209,
+          "triangles": 293300,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0396238735218182,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 13,
+              "pieces": 5674,
+              "activePieces": 740,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 209,
+          "triangles": 293300,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0398726835824088,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 13,
+              "pieces": 5674,
+              "activePieces": 740,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 209,
+          "triangles": 293300,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0399569149760326,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 13,
+              "pieces": 5674,
+              "activePieces": 740,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 209,
+          "triangles": 293300,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0399860088433108,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 13,
+              "pieces": 5674,
+              "activePieces": 740,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 209,
+          "triangles": 293300,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.03999526408256,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 13,
+              "pieces": 5674,
+              "activePieces": 740,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 45
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 418.08618590385333
+    },
+    {
+      "scene": {
+        "name": "D-shelter",
+        "x": 1,
+        "z": 7,
+        "yaw": 3.141592653589793,
+        "pitch": -0.025,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 742,
+          "triangles": 934126,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9403920557341375,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 896,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 112
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 742,
+          "triangles": 934126,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9401327083692903,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 896,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 112
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 742,
+          "triangles": 934126,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400449209378826,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 896,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 112
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 742,
+          "triangles": 934126,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400145836933196,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 896,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 112
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 742,
+          "triangles": 934126,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400047346320194,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 896,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 112
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 516.5190718477861
+    },
+    {
+      "scene": {
+        "name": "E-night",
+        "x": -12,
+        "z": 27,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "night"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000074217084,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000025128291,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000008505767,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000002879147,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000000974573,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 478.32126568258514
+    },
+    {
+      "scene": {
+        "name": "F-inventory",
+        "x": -12,
+        "z": 27,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "day",
+        "inventory": true
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000000001805,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.940000000000061,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000000000206,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000000000069,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 662,
+          "triangles": 893638,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400000000000023,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 15,
+              "pieces": 5674,
+              "activePieces": 992,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 109
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 362.88992137039315
+    },
+    {
+      "scene": {
+        "name": "G-combat",
+        "x": 88,
+        "z": -30,
+        "yaw": 3.141592653589793,
+        "pitch": 0,
+        "phase": "day",
+        "combat": true
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 518,
+          "triangles": 541768,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 518,
+          "triangles": 541768,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 518,
+          "triangles": 541768,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 518,
+          "triangles": 541768,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 517,
+          "triangles": 541686,
+          "render": {
+            "meshes": 1895,
+            "materials": 230,
+            "geometries": 334,
+            "textures": 45,
+            "geometryMB": 37,
+            "cacheMB": 9,
+            "heapMB": 92.9,
+            "voxelAssets": 189,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "surfaces": {
+              "materialFamilies": 4,
+              "textureCount": 9,
+              "textureBytesWithMipmaps": 5592405,
+              "resolution": 256,
+              "atlas": "1024×512",
+              "staticBatchMaterialCount": 1
+            },
+            "dressing": {
+              "chunks": 98,
+              "activeChunks": 14,
+              "pieces": 5674,
+              "activePieces": 908,
+              "vegetation": 1054
+            },
+            "decals": {
+              "limit": 96,
+              "active": 0
+            },
+            "activeChunks": 76
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 476.033788413792
+    }
+  ],
+  "errors": []
+}

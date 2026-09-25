@@ -1,0 +1,970 @@
+{
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "clients": [
+    {
+      "wire": {
+        "tx": 129985,
+        "rx": 46876,
+        "start": 1790252211487
+      },
+      "coop": {
+        "dropped": 0,
+        "checkpoints": 28,
+        "motionBatches": 110,
+        "hash": "94cc4e75",
+        "snapshotBytes": 30417,
+        "migrations": 0,
+        "gameplay": {
+          "sent": 150,
+          "received": 103,
+          "bytes": 102141,
+          "rejected": 0
+        },
+        "confirmed": [
+          {
+            "actor": 1,
+            "shot": 1,
+            "event": {
+              "type": "shot",
+              "from": {
+                "x": 88.1320955476086,
+                "z": -30.279017501784356
+              },
+              "fromY": 1.58,
+              "to": {
+                "x": 88.03523758069139,
+                "z": -34.7
+              },
+              "hit": true,
+              "y": 1.268413787739167,
+              "zone": "TORSO",
+              "material": "concrete",
+              "last": false,
+              "weapon": "pistol",
+              "primary": true,
+              "suppressed": false
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 1,
+            "event": {
+              "type": "hit",
+              "position": {
+                "x": 88.00119954350211,
+                "z": -35.159995503359895
+              },
+              "zone": "TORSO",
+              "enemy": "walker",
+              "entity": 4,
+              "damage": 34,
+              "remainingHP": 56
+            }
+          },
+          {
+            "actor": 2,
+            "shot": 1,
+            "event": {
+              "type": "shot",
+              "from": {
+                "x": 88.13110164911865,
+                "z": -30.27948588085692
+              },
+              "fromY": 1.58,
+              "to": {
+                "x": 88.01913909215953,
+                "z": -34.85999132484895
+              },
+              "hit": true,
+              "y": 1.252370582910308,
+              "zone": "TORSO",
+              "material": "concrete",
+              "last": false,
+              "weapon": "pistol",
+              "primary": true,
+              "suppressed": false
+            }
+          },
+          {
+            "actor": 2,
+            "shot": 1,
+            "event": {
+              "type": "hit",
+              "position": {
+                "x": 88.00182963331,
+                "z": -35.31999426268894
+              },
+              "zone": "TORSO",
+              "enemy": "walker",
+              "entity": 4,
+              "damage": 34,
+              "remainingHP": 22
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 2,
+            "event": {
+              "type": "shot",
+              "from": {
+                "x": 88.12913321918055,
+                "z": -30.280400805462587
+              },
+              "fromY": 1.58,
+              "to": {
+                "x": 87.98502775451901,
+                "z": -34.84000001274388
+              },
+              "hit": true,
+              "y": 1.8126059023888956,
+              "zone": "HEAD",
+              "material": "concrete",
+              "last": false,
+              "weapon": "pistol",
+              "primary": true,
+              "suppressed": false
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 2,
+            "event": {
+              "type": "hit",
+              "position": {
+                "x": 88.00133468541563,
+                "z": -35.47999349714517
+              },
+              "zone": "HEAD",
+              "enemy": "walker",
+              "entity": 4,
+              "damage": 22,
+              "remainingHP": 0
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 2,
+            "event": {
+              "type": "death",
+              "position": {
+                "x": 88.00133468541563,
+                "z": -35.47999349714517
+              },
+              "zone": "HEAD",
+              "enemy": "walker",
+              "entity": 4,
+              "damage": 22,
+              "remainingHP": 0
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 2,
+            "event": {
+              "type": "search"
+            }
+          },
+          {
+            "actor": 2,
+            "shot": 1,
+            "event": {
+              "type": "search"
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 2,
+            "event": {
+              "type": "pickup"
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 2,
+            "event": {
+              "type": "notice",
+              "text": "+36 munição leve",
+              "sub": "Guardado na mochila. TAB para inventário · H para bandagem."
+            }
+          },
+          {
+            "actor": 2,
+            "shot": 0,
+            "event": {
+              "type": "notice",
+              "text": "Já recolhido",
+              "sub": "Outro sobrevivente pegou esses itens."
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 2,
+            "event": {
+              "type": "notice",
+              "text": "HOSPITAL SANTA LUZ · ALA NORTE",
+              "sub": "Triagem, enfermaria e ala isolada. A energia de emergência ainda funciona."
+            }
+          },
+          {
+            "actor": 2,
+            "shot": 1,
+            "event": {
+              "type": "notice",
+              "text": "HOSPITAL SANTA LUZ · ALA NORTE",
+              "sub": "Triagem, enfermaria e ala isolada. A energia de emergência ainda funciona."
+            }
+          },
+          {
+            "actor": 1,
+            "shot": 2,
+            "event": {
+              "type": "door",
+              "position": {
+                "x": 112,
+                "z": -99
+              }
+            }
+          },
+          {
+            "actor": 2,
+            "shot": 1,
+            "event": {
+              "type": "door",
+              "position": {
+                "x": 112,
+                "z": -99
+              }
+            }
+          },
+          {
+            "actor": 2,
+            "shot": 1,
+            "event": {
+              "type": "door",
+              "position": {
+                "x": 112,
+                "z": -99
+              }
+            }
+          },
+          {
+            "actor": 2,
+            "shot": 0,
+            "event": {
+              "type": "hurt"
+            }
+          }
+        ],
+        "actor": 1,
+        "master": 1,
+        "snapshotAge": 243.39999999990687,
+        "entities": 160,
+        "infected": 1,
+        "revision": 28,
+        "players": [
+          {
+            "actor": 1,
+            "life": "alive",
+            "bleed": 0,
+            "lastSeq": 102,
+            "shotSeq": 2,
+            "lastFire": 4.433333333333323,
+            "player": {
+              "pitch": -0.08,
+              "ads": false,
+              "crouched": false,
+              "eyeY": 1.94,
+              "aimKick": 1.1274334031450317e-23,
+              "bloom": 0,
+              "x": 112,
+              "z": -97,
+              "hp": 100,
+              "stamina": 100,
+              "exhausted": false,
+              "staminaDelay": 0,
+              "angle": 3.141592653589793,
+              "moving": false,
+              "running": false,
+              "invulnerable": 0
+            },
+            "inventory": {
+              "ammo": 96,
+              "shells": 0,
+              "rifleAmmo": 0,
+              "med": 1,
+              "wood": 2,
+              "scrap": 1,
+              "rare": 0
+            },
+            "storage": {
+              "ammo": 0,
+              "shells": 0,
+              "rifleAmmo": 0,
+              "med": 0,
+              "wood": 0,
+              "scrap": 0,
+              "rare": 0
+            },
+            "loadout": [
+              null,
+              {
+                "uid": 1000000,
+                "type": "pistol",
+                "rarity": "common",
+                "magazine": 10,
+                "damageBonus": 0,
+                "reloadBonus": 0,
+                "stability": 0,
+                "capacityBonus": 0
+              }
+            ],
+            "activeSlot": 1,
+            "reloadTimer": 0,
+            "reloadDuration": 1.35,
+            "shotTimer": 0,
+            "switchTimer": 0,
+            "action": null,
+            "weaponStorage": [],
+            "reviveTarget": 0,
+            "reviveProgress": 0
+          },
+          {
+            "actor": 2,
+            "life": "alive",
+            "bleed": 0,
+            "lastSeq": 101,
+            "shotSeq": 1,
+            "lastFire": 3.5333333333333257,
+            "player": {
+              "pitch": -0.08,
+              "ads": false,
+              "crouched": false,
+              "eyeY": 1.94,
+              "aimKick": 2.0703074482734082e-26,
+              "bloom": 0,
+              "x": 112,
+              "z": -97,
+              "hp": 80,
+              "stamina": 100,
+              "exhausted": false,
+              "staminaDelay": 0,
+              "angle": 3.142,
+              "moving": false,
+              "running": false,
+              "invulnerable": 0.4833333333333333
+            },
+            "inventory": {
+              "ammo": 60,
+              "shells": 0,
+              "rifleAmmo": 0,
+              "med": 1,
+              "wood": 2,
+              "scrap": 1,
+              "rare": 0
+            },
+            "storage": {
+              "ammo": 0,
+              "shells": 0,
+              "rifleAmmo": 0,
+              "med": 0,
+              "wood": 0,
+              "scrap": 0,
+              "rare": 0
+            },
+            "loadout": [
+              null,
+              {
+                "uid": 2000000,
+                "type": "pistol",
+                "rarity": "common",
+                "magazine": 11,
+                "damageBonus": 0,
+                "reloadBonus": 0,
+                "stability": 0,
+                "capacityBonus": 0
+              }
+            ],
+            "activeSlot": 1,
+            "reloadTimer": 0,
+            "reloadDuration": 1.35,
+            "shotTimer": 0,
+            "switchTimer": 0,
+            "action": null,
+            "weaponStorage": [],
+            "reviveTarget": 0,
+            "reviveProgress": 0
+          }
+        ],
+        "error": ""
+      },
+      "network": {
+        "state": "playing",
+        "region": "sa",
+        "code": "NFWREB",
+        "players": [
+          {
+            "actorNumber": 1,
+            "playerId": "0dac2225-8ac0-47ae-8bf1-dcf337fbfcf4",
+            "displayName": "Sobrevivente 1",
+            "isLocal": true,
+            "isHost": true,
+            "ready": false
+          },
+          {
+            "actorNumber": 2,
+            "playerId": "f0af6c24-618e-4e69-b529-325678b7ae57",
+            "displayName": "Sobrevivente 2",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          }
+        ],
+        "metrics": {
+          "sent": 217,
+          "received": 227,
+          "rejected": 0,
+          "sendRate": 18.97912296474144,
+          "receiveRate": 19.978024173412038,
+          "payloadBytes": 9153,
+          "averagePayloadBytes": 42.17972350230415,
+          "ping": 13
+        },
+        "remotes": [
+          {
+            "identity": {
+              "actorNumber": 2,
+              "playerId": "f0af6c24-618e-4e69-b529-325678b7ae57",
+              "displayName": "Sobrevivente 2",
+              "isLocal": false,
+              "isHost": false,
+              "ready": true
+            },
+            "snapshot": {
+              "sequence": 224,
+              "time": 19726,
+              "x": 112,
+              "y": 0.22,
+              "z": -97,
+              "yaw": 3.142,
+              "pitch": -0.08,
+              "vx": 0,
+              "vz": 0,
+              "locomotion": 0
+            }
+          }
+        ],
+        "avatars": 1,
+        "buffers": [
+          3
+        ]
+      },
+      "fps": 60,
+      "calls": 53,
+      "triangles": 67622,
+      "audio": {
+        "lastRemoteShot": {
+          "pan": 0.043700549706215945,
+          "attenuation": 0.9788476038089444,
+          "weapon": "pistol"
+        },
+        "inside": false,
+        "generator": false,
+        "voices": 0,
+        "peak": 6,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "empty",
+          "zombie-attack",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      }
+    },
+    {
+      "wire": {
+        "tx": 44454,
+        "rx": 132899,
+        "start": 1790252218898
+      },
+      "coop": {
+        "dropped": 0,
+        "checkpoints": 28,
+        "motionBatches": 109,
+        "hash": "b94d1f3d",
+        "snapshotBytes": 0,
+        "migrations": 0,
+        "gameplay": {
+          "sent": 103,
+          "received": 149,
+          "bytes": 17902,
+          "rejected": 0
+        },
+        "confirmed": [
+          {
+            "event": {
+              "to": {
+                "x": 88.03523758069139,
+                "z": -34.7
+              },
+              "weapon": "pistol",
+              "zone": "TORSO",
+              "primary": true,
+              "hit": true,
+              "suppressed": false,
+              "fromY": 1.58,
+              "last": false,
+              "type": "shot",
+              "y": 1.268413787739167,
+              "material": "concrete",
+              "from": {
+                "x": 88.1320955476086,
+                "z": -30.279017501784356
+              }
+            },
+            "actor": 1,
+            "shot": 1
+          },
+          {
+            "event": {
+              "remainingHP": 56,
+              "zone": "TORSO",
+              "damage": 34,
+              "position": {
+                "x": 88.00119954350211,
+                "z": -35.159995503359895
+              },
+              "type": "hit",
+              "enemy": "walker",
+              "entity": 4
+            },
+            "actor": 1,
+            "shot": 1
+          },
+          {
+            "event": {
+              "to": {
+                "x": 88.01913909215953,
+                "z": -34.85999132484895
+              },
+              "weapon": "pistol",
+              "zone": "TORSO",
+              "primary": true,
+              "hit": true,
+              "suppressed": false,
+              "fromY": 1.58,
+              "last": false,
+              "type": "shot",
+              "y": 1.252370582910308,
+              "material": "concrete",
+              "from": {
+                "x": 88.13110164911865,
+                "z": -30.27948588085692
+              }
+            },
+            "actor": 2,
+            "shot": 1
+          },
+          {
+            "event": {
+              "remainingHP": 22,
+              "zone": "TORSO",
+              "damage": 34,
+              "position": {
+                "x": 88.00182963331,
+                "z": -35.31999426268894
+              },
+              "type": "hit",
+              "enemy": "walker",
+              "entity": 4
+            },
+            "actor": 2,
+            "shot": 1
+          },
+          {
+            "event": {
+              "to": {
+                "x": 87.98502775451901,
+                "z": -34.84000001274388
+              },
+              "weapon": "pistol",
+              "zone": "HEAD",
+              "primary": true,
+              "hit": true,
+              "suppressed": false,
+              "fromY": 1.58,
+              "last": false,
+              "type": "shot",
+              "y": 1.8126059023888956,
+              "material": "concrete",
+              "from": {
+                "x": 88.12913321918055,
+                "z": -30.280400805462587
+              }
+            },
+            "actor": 1,
+            "shot": 2
+          },
+          {
+            "event": {
+              "remainingHP": 0,
+              "zone": "HEAD",
+              "damage": 22,
+              "position": {
+                "x": 88.00133468541563,
+                "z": -35.47999349714517
+              },
+              "type": "hit",
+              "enemy": "walker",
+              "entity": 4
+            },
+            "actor": 1,
+            "shot": 2
+          },
+          {
+            "event": {
+              "remainingHP": 0,
+              "zone": "HEAD",
+              "damage": 22,
+              "position": {
+                "x": 88.00133468541563,
+                "z": -35.47999349714517
+              },
+              "type": "death",
+              "enemy": "walker",
+              "entity": 4
+            },
+            "actor": 1,
+            "shot": 2
+          },
+          {
+            "event": {
+              "type": "search"
+            },
+            "actor": 1,
+            "shot": 2
+          },
+          {
+            "event": {
+              "type": "search"
+            },
+            "actor": 2,
+            "shot": 1
+          },
+          {
+            "event": {
+              "type": "pickup"
+            },
+            "actor": 1,
+            "shot": 2
+          },
+          {
+            "event": {
+              "text": "+36 munição leve",
+              "sub": "Guardado na mochila. TAB para inventário · H para bandagem.",
+              "type": "notice"
+            },
+            "actor": 1,
+            "shot": 2
+          },
+          {
+            "event": {
+              "text": "Já recolhido",
+              "sub": "Outro sobrevivente pegou esses itens.",
+              "type": "notice"
+            },
+            "actor": 2,
+            "shot": 0
+          },
+          {
+            "event": {
+              "text": "HOSPITAL SANTA LUZ · ALA NORTE",
+              "sub": "Triagem, enfermaria e ala isolada. A energia de emergência ainda funciona.",
+              "type": "notice"
+            },
+            "actor": 1,
+            "shot": 2
+          },
+          {
+            "event": {
+              "text": "HOSPITAL SANTA LUZ · ALA NORTE",
+              "sub": "Triagem, enfermaria e ala isolada. A energia de emergência ainda funciona.",
+              "type": "notice"
+            },
+            "actor": 2,
+            "shot": 1
+          },
+          {
+            "event": {
+              "position": {
+                "x": 112,
+                "z": -99
+              },
+              "type": "door"
+            },
+            "actor": 1,
+            "shot": 2
+          },
+          {
+            "event": {
+              "position": {
+                "x": 112,
+                "z": -99
+              },
+              "type": "door"
+            },
+            "actor": 2,
+            "shot": 1
+          },
+          {
+            "event": {
+              "position": {
+                "x": 112,
+                "z": -99
+              },
+              "type": "door"
+            },
+            "actor": 2,
+            "shot": 1
+          },
+          {
+            "event": {
+              "type": "hurt"
+            },
+            "actor": 2,
+            "shot": 0
+          }
+        ],
+        "actor": 2,
+        "master": 1,
+        "snapshotAge": 229,
+        "entities": 150,
+        "infected": 1,
+        "revision": 28,
+        "players": [
+          {
+            "activeSlot": 1,
+            "switchTimer": 0,
+            "bleed": 0,
+            "inventory": {
+              "shells": 0,
+              "rifleAmmo": 0,
+              "med": 1,
+              "wood": 2,
+              "scrap": 1,
+              "rare": 0,
+              "ammo": 96
+            },
+            "storage": {
+              "shells": 0,
+              "rifleAmmo": 0,
+              "med": 0,
+              "wood": 0,
+              "scrap": 0,
+              "rare": 0,
+              "ammo": 0
+            },
+            "shotTimer": 0,
+            "lastSeq": 102,
+            "shotSeq": 2,
+            "actor": 1,
+            "weaponStorage": [],
+            "reviveTarget": 0,
+            "reviveProgress": 0,
+            "action": null,
+            "reloadTimer": 0,
+            "life": "alive",
+            "player": {
+              "aimKick": 1.1274334031450317e-23,
+              "staminaDelay": 0,
+              "stamina": 100,
+              "invulnerable": 0,
+              "z": -97,
+              "x": 112,
+              "ads": false,
+              "crouched": false,
+              "hp": 100,
+              "eyeY": 1.94,
+              "bloom": 0,
+              "angle": 3.141592653589793,
+              "moving": false,
+              "pitch": -0.08,
+              "running": false,
+              "exhausted": false
+            },
+            "reloadDuration": 1.35,
+            "loadout": [
+              null,
+              {
+                "reloadBonus": 0,
+                "uid": 1000000,
+                "magazine": 10,
+                "stability": 0,
+                "type": "pistol",
+                "capacityBonus": 0,
+                "damageBonus": 0,
+                "rarity": "common"
+              }
+            ],
+            "lastFire": 4.433333333333323
+          },
+          {
+            "activeSlot": 1,
+            "switchTimer": 0,
+            "bleed": 0,
+            "inventory": {
+              "shells": 0,
+              "rifleAmmo": 0,
+              "med": 1,
+              "wood": 2,
+              "scrap": 1,
+              "rare": 0,
+              "ammo": 60
+            },
+            "storage": {
+              "shells": 0,
+              "rifleAmmo": 0,
+              "med": 0,
+              "wood": 0,
+              "scrap": 0,
+              "rare": 0,
+              "ammo": 0
+            },
+            "shotTimer": 0,
+            "lastSeq": 101,
+            "shotSeq": 1,
+            "actor": 2,
+            "weaponStorage": [],
+            "reviveTarget": 0,
+            "reviveProgress": 0,
+            "action": null,
+            "reloadTimer": 0,
+            "life": "alive",
+            "player": {
+              "aimKick": 2.0703074482734082e-26,
+              "staminaDelay": 0,
+              "stamina": 100,
+              "invulnerable": 0.4833333333333333,
+              "z": -97,
+              "x": 112,
+              "ads": false,
+              "crouched": false,
+              "hp": 80,
+              "eyeY": 1.94,
+              "bloom": 0,
+              "angle": 3.142,
+              "moving": false,
+              "pitch": -0.08,
+              "running": false,
+              "exhausted": false
+            },
+            "reloadDuration": 1.35,
+            "loadout": [
+              null,
+              {
+                "reloadBonus": 0,
+                "uid": 2000000,
+                "magazine": 11,
+                "stability": 0,
+                "type": "pistol",
+                "capacityBonus": 0,
+                "damageBonus": 0,
+                "rarity": "common"
+              }
+            ],
+            "lastFire": 3.5333333333333257
+          }
+        ],
+        "error": ""
+      },
+      "network": {
+        "state": "playing",
+        "region": "sa",
+        "code": "NFWREB",
+        "players": [
+          {
+            "actorNumber": 1,
+            "playerId": "0dac2225-8ac0-47ae-8bf1-dcf337fbfcf4",
+            "displayName": "Sobrevivente 1",
+            "isLocal": false,
+            "isHost": true,
+            "ready": false
+          },
+          {
+            "actorNumber": 2,
+            "playerId": "f0af6c24-618e-4e69-b529-325678b7ae57",
+            "displayName": "Sobrevivente 2",
+            "isLocal": true,
+            "isHost": false,
+            "ready": true
+          }
+        ],
+        "metrics": {
+          "sent": 227,
+          "received": 216,
+          "rejected": 0,
+          "sendRate": 20,
+          "receiveRate": 20,
+          "payloadBytes": 9389,
+          "averagePayloadBytes": 41.226851851851855,
+          "ping": 11
+        },
+        "remotes": [
+          {
+            "identity": {
+              "actorNumber": 1,
+              "playerId": "0dac2225-8ac0-47ae-8bf1-dcf337fbfcf4",
+              "displayName": "Sobrevivente 1",
+              "isLocal": false,
+              "isHost": true,
+              "ready": false
+            },
+            "snapshot": {
+              "sequence": 213,
+              "time": 27126,
+              "x": 112,
+              "y": 0.22,
+              "z": -97,
+              "yaw": 3.142,
+              "pitch": -0.08,
+              "vx": 0,
+              "vz": 0,
+              "locomotion": 0
+            }
+          }
+        ],
+        "avatars": 1,
+        "buffers": [
+          3
+        ]
+      },
+      "fps": 60,
+      "calls": 53,
+      "triangles": 67622,
+      "audio": {
+        "lastRemoteShot": {
+          "pan": 0.04304440639351506,
+          "attenuation": 0.9788476038089444,
+          "weapon": "pistol"
+        },
+        "inside": false,
+        "generator": false,
+        "voices": 1,
+        "peak": 6,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "zombie-attack",
+          "reload",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      }
+    }
+  ],
+  "errors": []
+}

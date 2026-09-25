@@ -11,8 +11,10 @@ import { barricadeRecipe, containerRecipe, itemRecipe } from './survival-assets'
 export class SurvivalView {
   private containers: { root: THREE.Group; lid: THREE.Group; marker: THREE.Mesh; found: THREE.Mesh; reveal: number; searched: boolean }[] = [];
   private defenses: { mesh: THREE.Mesh; anchor: THREE.Mesh; paint: THREE.MeshStandardMaterial; stage: number }[] = [];
+  private drops:THREE.InstancedMesh;private dropPose=new THREE.Object3D();
   private bandage = voxelMesh(itemRecipe('med'));
   constructor(scene: THREE.Scene) {
+    this.drops=new THREE.InstancedMesh(voxelGeometry(containerRecipe('outside',false)),voxelMaterial,512);this.drops.count=0;this.drops.frustumCulled=false;scene.add(this.drops);
     for (const key of itemKeys) voxelGeometry(itemRecipe(key));
     const markerGeo = new THREE.OctahedronGeometry(.11), markerPaint = new THREE.MeshBasicMaterial({ color: 0xdab67b });
     for (const point of LOOT_POINTS) {
@@ -46,10 +48,11 @@ export class SurvivalView {
       view.marker.position.y = 1.45 + Math.sin(elapsed * 2 + i) * .08;
       view.found.visible = view.reveal > 0; view.found.position.y = 1.1 + (2 - view.reveal) * .25;
     });
+    let dropCount=0;for(const loot of sim.loot.slice(LOOT_POINTS.length)){if(dropCount>=512||!itemKeys.some(k=>loot.contents[k])||distance(sim.player,loot)>55)continue;this.dropPose.position.set(loot.x,.18,loot.z);this.dropPose.scale.setScalar(.8);this.dropPose.updateMatrix();this.drops.setMatrixAt(dropCount++,this.dropPose.matrix);}this.drops.count=dropCount;this.drops.instanceMatrix.needsUpdate=true;
     this.defenses.forEach((view, i) => {
       const b = sim.barricades[i], stage = damageStage(b.hp);
       if (view.stage !== stage) { view.mesh.geometry = voxelGeometry(barricadeRecipe(b.w, stage)); view.stage = stage; }
-      view.mesh.visible = b.built; view.anchor.visible = !menu && b.hp <= 0 && distance(sim.player, b) < 10;
+      view.mesh.visible = b.built; view.anchor.visible = sim.coopMode==='solo' && !menu && b.hp <= 0 && distance(sim.player, b) < 10;
       view.paint.emissive.setHex(b.flash > 0 ? 0x91633b : 0);
       view.mesh.rotation.z = b.flash > 0 ? Math.sin(b.flash * 60) * .014 : 0;
     });

@@ -1,0 +1,178 @@
+[
+  {
+    index: 0,
+    horizontal: false,
+    axis: -12,
+    start: { x: -12, z: -150 },
+    end: { x: -12, z: 150 },
+    meters: 305,
+    stuck: false,
+    arrived: true,
+    waypoints: 306
+  },
+  {
+    index: 1,
+    horizontal: false,
+    axis: 15,
+    start: { x: 15, z: -150 },
+    end: { x: 15, z: 150 },
+    meters: 329,
+    stuck: false,
+    arrived: true,
+    waypoints: 330
+  },
+  {
+    index: 2,
+    horizontal: true,
+    axis: 13,
+    start: { x: -150, z: 13 },
+    end: { x: 150, z: 13 },
+    meters: 319,
+    stuck: false,
+    arrived: true,
+    waypoints: 320
+  },
+  {
+    index: 3,
+    horizontal: true,
+    axis: -16,
+    start: { x: -150, z: -16 },
+    end: { x: 150, z: -16 },
+    meters: 311,
+    stuck: false,
+    arrived: true,
+    waypoints: 312
+  },
+  {
+    index: 4,
+    horizontal: false,
+    axis: -49,
+    start: { x: -49, z: -150 },
+    end: { x: -49, z: 150 },
+    meters: 324,
+    stuck: false,
+    arrived: true,
+    waypoints: 326
+  },
+  {
+    index: 5,
+    horizontal: false,
+    axis: 49,
+    start: { x: 49, z: -150 },
+    end: { x: 49, z: 150 },
+    meters: 300,
+    stuck: false,
+    arrived: true,
+    waypoints: 38
+  },
+  {
+    index: 6,
+    horizontal: true,
+    axis: -50,
+    start: { x: -150, z: -50 },
+    end: { x: 150, z: -50 },
+    meters: 303,
+    stuck: false,
+    arrived: true,
+    waypoints: 304
+  },
+  {
+    index: 7,
+    horizontal: true,
+    axis: 49,
+    start: { x: -150, z: 49 },
+    end: { x: 150, z: 49 },
+    meters: 309,
+    stuck: false,
+    arrived: true,
+    waypoints: 310
+  },
+  {
+    index: 8,
+    horizontal: false,
+    axis: -142,
+    start: { x: -142, z: -150 },
+    end: { x: -142, z: 150 },
+    meters: 300,
+    stuck: false,
+    arrived: true,
+    waypoints: 38
+  },
+  {
+    index: 9,
+    horizontal: false,
+    axis: -88,
+    start: { x: -88, z: -150 },
+    end: { x: -88, z: 150 },
+    meters: 307,
+    stuck: false,
+    arrived: true,
+    waypoints: 308
+  },
+  {
+    index: 10,
+    horizontal: false,
+    axis: 88,
+    start: { x: 88, z: -150 },
+    end: { x: 88, z: 150 },
+    meters: 305,
+    stuck: false,
+    arrived: true,
+    waypoints: 306
+  },
+  {
+    index: 11,
+    horizontal: false,
+    axis: 142,
+    start: { x: 142, z: -150 },
+    end: { x: 142, z: 150 },
+    meters: 305,
+    stuck: false,
+    arrived: true,
+    waypoints: 306
+  },
+  {
+    index: 12,
+    horizontal: true,
+    axis: -142,
+    start: { x: -150, z: -142 },
+    end: { x: 150, z: -142 },
+    meters: 300,
+    stuck: false,
+    arrived: true,
+    waypoints: 38
+  },
+  {
+    index: 13,
+    horizontal: true,
+    axis: -88,
+    start: { x: -150, z: -88 },
+    end: { x: 150, z: -88 },
+    meters: 300,
+    stuck: false,
+    arrived: true,
+    waypoints: 38
+  },
+  {
+    index: 14,
+    horizontal: true,
+    axis: 88,
+    start: { x: -150, z: 88 },
+    end: { x: 150, z: 88 },
+    meters: 309,
+    stuck: false,
+    arrived: true,
+    waypoints: 310
+  },
+  {
+    index: 15,
+    horizontal: true,
+    axis: 147,
+    start: { x: -150, z: 147 },
+    end: { x: 150, z: 147 },
+    meters: 305,
+    stuck: false,
+    arrived: true,
+    waypoints: 306
+  }
+]

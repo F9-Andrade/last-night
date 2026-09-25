@@ -10,6 +10,8 @@ import type { EnemyKind } from '../game/enemies.ts';
 import { WEAPONS } from '../game/weapons.ts';
 import type { WeaponId } from '../game/weapons.ts';
 import type { Wound } from '../game/combat.ts';
+import { surfaceAtlasMaterial, SURFACE_KINDS, weatherSurface } from './surface-materials.ts';
+import type { SurfaceKind } from './surface-materials.ts';
 
 export function woundPart(w:Wound):'head'|'body'|'leftArm'|'rightArm'|'leftLeg'|'rightLeg' {
   return w.zone==='HEAD'?'head':w.zone==='ARMS'?(w.side<0?'leftArm':'rightArm'):w.zone==='LEGS'?(w.side<0?'leftLeg':'rightLeg'):'body';
@@ -22,15 +24,16 @@ export function woundPosition(target:THREE.Vector3,kind:EnemyKind,w:Wound,index:
   target.x+=(index%3-1)*.065;target.y+=Math.floor(index/3)*.08;
 }
 
-const materials = new Map<number, THREE.MeshStandardMaterial>();
-export function material(color: number): THREE.MeshStandardMaterial {
-  let m = materials.get(color);
-  if (!m) { m = new THREE.MeshStandardMaterial({ color, roughness: .92, flatShading: true }); materials.set(color, m); }
+const materials = new Map<string, THREE.MeshStandardMaterial>();
+export function material(color: number, surface?: SurfaceKind): THREE.MeshStandardMaterial {
+  const key = `${color}:${surface ?? 'plain'}`;
+  let m = materials.get(key);
+  if (!m) { m = new THREE.MeshStandardMaterial({ color, roughness: .92, flatShading: true }); if (surface) weatherSurface(m, surface); materials.set(key, m); }
   return m;
 }
 const cube = new THREE.BoxGeometry(1, 1, 1);
-export function box(parent: THREE.Object3D, x: number, y: number, z: number, w: number, h: number, d: number, color: number): THREE.Mesh {
-  const m = new THREE.Mesh(cube, material(color)); m.position.set(x, y, z); m.scale.set(w, h, d); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
+export function box(parent: THREE.Object3D, x: number, y: number, z: number, w: number, h: number, d: number, color: number, surface?: SurfaceKind): THREE.Mesh {
+  const m = new THREE.Mesh(cube, material(color, surface)); m.position.set(x, y, z); m.scale.set(w, h, d); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
 }
 export function cylinder(parent: THREE.Object3D, x: number, y: number, z: number, radius: number, h: number, color: number, sides = 8): THREE.Mesh {
   const m = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, h, sides), material(color)); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
@@ -63,7 +66,11 @@ export function batch(group: THREE.Group): void {
       color[i * 3 + 2] = source.color.b * (source.vertexColors && oldColor ? oldColor.getZ(i) : 1);
     }
     geometry.setAttribute('color', new THREE.Float32BufferAttribute(color, 3));
-    const target = source.emissive?.getHex() ? source : voxelMaterial;
+    if (!geometry.attributes.surfaceType) {
+      const family = Math.max(0, SURFACE_KINDS.indexOf(source.userData.surfaceKind ?? 'voxel'));
+      geometry.setAttribute('surfaceType', new THREE.Float32BufferAttribute(new Float32Array(count).fill(family), 1));
+    }
+    const target = source.emissive?.getHex() ? source : surfaceAtlasMaterial();
     const entries = buckets.get(target) ?? []; entries.push({ geometry, asset: o.userData.voxelAsset ?? o.name, transform: transform.toArray() }); buckets.set(target, entries); originals.push(o);
   });
   for (const [mat, entries] of buckets) {
@@ -113,6 +120,11 @@ export class Character {
     const shadow = new THREE.Mesh(contactGeometry, contactMaterial);
     shadow.rotation.x = -Math.PI / 2; shadow.position.y = .03; this.root.add(shadow);
   }
+  dispose():void {
+    this.root.removeFromParent();this.paint.dispose();
+    if(this.muzzle){this.muzzle.geometry.dispose();(this.muzzle.material as THREE.Material).dispose();}
+    this.root.clear();this.weaponCache.clear();
+  }
   setWeapon(id:WeaponId):void {
     if(this.zombie||this.weaponId===id)return;
     this.weaponId=id;let visual=this.weaponCache.get(id);if(!visual){visual=createWeaponVisual(id);this.weaponCache.set(id,visual);}
@@ -130,6 +142,7 @@ export class Character {
     const reaction=z.reaction/BALANCE.combat.stagger;
     this.body.rotation.z+=reaction*z.side*(z.zone==='ARMS'?.25:.12);
     this.body.rotation.x-=reaction*(z.zone==='TORSO'?.22:.08);
+    if(z.zone==='LEGS'){this.body.position.y=-Math.min(.3,reaction*.16);(z.side<0?this.leftLeg:this.rightLeg).rotation.x+=reaction*.45;}else this.body.position.y=0;
     if(z.zone==='HEAD') this.head.rotation.x-=reaction*.55;
     if(z.zone==='ARMS') (z.side<0?this.leftArm:this.rightArm).rotation.z+=reaction*z.side*.65;
     if(z.slow>0) this.leftLeg.rotation.x+=.25;

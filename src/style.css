@@ -19,3 +19,17 @@
 @media(max-width:800px){.brand{display:none}.objective{display:none}.minimap-panel{width:135px;top:70px}.weapon-panel{width:215px}.weapon-top small,.weapon-slots{display:none}.bottom-hud{width:220px}.vital-title>span{font-size:10px}.survivor-stamp{width:36px}.survivor-stamp .emblem{width:28px}.resource-strip{gap:17px}.tutorial{display:none}.cycle{left:36%;width:230px}.map-sheet{width:100%;padding:15px}.map-body{grid-template-columns:1fr}.map-body aside{display:none}.map-body canvas{max-height:calc(100vh - 195px)}.settings-columns{gap:20px}.settings-card{padding:17px}.modal{padding:20px}.inventory-panel{width:335px}.inventory-use kbd{display:none}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}.reduce-motion *{animation:none!important;transition:none!important}
 .stamina-row.exhausted{opacity:1}.stamina-row.exhausted>span{color:var(--amber)}.stamina-row.exhausted .stamina-track{background:#c6b48040}
+
+/* First-person presentation keeps the field journal and warm survival palette. */
+.playing #game{cursor:none}.playing:not(.mouse-captured) #game{cursor:default}
+.capture-mouse{position:absolute;z-index:16;left:50%;top:44%;transform:translate(-50%,-50%);padding:16px 25px;border:1px solid #aaae8a;background:#233c36ee;color:#e7dfbd;font:600 14px inherit}.capture-mouse small{display:block;font-size:11px;font-weight:400;margin-top:7px;opacity:.7}
+.mouse-captured .capture-mouse,.paused .capture-mouse,.inventory-open .capture-mouse,.map-open .capture-mouse{display:none}
+#damage-direction{position:absolute;inset:0;pointer-events:none;z-index:6;transform:rotate(var(--angle,0rad));transition:opacity .08s}
+#damage-direction i{position:absolute;left:calc(50% - 35px);top:25%;width:70px;height:9px;border-radius:50%;background:#bb5c45;box-shadow:0 0 20px #9f463a99}
+.ads #crosshair i{opacity:.2}.ads #crosshair b{opacity:.8}.playing .vignette{opacity:.35}.playing .notice{top:18%;transform:translateX(-50%) scale(.85)}
+.playing .minimap-panel{width:170px;opacity:.9}.playing .minimap-panel canvas{height:130px}.playing .cycle{transform:translateX(-50%) scale(.85);transform-origin:top center}.playing .objective{max-width:245px;font-size:12px}
+.playing .weapon-panel{bottom:25px;right:28px}.playing .bottom-hud{bottom:25px}.playing .base-status{bottom:185px}
+#interaction{transform:translate(-50%,-50%);pointer-events:none;max-width:300px}.settings-card{max-height:94vh;overflow:auto}
+
+.choosing-perk .capture-mouse{display:none}
+.playing .weapon-compare{width:240px;bottom:24%;padding:12px 16px}.playing .weapon-compare header{margin:4px 0}.playing .weapon-compare .weapon-silhouette{width:45px;height:32px}

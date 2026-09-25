@@ -1,0 +1,98 @@
+[
+  {
+    "id": "house",
+    "meshes": 1348,
+    "materials": 205,
+    "geometries": 146,
+    "textures": 12,
+    "geometryMB": 16.9,
+    "cacheMB": 8.3,
+    "heapMB": 77.6,
+    "voxelAssets": 171,
+    "activeChunks": 23
+  },
+  {
+    "id": "hospital",
+    "meshes": 1348,
+    "materials": 205,
+    "geometries": 150,
+    "textures": 13,
+    "geometryMB": 16.8,
+    "cacheMB": 8.3,
+    "heapMB": 77.6,
+    "voxelAssets": 171,
+    "activeChunks": 13
+  },
+  {
+    "id": "police",
+    "meshes": 1348,
+    "materials": 205,
+    "geometries": 155,
+    "textures": 13,
+    "geometryMB": 17,
+    "cacheMB": 8.5,
+    "heapMB": 77.6,
+    "voxelAssets": 189,
+    "activeChunks": 19
+  },
+  {
+    "id": "market",
+    "meshes": 1348,
+    "materials": 205,
+    "geometries": 195,
+    "textures": 28,
+    "geometryMB": 16.9,
+    "cacheMB": 8.5,
+    "heapMB": 77.6,
+    "voxelAssets": 189,
+    "activeChunks": 21
+  },
+  {
+    "id": "industry",
+    "meshes": 1348,
+    "materials": 205,
+    "geometries": 210,
+    "textures": 32,
+    "geometryMB": 17.1,
+    "cacheMB": 8.7,
+    "heapMB": 77.6,
+    "voxelAssets": 213,
+    "activeChunks": 14
+  },
+  {
+    "id": "quarantine",
+    "meshes": 1348,
+    "materials": 205,
+    "geometries": 219,
+    "textures": 35,
+    "geometryMB": 17,
+    "cacheMB": 8.7,
+    "heapMB": 77.6,
+    "voxelAssets": 213,
+    "activeChunks": 9
+  },
+  {
+    "id": "central-hospital",
+    "meshes": 1348,
+    "materials": 205,
+    "geometries": 219,
+    "textures": 35,
+    "geometryMB": 17,
+    "cacheMB": 8.7,
+    "heapMB": 77.6,
+    "voxelAssets": 213,
+    "activeChunks": 41
+  },
+  {
+    "id": "shelter",
+    "meshes": 1348,
+    "materials": 205,
+    "geometries": 219,
+    "textures": 35,
+    "geometryMB": 17,
+    "cacheMB": 8.7,
+    "heapMB": 77.6,
+    "voxelAssets": 213,
+    "activeChunks": 45
+  }
+]

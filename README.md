@@ -2,7 +2,7 @@
 
 **Só preciso sobreviver a mais uma noite.**
 
-Jogo de sobrevivência **3D isométrica com voxel detalhado** para navegador. Explore Santa Luz, vasculhe containers, escolha o que carregar e prepare as defesas do Abrigo 07. A noite termina quando a horda é eliminada. O amanhecer traz recursos, uma escolha de vantagem para a expedição e um próximo dia mais difícil. Há seis armas, loot de equipamento e quatro tipos de infectado especial. Santa Luz tem 312 × 312 unidades, com hospital distante, escola, motel, indústria e quarentena. Veja [o relatório desta etapa](CITY_REPORT.md).
+Jogo de sobrevivência **FPS 3D com voxel detalhado** para navegador. Explore Santa Luz, vasculhe containers, escolha o que carregar e prepare as defesas do Abrigo 07. A noite termina quando a horda é eliminada. O amanhecer traz recursos, uma escolha de vantagem para a expedição e um próximo dia mais difícil. Há seis armas, loot de equipamento e quatro tipos de infectado especial. Santa Luz tem 312 × 312 unidades, com hospital distante, escola, motel, indústria e quarentena. A conversão para primeira pessoa está documentada em [FPS_REPORT.md](FPS_REPORT.md); a expansão anterior em [CITY_REPORT.md](CITY_REPORT.md).
 
 ## Executar
 
@@ -13,7 +13,7 @@ npm install
 npm run dev -- --host 127.0.0.1
 ```
 
-Abra o endereço do Vite, normalmente **http://localhost:5173**, e clique em **Jogar**. Esse gesto habilita o áudio. O jogo usa modelos, fontes locais e sons gerados localmente, sem packs ou serviços externos durante a partida.
+Abra o endereço do Vite, normalmente **http://localhost:5173**, e clique em **Jogar**. Esse gesto habilita o áudio e captura o mouse. O modo solo usa assets locais e funciona sem um servidor de partida. O modo cooperativo utiliza Photon Realtime; configuração e limites estão em [MULTIPLAYER.md](MULTIPLAYER.md).
 
 ```sh
 npm test
@@ -27,11 +27,13 @@ O build fica em `dist/`. Não abra `index.html` diretamente pelo sistema de arqu
 
 | Entrada | Ação |
 | --- | --- |
-| WASD | Mover pelos eixos da tela isométrica |
+| WASD | Mover em relação à direção do olhar |
 | Shift | Correr, consumindo fôlego |
-| Mouse | Mirar |
+| Mouse | Olhar, com sensibilidade ajustável |
+| Botão direito | Mirar pelos sights (ADS) |
+| C / Ctrl | Agachar enquanto segura |
 | Clique esquerdo | Disparar; segure para SMG e rifle de assalto |
-| 1 / 2 | Arma longa / arma curta |
+| 1 / 2 ou roda | Arma longa / arma curta |
 | R | Recarregar usando munição da reserva |
 | E | Interagir: vasculhar, equipar arma, abrir cache, ativar gerador, desligar alarme ou construir |
 | Segurar E | Reparar uma barricada danificada |
@@ -39,9 +41,9 @@ O build fica em `dist/`. Não abra `index.html` diretamente pelo sistema de arqu
 | Tab | Mochila, armas e vantagens adquiridas |
 | M / F | Mapa / lanterna |
 | X | Desmontar a barricada próxima e liberar passagem |
-| Esc | Fechar mochila; com ela fechada, pausar/retomar |
+| Esc | Liberar mouse e pausar; fecha mapa/mochila antes da pausa |
 
-O inventário permite guardar, retirar e descartar recursos. O depósito só está disponível no pátio do abrigo. **O tempo continua com a mochila aberta.** O botão de pausa pausa diretamente; sair da janela também pausa. A pausa oferece qualidade **ALTA/LEVE**. Som pode ser desativado no canto superior direito.
+O inventário permite guardar, retirar e descartar recursos. O depósito só está disponível no pátio do abrigo. **O tempo continua com a mochila aberta.** No solo, o botão de pausa ou sair da janela pausa a simulação; no coop os companheiros e o mundo continuam. A pausa oferece qualidade **LEVE/MÉDIA/ALTA/ULTRA**, FOV 70–105 (padrão 88), sensibilidade, balanço da câmera, impacto visual e volumes separados de efeitos/ambiente. Não há salto: o mapa permanece térreo, com pequenos degraus suavizados. Som pode ser desativado no canto superior direito.
 
 ## Uma expedição
 
@@ -58,11 +60,25 @@ Perder toda a vida ou os 1.000 HP do abrigo encerra a expedição. **TENTAR OUTR
 
 ## A cidade ampliada
 
-Dezoito locais novos têm interiores, móveis e duas entradas. Use **E** na porta ou janela; entradas barricadas demoram mais e fazem barulho. Use **X** perto de uma entrada aberta para barricar com duas madeiras. Vidro quebra com um disparo livre; madeira continua bloqueando a abertura. O depósito de equipamentos, em **Tab → Equipamento**, guarda até quatro armas no abrigo e preserva a munição carregada.
+Vinte locais externos têm interiores, móveis e duas entradas. Use **E** na porta ou janela; entradas barricadas demoram mais e fazem barulho. Use **X** perto de uma entrada aberta para barricar com duas madeiras. Vidro quebra com um disparo livre; madeira continua bloqueando a abertura. O depósito de equipamentos, em **Tab → Equipamento**, guarda até quatro armas no abrigo e preserva a munição carregada.
 
 A exaustão não trava a caminhada: sprint consome 22/s, o fôlego volta 18/s após 0,75 s sem corrida, e correr fica bloqueado até recuperar 25%. Segurar Shift retoma a corrida somente depois desse limite.
 
 Guardas dos locais persistem, grupos de dez Errantes atravessam ruas e o Arauto anuncia seu grito antes de atrair infectados já existentes. Há suprimentos médicos, mochilas de sobreviventes, cargas antigas e sinais em uma casa barricada. O mapa registra descobertas; longe da base, o objetivo mostra distância e uma estimativa de retorno. Ela não inclui combate, obstáculos ou tempo de busca: deixe margem.
+
+## Santa Luz depois do colapso — Fase 9
+
+A malha urbana recebeu 52 construções de fachada, igreja e terminal exploráveis, 63 veículos em nove famílias e sete cenas de abandono. Becos, calçadas, fachadas e telhados dão continuidade entre os POIs. A igreja e o rádio do terminal sugerem uma rota de evacuação; investigar essas pistas é opcional e ainda não existe um final de fuga.
+
+Infectados precisam enxergar para perseguir a posição atual. Ao perder visão, investigam a última posição vista; ruídos indicam uma área aproximada. Portas bloqueiam visão, vidros permitem enxergar mas impedem ataques até quebrarem. O diretor de tensão espaça oportunidades e sinais ambientais, incluindo períodos de alívio depois de contato intenso.
+
+Hatches e viaturas selecionados podem disparar um alarme após impacto. Geradores usam um motor próprio, fazem barulho enquanto ligados e liberam depósitos. A reverberação e o vento mudam suavemente entre interior, rua e abrigo. Relatório, comparações e limites de validação: [PHASE9_REPORT.md](PHASE9_REPORT.md).
+
+## Apresentação visual — Fase 11
+
+Sol lateral quente, sombras estáveis, céu com nuvens, materiais gastos, detalhes de abandono e arma iluminada pelo ambiente formam o passe visual atual. Alta e Ultra incluem GTAO; os quatro presets ajustam sombras, distância, vegetação e efeitos. A mochila mantém o background grunge e os seis ícones fornecidos.
+
+[Relatório completo](PHASE11_REPORT.md), [comparações antes/depois](docs/phase11/comparison.html) e [assets/licenças](PHASE11_ASSETS.md). A mesma apresentação atende solo e coop.
 
 ## Recursos e balanceamento
 
@@ -101,6 +117,9 @@ A pistola mantém 34 de dano, pente de 12, intervalo de 0,23 s, recarga de 1,35 
 
 | Arquivo | Responsabilidade |
 | --- | --- |
+| `src/game/first-person.ts`, `input.ts` | Tuning FPS, mouse look, Pointer Lock e movimento relativo |
+| `src/game/interaction.ts` | Foco central e oclusão das interações |
+| `src/render/viewmodel.ts` | Mãos e armas locais, ADS, recuo e recarga |
 | `src/game/weapons.ts`, `enemies.ts`, `perks.ts` | Definições de arsenal, infectados e vantagens |
 | `src/game/expedition.ts`, `interiors.ts` | Instalações, eventos e interiores com móveis sólidos |
 | `src/ui/variety.ts`, `variety.css` | Slots, comparação, equipamento e escolha de perk |
@@ -135,9 +154,9 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-O Playwright inicia/reutiliza o Vite. Testes cobrem simulação, mesher, recursos, ações, navegação, fases, hordas, derrotas, reset e fluxos reais no navegador. As capturas ficam em `test-results/`; rastros de falha ficam em `test-results/traces/`.
+O Playwright inicia/reutiliza o Vite. A suíte ativa é FPS + áudio; os antigos cenários de mouse isométrico foram preservados para consulta e exigem migração (`LAST_NIGHT_LEGACY_E2E=1` inclui esses arquivos históricos). Testes cobrem simulação, mesher, recursos, ações, navegação, fases, hordas, derrotas, reset e fluxos reais no navegador. As capturas ficam em `test-results/`; rastros de falha ficam em `test-results/traces/`.
 
-O modo **`/?test`** de desenvolvimento expõe estado e preparação de cenários. Permite acelerar a simulação e ajustar fases para testar transições sem aguardar todo o dia. Esses hooks são removidos do build de produção. A expedição automatizada contínua usa teclado e mouse para mover, procurar loot, construir e combater; não injeta vida, munição nem eliminações. O tempo ocioso do dia é abreviado e o combate é acelerado para viabilizar a execução por software.
+O modo **`/?test`** de desenvolvimento expõe estado e preparação de cenários. Permite acelerar a simulação e ajustar fases para testar transições sem aguardar todo o dia. Esses hooks são removidos do build de produção. O teste `fps-playthrough.spec.ts` usa a URL normal, entradas e UI, sem alterar estado ou acelerar o tempo. Os cenários preparados em `fps.spec.ts` verificam condições específicas, armas, interiores e hordas.
 
 **FPS do Chromium com SwiftShader não é benchmark de GPU real.** As métricas de geometria estimam buffers, não memória total do navegador.
 
@@ -145,13 +164,13 @@ Consulte [VARIETY_REPORT.md](VARIETY_REPORT.md) para o arsenal, especiais, perks
 
 ## Limites
 
-Desktop, single player, uma região urbana, seis armas e quatro tipos de infectado. Há três interiores pequenos de serviço. Não há salvamento da expedição, backend, contas, multiplayer, crafting complexo, direção de veículos ou progressão permanente. A morte encerra os recursos daquela expedição. Destruição é visual por estágios; não altera voxels individuais com física. Noites posteriores à segunda têm escala limitada, mas ainda exigem testes de balanceamento prolongados.
+Desktop, single player, Santa Luz com 312 × 312 m, seis armas e cinco tipos de infectado (Errante e quatro especiais). Há três interiores centrais e os locais visitáveis da expansão. O corpo local é ocultado; mãos e arma usam um rig independente. O controller é planar, sem salto ou física vertical completa. Não há salvamento da expedição, backend próprio, contas, crafting complexo, direção de veículos ou progressão permanente. A morte encerra os recursos daquela expedição. Destruição é visual por estágios; não altera voxels individuais com física. Noites posteriores à segunda têm escala limitada, mas ainda exigem testes de balanceamento prolongados.
 
 Próxima etapa recomendada: sessões manuais curtas para calibrar ritmo de exploração, custos e pressão das duas primeiras noites, além de perfil em GPUs reais. Nenhuma nova fase é iniciada automaticamente. Nenhum commit, push ou alteração de histórico foi realizado.
 
 ## Combate e Santa Luz ampliada
 
-O mundo jogável tem 156 × 156 m, com o bairro original preservado no centro, 38 pontos de suprimento, além de instalações e eventos e novas áreas residenciais, comerciais, de triagem, evacuação e indústria. Locais distantes oferecem recompensas melhores e pequenos grupos de Walkers. Alarmes e buscas barulhentas podem atrair inimigos existentes.
+O mundo jogável tem 312 × 312 m, com o bairro original preservado no centro, 92 pontos de suprimento, além de instalações e eventos e novas áreas residenciais, comerciais, de triagem, evacuação e indústria. Locais distantes oferecem recompensas melhores e pequenos grupos de Walkers. Alarmes e buscas barulhentas podem atrair inimigos existentes.
 
 Mire na anatomia. Com a pistola comum, a cabeça causa 102 de dano, torso 34, braços 22,1 e pernas 23,8. Pernas reduzem a velocidade por 2,5 s. Há até seis ferimentos por Walker. Mortes deixam corpos por 30 s, com remoção gradual em mais 4 s. Cadáveres não bloqueiam caminhos.
 
@@ -164,3 +183,11 @@ Novos módulos: `src/game/combat.ts` (anatomia e cadáveres), `src/game/district
 Os seis MP3 em `public/audio` foram fornecidos pelo usuário: tiro, gatilho sem munição e recarga da pistola, alarme de carro, vocalização e ataque de zumbi. Compartilham os controles de volume/efeitos e pausa. A recarga acompanha sua duração e cancelamento; o alarme toca em loop enquanto ativo, com distância e direção, e para ao ser desligado. Os originais foram preservados: o player recorta um clique da sequência sem munição e remove o silêncio inicial/final do loop de alarme. As demais armas mantêm seus sons próprios; se um MP3 não carregar, o efeito sintetizado continua disponível.
 
 `zumbisom.mp3` fornece gemidos variados dos Errantes próximos, em trechos separados pelas pausas do original, com uma vocalização por vez. `zumbiataque.mp3` toca nos golpes corpo a corpo contra jogador, barricadas ou abrigo, com até duas vozes simultâneas. Distância e direção afetam ambos; os avisos próprios dos especiais continuam ativos.
+
+### Coop experimental — Fase 10B
+
+A opção **Coop online** usa Photon Realtime para salas privadas de até quatro pessoas, lobby com pronto e gameplay compartilhado: infectados, tiros, loot, portas, inventário individual e downed/revive. O MasterClient coordena a simulação no navegador; não é um servidor confiável contra cheating. Director, hordas e eventos complexos permanecem no solo nesta etapa. Configure `VITE_PHOTON_APP_ID` em `.env.local` e reinicie o Vite. Consulte [MULTIPLAYER.md](MULTIPLAYER.md) para arquitetura, protocolo, configuração e testes reais (`npm run test:coop`).
+
+## Interface compartilhada
+
+Solo e coop usam o mesmo tema, HUD e mochila. O visual preto desgastado e os seis ícones de itens fornecidos pelo autor estão documentados em [UI_THEME_REPORT.md](UI_THEME_REPORT.md). Mudanças futuras de interface devem manter paridade entre os dois modos.

@@ -1,0 +1,558 @@
+[
+  {
+    "network": {
+      "state": "playing",
+      "region": "sa",
+      "code": "NANB3Z",
+      "players": [
+        {
+          "actorNumber": 2,
+          "playerId": "4b076148-cf1d-4ef8-8f25-187e0bb5b8fc",
+          "displayName": "Bruno",
+          "isLocal": false,
+          "isHost": true,
+          "ready": false
+        },
+        {
+          "actorNumber": 3,
+          "playerId": "0734031b-c2b5-4e5c-840a-33c620235e22",
+          "displayName": "Carla",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        },
+        {
+          "actorNumber": 4,
+          "playerId": "84c105b9-947b-4645-9b31-50e838470d81",
+          "displayName": "Davi",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        },
+        {
+          "actorNumber": 5,
+          "playerId": "eaa7046c-6292-415d-aa2d-f958ed71c584",
+          "displayName": "Ana",
+          "isLocal": true,
+          "isHost": false,
+          "ready": true
+        }
+      ],
+      "metrics": {
+        "sent": 292,
+        "received": 788,
+        "rejected": 18,
+        "sendRate": 20,
+        "receiveRate": 50,
+        "payloadBytes": 10694,
+        "averagePayloadBytes": 36.607142857142854,
+        "ping": 10
+      },
+      "remotes": [
+        {
+          "identity": {
+            "actorNumber": 2,
+            "playerId": "4b076148-cf1d-4ef8-8f25-187e0bb5b8fc",
+            "displayName": "Bruno",
+            "isLocal": false,
+            "isHost": true,
+            "ready": false
+          },
+          "snapshot": {
+            "sequence": 139,
+            "time": 182962,
+            "x": 1,
+            "y": 0.02,
+            "z": 12,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        },
+        {
+          "identity": {
+            "actorNumber": 3,
+            "playerId": "0734031b-c2b5-4e5c-840a-33c620235e22",
+            "displayName": "Carla",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 336,
+            "time": 175623,
+            "x": 3,
+            "y": 0.22,
+            "z": 4,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        },
+        {
+          "identity": {
+            "actorNumber": 4,
+            "playerId": "84c105b9-947b-4645-9b31-50e838470d81",
+            "displayName": "Davi",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 289,
+            "time": 145191,
+            "x": -1,
+            "y": 0.22,
+            "z": 7,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        }
+      ],
+      "avatars": 3,
+      "buffers": [
+        25,
+        13,
+        4
+      ]
+    },
+    "fps": 1,
+    "calls": 217,
+    "triangles": 279380,
+    "render": {
+      "meshes": 1687,
+      "materials": 232,
+      "geometries": 182,
+      "textures": 12,
+      "geometryMB": 26.8,
+      "cacheMB": 8.7,
+      "heapMB": 92.9,
+      "voxelAssets": 170,
+      "activeChunks": 111
+    }
+  },
+  {
+    "network": {
+      "state": "playing",
+      "region": "sa",
+      "code": "NANB3Z",
+      "players": [
+        {
+          "actorNumber": 2,
+          "playerId": "4b076148-cf1d-4ef8-8f25-187e0bb5b8fc",
+          "displayName": "Bruno",
+          "isLocal": true,
+          "isHost": true,
+          "ready": false
+        },
+        {
+          "actorNumber": 3,
+          "playerId": "0734031b-c2b5-4e5c-840a-33c620235e22",
+          "displayName": "Carla",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        },
+        {
+          "actorNumber": 4,
+          "playerId": "84c105b9-947b-4645-9b31-50e838470d81",
+          "displayName": "Davi",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        },
+        {
+          "actorNumber": 5,
+          "playerId": "eaa7046c-6292-415d-aa2d-f958ed71c584",
+          "displayName": "Ana",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        }
+      ],
+      "metrics": {
+        "sent": 164,
+        "received": 724,
+        "rejected": 210,
+        "sendRate": 9.498575213718826,
+        "receiveRate": 28.495725641156483,
+        "payloadBytes": 6122,
+        "averagePayloadBytes": 37.32515337423313,
+        "ping": 13
+      },
+      "remotes": [
+        {
+          "identity": {
+            "actorNumber": 3,
+            "playerId": "0734031b-c2b5-4e5c-840a-33c620235e22",
+            "displayName": "Carla",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 335,
+            "time": 175574,
+            "x": 3,
+            "y": 0.22,
+            "z": 4,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        },
+        {
+          "identity": {
+            "actorNumber": 4,
+            "playerId": "84c105b9-947b-4645-9b31-50e838470d81",
+            "displayName": "Davi",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 289,
+            "time": 145191,
+            "x": -1,
+            "y": 0.22,
+            "z": 7,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        },
+        {
+          "identity": {
+            "actorNumber": 5,
+            "playerId": "eaa7046c-6292-415d-aa2d-f958ed71c584",
+            "displayName": "Ana",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 288,
+            "time": 193186,
+            "x": 3,
+            "y": 0.22,
+            "z": 7,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        }
+      ],
+      "avatars": 3,
+      "buffers": [
+        14,
+        4,
+        4
+      ]
+    },
+    "fps": 1,
+    "calls": 241,
+    "triangles": 286594,
+    "render": {
+      "meshes": 1687,
+      "materials": 232,
+      "geometries": 185,
+      "textures": 13,
+      "geometryMB": 26.8,
+      "cacheMB": 8.7,
+      "heapMB": 92.9,
+      "voxelAssets": 170,
+      "activeChunks": 109
+    }
+  },
+  {
+    "network": {
+      "state": "playing",
+      "region": "sa",
+      "code": "NANB3Z",
+      "players": [
+        {
+          "actorNumber": 2,
+          "playerId": "4b076148-cf1d-4ef8-8f25-187e0bb5b8fc",
+          "displayName": "Bruno",
+          "isLocal": false,
+          "isHost": true,
+          "ready": false
+        },
+        {
+          "actorNumber": 3,
+          "playerId": "0734031b-c2b5-4e5c-840a-33c620235e22",
+          "displayName": "Carla",
+          "isLocal": true,
+          "isHost": false,
+          "ready": true
+        },
+        {
+          "actorNumber": 4,
+          "playerId": "84c105b9-947b-4645-9b31-50e838470d81",
+          "displayName": "Davi",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        },
+        {
+          "actorNumber": 5,
+          "playerId": "eaa7046c-6292-415d-aa2d-f958ed71c584",
+          "displayName": "Ana",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        }
+      ],
+      "metrics": {
+        "sent": 350,
+        "received": 749,
+        "rejected": 0,
+        "sendRate": 20,
+        "receiveRate": 45,
+        "payloadBytes": 12840,
+        "averagePayloadBytes": 36.67836257309941,
+        "ping": 11
+      },
+      "remotes": [
+        {
+          "identity": {
+            "actorNumber": 2,
+            "playerId": "4b076148-cf1d-4ef8-8f25-187e0bb5b8fc",
+            "displayName": "Bruno",
+            "isLocal": false,
+            "isHost": true,
+            "ready": false
+          },
+          "snapshot": {
+            "sequence": 161,
+            "time": 184062,
+            "x": 1,
+            "y": 0.02,
+            "z": 12,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        },
+        {
+          "identity": {
+            "actorNumber": 4,
+            "playerId": "84c105b9-947b-4645-9b31-50e838470d81",
+            "displayName": "Davi",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 290,
+            "time": 145241,
+            "x": -1,
+            "y": 0.22,
+            "z": 7,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        },
+        {
+          "identity": {
+            "actorNumber": 5,
+            "playerId": "eaa7046c-6292-415d-aa2d-f958ed71c584",
+            "displayName": "Ana",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 289,
+            "time": 193236,
+            "x": 3,
+            "y": 0.22,
+            "z": 7,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        }
+      ],
+      "avatars": 3,
+      "buffers": [
+        3,
+        3,
+        3
+      ]
+    },
+    "fps": 1,
+    "calls": 197,
+    "triangles": 273692,
+    "render": {
+      "meshes": 1687,
+      "materials": 232,
+      "geometries": 171,
+      "textures": 10,
+      "geometryMB": 26.8,
+      "cacheMB": 8.7,
+      "heapMB": 98.2,
+      "voxelAssets": 170,
+      "activeChunks": 111
+    }
+  },
+  {
+    "network": {
+      "state": "playing",
+      "region": "sa",
+      "code": "NANB3Z",
+      "players": [
+        {
+          "actorNumber": 2,
+          "playerId": "4b076148-cf1d-4ef8-8f25-187e0bb5b8fc",
+          "displayName": "Bruno",
+          "isLocal": false,
+          "isHost": true,
+          "ready": false
+        },
+        {
+          "actorNumber": 3,
+          "playerId": "0734031b-c2b5-4e5c-840a-33c620235e22",
+          "displayName": "Carla",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        },
+        {
+          "actorNumber": 4,
+          "playerId": "84c105b9-947b-4645-9b31-50e838470d81",
+          "displayName": "Davi",
+          "isLocal": true,
+          "isHost": false,
+          "ready": true
+        },
+        {
+          "actorNumber": 5,
+          "playerId": "eaa7046c-6292-415d-aa2d-f958ed71c584",
+          "displayName": "Ana",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        }
+      ],
+      "metrics": {
+        "sent": 293,
+        "received": 787,
+        "rejected": 18,
+        "sendRate": 19.990004997501252,
+        "receiveRate": 50.97451274362819,
+        "payloadBytes": 11024,
+        "averagePayloadBytes": 37.60573476702509,
+        "ping": 12
+      },
+      "remotes": [
+        {
+          "identity": {
+            "actorNumber": 2,
+            "playerId": "4b076148-cf1d-4ef8-8f25-187e0bb5b8fc",
+            "displayName": "Bruno",
+            "isLocal": false,
+            "isHost": true,
+            "ready": false
+          },
+          "snapshot": {
+            "sequence": 139,
+            "time": 182962,
+            "x": 1,
+            "y": 0.02,
+            "z": 12,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        },
+        {
+          "identity": {
+            "actorNumber": 3,
+            "playerId": "0734031b-c2b5-4e5c-840a-33c620235e22",
+            "displayName": "Carla",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 336,
+            "time": 175623,
+            "x": 3,
+            "y": 0.22,
+            "z": 4,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        },
+        {
+          "identity": {
+            "actorNumber": 5,
+            "playerId": "eaa7046c-6292-415d-aa2d-f958ed71c584",
+            "displayName": "Ana",
+            "isLocal": false,
+            "isHost": false,
+            "ready": true
+          },
+          "snapshot": {
+            "sequence": 289,
+            "time": 193236,
+            "x": 3,
+            "y": 0.22,
+            "z": 7,
+            "yaw": 3.142,
+            "pitch": 0,
+            "vx": 0,
+            "vz": 0,
+            "locomotion": 0
+          }
+        }
+      ],
+      "avatars": 3,
+      "buffers": [
+        25,
+        13,
+        3
+      ]
+    },
+    "fps": 1,
+    "calls": 212,
+    "triangles": 276860,
+    "render": {
+      "meshes": 1687,
+      "materials": 232,
+      "geometries": 184,
+      "textures": 12,
+      "geometryMB": 26.8,
+      "cacheMB": 8.7,
+      "heapMB": 104,
+      "voxelAssets": 170,
+      "activeChunks": 112
+    }
+  }
+]

@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-25",
+  "typecheck": "passed",
+  "build": {
+    "status": "passed",
+    "modules": 98
+  },
+  "unitTests": {
+    "passed": 168,
+    "failed": 0
+  },
+  "browserRegression": {
+    "config": "playwright.phase11.config.ts",
+    "passed": 16,
+    "failed": 0,
+    "duration": "8.2m",
+    "afterFinalRenderingFixes": true
+  },
+  "previousVisualTests": {
+    "passed": 2,
+    "resolutions": [
+      "1920x1080",
+      "1600x900",
+      "1366x768",
+      "2560x1440"
+    ],
+    "sevenSceneSurvey": "passed"
+  },
+  "finalVisualTests": {
+    "passed": 2,
+    "failed": 0,
+    "afterFinalRenderingFixes": true,
+    "unrelatedSettingTextureDisposals": 0
+  },
+  "highQualityUiRegression": {
+    "passed": 2,
+    "failed": 0,
+    "quality": "high",
+    "photonClients": 2
+  },
+  "finalSevenSceneSurvey": {
+    "passed": 1,
+    "failed": 0,
+    "afterFinalRenderingFixes": true,
+    "directory": "08-optimized-high"
+  },
+  "browserTotal": {
+    "regressionsPassed": 20,
+    "visualSurveysPassed": 1,
+    "failed": 0
+  }
+}

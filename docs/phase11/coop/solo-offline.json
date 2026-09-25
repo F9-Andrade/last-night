@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "combat/death",
+    "Tab inventory",
+    "ammo search",
+    "door",
+    "night phase",
+    "immediate solo death"
+  ],
+  "network": "offline after page loaded",
+  "errors": []
+}

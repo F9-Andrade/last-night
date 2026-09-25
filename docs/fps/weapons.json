@@ -1,0 +1,194 @@
+[
+  {
+    "type": "pistol",
+    "headshots": 1,
+    "empty": true,
+    "audio": {
+      "voices": 0,
+      "peak": 4,
+      "state": "running",
+      "samplesLoaded": [
+        "reload",
+        "shot",
+        "zombie-attack",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.01645949409723,
+      "position": [
+        88,
+        1.7400000000000002,
+        -49.125
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 76,
+    "triangles": 102304
+  },
+  {
+    "type": "revolver",
+    "headshots": 2,
+    "empty": true,
+    "audio": {
+      "voices": 0,
+      "peak": 7,
+      "state": "running",
+      "samplesLoaded": [
+        "reload",
+        "shot",
+        "zombie-attack",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.00964560585213,
+      "position": [
+        88,
+        1.7400000000000002,
+        -47.70250000000044
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 77,
+    "triangles": 105228
+  },
+  {
+    "type": "smg",
+    "headshots": 4,
+    "empty": true,
+    "audio": {
+      "voices": 0,
+      "peak": 10,
+      "state": "running",
+      "samplesLoaded": [
+        "reload",
+        "shot",
+        "zombie-attack",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.40379303598623,
+      "position": [
+        88,
+        1.7400000000000002,
+        -47.99999999999967
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 77,
+    "triangles": 103874
+  },
+  {
+    "type": "shotgun",
+    "headshots": 5,
+    "empty": true,
+    "audio": {
+      "voices": 0,
+      "peak": 10,
+      "state": "running",
+      "samplesLoaded": [
+        "reload",
+        "shot",
+        "zombie-attack",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.40379303597406,
+      "position": [
+        88,
+        1.7400000000000002,
+        -46.42499999999965
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 84,
+    "triangles": 107168
+  },
+  {
+    "type": "rifle",
+    "headshots": 7,
+    "empty": true,
+    "audio": {
+      "voices": 0,
+      "peak": 11,
+      "state": "running",
+      "samplesLoaded": [
+        "reload",
+        "shot",
+        "zombie-attack",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.08152440795534,
+      "position": [
+        88,
+        1.7400000000000002,
+        -47.205000000000126
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 78,
+    "triangles": 105358
+  },
+  {
+    "type": "marksman",
+    "headshots": 8,
+    "empty": true,
+    "audio": {
+      "voices": 0,
+      "peak": 11,
+      "state": "running",
+      "samplesLoaded": [
+        "reload",
+        "shot",
+        "zombie-attack",
+        "empty",
+        "alarm",
+        "zombie-call"
+      ],
+      "samplesPlaying": []
+    },
+    "camera": {
+      "fov": 88.04777499853778,
+      "position": [
+        88,
+        1.7400000000000002,
+        -46.017500000000254
+      ],
+      "yaw": 3.141592653589793,
+      "pitch": 0.032,
+      "pointerLocked": true
+    },
+    "calls": 85,
+    "triangles": 107324
+  }
+]

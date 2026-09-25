@@ -1,0 +1,413 @@
+{
+  "stage": "03-atmosphere",
+  "quality": "high",
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "viewport": {
+    "width": 1600,
+    "height": 900
+  },
+  "dpr": 1,
+  "measurement": "5 live samples after 1.8 seconds settling; CDP TaskDuration is renderer CPU, excludes GPU",
+  "rows": [
+    {
+      "scene": {
+        "name": "A-residential",
+        "x": -12,
+        "z": 27,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 261,
+            "textures": 36,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 261,
+            "textures": 36,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 261,
+            "textures": 36,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 261,
+            "textures": 36,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 261,
+            "textures": 36,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.94,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 465.16139923207584
+    },
+    {
+      "scene": {
+        "name": "C-interior",
+        "x": 112,
+        "z": -105,
+        "yaw": 3.141592653589793,
+        "pitch": 0,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 180,
+          "triangles": 280266,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0396239675416847,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 180,
+          "triangles": 280266,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0398726835824088,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 180,
+          "triangles": 280266,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0399569149760326,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 180,
+          "triangles": 280266,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0399854196393097,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 180,
+          "triangles": 280266,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 1.0399950646407579,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 45
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 422.26973788938614
+    },
+    {
+      "scene": {
+        "name": "E-night",
+        "x": -12,
+        "z": 27,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "night"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9403760216595612,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9401273127613676,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400430837866682,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400145835874182,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 629,
+          "triangles": 866332,
+          "render": {
+            "meshes": 1659,
+            "materials": 227,
+            "geometries": 283,
+            "textures": 38,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 73.1,
+            "voxelAssets": 170,
+            "visual": {
+              "ao": "GTAO",
+              "aoResolutionScale": 0.5,
+              "bloom": true,
+              "toneMapping": "AgX",
+              "exposure": 0.9400047345976382,
+              "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+            },
+            "activeChunks": 109
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 442.61281943664653
+    }
+  ],
+  "errors": []
+}

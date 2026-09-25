@@ -9,6 +9,7 @@ export const REGIONS = [
   {x:61,z:-58,name:'TRIAGEM EXTERNA',icon:'+'},{x:-59,z:58,name:'PÁTIO DE MANUTENÇÃO',icon:'S'},
   ...CITY_SITES.map(s=>({x:s.x,z:s.z,name:s.name,icon:s.kind==='hospital'?'+':s.kind==='quarantine'?'Q':s.kind==='school'?'A':s.kind==='cemetery'?'C':s.kind==='industry'?'I':s.kind==='fire'?'F':s.kind==='gas'?'G':s.kind==='market'?'M':s.kind==='police'?'P':'R'})),
 ];
+export const OUTER_TREE_OFFSET={x:8.5,z:-5};
 export const OUTER_HOUSES = [
   [-65,-66,0xb08c75],[-44,-65,0x809d91],[-64,-43,0xb5a07c],[-43,-43,0x9f9a80],
   [-21,-61,0x91a292],[2,-65,0xb08b71],[24,-62,0xa9a583],[-23,-43,0xb2a27d],[2,-45,0x829d97],

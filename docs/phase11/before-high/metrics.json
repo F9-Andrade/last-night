@@ -1,0 +1,667 @@
+{
+  "stage": "before",
+  "quality": "high",
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "viewport": {
+    "width": 1600,
+    "height": 900
+  },
+  "dpr": 1,
+  "measurement": "5 live samples after 1.8 seconds settling; CDP TaskDuration is renderer CPU, excludes GPU",
+  "rows": [
+    {
+      "scene": {
+        "name": "A-residential",
+        "x": -12,
+        "z": 27,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 237,
+            "textures": 16,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 68.9,
+            "voxelAssets": 170,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 237,
+            "textures": 16,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 68.9,
+            "voxelAssets": 170,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 237,
+            "textures": 16,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 68.9,
+            "voxelAssets": 170,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 237,
+            "textures": 16,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 68.9,
+            "voxelAssets": 170,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 237,
+            "textures": 16,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 68.9,
+            "voxelAssets": 170,
+            "activeChunks": 109
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 394.88118946362886
+    },
+    {
+      "scene": {
+        "name": "B-avenue",
+        "x": 88,
+        "z": -30,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 178,
+          "triangles": 244174,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 263,
+            "textures": 18,
+            "geometryMB": 27,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 178,
+          "triangles": 244174,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 263,
+            "textures": 18,
+            "geometryMB": 27,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 178,
+          "triangles": 244174,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 263,
+            "textures": 18,
+            "geometryMB": 27,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 178,
+          "triangles": 244174,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 263,
+            "textures": 18,
+            "geometryMB": 27,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 178,
+          "triangles": 244174,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 263,
+            "textures": 18,
+            "geometryMB": 27,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 405.9810967950857
+    },
+    {
+      "scene": {
+        "name": "C-interior",
+        "x": 112,
+        "z": -105,
+        "yaw": 3.141592653589793,
+        "pitch": 0,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 83,
+          "triangles": 136572,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 83,
+          "triangles": 136572,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 83,
+          "triangles": 136572,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 83,
+          "triangles": 136572,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 45
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 83,
+          "triangles": 136572,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 45
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 402.90610671703644
+    },
+    {
+      "scene": {
+        "name": "D-shelter",
+        "x": 1,
+        "z": 7,
+        "yaw": 3.141592653589793,
+        "pitch": -0.025,
+        "phase": "day"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 305,
+          "triangles": 414070,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 112
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 305,
+          "triangles": 414070,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 112
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 305,
+          "triangles": 414070,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 112
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 305,
+          "triangles": 414070,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 112
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 305,
+          "triangles": 414070,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 269,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 112
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 408.3935145873717
+    },
+    {
+      "scene": {
+        "name": "E-night",
+        "x": -12,
+        "z": 27,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "night"
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 282,
+          "triangles": 404838,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 282,
+          "triangles": 404838,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 282,
+          "triangles": 404838,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 282,
+          "triangles": 404838,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 282,
+          "triangles": 404838,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 398.8153805637054
+    },
+    {
+      "scene": {
+        "name": "F-inventory",
+        "x": -12,
+        "z": 27,
+        "yaw": 3.141592653589793,
+        "pitch": -0.045,
+        "phase": "day",
+        "inventory": true
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 266,
+          "triangles": 400730,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 192.06017445617167
+    },
+    {
+      "scene": {
+        "name": "G-combat",
+        "x": 88,
+        "z": -30,
+        "yaw": 3.141592653589793,
+        "pitch": 0,
+        "phase": "day",
+        "combat": true
+      },
+      "samples": [
+        {
+          "fps": 60,
+          "calls": 204,
+          "triangles": 247166,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 204,
+          "triangles": 247166,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 204,
+          "triangles": 247166,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 204,
+          "triangles": 247166,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        },
+        {
+          "fps": 60,
+          "calls": 204,
+          "triangles": 247166,
+          "render": {
+            "meshes": 1658,
+            "materials": 226,
+            "geometries": 271,
+            "textures": 18,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 68.9,
+            "voxelAssets": 188,
+            "activeChunks": 76
+          }
+        }
+      ],
+      "rendererCpuMsPerSecond": 415.0591677412756
+    }
+  ],
+  "errors": []
+}

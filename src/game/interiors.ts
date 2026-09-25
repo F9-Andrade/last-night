@@ -7,7 +7,7 @@ export const ROOM_PROPS:Record<string,(Obstacle&{kind:'bed'|'desk'|'shelf'})[]>=
 };
 export function roomObstacles(b:Building):Obstacle[]{
   const door=2.8,side=(b.w-door)/2;
-  return [{x:b.x-b.w/2,z:b.z,w:.4,d:b.d},{x:b.x+b.w/2,z:b.z,w:.4,d:b.d},{x:b.x,z:b.z-b.d/2,w:b.w,d:.4},
-    {x:b.x-(door+side)/2,z:b.z+b.d/2,w:side,d:.4},{x:b.x+(door+side)/2,z:b.z+b.d/2,w:side,d:.4},
-    ...(ROOM_PROPS[b.kind]??[]).map(p=>({...p,x:b.x+p.x,z:b.z+p.z}))];
+  return [{x:b.x-b.w/2,z:b.z,w:.4,d:b.d,h:b.h},{x:b.x+b.w/2,z:b.z,w:.4,d:b.d,h:b.h},{x:b.x,z:b.z-b.d/2,w:b.w,d:.4,h:b.h},
+    {x:b.x-(door+side)/2,z:b.z+b.d/2,w:side,d:.4,h:b.h},{x:b.x+(door+side)/2,z:b.z+b.d/2,w:side,d:.4,h:b.h},
+    ...(ROOM_PROPS[b.kind]??[]).map(p=>({...p,h:p.kind==='shelf'?1.9:p.kind==='bed'?1.15:1.2,x:b.x+p.x,z:b.z+p.z}))];
 }

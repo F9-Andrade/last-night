@@ -1,34 +1,55 @@
 import type { InputCommand } from './simulation';
-import type { GameScene } from '../render/scene';
+import { MouseLook, relativeMovement, lookDirection } from './first-person';
 export class Input {
-  keys = new Set<string>(); mouse = { x: innerWidth / 2, y: innerHeight / 2 }; fire = false; private shotRequested = false; private reload = false; private interact = false; private heal = false; private dismantle = false;
-  constructor(canvas: HTMLCanvasElement, pause: () => void, inventory: () => void) {
-    window.addEventListener('keydown', e => {
-      if(e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement)return;
-      if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ShiftLeft', 'ShiftRight', 'KeyR', 'KeyE', 'Escape', 'Digit1', 'Digit2', 'Tab', 'KeyH', 'KeyX'].includes(e.code)) e.preventDefault();
-      if (e.code === 'Tab' && !e.repeat) inventory();
-      if (e.code === 'KeyH' && !e.repeat) this.heal = true;
-      if (e.code === 'KeyX' && !e.repeat) this.dismantle = true;
-      if (e.code === 'Escape' && !e.repeat) pause();
-      if (e.code === 'KeyR' && !e.repeat) this.reload = true;
-      if (e.code === 'KeyE' && !e.repeat) this.interact = true;
+  look=new MouseLook(); keys=new Set<string>(); mouse={x:innerWidth/2,y:innerHeight/2}; fire=false; ads=false;
+  enabled=false; blocked=true; private shotRequested=false;private reload=false;private interact=false;private heal=false;private dismantle=false;private slot?:0|1;
+  private expectedUnlock=false; private lockPending=false;private captureAfterUnlock=false;private wasCaptured=false;
+  get captured():boolean{return document.pointerLockElement===this.canvas;}
+  constructor(private canvas:HTMLCanvasElement,pause:()=>void,inventory:()=>void,private lostLock:()=>void){
+    window.addEventListener('keydown',e=>{
+      if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement||e.target instanceof HTMLTextAreaElement)return;
+      if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','KeyR','KeyE','Escape','Digit1','Digit2','Tab','KeyH','KeyX','KeyC','ControlLeft','Space'].includes(e.code))e.preventDefault();
+      if(e.code==='Escape'&&!e.repeat){this.release();pause();return;}
+      if(!this.enabled)return;
+      if(e.code==='Tab'&&!e.repeat){inventory();return;}
+      if(this.blocked||!this.captured)return;
+      if(e.code==='KeyH'&&!e.repeat)this.heal=true;
+      if(e.code==='KeyX'&&!e.repeat)this.dismantle=true;
+      if(e.code==='KeyR'&&!e.repeat)this.reload=true;
+      if(e.code==='KeyE'&&!e.repeat)this.interact=true;
+      if(e.code==='Digit1')this.slot=0;if(e.code==='Digit2')this.slot=1;
+      // The most recently pressed intent wins; holding both never flips states every tick.
+      if(e.code.startsWith('Shift')&&!e.repeat)this.ads=false;
       this.keys.add(e.code);
     });
-    window.addEventListener('keyup', e => this.keys.delete(e.code));
-    window.addEventListener('pointermove', e => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; });
-    canvas.addEventListener('pointerdown', e => { if (e.button === 0) { this.fire = true; this.shotRequested = true; } });
-    window.addEventListener('pointerup', () => { this.fire = false; });
-    window.addEventListener('blur', () => this.clear());
-    canvas.addEventListener('contextmenu', e => e.preventDefault());
+    window.addEventListener('keyup',e=>this.keys.delete(e.code));
+    window.addEventListener('mousemove',e=>{if(this.captured&&!this.lockPending&&this.enabled&&!this.blocked)this.look.move(e.movementX,e.movementY);});
+    canvas.addEventListener('pointerdown',e=>{if(!this.enabled||this.blocked)return;if(!this.captured){this.capture();return;}if(e.button===0){this.fire=true;this.shotRequested=true;}if(e.button===2)this.ads=true;});
+    window.addEventListener('pointerup',e=>{if(e.button===0)this.fire=false;if(e.button===2)this.ads=false;});
+    canvas.addEventListener('wheel',e=>{if(this.captured&&!this.blocked){e.preventDefault();this.slot=e.deltaY>0?1:0;}},{passive:false});
+    window.addEventListener('blur',()=>this.clear());canvas.addEventListener('contextmenu',e=>e.preventDefault());
+    document.addEventListener('pointerlockchange',()=>{
+      this.lockPending=false;const locked=this.captured,changed=locked!==this.wasCaptured;this.wasCaptured=locked;
+      if(!changed&&!this.expectedUnlock)return;
+      document.querySelector('#app')?.classList.toggle('mouse-captured',locked);
+      if(locked){if(!this.enabled||this.blocked)this.release();return;}
+      const expected=this.expectedUnlock;this.expectedUnlock=false;this.clear();
+      if(this.captureAfterUnlock&&this.enabled&&!this.blocked){this.captureAfterUnlock=false;this.capture();}
+      else if(!expected&&this.enabled&&!this.blocked)this.lostLock();
+    });
+    document.addEventListener('pointerlockerror',()=>{this.lockPending=false;document.querySelector('#app')?.classList.remove('mouse-captured');});
   }
-  clear(): void { this.keys.clear(); this.fire = false; this.shotRequested = false; this.reload = false; this.interact = false; this.heal = false; this.dismantle = false; }
-  requestHeal(): void { this.heal = true; }
-  command(view: GameScene, locked = false): InputCommand {
-    const horizontal = Number(this.keys.has('KeyD')) - Number(this.keys.has('KeyA'));
-    const vertical = Number(this.keys.has('KeyS')) - Number(this.keys.has('KeyW'));
-    const aim = view.aim(this.mouse.x, this.mouse.y);
-    const command = { moveX: (horizontal + vertical) * Math.SQRT1_2, moveZ: (vertical - horizontal) * Math.SQRT1_2, aimX: aim.x, aimZ: aim.z, aimY: aim.y, fire: this.fire || this.shotRequested, trigger:this.shotRequested, run: this.keys.has('ShiftLeft') || this.keys.has('ShiftRight'), reload: this.reload, interact: !locked && this.interact, heldInteract: !locked && this.keys.has('KeyE'), heal: this.heal, dismantle: !locked && this.dismantle };
-    if (locked) { command.moveX = 0; command.moveZ = 0; command.fire = false; command.reload = false; }
-    this.shotRequested = false; this.reload = false; this.interact = false; this.heal = false; this.dismantle = false; return command;
+  capture():void {if(!this.enabled||this.blocked)return;if(this.expectedUnlock){this.captureAfterUnlock=true;return;}if(this.captured||this.lockPending)return;this.lockPending=true;try{const request=this.canvas.requestPointerLock();if(request)void request.catch(()=>{this.lockPending=false;});}catch{this.lockPending=false;}}
+  release():void {this.clear();this.captureAfterUnlock=false;if(this.captured&&!this.expectedUnlock){this.expectedUnlock=true;document.exitPointerLock();}}
+  clear():void {this.keys.clear();this.fire=false;this.ads=false;this.shotRequested=false;this.reload=false;this.interact=false;this.heal=false;this.dismantle=false;this.slot=undefined;}
+  requestHeal():void {this.heal=true;}
+  command():InputCommand {
+    const inactive=!this.enabled||this.blocked||!this.captured;
+    const movement=relativeMovement(this.look.yaw,Number(this.keys.has('KeyD'))-Number(this.keys.has('KeyA')),Number(this.keys.has('KeyW'))-Number(this.keys.has('KeyS')));
+    const dir=lookDirection(this.look.yaw,this.look.pitch);
+    const cmd:InputCommand={moveX:inactive?0:movement.x,moveZ:inactive?0:movement.z,aimX:dir.x,aimZ:dir.z,yaw:this.look.yaw,pitch:this.look.pitch,
+      fire:!inactive&&(this.fire||this.shotRequested),trigger:!inactive&&this.shotRequested,ads:!inactive&&this.ads,crouch:!inactive&&(this.keys.has('KeyC')||this.keys.has('ControlLeft')),
+      run:!inactive&&!this.ads&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight')),reload:!inactive&&this.reload,interact:!inactive&&this.interact,heldInteract:!inactive&&this.keys.has('KeyE'),heal:this.heal,dismantle:!inactive&&this.dismantle,slot:inactive?undefined:this.slot};
+    this.shotRequested=false;this.reload=false;this.interact=false;this.heal=false;this.dismantle=false;this.slot=undefined;return cmd;
   }
 }

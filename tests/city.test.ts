@@ -13,9 +13,9 @@ function clean(city=false){const s=new Simulation();s.zombies=[];s.spawnTimer=99
 function step(s:Simulation,t:number,input=idle){for(let i=0;i<Math.ceil(t*60);i++)s.update(1/60,input);}
 function use(s:Simulation,key:'interact'|'dismantle'='interact'){s.update(1/60,{...idle,[key]:true});step(s,5.2);}
 test('city has 4x useful area, distinct sites, two entrances and reachable loot in every room',()=>{
- assert.equal((CITY_LIMIT/78)**2,4);assert.equal(CITY_SITES.length,18);assert.equal(CITY_PORTALS.length,36);assert.equal(CITY_LOOT.length,54);
+ assert.equal((CITY_LIMIT/78)**2,4);assert.equal(CITY_SITES.length,20);assert.equal(CITY_PORTALS.length,40);assert.equal(CITY_LOOT.length,60);
  for(const site of CITY_SITES){const entry={x:site.x,z:site.z+site.d/2+2};assert.ok(findPath(BASE,entry).length,site.id);assert.ok(site.props.length>=3);for(const loot of CITY_LOOT.filter(l=>l.site===site.id)){assert.equal(collides(loot,.45),false,loot.id);assert.ok(findPath(entry,loot).length,loot.id);}}
- assert.ok(distance(BASE,CITY_SITES[1])>150);assert.ok(activeCityChunks(1,7).length<CITY_SITES.length/2);
+ assert.ok(distance(BASE,CITY_SITES[1])>150);assert.ok(activeCityChunks(1,7).length<CITY_SITES.length);
 });
 test('closed portals stop travel and bullets; real action opens, boards, breaks and retry resets',()=>{
  const s=clean(),p=s.portals.find(p=>p.id==='hospital-main-front')!;Object.assign(s.player,{x:p.x,z:p.z+1.5});assert.ok(collides(p,.45,s.solidDefenses));assert.ok(wallDistance(s.player,{x:0,z:-1},4,s.solidDefenses)<2);

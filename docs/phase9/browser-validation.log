@@ -1,0 +1,23 @@
+npm notice run last-night@0.1.0 test:e2e
+npm notice run playwright test
+[WebServer] npm notice run last-night@0.1.0 dev
+[WebServer] npm notice run vite --host 0.0.0.0 --host 127.0.0.1 --port 5173
+[WebServer] (node:9545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:9576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/audio.spec.ts:3:1 › provided recordings decode, follow weapon events, cancel reloads and keep a single positional alarm (471ms)
+  ✓   2 tests/audio.spec.ts:81:1 › game reload, car interaction and nearby zombie combat use the local recordings (19.3s)
+  ✓   3 tests/fps-playthrough.spec.ts:6:1 › ordinary FPS exploration with real inventory, streets, shooting and return route (1.2m)
+  ✓   4 tests/fps.spec.ts:10:1 › FPS pointer lock, immediate look, menus, movement, crouch, exhaustion and retry (23.3s)
+  ✓   5 tests/fps.spec.ts:24:1 › every FPS weapon: aimed pickup, hip fire, ADS, reload, empty, sprint and headshot (1.7m)
+  ✓   6 tests/fps.spec.ts:40:1 › FPS interiors retain ceilings, gaze interactions and readable night lighting (1.1m)
+  ✓   7 tests/fps.spec.ts:50:1 › FPS five infected types, directional damage, wound/death and night horde budgets (53.8s)
+  ✓   8 tests/fps.spec.ts:58:1 › FPS weapon slots, shotgun shell interruption and comparable high-quality benchmark (33.9s)
+  ✓   9 tests/phase9.spec.ts:5:1 › Phase 9 furnished interiors, day/night contrast, radio, generator and horde metrics (1.7m)
+  ✓  10 tests/phase9.spec.ts:17:1 › Phase 9 selected car impacts trigger one finite alarm without infinite reactivation (28.8s)
+
+  10 passed (8.4m)

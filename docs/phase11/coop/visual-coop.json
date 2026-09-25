@@ -1,0 +1,10 @@
+{
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "checks": [
+    "downed body visible",
+    "E revive to 40 HP",
+    "revive prompt remains hidden after completion",
+    "remote shotgun model"
+  ],
+  "errors": []
+}

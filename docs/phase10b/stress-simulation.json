@@ -1,0 +1,186 @@
+{
+  "environment": {
+    "node": "v26.8.2",
+    "platform": "linux",
+    "architecture": "x64"
+  },
+  "scope": "CPU-only deterministic coordinator benchmark. No browser, GPU, Photon or network latency; bytes are UTF-8 JSON application payloads, not wire bandwidth. Existing living infected cap remains 40, so 50/100 requests are capped, not claimed as 50/100 runs.",
+  "rows": [
+    {
+      "players": 1,
+      "requestedInfected": 10,
+      "actualInfected": 10,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.4832198833333323,
+      "stepP95Ms": 0.9352419999999597,
+      "stepMaxMs": 5.808144000000027,
+      "checkpointBytes": 31668,
+      "meanPatchBytes": 5548.9
+    },
+    {
+      "players": 1,
+      "requestedInfected": 25,
+      "actualInfected": 25,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.8072741333333314,
+      "stepP95Ms": 1.0788640000000669,
+      "stepMaxMs": 6.727596000000062,
+      "checkpointBytes": 36169,
+      "meanPatchBytes": 12467.3
+    },
+    {
+      "players": 1,
+      "requestedInfected": 50,
+      "actualInfected": 40,
+      "simulationSeconds": 5,
+      "stepMeanMs": 1.4025165766666723,
+      "stepP95Ms": 1.8872460000000046,
+      "stepMaxMs": 9.622380000000021,
+      "checkpointBytes": 40711,
+      "meanPatchBytes": 19738.9
+    },
+    {
+      "players": 1,
+      "requestedInfected": 100,
+      "actualInfected": 40,
+      "simulationSeconds": 5,
+      "stepMeanMs": 1.3440719500000045,
+      "stepP95Ms": 1.90218300000015,
+      "stepMaxMs": 9.568378000000166,
+      "checkpointBytes": 40711,
+      "meanPatchBytes": 19738.9
+    },
+    {
+      "players": 2,
+      "requestedInfected": 10,
+      "actualInfected": 10,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.31207747333332464,
+      "stepP95Ms": 0.492813999999953,
+      "stepMaxMs": 1.140760999999884,
+      "checkpointBytes": 32443,
+      "meanPatchBytes": 6352.7
+    },
+    {
+      "players": 2,
+      "requestedInfected": 25,
+      "actualInfected": 25,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.750506063333327,
+      "stepP95Ms": 0.9885329999999612,
+      "stepMaxMs": 3.6628390000000763,
+      "checkpointBytes": 36944,
+      "meanPatchBytes": 13276.1
+    },
+    {
+      "players": 2,
+      "requestedInfected": 50,
+      "actualInfected": 40,
+      "simulationSeconds": 5,
+      "stepMeanMs": 1.410203300000009,
+      "stepP95Ms": 1.740827999999965,
+      "stepMaxMs": 7.14383399999997,
+      "checkpointBytes": 41486,
+      "meanPatchBytes": 20695.4
+    },
+    {
+      "players": 2,
+      "requestedInfected": 100,
+      "actualInfected": 40,
+      "simulationSeconds": 5,
+      "stepMeanMs": 1.4156037433333222,
+      "stepP95Ms": 1.7545239999999467,
+      "stepMaxMs": 7.521579999999631,
+      "checkpointBytes": 41486,
+      "meanPatchBytes": 20695.4
+    },
+    {
+      "players": 3,
+      "requestedInfected": 10,
+      "actualInfected": 10,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.3290529433333298,
+      "stepP95Ms": 0.4053279999998267,
+      "stepMaxMs": 0.9911879999999655,
+      "checkpointBytes": 33218,
+      "meanPatchBytes": 7156.5
+    },
+    {
+      "players": 3,
+      "requestedInfected": 25,
+      "actualInfected": 25,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.7746583800000099,
+      "stepP95Ms": 0.9711299999999028,
+      "stepMaxMs": 2.419564000000264,
+      "checkpointBytes": 37719,
+      "meanPatchBytes": 14069.8
+    },
+    {
+      "players": 3,
+      "requestedInfected": 50,
+      "actualInfected": 40,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.7768867700000146,
+      "stepP95Ms": 1.1049230000003263,
+      "stepMaxMs": 7.258191000000352,
+      "checkpointBytes": 42261,
+      "meanPatchBytes": 21489.5
+    },
+    {
+      "players": 3,
+      "requestedInfected": 100,
+      "actualInfected": 40,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.7549039266666705,
+      "stepP95Ms": 0.9976200000000972,
+      "stepMaxMs": 3.847299000000021,
+      "checkpointBytes": 42261,
+      "meanPatchBytes": 21489.5
+    },
+    {
+      "players": 4,
+      "requestedInfected": 10,
+      "actualInfected": 10,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.19410774666669417,
+      "stepP95Ms": 0.2765340000000833,
+      "stepMaxMs": 0.6297230000000127,
+      "checkpointBytes": 33993,
+      "meanPatchBytes": 7960.3
+    },
+    {
+      "players": 4,
+      "requestedInfected": 25,
+      "actualInfected": 25,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.41542500666667515,
+      "stepP95Ms": 0.5415859999998247,
+      "stepMaxMs": 1.487818999999945,
+      "checkpointBytes": 38494,
+      "meanPatchBytes": 14874.1
+    },
+    {
+      "players": 4,
+      "requestedInfected": 50,
+      "actualInfected": 40,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.7352655200000163,
+      "stepP95Ms": 0.9147429999998167,
+      "stepMaxMs": 3.075417000000016,
+      "checkpointBytes": 43036,
+      "meanPatchBytes": 22295.5
+    },
+    {
+      "players": 4,
+      "requestedInfected": 100,
+      "actualInfected": 40,
+      "simulationSeconds": 5,
+      "stepMeanMs": 0.7339275233333319,
+      "stepP95Ms": 0.8916790000002948,
+      "stepMaxMs": 3.042483999999604,
+      "checkpointBytes": 43036,
+      "meanPatchBytes": 22295.5
+    }
+  ]
+}

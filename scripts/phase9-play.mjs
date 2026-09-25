@@ -1,0 +1,14 @@
+// Interactive playtest driver: visible UI + ordinary mouse/keyboard only. No game hooks.
+import {chromium} from '@playwright/test';
+import {createInterface} from 'node:readline';
+import {writeFileSync} from 'node:fs';
+const browser=await chromium.launch({args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const page=await browser.newPage({viewport:{width:960,height:600}});await page.emulateMedia({reducedMotion:'reduce'});page.setDefaultTimeout(30000);const log=[];let shot=0;const started=Date.now();
+await page.addInitScript(()=>localStorage.setItem('last-night-settings',JSON.stringify({quality:'low',shadows:false})));
+page.on('pageerror',e=>log.push({error:e.message}));await page.goto('http://127.0.0.1:5173/');await page.locator('#start').press('Enter');await page.waitForFunction(()=>!!document.pointerLockElement);
+if(await page.evaluate(()=>('__LAST_NIGHT__' in window)))throw new Error('Ordinary session must have no test hooks');
+const capture=async(label)=>{const path=`docs/phase9/play-${String(shot++).padStart(2,'0')}.png`;await page.screenshot({path,animations:'disabled'});const ui=await page.locator('#app').innerText();log.push({label,path,wallSeconds:(Date.now()-started)/1000,ui});writeFileSync('docs/phase9/ordinary-play.json',JSON.stringify({testHooks:false,clockAcceleration:false,entries:log},null,2));console.log(JSON.stringify({label,path,ui}));if(!await page.locator('#game-over').isVisible()&&!await page.locator('#pause-screen').isVisible()&&!await page.locator('#map-screen').isVisible()&&!await page.locator('#inventory-panel').isVisible())await page.keyboard.press('Escape');};
+await capture('Partida normal: início');
+for await(const line of createInterface({input:process.stdin,crlfDelay:Infinity})){
+ try{const c=JSON.parse(line);if(c.exit){await browser.close();break;}if(await page.locator('#pause-screen').isVisible()){await page.locator('#resume').press('Enter');await page.waitForFunction(()=>!!document.pointerLockElement);await page.waitForTimeout(350);}if(c.look)await page.evaluate(([x,y])=>window.dispatchEvent(new MouseEvent('mousemove',{movementX:x,movementY:y,bubbles:true})),c.look);if(c.keys){for(const k of c.keys)await page.keyboard.down(k);await page.waitForTimeout(c.ms??1000);for(const k of c.keys)await page.keyboard.up(k);}if(c.tap)await page.keyboard.press(c.tap);if(c.shots)for(let i=0;i<c.shots;i++){await page.evaluate(()=>document.querySelector('canvas').dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true})));await page.waitForTimeout(220);await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true})));await page.waitForTimeout(250);}if(c.wait)await page.waitForTimeout(c.wait);await capture(c.label??'Inspeção');}catch(e){console.log(String(e));}
+}

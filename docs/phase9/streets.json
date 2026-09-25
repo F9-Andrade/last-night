@@ -1,0 +1,2123 @@
+{
+  "stage": "streets",
+  "renderer": "Chromium SwiftShader software",
+  "quality": "low",
+  "viewport": "1280x720",
+  "evidence": [
+    {
+      "name": "00--105",
+      "x": -12,
+      "z": -105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 35,
+          "triangles": 63946,
+          "entities": 3,
+          "ai": 3,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 202,
+            "textures": 11,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 82.4,
+            "voxelAssets": 170,
+            "activeChunks": 72
+          }
+        }
+      ]
+    },
+    {
+      "name": "00-0",
+      "x": -12,
+      "z": 0,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 10,
+          "frameMs": 100,
+          "calls": 205,
+          "triangles": 284516,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 205,
+            "textures": 11,
+            "geometryMB": 26.8,
+            "cacheMB": 8.7,
+            "heapMB": 82.4,
+            "voxelAssets": 170,
+            "activeChunks": 110
+          }
+        }
+      ]
+    },
+    {
+      "name": "00-105",
+      "x": -12,
+      "z": 105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 173,
+          "triangles": 268912,
+          "entities": 11,
+          "ai": 11,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 281,
+            "textures": 24,
+            "geometryMB": 27,
+            "cacheMB": 8.8,
+            "heapMB": 82.4,
+            "voxelAssets": 188,
+            "activeChunks": 75
+          }
+        }
+      ]
+    },
+    {
+      "name": "01--105",
+      "x": 15,
+      "z": -105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 51,
+          "triangles": 71228,
+          "entities": 2,
+          "ai": 2,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 284,
+            "textures": 24,
+            "geometryMB": 27,
+            "cacheMB": 8.8,
+            "heapMB": 82.4,
+            "voxelAssets": 188,
+            "activeChunks": 72
+          }
+        }
+      ]
+    },
+    {
+      "name": "01-0",
+      "x": 15,
+      "z": 0,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 5,
+          "frameMs": 200,
+          "calls": 220,
+          "triangles": 293716,
+          "entities": 3,
+          "ai": 3,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 294,
+            "textures": 26,
+            "geometryMB": 27,
+            "cacheMB": 8.8,
+            "heapMB": 82.4,
+            "voxelAssets": 188,
+            "activeChunks": 109
+          }
+        }
+      ]
+    },
+    {
+      "name": "01-105",
+      "x": 15,
+      "z": 105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 167,
+          "triangles": 255864,
+          "entities": 6,
+          "ai": 6,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 304,
+            "textures": 27,
+            "geometryMB": 26.9,
+            "cacheMB": 8.8,
+            "heapMB": 82.4,
+            "voxelAssets": 188,
+            "activeChunks": 75
+          }
+        }
+      ]
+    },
+    {
+      "name": "02--105",
+      "x": -105,
+      "z": 13,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 5,
+          "frameMs": 200,
+          "calls": 219,
+          "triangles": 309812,
+          "entities": 9,
+          "ai": 9,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 327,
+            "textures": 32,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 78
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-0",
+      "x": 0,
+      "z": 13,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 186,
+          "triangles": 250934,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 349,
+            "textures": 36,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 108
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-105",
+      "x": 105,
+      "z": 13,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 45,
+          "triangles": 71458,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": true,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 357,
+            "textures": 36,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 71
+          }
+        }
+      ]
+    },
+    {
+      "name": "03--105",
+      "x": -105,
+      "z": -16,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 5,
+          "frameMs": 200,
+          "calls": 198,
+          "triangles": 296082,
+          "entities": 2,
+          "ai": 2,
+          "dormant": 0,
+          "audio": {
+            "inside": true,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 363,
+            "textures": 37,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 76
+          }
+        }
+      ]
+    },
+    {
+      "name": "03-0",
+      "x": 0,
+      "z": -16,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 203,
+          "triangles": 269780,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 363,
+            "textures": 37,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 110
+          }
+        }
+      ]
+    },
+    {
+      "name": "03-105",
+      "x": 105,
+      "z": -16,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 2,
+          "frameMs": 500,
+          "calls": 36,
+          "triangles": 71508,
+          "entities": 2,
+          "ai": 2,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 366,
+            "textures": 37,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 71
+          }
+        }
+      ]
+    },
+    {
+      "name": "04--105",
+      "x": -49,
+      "z": -105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 5,
+          "frameMs": 200,
+          "calls": 44,
+          "triangles": 73038,
+          "entities": 4,
+          "ai": 4,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 370,
+            "textures": 37,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 66
+          }
+        }
+      ]
+    },
+    {
+      "name": "04-0",
+      "x": -49,
+      "z": 0,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 6,
+          "frameMs": 166.66666666666666,
+          "calls": 212,
+          "triangles": 290420,
+          "entities": 4,
+          "ai": 4,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 377,
+            "textures": 38,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 100
+          }
+        }
+      ]
+    },
+    {
+      "name": "04-105",
+      "x": -49,
+      "z": 105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 5,
+          "frameMs": 200,
+          "calls": 200,
+          "triangles": 273088,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 393,
+            "textures": 46,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 194,
+            "activeChunks": 69
+          }
+        }
+      ]
+    },
+    {
+      "name": "05--105",
+      "x": 49,
+      "z": -105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 49,
+          "triangles": 70492,
+          "entities": 6,
+          "ai": 6,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 396,
+            "textures": 46,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 65
+          }
+        }
+      ]
+    },
+    {
+      "name": "05-0",
+      "x": 49,
+      "z": 0,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 8,
+          "frameMs": 125,
+          "calls": 191,
+          "triangles": 261622,
+          "entities": 5,
+          "ai": 5,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 398,
+            "textures": 46,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 100
+          }
+        }
+      ]
+    },
+    {
+      "name": "05-105",
+      "x": 49,
+      "z": 105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 5,
+          "frameMs": 200,
+          "calls": 156,
+          "triangles": 240010,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 1,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": [
+              "zombie-call"
+            ]
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 400,
+            "textures": 46,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 67
+          }
+        }
+      ]
+    },
+    {
+      "name": "06--105",
+      "x": -105,
+      "z": -50,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 2,
+          "frameMs": 500,
+          "calls": 187,
+          "triangles": 278790,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 401,
+            "textures": 46,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 70
+          }
+        }
+      ]
+    },
+    {
+      "name": "06-0",
+      "x": 0,
+      "z": -50,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 175,
+          "triangles": 257796,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 403,
+            "textures": 46,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 97
+          }
+        }
+      ]
+    },
+    {
+      "name": "06-105",
+      "x": 105,
+      "z": -50,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 47,
+          "triangles": 75550,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 405,
+            "textures": 46,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 64
+          }
+        }
+      ]
+    },
+    {
+      "name": "07--105",
+      "x": -105,
+      "z": 49,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 2,
+          "frameMs": 500,
+          "calls": 209,
+          "triangles": 288926,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 413,
+            "textures": 48,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 70
+          }
+        }
+      ]
+    },
+    {
+      "name": "07-0",
+      "x": 0,
+      "z": 49,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 178,
+          "triangles": 254978,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 425,
+            "textures": 49,
+            "geometryMB": 26.9,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 102
+          }
+        }
+      ]
+    },
+    {
+      "name": "07-105",
+      "x": 105,
+      "z": 49,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 46,
+          "triangles": 70584,
+          "entities": 6,
+          "ai": 6,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 428,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 63
+          }
+        }
+      ]
+    },
+    {
+      "name": "08--105",
+      "x": -142,
+      "z": -105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 7,
+          "frameMs": 142.85714285714286,
+          "calls": 25,
+          "triangles": 60958,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 431,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 39
+          }
+        }
+      ]
+    },
+    {
+      "name": "08-0",
+      "x": -142,
+      "z": 0,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 9,
+          "frameMs": 111.11111111111111,
+          "calls": 112,
+          "triangles": 123268,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 436,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 58
+          }
+        }
+      ]
+    },
+    {
+      "name": "08-105",
+      "x": -142,
+      "z": 105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 7,
+          "frameMs": 142.85714285714286,
+          "calls": 125,
+          "triangles": 201656,
+          "entities": 4,
+          "ai": 4,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 446,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 42
+          }
+        }
+      ]
+    },
+    {
+      "name": "09--105",
+      "x": -88,
+      "z": -105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 43,
+          "triangles": 72816,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 446,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 57
+          }
+        }
+      ]
+    },
+    {
+      "name": "09-0",
+      "x": -88,
+      "z": 0,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 6,
+          "frameMs": 166.66666666666666,
+          "calls": 181,
+          "triangles": 252412,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 446,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 85
+          }
+        }
+      ]
+    },
+    {
+      "name": "09-105",
+      "x": -88,
+      "z": 105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 191,
+          "triangles": 248172,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 447,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 57
+          }
+        }
+      ]
+    },
+    {
+      "name": "10--105",
+      "x": 88,
+      "z": -105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 42,
+          "triangles": 70826,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 448,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 53
+          }
+        }
+      ]
+    },
+    {
+      "name": "10-0",
+      "x": 88,
+      "z": 0,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 7,
+          "frameMs": 142.85714285714286,
+          "calls": 148,
+          "triangles": 219968,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 449,
+            "textures": 50,
+            "geometryMB": 27,
+            "cacheMB": 8.9,
+            "heapMB": 82.4,
+            "voxelAssets": 200,
+            "activeChunks": 79
+          }
+        }
+      ]
+    },
+    {
+      "name": "10-105",
+      "x": 88,
+      "z": 105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 135,
+          "triangles": 212298,
+          "entities": 8,
+          "ai": 8,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 452,
+            "textures": 50,
+            "geometryMB": 27.1,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 55
+          }
+        }
+      ]
+    },
+    {
+      "name": "11--105",
+      "x": 142,
+      "z": -105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 3,
+          "frameMs": 333.3333333333333,
+          "calls": 29,
+          "triangles": 60684,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 455,
+            "textures": 51,
+            "geometryMB": 27.1,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 36
+          }
+        }
+      ]
+    },
+    {
+      "name": "11-0",
+      "x": 142,
+      "z": 0,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 90,
+          "triangles": 114262,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 455,
+            "textures": 51,
+            "geometryMB": 27.1,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 52
+          }
+        }
+      ]
+    },
+    {
+      "name": "11-105",
+      "x": 142,
+      "z": 105,
+      "yaw": 3.141592653589793,
+      "samples": [
+        {
+          "fps": 8,
+          "frameMs": 125,
+          "calls": 94,
+          "triangles": 180072,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 457,
+            "textures": 52,
+            "geometryMB": 27.1,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 38
+          }
+        }
+      ]
+    },
+    {
+      "name": "12--105",
+      "x": -105,
+      "z": -142,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 5,
+          "frameMs": 200,
+          "calls": 111,
+          "triangles": 201988,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 457,
+            "textures": 52,
+            "geometryMB": 27.1,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 39
+          }
+        }
+      ]
+    },
+    {
+      "name": "12-0",
+      "x": 0,
+      "z": -142,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 99,
+          "triangles": 107616,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 457,
+            "textures": 52,
+            "geometryMB": 27.1,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 53
+          }
+        }
+      ]
+    },
+    {
+      "name": "12-105",
+      "x": 105,
+      "z": -142,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 6,
+          "frameMs": 166.66666666666666,
+          "calls": 33,
+          "triangles": 62354,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 457,
+            "textures": 52,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 36
+          }
+        }
+      ]
+    },
+    {
+      "name": "13--105",
+      "x": -105,
+      "z": -88,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 8,
+          "frameMs": 125,
+          "calls": 171,
+          "triangles": 257108,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 458,
+            "textures": 52,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 57
+          }
+        }
+      ]
+    },
+    {
+      "name": "13-0",
+      "x": 0,
+      "z": -88,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 5,
+          "frameMs": 200,
+          "calls": 142,
+          "triangles": 208520,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 458,
+            "textures": 52,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 80
+          }
+        }
+      ]
+    },
+    {
+      "name": "13-105",
+      "x": 105,
+      "z": -88,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 6,
+          "frameMs": 166.66666666666666,
+          "calls": 51,
+          "triangles": 71894,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 459,
+            "textures": 52,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 52
+          }
+        }
+      ]
+    },
+    {
+      "name": "14--105",
+      "x": -105,
+      "z": 88,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 6,
+          "frameMs": 166.66666666666666,
+          "calls": 176,
+          "triangles": 248736,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 463,
+            "textures": 52,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 57
+          }
+        }
+      ]
+    },
+    {
+      "name": "14-0",
+      "x": 0,
+      "z": 88,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 2,
+          "frameMs": 500,
+          "calls": 162,
+          "triangles": 218764,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 465,
+            "textures": 52,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 85
+          }
+        }
+      ]
+    },
+    {
+      "name": "14-105",
+      "x": 105,
+      "z": 88,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 4,
+          "frameMs": 250,
+          "calls": 55,
+          "triangles": 71498,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": true,
+            "generator": false,
+            "voices": 1,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 467,
+            "textures": 53,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 54
+          }
+        }
+      ]
+    },
+    {
+      "name": "15--105",
+      "x": -105,
+      "z": 147,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 2,
+          "frameMs": 500,
+          "calls": 114,
+          "triangles": 200320,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 470,
+            "textures": 53,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 40
+          }
+        }
+      ]
+    },
+    {
+      "name": "15-0",
+      "x": 0,
+      "z": 147,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 7,
+          "frameMs": 142.85714285714286,
+          "calls": 107,
+          "triangles": 124532,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 472,
+            "textures": 53,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 57
+          }
+        }
+      ]
+    },
+    {
+      "name": "15-105",
+      "x": 105,
+      "z": 147,
+      "yaw": 1.5707963267948966,
+      "samples": [
+        {
+          "fps": 7,
+          "frameMs": 142.85714285714286,
+          "calls": 36,
+          "triangles": 63062,
+          "entities": 0,
+          "ai": 0,
+          "dormant": 0,
+          "audio": {
+            "inside": false,
+            "generator": false,
+            "voices": 0,
+            "peak": 2,
+            "state": "running",
+            "samplesLoaded": [
+              "shot",
+              "zombie-attack",
+              "reload",
+              "empty",
+              "alarm",
+              "zombie-call"
+            ],
+            "samplesPlaying": []
+          },
+          "render": {
+            "meshes": 1657,
+            "materials": 226,
+            "geometries": 474,
+            "textures": 53,
+            "geometryMB": 26.8,
+            "cacheMB": 9.2,
+            "heapMB": 82.4,
+            "voxelAssets": 224,
+            "activeChunks": 38
+          }
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

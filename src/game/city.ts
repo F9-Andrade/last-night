@@ -1,8 +1,8 @@
 /** Authored outer Santa Luz. Data shared by collision, encounters, loot and voxel chunks. */
 export const CITY_LIMIT=156;
-export type SiteKind='hospital'|'school'|'motel'|'market'|'industry'|'fire'|'cemetery'|'quarantine'|'gas'|'police'|'house';
-export interface Footprint {x:number;z:number;w:number;d:number}
-export interface CityProp extends Footprint {kind:'bed'|'desk'|'shelf'|'bench'|'grave'|'crate'}
+export type SiteKind='hospital'|'school'|'motel'|'market'|'industry'|'fire'|'cemetery'|'quarantine'|'gas'|'police'|'house'|'church'|'terminal';
+export interface Footprint {x:number;z:number;w:number;d:number;h?:number}
+export interface CityProp extends Footprint {kind:'bed'|'desk'|'shelf'|'bench'|'grave'|'crate'|'kitchen'|'locker'|'machine'|'sofa'}
 export interface CitySite extends Footprint {id:string;name:string;kind:SiteKind;h:number;color:number;risk:number;story:string;props:CityProp[];partitions:Footprint[]}
 const plan=(kind:SiteKind,w:number,d:number):{props:CityProp[];partitions:Footprint[]}=>{
  const props:CityProp[]=[],partitions:Footprint[]=[];
@@ -19,6 +19,15 @@ const plan=(kind:SiteKind,w:number,d:number):{props:CityProp[];partitions:Footpr
   props.push({x:-w*.3,z:-d*.22,w:2.6,d:1.2,kind:'desk'},{x:w*.3,z:d*.2,w:1,d:3,kind:'shelf'},{x:-w*.3,z:d*.25,w:kind==='house'?1.5:3,d:kind==='house'?3:1,kind:kind==='house'?'bed':'bench'});
   if(kind==='police')for(const x of [-w*.3,w*.3])partitions.push({x,z:0,w:w*.3,d:.3});
  }
+ if(kind==='church'){
+  props.length=0;for(const x of [-w*.28,w*.28])for(const z of [-d*.25,0,d*.25])props.push({x,z,w:3,d:1,kind:'bench'});
+  props.push({x:0,z:-d*.4,w:3,d:1.2,kind:'desk'});
+ }
+ if(kind==='terminal'){props.push({x:w*.3,z:-d*.3,w:4,d:1,kind:'bench'},{x:-w*.3,z:d*.1,w:1.3,d:3,kind:'locker'});}
+ if(kind==='house'){props[0].kind='kitchen';props.push({x:w*.32,z:-d*.4,w:2.2,d:1,kind:'sofa'});}
+ if(kind==='police'){props.push({x:w*.32,z:-d*.35,w:3,d:.8,kind:'locker'});}
+ if(kind==='industry'){props[0].kind='machine';props[props.length-1].kind='machine';}
+ if(kind==='hospital'){props.push({x:w*.4,z:-d*.42,w:1.5,d:1,kind:'locker'});}
  return {props,partitions};
 };
 const site=(id:string,name:string,kind:SiteKind,x:number,z:number,w:number,d:number,risk:number,story:string):CitySite=>({id,name,kind,x,z,w,d,h:kind==='house'?3.6:kind==='industry'?6.5:kind==='hospital'?6:4.7,color:kind==='hospital'?0xb8c2ad:kind==='quarantine'?0x6d8070:kind==='school'?0xc1ad83:kind==='police'?0x7e9695:kind==='motel'?0xac8870:0x8c9c84,risk,story,...plan(kind,w,d)});
@@ -34,6 +43,8 @@ export const CITY_SITES:CitySite[]=[
  site('highway','POSTO DA RODOVIA','gas',-114,126,24,18,3,'Um caminhão bloqueia a saída. A oficina tem outra entrada.'),
  site('precinct','DEPÓSITO DA GUARDA','police',113,16,24,22,5,'Celas vazias, apreensões e a garagem da última patrulha.'),
  ...[[-113,-67],[-65,-112],[17,-115],[62,-115],[-114,22],[63,122],[-64,79],[113,-62]].map(([x,z],i)=>site(`home-${i}`,`CASA ${i+1} · ${i<4?'JARDINS':'VILA NOVA'}`,'house',x,z,12,11,2,'Uma mesa posta. Malas junto à saída.')),
+ site('church','IGREJA SÃO MIGUEL','church',-25,116,15,21,2,'Velas apagadas, colchões e uma rota de evacuação desenhada no mural.'),
+ site('terminal','TERMINAL SANTA LUZ','terminal',62,103,23,13,3,'Partidas canceladas. Um rádio ainda escuta a frequência do Setor Zero.'),
 ];
 export interface Portal extends Footprint {id:string;site:string;kind:'door'|'window';initial:'open'|'closed'|'barred';hp:number;state:'open'|'closed'|'barred';heavy:boolean}
 export const CITY_PORTALS:Portal[]=CITY_SITES.flatMap(s=>[
@@ -42,12 +53,12 @@ export const CITY_PORTALS:Portal[]=CITY_SITES.flatMap(s=>[
 ]);
 export function siteObstacles(s:CitySite):Footprint[]{
  const front=(s.w-3.2)/2,side=(s.d-2.8)/2;
- return [{x:s.x-s.w/2,z:s.z,w:.35,d:s.d},{x:s.x,z:s.z-s.d/2,w:s.w,d:.35},
- ...[-1,1].map(sign=>({x:s.x+sign*(1.6+front/2),z:s.z+s.d/2,w:front,d:.35})),
- ...[-1,1].map(sign=>({x:s.x+s.w/2,z:s.z+sign*(1.4+side/2),w:.35,d:side})),
- ...(s.kind!=='house'?[{x:s.x-s.w/2+3,z:s.z+s.d/2+5.8,w:4.6,d:2}]:[]),
+ return [{h:s.kind==='cemetery'?1.7:s.h,x:s.x-s.w/2,z:s.z,w:.35,d:s.d},{h:s.kind==='cemetery'?1.7:s.h,x:s.x,z:s.z-s.d/2,w:s.w,d:.35},
+ ...[-1,1].map(sign=>({h:s.kind==='cemetery'?1.7:s.h,x:s.x+sign*(1.6+front/2),z:s.z+s.d/2,w:front,d:.35})),
+ ...[-1,1].map(sign=>({h:s.kind==='cemetery'?1.7:s.h,x:s.x+s.w/2,z:s.z+sign*(1.4+side/2),w:.35,d:side})),
+ ...(s.kind!=='house'?[{x:s.x-s.w/2+3,z:s.z+s.d/2+5.8,w:4.6,d:2,h:1.8}]:[]),
  ...(s.kind==='industry'?[{x:s.x-s.w/2+3,z:s.z-s.d/2-2,w:2,d:2}]:s.kind==='gas'?[-5,5].map(x=>({x:s.x+x,z:s.z+s.d/2+5,w:1,d:1})):s.kind==='hospital'?[6,8,10].map(x=>({x:s.x+x,z:s.z-s.d/2+2,w:1.4,d:3})):[]),
- ...s.props.map(p=>({...p,x:s.x+p.x,z:s.z+p.z})),...s.partitions.map(p=>({...p,x:s.x+p.x,z:s.z+p.z}))];
+ ...s.props.map(p=>({...p,h:p.kind==='sofa'?1.25:p.kind==='kitchen'?1.5:p.kind==='locker'?1.95:p.kind==='machine'?1.9:p.kind==='shelf'?2:p.kind==='bed'?1.7:p.kind==='desk'?1.15:p.kind==='bench'?.8:1.55,x:s.x+p.x,z:s.z+p.z})),...s.partitions.map(p=>({...p,h:3.1,x:s.x+p.x,z:s.z+p.z}))];
 }
 export const CITY_ROADS=[...[-142,-88,88,142].map(x=>({x,z:0,w:7,d:CITY_LIMIT*2})),...[-142,-88,88,147].map(z=>({x:0,z,w:CITY_LIMIT*2,d:7}))];
 export const CITY_LOOT=CITY_SITES.flatMap(s=>[
@@ -55,4 +66,4 @@ export const CITY_LOOT=CITY_SITES.flatMap(s=>[
  {id:`${s.id}-deep`,x:s.x+2,z:s.z-s.d*.28,area:(s.kind==='hospital'?'hospital':s.kind==='police'||s.kind==='quarantine'?'police':s.kind==='industry'?'gas':'house'),label:s.risk>=5?'Reserva da área isolada':'Armário do fundo',site:s.id,valuable:s.risk>=4},
  {id:`${s.id}-yard`,x:s.x+s.w/2+3,z:s.z+s.d/2-2,area:'outside',label:'Mochila junto à saída',site:s.id,valuable:false},
 ]);
-export const activeCityChunks=(x:number,z:number)=>CITY_SITES.filter(s=>Math.hypot(s.x-x,s.z-z)<72+Math.max(s.w,s.d)/2);
+export const activeCityChunks=(x:number,z:number)=>CITY_SITES.filter(s=>Math.hypot(s.x-x,s.z-z)<135+Math.max(s.w,s.d)/2);

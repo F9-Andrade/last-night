@@ -3,7 +3,8 @@ import {CITY_LIMIT} from '../game/city';
 import { box, batch, textSign } from './models';
 import { voxelMesh } from './voxel';
 import { propRecipe, treeRecipe, voxelBox } from './environment-assets';
-import { WAREHOUSES, REGIONS, OUTER_HOUSES } from '../game/districts';
+import {surfaceBatchMaterial} from './surface-materials';
+import { WAREHOUSES, REGIONS, OUTER_TREE_OFFSET, OUTER_HOUSES } from '../game/districts';
 export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Group[] {
   const chunks:THREE.Group[]=[];
   for(const region of REGIONS.slice(2,12)) {
@@ -21,7 +22,7 @@ export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Gr
       }
     }
     if(region.icon==='E'||region.name==='TRIAGEM EXTERNA') {
-      box(g,0,.02,0,25,.1,24,0x9b9f89);
+      box(g,0,.02,0,25,.1,24,0x9b9f89,'paving');
       for(const [x,z] of [[-9,-8],[9,-8],[-9,9],[9,9]]){const tree=voxelMesh(treeRecipe(1));tree.position.set(x,.15,z);g.add(tree);prop('bench',x*.7,z*.7);}
       if(region.icon==='E'){
         box(g,0,.3,0,5,.6,5,0x797f73);box(g,0,.65,0,4,.15,4,0x536e6b);box(g,0,1.6,0,.8,2,.8,0xa8aa92);box(g,0,2.8,0,1.5,.4,1.5,0x929b86);
@@ -61,17 +62,17 @@ export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Gr
       for(const x of [-w.w*.28,w.w*.28]){voxelBox(v,x,1.8,w.d/2+.2,4,3.6,.15,0x415e5b);for(let y=.4;y<3.5;y+=.4)voxelBox(v,x,y,w.d/2+.3,4,.1,.1,0x72847a);}
       voxelBox(v,0,w.h+.7,-w.d/4,2,1.4,2,0x596e68);
       for(let i=0;i<20;i++){const x=-w.w/2+1+i*(w.w-2)/20;voxelBox(v,x,.5+(i%4)*.5,w.d/2+.21,.2,.5+(i%3)*.2,.12,i%2?0x96795b:0x92997e);}
-    }});g.add(m);
-    box(g,0,.04,w.d/2+3,w.w+2,.1,6,0x777e6e);
+    }},surfaceBatchMaterial('metal'));g.add(m);
+    box(g,0,.04,w.d/2+3,w.w+2,.1,6,0x777e6e,'paving');
     for(let i=0;i<8;i++){const prop=voxelMesh(propRecipe(i%3===0?'pallet':i%3===1?'bag':'rubble'));prop.position.set(-w.w/2+1+i*2.4,.15,w.d/2+2+(i%2)*1.2);g.add(prop);}
     textSign(g,'SANTA LUZ / CARGAS',0,w.h-.8,w.d/2+.4,8,.8,'#536b63');batchDistrict(g);
   }
   for(const [x,z] of OUTER_HOUSES){
     const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);chunks.push(g);
-    box(g,0,.02,1,13,.12,12,0x999e87);box(g,0,.1,1,11.7,.06,10.7,0x75876b);box(g,0,.14,5.5,2,.05,3,0xa5a38a);
+    box(g,0,.02,1,13,.12,12,0x999e87,'paving');box(g,0,.1,1,11.7,.06,10.7,0x75876b,'earth');box(g,0,.14,5.5,2,.05,3,0xa5a38a,'paving');
     for(let i=0;i<8;i++) {box(g,-6+i*1.6,.6,-6,.12,1.2,.12,0x8a8e72);box(g,-6+i*1.6,.75,-6,1.5,.12,.12,0x9a9b7d);}
     for(const kind of ['pallet','bin'] as const){const m=voxelMesh(propRecipe(kind));m.position.set(kind==='bin'?6:-6,.15,3);g.add(m);}
-    const tree=voxelMesh(treeRecipe(0));tree.position.set(7,0,-5);g.add(tree);batchDistrict(g);
+    const tree=voxelMesh(treeRecipe(0));tree.position.set(OUTER_TREE_OFFSET.x,0,OUTER_TREE_OFFSET.z);g.add(tree);batchDistrict(g);
   }
   const edge=new THREE.Group();scene.add(edge);
   for(let i=0;i<40;i++){const tree=voxelMesh(treeRecipe(i%3));const side=i%4,offset=-CITY_LIMIT+Math.floor(i/4)*(CITY_LIMIT*2/9);tree.position.set(side<2?(side===0?-CITY_LIMIT-6:CITY_LIMIT+6):offset,0,side>=2?(side===2?-CITY_LIMIT-6:CITY_LIMIT+6):offset);tree.castShadow=false;edge.add(tree);}

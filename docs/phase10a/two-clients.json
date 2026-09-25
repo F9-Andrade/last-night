@@ -1,0 +1,132 @@
+{
+  "region": "sa",
+  "seed": 774797391,
+  "a": {
+    "state": "playing",
+    "region": "sa",
+    "code": "N2QC73",
+    "players": [
+      {
+        "actorNumber": 1,
+        "playerId": "54862893-49e3-4231-9e08-6f002adcdfd0",
+        "displayName": "Pedro",
+        "isLocal": true,
+        "isHost": true,
+        "ready": false
+      },
+      {
+        "actorNumber": 2,
+        "playerId": "15d2153f-ca61-4d05-bd70-d891238105d7",
+        "displayName": "Amigo",
+        "isLocal": false,
+        "isHost": false,
+        "ready": true
+      }
+    ],
+    "metrics": {
+      "sent": 253,
+      "received": 335,
+      "rejected": 0,
+      "sendRate": 9,
+      "receiveRate": 20,
+      "payloadBytes": 10031,
+      "averagePayloadBytes": 39.644,
+      "ping": 13
+    },
+    "remotes": [
+      {
+        "identity": {
+          "actorNumber": 2,
+          "playerId": "15d2153f-ca61-4d05-bd70-d891238105d7",
+          "displayName": "Amigo",
+          "isLocal": false,
+          "isHost": false,
+          "ready": true
+        },
+        "snapshot": {
+          "sequence": 330,
+          "time": 38633,
+          "x": 3,
+          "y": 0.02,
+          "z": 21.32,
+          "yaw": 3.142,
+          "pitch": 0,
+          "vx": 0,
+          "vz": 0,
+          "locomotion": 0
+        }
+      }
+    ],
+    "avatars": 1,
+    "buffers": [
+      5
+    ]
+  },
+  "b": {
+    "state": "playing",
+    "region": "sa",
+    "code": "N2QC73",
+    "players": [
+      {
+        "actorNumber": 1,
+        "playerId": "54862893-49e3-4231-9e08-6f002adcdfd0",
+        "displayName": "Pedro",
+        "isLocal": false,
+        "isHost": true,
+        "ready": false
+      },
+      {
+        "actorNumber": 2,
+        "playerId": "15d2153f-ca61-4d05-bd70-d891238105d7",
+        "displayName": "Amigo",
+        "isLocal": true,
+        "isHost": false,
+        "ready": true
+      }
+    ],
+    "metrics": {
+      "sent": 336,
+      "received": 254,
+      "rejected": 0,
+      "sendRate": 19.982016185425675,
+      "receiveRate": 12.988310520526689,
+      "payloadBytes": 13183,
+      "averagePayloadBytes": 39.21165644171779,
+      "ping": 13
+    },
+    "remotes": [
+      {
+        "identity": {
+          "actorNumber": 1,
+          "playerId": "54862893-49e3-4231-9e08-6f002adcdfd0",
+          "displayName": "Pedro",
+          "isLocal": false,
+          "isHost": true,
+          "ready": false
+        },
+        "snapshot": {
+          "sequence": 250,
+          "time": 47979,
+          "x": -1,
+          "y": 0.22,
+          "z": 6.93,
+          "yaw": 0.271,
+          "pitch": 0,
+          "vx": 0,
+          "vz": 0,
+          "locomotion": 0
+        }
+      }
+    ],
+    "avatars": 1,
+    "buffers": [
+      4
+    ]
+  },
+  "renderA": {
+    "fps": 2,
+    "calls": 212,
+    "triangles": 274680
+  },
+  "errors": []
+}

@@ -1,3 +1,7 @@
+import {TensionDirector} from './tension.ts';
+import { FPS } from './first-person.ts';
+import { interactionFocus } from './interaction.ts';
+import type { Focus } from './interaction.ts';
 import { ENCOUNTERS, ALARMS } from './districts.ts';
 import { bodyHit, CorpseManager } from './combat.ts';
 import { createWeapon, weaponStats, WEAPONS, RARITIES, rollRarity, rollWeapon } from './weapons.ts';
@@ -9,7 +13,7 @@ import type { PerkId } from './perks.ts';
 import { FACILITIES, EVENT_POINTS, CACHE_STORIES, encounterKinds } from './expedition.ts';
 import type { Facility, WorldEvent } from './expedition.ts';
 import type { HitZone, Wound } from './combat.ts';
-import { BASE, collides, distance, findPath, move, wallDistance, WORLD_LIMIT, impactMaterial } from './world.ts';
+import { BASE, collides, distance, findPath, move, wallDistance, WORLD_LIMIT, impactMaterial, rayWorld, floorHeight, ceilingHeight, URBAN } from './world.ts';
 import type { Vec2 } from './world.ts';
 import { BALANCE } from './config.ts';
 import { MatchCycle } from './cycle.ts';
@@ -26,16 +30,24 @@ import type { Portal } from './city.ts';
 import {cityEncounter,SCREAM,CITY_PACING} from './city-director.ts';
 export type { Phase } from './cycle.ts';
 export const PISTOL = BALANCE.pistol;
-export interface InputCommand { moveX: number; moveZ: number; aimX: number; aimZ: number; aimY?: number; fire: boolean; trigger?:boolean; slot?:0|1; run: boolean; reload: boolean; interact: boolean; heldInteract?: boolean; heal?: boolean; dismantle?: boolean }
-export interface Walker extends Vec2 { id: number; kind:EnemyKind; hp: number; angle: number; attack: number; flash: number; gait: number; path: Vec2[]; replan: number; active: boolean; defense?: string; wounds: Wound[]; reaction: number; zone: HitZone; side: number; slow: number; heard?: Vec2; hearing: number; windup:number; winding:boolean; spitCooldown:number; spitTarget?:Vec2; screamTimer?:number; screamCooldown?:number; siege?:boolean; patrol?:Vec2; speedFactor?:number; hearingFactor?:number }
-export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: number; zone?: HitZone; material?: string; last?: boolean; weapon?:WeaponId; primary?:boolean; suppressed?:boolean } | { type: 'death' | 'hit' | 'barricade-hit' | 'barricade-break' | 'build' | 'repair' | 'spit-ready' | 'spit' | 'heavy-step' | 'enemy-call' | 'enemy-attack' | 'scream-ready' | 'scream'; position: Vec2; zone?: HitZone; enemy?:EnemyKind } | { type: 'reload-out' | 'reload-in' | 'reload-slide' | 'reload-done' | 'alarm' | 'switch' | 'rare-pickup'; position?: Vec2; weapon?:WeaponId } | { type:'reload' | 'empty'; weapon?:WeaponId; duration?:number } | { type: 'hurt' | 'pickup' | 'search' | 'heal' | 'healed' | 'warning' | 'night' | 'dawn' | 'countdown' } | { type: 'notice'; text: string; sub: string };
+export interface InputCommand { moveX: number; moveZ: number; yaw?:number; pitch?:number; ads?:boolean; crouch?:boolean; aimX: number; aimZ: number; aimY?: number; fire: boolean; trigger?:boolean; slot?:0|1; run: boolean; reload: boolean; interact: boolean; heldInteract?: boolean; heal?: boolean; dismantle?: boolean }
+export interface Walker extends Vec2 { id: number; kind:EnemyKind; hp: number; angle: number; attack: number; flash: number; gait: number; path: Vec2[]; replan: number; active: boolean; defense?: string; wounds: Wound[]; reaction: number; zone: HitZone; side: number; slow: number; heard?: Vec2; hearing: number; windup:number; winding:boolean; spitCooldown:number; spitTarget?:Vec2; screamTimer?:number; screamCooldown?:number; siege?:boolean; patrol?:Vec2; speedFactor?:number; hearingFactor?:number; lastSeen?:Vec2; memory?:number; awareness?:'idle'|'investigate'|'search'|'chase'; staggerCooldown?:number; searchStep?:number }
+export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: number; fromY?:number; zone?: HitZone; material?: string; last?: boolean; weapon?:WeaponId; primary?:boolean; suppressed?:boolean } | { type: 'death' | 'hit' | 'barricade-hit' | 'barricade-break' | 'build' | 'repair' | 'spit-ready' | 'spit' | 'heavy-step' | 'enemy-call' | 'enemy-attack' | 'door' | 'glass' | 'scream-ready' | 'scream' | 'suspense'; position: Vec2; zone?: HitZone; enemy?:EnemyKind; entity?:number;damage?:number;remainingHP?:number } | { type: 'reload-out' | 'reload-in' | 'reload-slide' | 'reload-done' | 'alarm' | 'switch' | 'rare-pickup'; position?: Vec2; weapon?:WeaponId } | { type:'reload' | 'empty'; weapon?:WeaponId; duration?:number } | {type:'hurt';position?:Vec2} | { type: 'pickup' | 'search' | 'heal' | 'healed' | 'warning' | 'night' | 'dawn' | 'countdown' } | { type: 'notice'; text: string; sub: string };
 export interface Action { kind: 'search' | 'heal' | 'build' | 'repair' | 'dismantle' | 'base' | 'facility' | 'silence' | 'event' | 'portal' | 'board'; target: string; elapsed: number; duration: number; origin: Vec2 }
 export interface Acid extends Vec2 {id:number;from:Vec2;age:number;tick:number}
 export class Simulation {
+  foundationMode=false;
+  /** Solo stays unchanged. Replicas predict presentation; actor runs only survivor rules. */
+  coopMode:'solo'|'replica'|'actor'='solo';
+  onBeforeShot?:()=>void;
+  coopTargets:Simulation['player'][]=[];
+  onCoopDamage?:(player:Simulation['player'],damage:number,position?:Vec2)=>void;
   stats = { seconds: 0, headshots: 0, loot: 0, damage: 0, nights: 0, specials:0, weapons:0, bestRarity:'common' as Rarity, repairs:0 };
-  player = { x: 1, z: 7, hp: BALANCE.player.hp, stamina: 100, exhausted:false, staminaDelay:0, angle: Math.PI, moving: false, running: false, invulnerable: 0 };
-  encounters=new Set<number>(); alarms=new Set<number>(); alarmTimer=0; alarmPosition?:Vec2;
+  firstPerson=false; focus:Focus|null=null;
+  player = {pitch:0,ads:false,crouched:false,eyeY:FPS.eyeHeight+.22,aimKick:0,bloom:0, x: 1, z: 7, hp: BALANCE.player.hp, stamina: 100, exhausted:false, staminaDelay:0, angle: Math.PI, moving: false, running: false, invulnerable: 0 };
+  encounters=new Set<number>(); alarms=new Set<number>(); alarmTimer=0; vehicleAlarms=new Set<string>(); alarmPosition?:Vec2;
   corpses = new CorpseManager(); aimHeight = 1.3; aimDistance = 1; anatomicalAim = false; noiseTimer = 0;
+  director=new TensionDirector(); escapeClues=new Set<string>();generatorPulse=0; private usedRoaming=new Set<number>();
   zombies: Walker[] = []; loot = createLoot(); barricades = createDefenses();
   inventory = new Inventory(); storage = new Inventory(Infinity); cycle: MatchCycle; horde = new Horde();
   events: GameEvent[] = []; action: Action | null = null;
@@ -81,13 +93,13 @@ export class Simulation {
   get threat(): number { return this.activeWalkers + (this.phase === 'night' ? Math.max(0, this.horde.budget - this.horde.spawned) : 0); }
   get atBase(): boolean { return this.player.x > -5 && this.player.x < 7 && this.player.z > .35 && this.player.z < 12; }
   get solidDefenses(): Barricade[] { return [...this.barricades.filter(b=>b.hp>0),...this.portals.filter(p=>p.state!=='open'&&p.hp>0)]; }
-  get nearbyPortal(){return this.portals.find(p=>distance(p,this.player)<2.5&&this.canReach(p,p.id));}
-  get nearbyLoot() { return this.loot.find(s => (!s.searched || itemKeys.some(k => s.contents[k] > 0)) && distance(s, this.player) < BALANCE.interaction.range && this.canReach(s)); }
-  get nearbyDefense() { return this.barricades.find(b => obstacleDistance(this.player, b) < 2.1 && this.canReach({ x: Math.max(b.x - b.w / 2, Math.min(b.x + b.w / 2, this.player.x)), z: b.z })); }
-  get nearbyWeapon(){return this.groundWeapons.filter(g=>distance(g,this.player)<2.4&&this.canReach(g)).sort((a,b)=>distance(a,this.player)-distance(b,this.player))[0];}
-  get nearbyFacility(){return this.facilities.find(f=>f.state==='ready'&&distance(f,this.player)<2.4&&this.canReach(f));}
-  get nearbyAlarm():boolean{return this.alarmTimer>0&&!!this.alarmPosition&&distance(this.player,this.alarmPosition)<2.5&&this.canReach(this.alarmPosition);}
-  get nearbyEvent(){const e=this.worldEvent;return e?.kind==='cache'&&!e.triggered&&distance(e,this.player)<2.4&&this.canReach(e)?e:undefined;}
+  get nearbyPortal(){if(this.firstPerson)return this.focus?.kind==='portal'?this.portals.find(v=>v.id===this.focus!.id):undefined;return this.portals.find(p=>distance(p,this.player)<2.5&&this.canReach(p,p.id));}
+  get nearbyLoot() {if(this.firstPerson)return this.focus?.kind==='loot'?this.loot.find(v=>v.id===this.focus!.id):undefined; return this.loot.find(s => (!s.searched || itemKeys.some(k => s.contents[k] > 0)) && distance(s, this.player) < BALANCE.interaction.range && this.canReach(s)); }
+  get nearbyDefense() {if(this.firstPerson)return this.focus?.kind==='defense'?this.barricades.find(v=>v.id===this.focus!.id):undefined; return this.barricades.find(b => obstacleDistance(this.player, b) < 2.1 && this.canReach({ x: Math.max(b.x - b.w / 2, Math.min(b.x + b.w / 2, this.player.x)), z: b.z })); }
+  get nearbyWeapon(){if(this.firstPerson)return this.focus?.kind==='weapon'?this.groundWeapons.find(v=>String(v.item.uid)===this.focus!.id):undefined;return this.groundWeapons.filter(g=>distance(g,this.player)<2.4&&this.canReach(g)).sort((a,b)=>distance(a,this.player)-distance(b,this.player))[0];}
+  get nearbyFacility(){if(this.firstPerson)return this.focus?.kind==='facility'?this.facilities.find(v=>v.id===this.focus!.id):undefined;return this.facilities.find(f=>f.state==='ready'&&distance(f,this.player)<2.4&&this.canReach(f));}
+  get nearbyAlarm():boolean{if(this.firstPerson)return this.focus?.kind==='alarm';return this.alarmTimer>0&&!!this.alarmPosition&&distance(this.player,this.alarmPosition)<2.5&&this.canReach(this.alarmPosition);}
+  get nearbyEvent(){if(this.firstPerson)return this.focus?.kind==='event'?this.worldEvent:undefined;const e=this.worldEvent;return e?.kind==='cache'&&!e.triggered&&distance(e,this.player)<2.4&&this.canReach(e)?e:undefined;}
   private canReach(p: Vec2,ignore=''): boolean { const d = distance(p, this.player); return d < .01 || wallDistance(this.player, { x: (p.x - this.player.x) / d, z: (p.z - this.player.z) / d }, d,this.portals.filter(p=>p.id!==ignore&&p.state!=='open'&&p.hp>0)) >= d - .05; }
   setPhase(phase: Phase, elapsed = 0): void { this.cycle.seek(phase, elapsed); if (phase === 'night') {this.horde.start(this.day);for(const z of this.zombies)if(z.active&&distance(z,BASE)<65)z.siege=true;} else this.horde.active = false; }
   notice(text: string, sub: string): void { this.events.push({ type: 'notice', text, sub }); }
@@ -146,21 +158,43 @@ export class Simulation {
     this.notice(PERKS[id].name.toUpperCase(),PERKS[id].hint);this.events.push({type:'rare-pickup'});return true;
   }
   shoot(): void {
+    if (this.firstPerson&&this.player.running)return;
     if (this.gameOver || this.shotTimer > 1e-8 || this.switchTimer > 0) return;
     const weapon=this.weapon;
     if(this.reloadTimer>0){if(weapon.reloadStyle==='shell'&&this.ammo>0)this.cancelReload();else return;}
     if (!this.ammo) { this.events.push({ type: 'empty', weapon:this.equipped.type }); this.shotTimer = .4; this.reload(); return; }
+    this.onBeforeShot?.();
     this.ammo--; this.shotTimer += weapon.cooldown; this.recoil = weapon.recoil*(this.perks.has('steady')?.85:1);
     const slope=this.anatomicalAim ? (this.aimHeight-1.3)/this.aimDistance : 0;
     const impacts=new Map<Walker,{damage:number;zone:HitZone;side:number;y:number;dir:Vec2}>();
     for(let pellet=0;pellet<weapon.pellets;pellet++){
       // Stratified pellets keep the cone legible without giving each trigger an arbitrary damage lottery.
       const spread=weapon.pellets>1?(pellet/(weapon.pellets-1)-.5)+(this.random()-.5)*.08:this.random()-.5;
-      const angle=this.player.angle+spread*weapon.spread*(this.perks.has('steady')?.85:1)*(this.player.running?4:1);
+      const angle=this.player.angle+spread*weapon.spread*(this.firstPerson?(this.player.ads?.35:1)*(this.player.crouched?.8:1)*(1+this.player.bloom*12)*(this.player.moving?1.4:1):1)*(this.perks.has('steady')?.85:1)*(this.player.running?4:1);
       const dir={x:Math.sin(angle),z:Math.cos(angle)};
-      let limit=wallDistance(this.player,dir,weapon.range,this.portals.filter(p=>p.state!=='open'&&p.hp>0));if(slope<0)limit=Math.min(limit,1.3/-slope);
-      const glass=this.portals.find(p=>p.kind==='window'&&p.state!=='open'&&Math.abs(this.player.x+dir.x*limit-p.x)<=p.w/2+.02&&Math.abs(this.player.z+dir.z*limit-p.z)<=p.d/2+.02&&1.3+slope*limit<=2.4);
-            const hits=this.zombies.filter(z=>z.active).map(z=>({z,hit:bodyHit(this.player,dir,slope,z,limit)})).filter(v=>v.hit).sort((a,b)=>a.hit!.distance-b.hit!.distance).slice(0,this.equipped.affix==='piercing'?2:1);
+      const fps=this.firstPerson,originY=fps?this.player.eyeY:1.3;
+      const shotPitch=this.player.pitch+this.player.aimKick+(weapon.pellets>1?Math.sin(pellet*2.4)*weapon.spread*.28:0);
+      const shotSlope=fps?Math.tan(Math.max(-FPS.pitchLimit,Math.min(FPS.pitchLimit,shotPitch))):slope;
+      const cos=1/Math.sqrt(1+shotSlope*shotSlope),ray={x:dir.x*cos,y:shotSlope*cos,z:dir.z*cos};
+      const origin={x:this.player.x,y:originY,z:this.player.z};
+      const barriers=this.solidDefenses.map(p=>({...p,h:'kind' in p?p.kind==='window'?2.4:2.8:1.4}));
+      let limit=fps?rayWorld(origin,ray,weapon.range,barriers)*cos:wallDistance(this.player,dir,weapon.range,this.portals.filter(p=>p.state!=='open'&&p.hp>0));
+      if(!fps&&slope<0)limit=Math.min(limit,1.3/-slope);
+      let hits=(this.coopMode==='replica'?[]:this.zombies).filter(z=>z.active).map(z=>({z,hit:bodyHit(this.player,dir,shotSlope,z,limit,originY)})).filter(v=>v.hit).sort((a,b)=>a.hit!.distance-b.hit!.distance).slice(0,this.equipped.affix==='piercing'?2:1);
+      let blockedPoint:{x:number;y:number;z:number}|undefined;
+      let muzzle={x:origin.x+dir.x*.28-dir.z*.13,y:originY-.16,z:origin.z+dir.z*.28+dir.x*.13};
+      if(fps){
+        const offset={x:muzzle.x-origin.x,y:muzzle.y-origin.y,z:muzzle.z-origin.z},md=Math.hypot(offset.x,offset.y,offset.z);
+        const clearance=rayWorld(origin,{x:offset.x/md,y:offset.y/md,z:offset.z/md},md,barriers);
+        if(clearance<md-.01){blockedPoint={x:origin.x+offset.x/md*clearance,y:origin.y+offset.y/md*clearance,z:origin.z+offset.z/md*clearance};muzzle=origin;limit=0;hits=[];}
+        else {
+          const at=hits.at(-1)?.hit?.distance??limit,target={x:origin.x+dir.x*at,y:originY+shotSlope*at,z:origin.z+dir.z*at};
+          const d=Math.hypot(target.x-muzzle.x,target.y-muzzle.y,target.z-muzzle.z),v={x:(target.x-muzzle.x)/Math.max(.001,d),y:(target.y-muzzle.y)/Math.max(.001,d),z:(target.z-muzzle.z)/Math.max(.001,d)};
+          const obstruction=rayWorld(muzzle,v,d,barriers);
+          if(obstruction<d-.04){hits=[];limit=Math.max(0,obstruction*cos);blockedPoint={x:muzzle.x+v.x*obstruction,y:muzzle.y+v.y*obstruction,z:muzzle.z+v.z*obstruction};}
+        }
+      }
+      const glass=this.portals.find(p=>p.kind==='window'&&p.state!=='open'&&Math.abs(this.player.x+dir.x*limit-p.x)<=p.w/2+.04&&Math.abs(this.player.z+dir.z*limit-p.z)<=p.d/2+.04&&originY+shotSlope*limit<=2.4);
       for(let n=0;n<hits.length;n++){
         const {z,hit}=hits[n];const h=hit!;
         const falloff=h.distance<=weapon.falloff?1:Math.max(.25,1-(h.distance-weapon.falloff)/(weapon.range-weapon.falloff)*.75);
@@ -168,31 +202,43 @@ export class Simulation {
         const prior=impacts.get(z);impacts.set(z,{damage:damage+(prior?.damage??0),zone:prior?.zone==='HEAD'?'HEAD':h.zone,side:h.side,y:h.y,dir});
       }
       const first=hits[0]?.hit,last=hits.at(-1)?.hit,nearest=last?.distance??limit;
-      if(glass&&glass.state==='closed'&&!hits.length){glass.state='open';glass.hp=0;this.noise(glass,35);this.events.push({type:'barricade-break',position:glass});}
-      const end={x:this.player.x+dir.x*nearest,z:this.player.z+dir.z*nearest};
-      this.events.push({type:'shot',from:{x:this.player.x+dir.x*.75,z:this.player.z+dir.z*.75},to:end,hit:!!first,y:last?.y??1.3+slope*nearest,zone:first?.zone,material:nearest>=weapon.range?'air':impactMaterial(end,this.solidDefenses),last:this.ammo===0,weapon:this.equipped.type,primary:pellet===0,suppressed:this.equipped.affix==='quiet'});
+      if(this.coopMode!=='replica'&&glass&&glass.state==='closed'&&!hits.length){glass.state='open';glass.hp=0;this.noise(glass,35);this.events.push({type:'glass',position:glass});}
+      const end=blockedPoint??{x:this.player.x+dir.x*nearest,z:this.player.z+dir.z*nearest};
+      if(this.coopMode==='solo'&&pellet===0&&!first){const car=URBAN.vehicles.find(v=>['police','hatch'].includes(v.kind)&&Math.abs(v.x-end.x)<=v.w/2+.12&&Math.abs(v.z-end.z)<=v.d/2+.12);if(car&&!this.vehicleAlarms.has(car.id)){this.vehicleAlarms.add(car.id);this.startAlarm(car,16);}}
+      this.events.push({type:'shot',from:fps?{x:muzzle.x,z:muzzle.z}:{x:this.player.x+dir.x*.75,z:this.player.z+dir.z*.75},fromY:fps?muzzle.y:1.3,to:end,hit:!!first,y:blockedPoint?.y??last?.y??originY+shotSlope*nearest,zone:first?.zone,material:nearest>=weapon.range*cos-.01?'air':impactMaterial(end,this.solidDefenses),last:this.ammo===0,weapon:this.equipped.type,primary:pellet===0,suppressed:this.equipped.affix==='quiet'});
     }
-    this.noise(this.player,weapon.noise);
+    if(this.firstPerson){this.player.aimKick=Math.min(.12,this.player.aimKick+weapon.recoil*FPS.recoilScale);this.player.bloom=Math.min(.09,this.player.bloom+weapon.recoil*.012);}
+    if(this.coopMode!=='replica')this.noise(this.player,weapon.noise);
     for(const [victim,{damage,zone,side,y,dir}] of impacts){
       const enemy=ENEMIES[victim.kind];
       if(zone==='HEAD')this.stats.headshots++;
       if(zone==='HEAD'&&this.perks.has('cold'))this.player.stamina=Math.min(100,this.player.stamina+8);
-      victim.hp -= damage; victim.flash = .14; victim.reaction=BALANCE.combat.stagger*enemy.stagger*(weapon.pellets>1&&damage>70?2:1); victim.zone=zone; victim.side=side;
+      victim.hp -= damage; victim.flash = .14; const stagger=(victim.staggerCooldown??0)<=0; victim.reaction=stagger?BALANCE.combat.stagger*enemy.stagger*(weapon.pellets>1&&damage>70?2:1):Math.min(victim.reaction,.05); if(stagger)victim.staggerCooldown=.85; victim.zone=zone; victim.side=side;
       if(zone==='HEAD'&&this.openingReady&&this.perks.has('opening')){victim.reaction*=2;this.openingReady=false;}
       if(victim.kind==='spitter'&&victim.spitTarget&&(damage>=20||zone==='HEAD')){victim.spitTarget=undefined;victim.windup=0;victim.spitCooldown=2;}
       if(victim.kind==='screamer'&&victim.screamTimer&&(damage>=SCREAM.interrupt||zone==='HEAD')){victim.screamTimer=0;victim.screamCooldown=5;}
-      if(zone==='LEGS') victim.slow=BALANCE.combat.legSlow;
+      if(zone==='LEGS'&&stagger) victim.slow=damage>=18?BALANCE.combat.legSlow:.25;
       victim.wounds.push({zone,side,y}); if(victim.wounds.length>BALANCE.combat.woundLimit) victim.wounds.shift();
-      const kick=weapon.kick*enemy.knockback;move(victim, dir.x*kick, dir.z*kick, enemy.radius, this.solidDefenses);
-      this.events.push({ type: 'hit', position: { x: victim.x, z: victim.z }, zone,enemy:victim.kind });
-      if (victim.hp <= 0) { victim.active = false; victim.path=[]; this.corpses.add(victim,dir,this.zombies.indexOf(victim)%3); this.kills++;if(victim.kind!=='walker')this.stats.specials++;this.events.push({ type: 'death', position: { x: victim.x, z: victim.z }, zone,enemy:victim.kind }); }
+      const kick=weapon.kick*enemy.knockback*(stagger?1:.1);move(victim, dir.x*kick, dir.z*kick, enemy.radius, this.solidDefenses);
+      this.events.push({ type: 'hit', position: { x: victim.x, z: victim.z }, zone,enemy:victim.kind,entity:victim.id,damage:Math.min(damage,Math.max(0,victim.hp+damage)),remainingHP:Math.max(0,victim.hp) });
+      if (victim.hp <= 0) { victim.active = false; victim.path=[]; this.corpses.add(victim,dir,this.zombies.indexOf(victim)%3); this.kills++;if(victim.kind!=='walker')this.stats.specials++;this.events.push({ type: 'death', position: { x: victim.x, z: victim.z }, zone,enemy:victim.kind,entity:victim.id,damage:Math.min(damage,Math.max(0,victim.hp+damage)),remainingHP:Math.max(0,victim.hp) }); }
     }
   }
   noise(position: Vec2,radius:number):void {
-    for(const z of this.zombies) if(z.active && distance(z,position)<radius*(z.hearingFactor??1)) { z.heard={...position}; z.hearing=BALANCE.noise.memory; z.replan=0; }
+    this.director.hear(radius);
+    // Stable uncertainty per listener, separate from loot/combat random streams.
+    for(const z of this.zombies) if(z.active) {
+      const d=distance(z,position),dir={x:(position.x-z.x)/(d||1),z:(position.z-z.z)/(d||1)};
+      const blocked=wallDistance(z,dir,d,this.solidDefenses)<d-.1;
+      if(d>=radius*(z.hearingFactor??1)*(blocked?.65:1))continue;
+      const spread=Math.min(3.5,d*.12)*(blocked?1.3:1),angle=(z.id*2.399+radius*.31);
+      const guess={x:position.x+Math.cos(angle)*spread,z:position.z+Math.sin(angle)*spread};
+      z.heard=!collides(guess,.5,this.solidDefenses)?guess:{...position};
+      z.hearing=BALANCE.noise.memory;z.searchStep=0;if(z.awareness!=='chase')z.awareness='investigate';z.replan=0;
+    }
   }
   cancelReload():void { this.reloadTimer=0; }
-  startAlarm(position:Vec2,seconds:number):void {this.alarmPosition={...position};this.alarmTimer=seconds;this.noise(position,BALANCE.noise.alarm);this.events.push({type:'alarm',position});}
+  startAlarm(position:Vec2,seconds:number):void {if(this.coopMode!=='solo')return;this.alarmPosition={...position};this.alarmTimer=seconds;this.noise(position,BALANCE.noise.alarm);this.events.push({type:'alarm',position});}
   private rewardCache(position:Vec2,area:string):void {
     const contents=emptyStock();
     if(area==='hospital'){contents.med=3;contents.rare=1;}
@@ -205,16 +251,16 @@ export class Simulation {
     if(itemKeys.some(k=>contents[k]))this.loot.push({...position,id:`reward-${this.nextWeaponId}-${this.nextEventId}`,area:'outside',label:'Suprimentos restantes',searched:true,contents,lastFound:null});
     this.events.push({type:'rare-pickup'});this.notice('RESERVA ABERTA','Suprimentos recolhidos. Confira o equipamento antes de sair.');
   }
-  private hurt(damage:number):void {
+  private hurt(damage:number,position?:Vec2):void {
     if(this.player.invulnerable>0)return;
-    this.stats.damage+=Math.min(this.player.hp,damage);this.player.hp=Math.max(0,this.player.hp-damage);this.player.invulnerable=.55;this.action=null;this.cancelReload();this.events.push({type:'hurt'});
+    this.stats.damage+=Math.min(this.player.hp,damage);this.player.hp=Math.max(0,this.player.hp-damage);this.player.invulnerable=.55;this.action=null;this.cancelReload();this.events.push({type:'hurt',position});
   }
   private updateWorld(dt:number):void {
-    for(const acid of this.acids){acid.age+=dt;acid.tick-=dt;if(acid.age>=ACID.flight&&acid.tick<=0){acid.tick=ACID.interval;const d=distance(acid,this.player);if(d<ACID.radius&&(d<.01||wallDistance(acid,{x:(this.player.x-acid.x)/d,z:(this.player.z-acid.z)/d},d,this.solidDefenses)>=d-.05))this.hurt(ACID.damage);}}
+    for(const acid of this.acids){acid.age+=dt;acid.tick-=dt;if(acid.age>=ACID.flight&&acid.tick<=0){acid.tick=ACID.interval;const d=distance(acid,this.player);if(d<ACID.radius&&(d<.01||wallDistance(acid,{x:(this.player.x-acid.x)/d,z:(this.player.z-acid.z)/d},d,this.solidDefenses)>=d-.05))this.hurt(ACID.damage,acid.from);}}
     this.acids=this.acids.filter(a=>a.age<ACID.flight+ACID.lifetime);
     if(this.worldEvent){this.worldEvent.life-=dt;if(this.worldEvent.life<=0)this.worldEvent=undefined;}
     if(this.phase!=='day')return;
-    this.eventTimer-=dt;if(this.eventTimer>0||this.worldEvent||this.player.hp<30)return;
+    this.eventTimer-=dt;if(this.eventTimer>0||this.worldEvent||this.player.hp<30||this.director.state==='RELIEF')return;
     const candidates=EVENT_POINTS.filter(p=>distance(p,this.player)>30&&!this.spawnBlockedByView?.(p)&&!collides(p,.7));
     if(!candidates.length){this.eventTimer=12;return;}
     const point=candidates[Math.floor(this.contentRandom()*candidates.length)],r=this.contentRandom();
@@ -269,10 +315,10 @@ export class Simulation {
       else if (input.interact || input.heldInteract) {
         const loot = this.nearbyLoot, b = this.nearbyDefense;
         if(input.interact&&this.nearbyAlarm)this.begin('silence','',1.4);
-        else if(input.interact&&this.nearbyPortal){const p=this.nearbyPortal;if(p.state==='open'){if(p.kind==='door'&&obstacleDistance(this.player,p)>.5&&!this.zombies.some(z=>z.active&&obstacleDistance(z,p)<ENEMIES[z.kind].radius+.05)){p.state='closed';p.hp=120;}}else this.begin('portal',p.id,p.kind==='window'?.6:p.state==='barred'?(p.heavy?5:3.5):.7);}
+        else if(input.interact&&this.nearbyPortal){const p=this.nearbyPortal;if(p.state==='open'){if(p.kind==='door'&&obstacleDistance(this.player,p)>.5&&!this.zombies.some(z=>z.active&&obstacleDistance(z,p)<ENEMIES[z.kind].radius+.05)){p.state='closed';p.hp=120;this.noise(p,8);this.events.push({type:'door',position:p});}}else this.begin('portal',p.id,p.kind==='window'?.6:p.state==='barred'?(p.heavy?5:3.5):.7);}
         else if(input.interact&&this.nearbyWeapon)this.equipGround(this.nearbyWeapon.item.uid);
         else if(input.interact&&this.nearbyFacility){const f=this.nearbyFacility;
-          if(f.requires&&this.facilities.find(p=>p.id===f.requires)?.state!=='powered')this.notice('ALIMENTAÇÃO DESLIGADA','Ative o gerador da triagem para abrir este estoque.');
+          if(f.requires&&this.facilities.find(p=>p.id===f.requires)?.state!=='powered')this.notice('ALIMENTAÇÃO DESLIGADA','Ative o gerador deste local para abrir o estoque.');
           else this.begin('facility',f.id,f.kind==='generator'?2.5:2);
         }
         else if(input.interact&&this.nearbyEvent)this.begin('event',String(this.nearbyEvent.id),1.8);
@@ -283,7 +329,7 @@ export class Simulation {
             else if (this.resource('wood') >= this.buildWood && this.resource('scrap') >= BALANCE.barricade.scrap) this.begin('build', b.id, BALANCE.interaction.build);
             else this.notice('FALTAM MATERIAIS', `${this.buildWood} madeira + ${BALANCE.barricade.scrap} sucata · explore as caixas próximas`);
           } else if (b.hp > 0 && b.hp < BALANCE.barricade.hp && this.resource('wood') >= BALANCE.barricade.repairWood && this.resource('scrap') >= this.repairScrap) this.begin('repair', b.id, BALANCE.interaction.repair);
-        } else if (input.interact && distance(this.player, BASE) < 2.7 && this.baseHP < BALANCE.base.hp && this.resource('scrap') >= BALANCE.base.repairCost) this.begin('base', '', BALANCE.base.repairTime);
+        } else if (input.interact && distance(this.player, BASE) < 2.7 && (!this.firstPerson||this.focus?.kind==='base') && this.baseHP < BALANCE.base.hp && this.resource('scrap') >= BALANCE.base.repairCost) this.begin('base', '', BALANCE.base.repairTime);
       }
     }
     const action = this.action; if (!action) return;
@@ -320,7 +366,7 @@ export class Simulation {
     } else if(action.kind==='portal'||action.kind==='board'){
       const p=this.portals.find(p=>p.id===action.target);if(!p)return;
       if(action.kind==='board'){if(obstacleDistance(this.player,p)>.5&&!this.zombies.some(z=>z.active&&obstacleDistance(z,p)<ENEMIES[z.kind].radius+.05)&&this.inventory.take('wood',2)){p.state='barred';p.hp=180;this.noise(p,12);}}
-      else{this.noise(p,p.kind==='window'?35:p.state==='barred'?42:8);p.state='open';p.hp=0;this.events.push({type:'barricade-break',position:p});}
+      else{this.noise(p,p.kind==='window'?35:p.state==='barred'?42:8);const kind=p.kind==='window'?'glass':p.state==='barred'?'barricade-break':'door';p.state='open';p.hp=0;this.events.push({type:kind,position:p});}
       this.zombies.forEach(z=>z.replan=0);
     } else if(action.kind==='silence'){this.alarmTimer=0;this.notice('ALARME DESLIGADO','Os infectados ainda investigam o último ruído.');
     } else if(action.kind==='event'){
@@ -328,8 +374,8 @@ export class Simulation {
     } else if(action.kind==='facility'){
       const f=this.facilities.find(f=>f.id===action.target);if(!f||f.state!=='ready')return;
       f.state=f.kind==='generator'?'powered':'opened';
-      if(f.kind==='generator'){this.startAlarm(f,20);this.notice('TRIAGEM ENERGIZADA','Estoque refrigerado liberado. O motor pode atrair infectados.');}
-      else {this.rewardCache(f,f.area);if(f.kind==='trunk'){this.startAlarm(f,18);this.notice('ALARME DISPARADO','Recolha o equipamento ou segure a posição para desligar.');}}
+      if(f.kind==='generator'){this.noise(f,28);this.generatorPulse=4;this.notice('GERADOR ATIVADO',this.coopMode==='solo'?'Depósito energizado. O motor continua atraindo quem estiver por perto.':'Depósito energizado.');}
+      else {this.rewardCache(f,f.area);if(f.id==='terminal-radio'&&this.coopMode==='solo'){this.escapeClues.add('frequency');this.notice('CANAL 07 · SETOR ZERO','Uma rota de evacuação ainda pode existir. Procure o checkpoint a sudeste.');}if(f.kind==='trunk'&&this.coopMode==='solo'){this.startAlarm(f,18);this.notice('ALARME DISPARADO','Recolha o equipamento ou segure a posição para desligar.');}}
     } else if (action.kind === 'base') {
       if (this.pay({ scrap: BALANCE.base.repairCost })) { this.baseHP = Math.min(BALANCE.base.hp, this.baseHP + BALANCE.base.repairAmount); this.events.push({ type: 'repair', position: BASE }); }
     } else {
@@ -348,7 +394,7 @@ export class Simulation {
     if (b.hp <= 0 || amount <= 0) return;
     b.hp = Math.max(0, b.hp - amount); b.flash = .18;
     if(!b.hp){const p=this.portals.find(p=>p.id===b.id);if(p)p.state='open';}
-    this.events.push({ type: b.hp ? 'barricade-hit' : 'barricade-break', position: b });
+    this.events.push({ type: b.hp ? 'barricade-hit' : 'barricade-break', position: b });this.noise(b,b.hp?12:28);
     if (!b.hp) { this.zombies.forEach(z => { z.replan = 0; }); if (this.action?.target === b.id) this.action = null; this.notice('DEFESA ROMPIDA', `${b.label} · ${this.portals.some(p=>p.id===b.id)?'a passagem ficou exposta.':'proteja a entrada do abrigo.'}`); }
   }
   private transition(event: string): void {
@@ -368,29 +414,38 @@ export class Simulation {
   }
   update(dt: number, input: InputCommand): void {
     if (this.gameOver) return;
+    if(this.foundationMode)input={...input,fire:false,trigger:false,interact:false,heldInteract:false,reload:false,heal:false,dismantle:false,slot:undefined};
     this.stats.seconds += dt;
-    for(const site of CITY_SITES)if(!this.discoveredSites.has(site.id)&&distance(site,this.player)<Math.max(site.w,site.d)/2+7){this.discoveredSites.add(site.id);this.notice(site.name,site.story);}
+    for(const site of CITY_SITES)if(!this.discoveredSites.has(site.id)&&distance(site,this.player)<Math.max(site.w,site.d)/2+7){this.discoveredSites.add(site.id);if(site.id==='church'||site.id==='quarantine')this.escapeClues.add(site.id);this.notice(site.name,site.story);}
     const solid = this.solidDefenses;
     // Retain fractional cadence debt only while firing; long idle periods never bank shots.
     this.shotTimer = Math.max(input.fire?-dt:0, this.shotTimer - dt); this.recoil = Math.max(0, this.recoil - dt * 7);this.switchTimer=Math.max(0,this.switchTimer-dt);
     this.player.invulnerable = Math.max(0, this.player.invulnerable - dt);
-    this.corpses.update(dt,this.player);
-    const length = Math.hypot(input.moveX, input.moveZ); this.player.moving = length > .01;
-    updateStamina(this.player,dt,input.run&&this.player.moving);
+    if(this.coopMode==='solo')this.corpses.update(dt,this.player);
+    const length = Math.hypot(input.moveX, input.moveZ); this.player.moving = this.coopMode==='actor'?this.player.moving:length > .01;
+    if(input.yaw!==undefined){this.firstPerson=true;this.player.angle=input.yaw;this.player.pitch=input.pitch??0;}
+    this.player.aimKick*=Math.exp(-dt*7);this.player.bloom=Math.max(0,this.player.bloom-dt*.07);
+    this.player.crouched=!!input.crouch||(this.player.crouched&&ceilingHeight(this.player,FPS.radius)-floorHeight(this.player)<FPS.bodyHeight);
+    this.player.ads=!!input.ads&&!input.run&&!this.reloadTimer;
+    updateStamina(this.player,dt,input.run&&this.player.moving&&!this.player.crouched&&!this.player.ads);
     if (this.player.running || input.heal || input.interact || input.dismantle) this.cancelReload();
     if(input.slot!==undefined)this.switchWeapon(input.slot);
     if (this.reloadTimer > 0) { const previous=1-this.reloadTimer/this.reloadDuration; const next=previous+dt/this.reloadDuration;
       for(const [at,type] of [[.22/1.35,'reload-out'],[.78/1.35,'reload-in'],[1.12/1.35,'reload-slide']] as const) if(previous<at && next>=at) this.events.push({type,weapon:this.equipped.type});
       this.reloadTimer = Math.max(0, this.reloadTimer - dt); if (!this.reloadTimer) {const shell=this.weapon.reloadStyle==='shell'; const amount = Math.min(shell?1:this.weapon.magazine-this.ammo, this.reserve);this.ammo+=amount;this.reserve-=amount;this.openingReady=true;this.events.push({type:'reload-done',weapon:this.equipped.type});if(shell&&this.ammo<this.weapon.magazine&&this.reserve)this.reload();} }
     if (input.reload&&!this.player.running) this.reload();
-    const speed = (this.player.running ? BALANCE.player.sprint*(this.perks.has('runner')?1.1:1) : BALANCE.player.walk)*this.weapon.move;
-    if (length) move(this.player, input.moveX / length * speed * dt, input.moveZ / length * speed * dt, .45, solid);
-    this.player.angle = Math.atan2(input.aimX - this.player.x, input.aimZ - this.player.z);
+    const speed = this.player.crouched?FPS.crouchSpeed:(this.player.ads?FPS.adsMove:1)*(this.player.running ? BALANCE.player.sprint*(this.perks.has('runner')?1.1:1) : BALANCE.player.walk)*this.weapon.move;
+    if (length) move(this.player, input.moveX / Math.max(1,length) * speed * dt, input.moveZ / Math.max(1,length) * speed * dt, FPS.radius, solid,this.firstPerson?(this.player.crouched?FPS.crouchEye+.15:FPS.bodyHeight):0);
+    if(!this.firstPerson)this.player.angle = Math.atan2(input.aimX - this.player.x, input.aimZ - this.player.z);
+    this.player.eyeY+=((this.player.crouched?FPS.crouchEye:FPS.eyeHeight)+floorHeight(this.player)-this.player.eyeY)*(1-Math.exp(-dt*FPS.stepSpeed));
+    if(this.foundationMode){this.focus=null;this.events.length=0;return;}
+    if(this.firstPerson)this.focus=interactionFocus(this);
     this.anatomicalAim=input.aimY!==undefined; this.aimHeight=input.aimY??1.3; this.aimDistance=Math.max(.1,Math.hypot(input.aimX-this.player.x,input.aimZ-this.player.z));
-    this.noiseTimer-=dt; if(this.player.running && this.noiseTimer<=0) { this.noise(this.player,BALANCE.noise.sprint); this.noiseTimer=.6; }
+    this.noiseTimer-=dt; if(this.coopMode!=='replica' && this.player.running && this.noiseTimer<=0) { this.noise(this.player,BALANCE.noise.sprint); this.noiseTimer=.6; }
     if (input.fire&&(this.weapon.automatic||input.trigger||!this.fireHeld)) { this.action = null;this.shoot(); }
     this.fireHeld=input.fire;
-    this.interact(input, dt);
+    if(this.coopMode!=='replica')this.interact(input, dt);
+    if(this.coopMode!=='solo')return;
     this.barricades.forEach(b => { b.flash = Math.max(0, b.flash - dt); });
     if (this.phase === 'night') this.horde.update(dt, this.day, () => !!this.spawn(undefined,nightEnemy(this.day,this.horde.spawned,this.horde.budget)));
     else if (this.phase === 'day') { this.spawnTimer -= dt; if (this.spawnTimer <= 0) { if (distance(this.player,BASE)<65&&this.activeWalkers < Math.min(10, BALANCE.horde.dayCap + this.day - 1)) this.spawn(); this.spawnTimer = BALANCE.horde.dayInterval; } }
@@ -404,14 +459,21 @@ export class Simulation {
     });
     ALARMS.forEach((p,i)=>{if(!this.alarms.has(i)&&distance(p,this.player)<3){this.alarms.add(i);this.alarmTimer=7;this.alarmPosition=p;this.notice('ALARME DISPARADO','O ruído atraiu os errantes próximos.');}});
     if(this.alarmTimer>0&&this.alarmPosition){const before=Math.ceil(this.alarmTimer);this.alarmTimer=Math.max(0,this.alarmTimer-dt);if(Math.ceil(this.alarmTimer)<before){this.noise(this.alarmPosition,BALANCE.noise.alarm);this.events.push({type:'alarm',position:this.alarmPosition});}}
+    const near=this.zombies.filter(z=>z.active&&distance(z,this.player)<22);
+    if(this.director.update(dt,[{hp:this.player.hp,ammo:this.ammo+this.reserve,healing:this.inventory.items.med,stamina:this.player.stamina,nearby:near.length,engaged:near.filter(z=>z.awareness==='chase'||z.attack>.5&&distance(z,this.player)<2).length,atShelter:this.atBase,inside:CITY_SITES.some(s=>Math.abs(s.x-this.player.x)<s.w/2&&Math.abs(s.z-this.player.z)<s.d/2),night:this.phase==='night'}],this.alarmTimer>0)&&this.director.cue){
+      const source=CITY_SITES.filter(s=>distance(s,this.player)>12&&distance(s,this.player)<40).sort((a,b)=>distance(a,this.player)-distance(b,this.player))[0];
+      if(source)this.events.push({type:'suspense',position:{x:source.x,z:source.z}});
+    }
     this.updateCity(dt);
     this.updateWalkers(dt, solid);
+    this.generatorPulse-=dt;if(this.generatorPulse<=0){this.generatorPulse=4;for(const f of this.facilities)if(f.kind==='generator'&&f.state==='powered'&&distance(f,this.player)<90)this.noise(f,28);}
     this.updateWorld(dt);
     if (this.player.hp <= 0 || this.baseHP <= 0) { this.gameOver = true; this.action = null; return; }
     for (const event of this.cycle.update(dt, this.horde.complete && !this.zombies.some(z=>z.active&&(z.siege||distance(z,BASE)<50)))) this.transition(event);
   }
   private updateCity(dt:number):void {
     this.cityTimer-=dt;if(this.cityTimer>0)return;this.cityTimer=.5;
+    for(const z of this.dormantZombies){z.hearing=Math.max(0,z.hearing-.5);z.memory=Math.max(0,(z.memory??0)-.5);if(!z.memory)z.lastSeen=undefined;if(!z.hearing)z.heard=undefined;if(!z.memory&&!z.hearing){z.awareness='idle';z.defense=undefined;}}
     // Dormant actors retain identity, wounds and HP; cleared rooms never roll new guards.
     const distant=this.zombies.filter(z=>z.active&&!z.siege&&distance(z,this.player)>CITY_PACING.sleep);
     for(const z of distant){z.path=[];this.dormantZombies.push(z);}
@@ -429,17 +491,26 @@ export class Simulation {
       if(count)this.activatedSites.add(site.id);
     }
     this.roamTimer-=.5;this.outsideTimer-=.5;
-    if(this.roamTimer<=0&&distance(this.player,BASE)>45&&this.activeWalkers<25){this.spawnRoaming();this.roamTimer=CITY_PACING.roamInterval;}
-    if(this.phase==='night'&&distance(this.player,BASE)>55&&this.outsideTimer<=0&&this.activeWalkers<34){this.spawnRoaming(4+Math.min(3,this.day));this.outsideTimer=CITY_PACING.nightOutsideInterval;}
+    if(this.director.allowPressure&&this.roamTimer<=0&&distance(this.player,BASE)>45&&this.activeWalkers<25){this.spawnRoaming();this.roamTimer=CITY_PACING.roamInterval;}
+    if(this.director.allowPressure&&this.phase==='night'&&distance(this.player,BASE)>55&&this.outsideTimer<=0&&this.activeWalkers<34){this.spawnRoaming(4+Math.min(3,this.day));this.outsideTimer=CITY_PACING.nightOutsideInterval;}
   }
   spawnRoaming(count=CITY_PACING.roamCount):number {
-    const candidates=[{x:this.player.x+34,z:this.player.z+12},{x:this.player.x-34,z:this.player.z-12},{x:this.player.x+12,z:this.player.z-34},{x:this.player.x-12,z:this.player.z+34}];
-    for(const center of candidates){
+    const routes=[{x:-88,z:-80},{x:88,z:-80},{x:88,z:35},{x:-88,z:45},{x:35,z:88},{x:-30,z:-88},{x:142,z:70},{x:-142,z:-50}];
+    for(const [route,center] of routes.entries()){
+      if(this.usedRoaming.has(route)||distance(center,this.player)<40||distance(center,this.player)>100)continue;
       const positions=Array.from({length:count},(_,i)=>({x:center.x+(i%4)*1.7,z:center.z+Math.floor(i/4)*1.7}));
       if(positions.some(p=>this.spawnBlockedByView?.(p)||collides(p,.7,this.solidDefenses)||distance(p,this.player)<24||CITY_SITES.some(s=>Math.abs(p.x-s.x)<s.w/2&&Math.abs(p.z-s.z)<s.d/2)))continue;
-      const target={x:center.x-24,z:center.z+20};if(!findPath(center,target,this.solidDefenses).length)continue;
-      let spawned=0;for(const p of positions){const z=this.spawn(p);if(z){z.patrol=target;spawned++;}}return spawned;
+      const target={x:center.x,z:center.z+32};if(!findPath(center,target,this.solidDefenses).length)continue;
+      let spawned=0;for(const p of positions){const z=this.spawn(p);if(z){z.patrol=target;spawned++;}}if(spawned)this.usedRoaming.add(route);return spawned;
     }return 0;
+  }
+  updateCoopWorld(dt:number,targets:Simulation['player'][]):void {
+    this.coopTargets=targets;
+    if(targets.length)this.player=targets[0];
+    this.updateWalkers(dt,this.solidDefenses);
+    for(const acid of this.acids){acid.age+=dt;acid.tick-=dt;if(acid.age>=ACID.flight&&acid.tick<=0){acid.tick=ACID.interval;for(const p of targets){const d=distance(acid,p);if(p.hp>0&&d<ACID.radius&&(d<.01||wallDistance(acid,{x:(p.x-acid.x)/d,z:(p.z-acid.z)/d},d,this.solidDefenses)>=d-.05))this.onCoopDamage?.(p,ACID.damage,acid.from);}}}
+    this.acids=this.acids.filter(a=>a.age<ACID.flight+ACID.lifetime);
+    this.corpses.update(dt,this.player);
   }
   private updateWalkers(dt: number, solid: Barricade[]): void {
     // Spatial bins avoid all-pairs separation as the horde grows.
@@ -447,21 +518,38 @@ export class Simulation {
     for (const z of this.zombies) if (z.active) { const key = `${Math.floor(z.x / cell)},${Math.floor(z.z / cell)}`; const bucket = bins.get(key) ?? []; bucket.push(z); bins.set(key, bucket); }
     for (const z of this.zombies) {
       if (!z.active) continue;
+      const player=this.coopTargets.length?this.coopTargets.filter(p=>p.hp>0).sort((a,b)=>{
+        const score=(p:Simulation['player'])=>distance(z,p)+(z.heard&&z.hearing>0?distance(p,z.heard)*.65:0);
+        return score(a)-score(b);
+      })[0]:this.player;
+      if(!player){z.path=[];continue;}
       const definition=ENEMIES[z.kind];
-      if(distance(z,this.player)>CITY_PACING.sleep&&!z.siege)continue;
+      if(distance(z,player)>CITY_PACING.sleep&&!z.siege)continue;
       z.screamCooldown=Math.max(0,(z.screamCooldown??0)-dt);
       if(z.screamTimer){z.screamTimer=Math.max(0,z.screamTimer-dt);if(!z.screamTimer){this.noise(z,SCREAM.noise);z.screamCooldown=SCREAM.cooldown;this.events.push({type:'scream',position:{x:z.x,z:z.z},enemy:z.kind});}continue;}
-      z.reaction=Math.max(0,z.reaction-dt); z.slow=Math.max(0,z.slow-dt); z.hearing=Math.max(0,z.hearing-dt);
+      z.staggerCooldown=Math.max(0,(z.staggerCooldown??0)-dt);z.memory=Math.max(0,(z.memory??0)-dt);z.reaction=Math.max(0,z.reaction-dt); z.slow=Math.max(0,z.slow-dt); z.hearing=Math.max(0,z.hearing-dt);
       z.flash = Math.max(0, z.flash - dt); z.attack -= dt; z.replan -= dt;z.spitCooldown-=dt;
-      if(z.kind!=='walker'&&!this.seenEnemies.has(z.kind)&&distance(z,this.player)<18){this.seenEnemies.add(z.kind);this.notice(definition.name.toUpperCase(),definition.hint);this.events.push({type:'enemy-call',position:z,enemy:z.kind});}
+      if(z.kind!=='walker'&&!this.seenEnemies.has(z.kind)&&distance(z,player)<18){this.seenEnemies.add(z.kind);this.notice(definition.name.toUpperCase(),definition.hint);this.events.push({type:'enemy-call',position:z,enemy:z.kind});}
       if(z.spitTarget){z.windup-=dt;z.angle=Math.atan2(z.spitTarget.x-z.x,z.spitTarget.z-z.z);
         if(z.windup<=0){const d=distance(z,z.spitTarget),dir={x:(z.spitTarget.x-z.x)/d,z:(z.spitTarget.z-z.z)/d};if(this.acids.length<ACID.capacity&&wallDistance(z,dir,d,solid)>=d-.05){this.acids.push({...z.spitTarget,id:this.nextAcidId++,from:{x:z.x,z:z.z},age:0,tick:ACID.flight});this.events.push({type:'spit',position:z,enemy:z.kind});}z.spitTarget=undefined;z.spitCooldown=ACID.cooldown;}
         continue;
       }
       const chaseRange=z.kind==='spitter'?20:z.kind==='screamer'?SCREAM.range:z.kind==='runner'?22:this.phase==='night'?18:BALANCE.walker.chaseDay;
-      const chasing = distance(z,this.player)<chaseRange;
+      const pd=distance(z,player),vision={x:(player.x-z.x)/(pd||1),z:(player.z-z.z)/(pd||1)};
+      // Glass allows sight, but closed doors and solid walls do not. Attacks still
+      // use all barriers below, so seeing a target never permits hitting through it.
+      const sightBarriers=solid.filter(b=>!this.portals.some(p=>p.id===b.id&&p.kind==='window'&&p.state==='closed'));
+      const sees=pd<chaseRange&&wallDistance(z,vision,pd,sightBarriers)>=pd-.05;
+      const chasing=sees;
+      if(sees){z.lastSeen={x:player.x,z:player.z};z.memory=7;z.awareness='chase';}
+      else if(z.memory&&z.lastSeen){z.awareness='search';}
+      else if(z.hearing>0){z.awareness='investigate';}
+      else {z.awareness='idle';z.lastSeen=undefined;z.heard=undefined;}
+      if(!sees&&z.heard&&z.hearing>0&&distance(z,z.heard)<1.3){
+        z.awareness='search';if((z.searchStep??0)<3){const angle=z.id+(z.searchStep??0)*2.4;const point={x:z.heard.x+Math.cos(angle)*1.8,z:z.heard.z+Math.sin(angle)*1.8};if(!collides(point,.6,solid))z.heard=point;z.searchStep=(z.searchStep??0)+1;z.replan=0;}
+      }
       if(z.patrol&&distance(z,z.patrol)<2){const next={x:z.patrol.x+24,z:z.patrol.z-20};if(!collides(next,.7,solid))z.patrol=next;else z.patrol=undefined;}
-      const target = chasing ? this.player : z.hearing>0 ? z.heard : this.phase==='night'&&z.siege ? BASE : z.patrol;
+      const target = chasing ? player : z.memory&&z.lastSeen ? z.lastSeen : z.hearing>0&&(!z.siege||!z.heard||distance(z.heard,BASE)>12) ? z.heard : this.phase==='night'&&z.siege ? BASE : z.patrol??solid.find(b=>b.id===z.defense&&b.hp>0);
       if (!target) { z.path = []; z.gait += dt * .8; continue; }
       let defense = solid.find(b => b.id === z.defense && b.hp > 0);
       if (z.replan <= 0) {
@@ -475,12 +563,12 @@ export class Simulation {
         z.defense = defense?.id;
         const goal = defense ? defense.d>defense.w?{x:defense.x+(z.x>=defense.x?1:-1)*(defense.w/2+.8),z:Math.max(defense.z-defense.d/2+.7,Math.min(defense.z+defense.d/2-.7,z.z))}:{ x: defense.w < 3 ? defense.x : Math.max(defense.x - defense.w / 2 + .8, Math.min(defense.x + defense.w / 2 - .8, z.x)), z: defense.z + (z.z >= defense.z ? 1 : -1) * (defense.d / 2 + .9) } : target;
         z.path = findPath(z, goal, solid.filter(b => b.hp > 0));
-        z.replan = (distance(z,this.player)>45?2:.7) + this.random() * .4;
+        z.replan = (distance(z,player)>45?2:.7) + this.random() * .4;
       }
       // Never hit a target through a live barrier or a building.
       const td = distance(z, target), direct = { x: (target.x - z.x) / (td || 1), z: (target.z - z.z) / (td || 1) };
       const clearTarget = wallDistance(z, direct, td, solid.filter(b => b.hp > 0)) >= td - .05;
-      if(z.kind==='spitter'&&chasing&&clearTarget&&td>2.7&&td<ACID.range&&z.spitCooldown<=0&&z.reaction<=0){z.spitTarget={x:this.player.x,z:this.player.z};z.windup=ACID.windup;this.events.push({type:'spit-ready',position:z,enemy:z.kind});continue;}
+      if(z.kind==='spitter'&&chasing&&clearTarget&&td>2.7&&td<ACID.range&&z.spitCooldown<=0&&z.reaction<=0){z.spitTarget={x:player.x,z:player.z};z.windup=ACID.windup;this.events.push({type:'spit-ready',position:z,enemy:z.kind});continue;}
       if(z.kind==='screamer'&&chasing&&clearTarget&&!z.screamCooldown&&z.reaction<=0){z.screamTimer=SCREAM.windup;this.events.push({type:'scream-ready',position:{x:z.x,z:z.z},enemy:z.kind});continue;}
       const canHitPlayer = chasing && td < BALANCE.walker.playerRange && clearTarget;
       const canHitDefense = defense && defense.hp > 0 && obstacleDistance(z, defense) < 1.15;
@@ -492,7 +580,7 @@ export class Simulation {
         if (z.attack <= 0&&(!z.winding||z.windup<=0)) {
           z.winding=false;z.attack = definition.interval;
           this.events.push({type:'enemy-attack',position:{x:z.x,z:z.z},enemy:z.kind});
-          if (canHitPlayer)this.hurt(definition.damage);
+          if (canHitPlayer){if(this.onCoopDamage)this.onCoopDamage(player,definition.damage,z);else this.hurt(definition.damage,z);}
           else if (canHitDefense) this.damageBarricade(defense!, definition.structure);
           else this.baseHP = Math.max(0, this.baseHP - definition.baseDamage);
           if(z.kind==='tank')this.events.push({type:'heavy-step',position:z,enemy:z.kind});
@@ -514,7 +602,7 @@ export class Simulation {
       const speed = (definition.speed + (z.kind==='walker'?Math.min(this.day * BALANCE.walker.speedPerDay, BALANCE.walker.maxSpeedBonus):0) + Math.sin(z.gait * 1.7) * .16) * (z.slow>0?.55:1) * (z.reaction>0?.55:1)*(z.speedFactor??1);
       const norm = Math.hypot(dx, dz) || 1; move(z, dx / norm * speed * dt, dz / norm * speed * dt, definition.radius, solid.filter(b => b.hp > 0));
       const oldGait=z.gait;z.angle = Math.atan2(dx, dz); z.gait += dt * (z.kind==='runner'?8:z.kind==='tank'?2.4:4);
-      if(z.kind==='tank'&&Math.floor(oldGait/Math.PI)!==Math.floor(z.gait/Math.PI)&&distance(z,this.player)<20)this.events.push({type:'heavy-step',position:z,enemy:z.kind});
+      if(z.kind==='tank'&&Math.floor(oldGait/Math.PI)!==Math.floor(z.gait/Math.PI)&&distance(z,player)<20)this.events.push({type:'heavy-step',position:z,enemy:z.kind});
     }
   }
 }

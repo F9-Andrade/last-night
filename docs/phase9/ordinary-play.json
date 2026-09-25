@@ -1,0 +1,48 @@
+{
+  "testHooks": false,
+  "clockAcceleration": false,
+  "entries": [
+    {
+      "label": "Partida normal: início",
+      "path": "docs/phase9/play-00.png",
+      "wallSeconds": 5.466,
+      "ui": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:29\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer."
+    },
+    {
+      "label": "Aproximação das tábuas",
+      "path": "docs/phase9/play-01.png",
+      "wallSeconds": 27.587,
+      "ui": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:24\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer."
+    },
+    {
+      "label": "Mira no material recuperado",
+      "path": "docs/phase9/play-02.png",
+      "wallSeconds": 33.412,
+      "ui": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:20\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nSem ferimentos\n100\nFôlego\nTab\n2\n1\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\nPassos próximos\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nE\nVASCULHAR\nTábuas recuperadas"
+    },
+    {
+      "label": "Saque das tábuas, recursos reais",
+      "path": "docs/phase9/play-03.png",
+      "wallSeconds": 55.174,
+      "ui": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:14\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nFerido\n55\nFôlego\nTab\n8\n3\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nW A S D Mova-se. O abrigo é seu ponto de retorno.\n+6\nMadeira\n+2\nSucata\nPassos próximos\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer."
+    },
+    {
+      "label": "Orientação para a saída",
+      "path": "docs/phase9/play-04.png",
+      "wallSeconds": 62.613,
+      "ui": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:08\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nPrecisa de cuidados\n19\nFôlego\nTab\n8\n3\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nH Uma bandagem pode ajudar.\nPassos próximos\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer."
+    },
+    {
+      "label": "Fuga da aproximação no abrigo",
+      "path": "docs/phase9/play-05.png",
+      "wallSeconds": 71.969,
+      "ui": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n04:02\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nPrecisa de cuidados\n10\nFôlego\nTab\n8\n3\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nH Uma bandagem pode ajudar.\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer."
+    },
+    {
+      "label": "Bandagem após fuga",
+      "path": "docs/phase9/play-06.png",
+      "wallSeconds": 79.802,
+      "ui": "LAST NIGHT\nDIA 01\nLUZ DO DIA\nAnoitecer em\n03:59\nAntes que escureça\n\nEncontre suprimentos na cidade.\n\nAbrigo\n1000\nVIVO\nPrecisa de cuidados\n0\nFôlego\nTab\n8\n3\n1\nPistola\nMunição leve · tiro a tiro\n1\n—\n2\n12\n60\nreserva\nR\nRecarregar\nSanta Luz\nN ↑\nAbrigo 07\nM\nUm lugar para voltar\n\nEncontre suprimentos. Volte antes de escurecer.\n\nÚltimo registro\nSua última noite.\n\nA cidade fica para trás. Você pode tentar de novo.\n\nDia alcançado\n01\nEliminações\n00\nTempo vivo\n00:31\n0 tiros na cabeça\n8 itens coletados\n0 noites sobrevividas\n100 de dano sofrido\n0 especiais eliminados\n0 armas encontradas · Comum\n0 reparos de barricada\nTentar novamente\nMenu"
+    }
+  ]
+}

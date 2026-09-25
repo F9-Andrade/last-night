@@ -1,0 +1,592 @@
+{
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "quality": "low",
+  "rows": [
+    {
+      "name": "house",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 94,
+      "triangles": 100687,
+      "entities": 4,
+      "ai": 4,
+      "audio": {
+        "inside": true,
+        "generator": false,
+        "voices": 0,
+        "peak": 2,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1895,
+        "materials": 230,
+        "geometries": 221,
+        "textures": 19,
+        "geometryMB": 36.9,
+        "cacheMB": 8.8,
+        "heapMB": 82.4,
+        "voxelAssets": 177,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 1.0388888225865438,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 6,
+          "pieces": 5674,
+          "activePieces": 364,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 60
+      }
+    },
+    {
+      "name": "hospital",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 48,
+      "triangles": 67707,
+      "entities": 4,
+      "ai": 4,
+      "audio": {
+        "inside": true,
+        "generator": false,
+        "voices": 0,
+        "peak": 2,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1895,
+        "materials": 230,
+        "geometries": 240,
+        "textures": 21,
+        "geometryMB": 36.8,
+        "cacheMB": 8.8,
+        "heapMB": 82.4,
+        "voxelAssets": 177,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 1.0399895492320372,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 4,
+          "pieces": 5674,
+          "activePieces": 208,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 45
+      }
+    },
+    {
+      "name": "market",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 145,
+      "triangles": 205877,
+      "entities": 6,
+      "ai": 6,
+      "audio": {
+        "inside": true,
+        "generator": false,
+        "voices": 0,
+        "peak": 2,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1895,
+        "materials": 230,
+        "geometries": 307,
+        "textures": 38,
+        "geometryMB": 36.9,
+        "cacheMB": 8.8,
+        "heapMB": 82.4,
+        "voxelAssets": 177,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 1.039999883902455,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 5,
+          "pieces": 5674,
+          "activePieces": 284,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 60
+      }
+    },
+    {
+      "name": "police",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 112,
+      "triangles": 201003,
+      "entities": 6,
+      "ai": 6,
+      "audio": {
+        "inside": true,
+        "generator": false,
+        "voices": 0,
+        "peak": 2,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1895,
+        "materials": 230,
+        "geometries": 323,
+        "textures": 39,
+        "geometryMB": 37,
+        "cacheMB": 9,
+        "heapMB": 82.4,
+        "voxelAssets": 195,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 1.0399999989078144,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 5,
+          "pieces": 5674,
+          "activePieces": 318,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 65
+      }
+    },
+    {
+      "name": "industry",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 111,
+      "triangles": 192379,
+      "entities": 12,
+      "ai": 12,
+      "audio": {
+        "inside": true,
+        "generator": false,
+        "voices": 0,
+        "peak": 2,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1895,
+        "materials": 230,
+        "geometries": 353,
+        "textures": 44,
+        "geometryMB": 37.2,
+        "cacheMB": 9.3,
+        "heapMB": 82.4,
+        "voxelAssets": 219,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 1.039999999988836,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 5,
+          "pieces": 5674,
+          "activePieces": 254,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 54
+      }
+    },
+    {
+      "name": "church",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 181,
+      "triangles": 253227,
+      "entities": 9,
+      "ai": 9,
+      "audio": {
+        "inside": true,
+        "generator": false,
+        "voices": 0,
+        "peak": 2,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1895,
+        "materials": 230,
+        "geometries": 405,
+        "textures": 50,
+        "geometryMB": 37,
+        "cacheMB": 9.3,
+        "heapMB": 82.4,
+        "voxelAssets": 219,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 1.0399999999998906,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 4,
+          "pieces": 5674,
+          "activePieces": 212,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 70
+      }
+    },
+    {
+      "name": "terminal",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 152,
+      "triangles": 222027,
+      "entities": 0,
+      "ai": 0,
+      "audio": {
+        "inside": true,
+        "generator": false,
+        "voices": 0,
+        "peak": 2,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1895,
+        "materials": 230,
+        "geometries": 420,
+        "textures": 52,
+        "geometryMB": 37,
+        "cacheMB": 9.3,
+        "heapMB": 82.4,
+        "voxelAssets": 219,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 1.039999999999999,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 4,
+          "pieces": 5674,
+          "activePieces": 254,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 63
+      }
+    },
+    {
+      "name": "quarantine",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 116,
+      "triangles": 184555,
+      "entities": 2,
+      "ai": 2,
+      "audio": {
+        "inside": true,
+        "generator": false,
+        "voices": 0,
+        "peak": 2,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": []
+      },
+      "render": {
+        "meshes": 1895,
+        "materials": 230,
+        "geometries": 440,
+        "textures": 54,
+        "geometryMB": 37,
+        "cacheMB": 9.3,
+        "heapMB": 82.4,
+        "voxelAssets": 219,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 1.0399999999999998,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 5,
+          "pieces": 5674,
+          "activePieces": 222,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 38
+      }
+    },
+    {
+      "name": "night-horde",
+      "fps": 60,
+      "frameMs": 16.666666666666668,
+      "calls": 467,
+      "triangles": 287895,
+      "entities": 40,
+      "ai": 40,
+      "audio": {
+        "inside": false,
+        "generator": false,
+        "voices": 2,
+        "peak": 16,
+        "state": "running",
+        "samplesLoaded": [
+          "shot",
+          "reload",
+          "zombie-attack",
+          "empty",
+          "alarm",
+          "zombie-call"
+        ],
+        "samplesPlaying": [
+          "zombie-attack",
+          "zombie-attack"
+        ]
+      },
+      "render": {
+        "meshes": 1896,
+        "materials": 231,
+        "geometries": 484,
+        "textures": 54,
+        "geometryMB": 37.1,
+        "cacheMB": 9.4,
+        "heapMB": 82.4,
+        "voxelAssets": 228,
+        "visual": {
+          "ao": "off",
+          "aoResolutionScale": 0,
+          "bloom": false,
+          "toneMapping": "AgX",
+          "exposure": 0.9400507542216671,
+          "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+        },
+        "surfaces": {
+          "materialFamilies": 4,
+          "textureCount": 9,
+          "textureBytesWithMipmaps": 5592405,
+          "resolution": 256,
+          "atlas": "1024×512",
+          "staticBatchMaterialCount": 1
+        },
+        "dressing": {
+          "chunks": 98,
+          "activeChunks": 4,
+          "pieces": 5674,
+          "activePieces": 264,
+          "vegetation": 1054
+        },
+        "decals": {
+          "limit": 34,
+          "active": 0
+        },
+        "activeChunks": 112
+      },
+      "director": {
+        "state": "PEAK",
+        "elapsed": 2.0000000000000027,
+        "transitions": [
+          {
+            "time": 0,
+            "state": "CALM"
+          },
+          {
+            "time": 23.000000000000025,
+            "state": "PEAK"
+          }
+        ],
+        "allowPressure": false
+      }
+    }
+  ],
+  "errors": []
+}

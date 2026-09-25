@@ -1,8 +1,11 @@
+import {planUrban} from './urban-layout.ts';
+import {BASE_LOOT_POINTS} from './base-loot.ts';
+import {FACILITIES,EVENT_POINTS} from './expedition.ts';
 import { hasInterior, roomObstacles } from './interiors.ts';
 import { CITY_LIMIT, CITY_SITES, siteObstacles } from './city.ts';
-import { OUTER_HOUSES, OUTER_CARS, WAREHOUSES, ROADS, CARGO_OBSTACLES, PLAZA_MONUMENT } from './districts.ts';
+import { REGIONS, ENCOUNTERS, OUTER_TREE_OFFSET, OUTER_HOUSES, OUTER_CARS, WAREHOUSES, ROADS, CARGO_OBSTACLES, PLAZA_MONUMENT } from './districts.ts';
 export interface Vec2 { x: number; z: number }
-export interface Obstacle { x: number; z: number; w: number; d: number }
+export interface Obstacle { x: number; z: number; w: number; d: number; h?:number; bottom?:number }
 export interface Building extends Obstacle { kind: 'base' | 'market' | 'hospital' | 'police' | 'house'; label: string; color: number; h: number }
 export const WORLD_LIMIT = CITY_LIMIT;
 export const BASE = { x: 1, z: 2 };
@@ -16,7 +19,7 @@ export const BUILDINGS: Building[] = [
   { kind: 'house', label: '', x: 27, z: -3, w: 8, d: 9, h: 3.8, color: 0xc2a275 },
   { kind: 'house', label: '', x: 1, z: 29, w: 10, d: 9, h: 3.6, color: 0x9ea985 },
 ];
-BUILDINGS.push(...OUTER_HOUSES.map(([x,z,color])=>({kind:'house' as const,label:'',x,z,color,w:10,d:8,h:3.8})));
+BUILDINGS.push(...OUTER_HOUSES.map(([x,z,color],i)=>({kind:'house' as const,label:'',x,z,color,w:10,d:8,h:3.8+(i%4===1?2.7:0)})));
 export const CARS = [
   { x: -12, z: -9, angle: .12, color: 0xba744f },
   { x: -11, z: 25, angle: -.18, color: 0x809da4 },
@@ -30,13 +33,18 @@ export const FENCES: Obstacle[] = [
   { x: -5.2, z: 3, w: .4, d: 12 }, { x: 7.2, z: 3, w: .4, d: 12 },
   { x: -3.8, z: 9, w: 3, d: .4 }, { x: 5.8, z: 9, w: 3, d: .4 },
 ];
+export const TREE_POSITIONS = [[-7,-10],[8,-10],[8,-29],[-20,-33],[34,-32],[35,-10],[21,5],[-33,4],[-19,4],[8,24],[-5,35],[35,35],[-34,34],[-33,-18],[20,-34],[34,22],[-6,-22],[-34,-34],[-3,-12],[8.8,1]];
+const TREE_TRUNKS:Obstacle[]=[...OUTER_HOUSES.map(([x,z])=>({x:x+OUTER_TREE_OFFSET.x,z:z+OUTER_TREE_OFFSET.z,w:.58,d:.58,h:3.8})),...REGIONS.slice(2,12).filter(r=>r.icon==='E'||r.name==='TRIAGEM EXTERNA').flatMap(r=>[[-9,-8],[9,-8],[-9,9],[9,9]].map(([x,z])=>({x:r.x+x,z:r.z+z,w:.58,d:.58,h:3.8}))),...TREE_POSITIONS.map(([x,z])=>({x,z,w:.58,d:.58,h:3.8})),...CITY_SITES.flatMap(s=>Array.from({length:6},(_,i)=>({x:s.x+(i%2?1:-1)*(s.w/2+5),z:s.z-s.d/2+i*s.d/5,w:.6,d:.6,h:3.8})))];
 export const OBSTACLES: Obstacle[] = [
-  ...BUILDINGS.flatMap(b=>hasInterior(b)?roomObstacles(b):[b]), ...FENCES, ...WAREHOUSES, ...CARGO_OBSTACLES, PLAZA_MONUMENT,
-  ...CARS.map(c => ({ x: c.x, z: c.z, w: Math.abs(Math.sin(c.angle)) * 3.7 + Math.abs(Math.cos(c.angle)) * 1.8, d: Math.abs(Math.cos(c.angle)) * 3.7 + Math.abs(Math.sin(c.angle)) * 1.8 })),
+  ...BUILDINGS.flatMap(b=>hasInterior(b)?roomObstacles(b):[b]), ...FENCES.map(o=>({...o,h:1.45})), ...WAREHOUSES, ...CARGO_OBSTACLES.map(o=>({...o,h:2.4})), {...PLAZA_MONUMENT,h:3},
+  ...CARS.map(c => ({ h:1.75, x: c.x, z: c.z, w: Math.abs(Math.sin(c.angle)) * 3.7 + Math.abs(Math.cos(c.angle)) * 1.8, d: Math.abs(Math.cos(c.angle)) * 3.7 + Math.abs(Math.sin(c.angle)) * 1.8 })),
   { x: -27, z: 29, w: 10, d: 5 },
   { x: -25, z: 22, w: 1.3, d: 1.3 }, { x: -21, z: 22, w: 1.3, d: 1.3 },
   ...CITY_SITES.flatMap(siteObstacles),
+  ...TREE_TRUNKS,
 ];
+export const URBAN=planUrban(OBSTACLES,ROADS,[...BASE_LOOT_POINTS,...FACILITIES,...EVENT_POINTS,...ENCOUNTERS],CITY_SITES);
+OBSTACLES.push(...URBAN.obstacles);
 const SPATIAL_CELL=8;
 const obstacleBins=new Map<string,Obstacle[]>();
 for(const o of OBSTACLES)for(let x=Math.floor((o.x-o.w/2)/SPATIAL_CELL);x<=Math.floor((o.x+o.w/2)/SPATIAL_CELL);x++)for(let z=Math.floor((o.z-o.d/2)/SPATIAL_CELL);z<=Math.floor((o.z+o.d/2)/SPATIAL_CELL);z++){
@@ -63,9 +71,13 @@ export function collides(p: Vec2, radius = .45, extra: Obstacle[] = []): boolean
     return dx * dx + dz * dz < radius * radius;
   });
 }
-export function move(p: Vec2, dx: number, dz: number, radius = .45, extra: Obstacle[] = []): void {
-  if (!collides({ x: p.x + dx, z: p.z }, radius, extra)) p.x += dx;
-  if (!collides({ x: p.x, z: p.z + dz }, radius, extra)) p.z += dz;
+export function move(p: Vec2, dx: number, dz: number, radius = .45, extra: Obstacle[] = [], height=0): void {
+  const blocked=(v:Vec2)=>collides(v,radius,extra)||(height>0&&ceilingHeight(v,radius)-floorHeight(v)<height);
+  const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.15));
+  for(let i=0;i<steps;i++){
+    if (!blocked({ x: p.x + dx/steps, z: p.z })) p.x += dx/steps;
+    if (!blocked({ x: p.x, z: p.z + dz/steps })) p.z += dz/steps;
+  }
 }
 export function distance(a: Vec2, b: Vec2): number { return Math.hypot(a.x - b.x, a.z - b.z); }
 /** Segment versus expanded AABB. Returns world-space distance to the first obstruction. */
@@ -167,12 +179,47 @@ export function findPath(from: Vec2, to: Vec2, extra: Obstacle[] = []): Vec2[] {
 export function impactMaterial(p:Vec2,extra:Obstacle[]=[]):string {
   if([...FENCES,...extra].some(o=>Math.abs(p.x-o.x)<=o.w/2+.08&&Math.abs(p.z-o.z)<=o.d/2+.08)) return 'wood';
   if(CARGO_OBSTACLES.some(o=>Math.abs(p.x-o.x)<=o.w/2+.08&&Math.abs(p.z-o.z)<=o.d/2+.08))return 'metal';
+  if(URBAN.vehicles.some(v=>Math.abs(p.x-v.x)<=v.w/2+.08&&Math.abs(p.z-v.z)<=v.d/2+.08))return 'metal';
   if(CARS.some(c=>Math.hypot(p.x-c.x,p.z-c.z)<2.5)||Math.hypot(p.x+25,p.z-22)<1.2||Math.hypot(p.x+21,p.z-22)<1.2) return 'metal';
   return 'concrete';
 }
 
 export function surfaceAt(p:Vec2):string {
   if(p.x>-5&&p.x<7&&p.z>0&&p.z<10)return 'concrete';
+  const site=CITY_SITES.find(s=>Math.abs(p.x-s.x)<s.w/2&&Math.abs(p.z-s.z)<s.d/2);if(site)return site.kind==='house'?'wood':site.kind==='industry'?'metal':'concrete';
   if(BUILDINGS.some(b=>Math.abs(p.x-b.x)<1.3&&Math.abs(p.z-(b.z+b.d/2+.8))<.7))return 'wood';
+  if(URBAN.buildings.some(b=>Math.abs(p.x-b.x)<b.w/2+1&&Math.abs(p.z-b.z)<b.d/2+1)||ROADS.some(r=>Math.abs(p.x-r.x)<r.w/2+2&&Math.abs(p.z-r.z)<r.d/2+2&&! (Math.abs(p.x-r.x)<r.w/2&&Math.abs(p.z-r.z)<r.d/2)))return 'concrete';
   return ROADS.some(r=>Math.abs(p.x-r.x)<r.w/2&&Math.abs(p.z-r.z)<r.d/2)?'asphalt':'grass';
+}
+
+export interface Vec3 extends Vec2 {y:number}
+/** Unit 3D ray versus a box; shared by camera aim, muzzle clearance and interaction. */
+export function rayBox(origin:Vec3,dir:Vec3,box:Obstacle,range:number):number {
+ let near=0,far=range;
+ for(const axis of ['x','y','z'] as const){
+  const low=axis==='y'?(box.bottom??0):box[axis]-(axis==='x'?box.w:box.d)/2;
+  const high=axis==='y'?(box.bottom??0)+(box.h??4):box[axis]+(axis==='x'?box.w:box.d)/2;
+  if(Math.abs(dir[axis])<1e-8){if(origin[axis]<low||origin[axis]>high)return Infinity;}
+  else {const a=(low-origin[axis])/dir[axis],b=(high-origin[axis])/dir[axis];near=Math.max(near,Math.min(a,b));far=Math.min(far,Math.max(a,b));}
+ }
+ return near<=far&&far>=0?near:Infinity;
+}
+export function rayWorld(origin:Vec3,dir:Vec3,range:number,extra:Obstacle[]=[]):number {
+ let nearest=range;const end={x:origin.x+dir.x*range,z:origin.z+dir.z*range};
+ for(const o of [...nearbyObstacles(Math.min(origin.x,end.x),Math.min(origin.z,end.z),Math.max(origin.x,end.x),Math.max(origin.z,end.z)),...extra])nearest=Math.min(nearest,rayBox(origin,dir,o,range));
+ for(const b of [...BUILDINGS,...CITY_SITES.filter(s=>s.kind!=='cemetery')])nearest=Math.min(nearest,rayBox(origin,dir,{...b,bottom:b.h,h:.25},range));
+ for(const site of CITY_SITES)if(site.kind==='quarantine')for(const x of [-8,8])nearest=Math.min(nearest,rayBox(origin,dir,{x:site.x+x,z:site.z-4,w:6,d:5,bottom:1.85,h:.3},range));
+ if(dir.y<0)nearest=Math.min(nearest,Math.max(0,(origin.y-floorHeight(origin))/-dir.y));
+ return nearest;
+}
+/** All current walkable levels are flat; curbs are low steps, never stairs or jumps. */
+export function floorHeight(p:Vec2):number {
+ if(CITY_SITES.some(s=>Math.abs(p.x-s.x)<s.w/2+3.5&&Math.abs(p.z-s.z)<s.d/2+3.5))return .22;
+ if(BUILDINGS.some(b=>Math.abs(p.x-b.x)<b.w/2+1&&Math.abs(p.z-b.z)<b.d/2+1)||p.x>-5&&p.x<7&&p.z>0&&p.z<10)return .22;
+ return .02;
+}
+export function ceilingHeight(p:Vec2,radius=0):number {
+ const tent=CITY_SITES.find(s=>s.kind==='quarantine'&&[-8,8].some(x=>Math.abs(p.x-s.x-x)<3+radius&&Math.abs(p.z-s.z+4)<2.5+radius));
+ if(tent)return 1.85;
+ const b=[...BUILDINGS,...CITY_SITES].find(s=>Math.abs(p.x-s.x)<s.w/2&&Math.abs(p.z-s.z)<s.d/2);return b?.h??Infinity;
 }

@@ -1,0 +1,22 @@
+// Rebuild the evidence index and comparable metrics from captured data (no game changes).
+import {readFileSync,writeFileSync,readdirSync} from 'node:fs';
+const root='docs/phase9';
+const before=JSON.parse(readFileSync(`${root}/before.json`));
+const after=JSON.parse(readFileSync(`${root}/after.json`));
+const mean=(xs,f)=>xs.reduce((sum,x)=>sum+f(x),0)/xs.length;
+const round=x=>Number(x.toFixed(1));
+const summary=e=>({fps:round(mean(e.samples,s=>s.fps)),estimatedFrameMs:round(mean(e.samples,s=>s.frameMs)),drawCalls:round(mean(e.samples,s=>s.calls)),triangles:round(mean(e.samples,s=>s.triangles)),geometryMB:round(mean(e.samples,s=>s.render.geometryMB)),heapMB:round(mean(e.samples,s=>s.render.heapMB))});
+const comparison=after.evidence.map(e=>({area:e.name,before:summary(before.evidence.find(b=>b.name===e.name)),after:summary(e)}));
+writeFileSync(`${root}/comparison.json`,JSON.stringify({renderer:after.renderer,viewport:after.viewport,quality:after.quality,method:'Mean of three samples per view; frame time is 1000 / rounded HUD FPS, not a CPU/GPU profiler. Empty prepared scenes isolate urban rendering; horde metrics are separate.',comparison},null,2));
+const labels={shelter:'Abrigo',residential:'Residencial',center:'Centro',hospital:'Hospital',industry:'Indústria',quarantine:'Quarentena','north-avenue':'Avenida norte','south-avenue':'Avenida sul'};
+const pair=(a,b)=>`${a} → ${b}`;
+let md='| Área | FPS | Quadro estimado (ms) | Draw calls | Triângulos | Geometria (MB) | Heap (MB) |\n|---|---:|---:|---:|---:|---:|---:|\n';
+for(const r of comparison)md+=`| ${labels[r.area]} | ${['fps','estimatedFrameMs','drawCalls','triangles','geometryMB','heapMB'].map(k=>pair(r.before[k],r.after[k])).join(' | ')} |\n`;
+writeFileSync(`${root}/comparison.md`,md);
+const img=(file,label)=>`<figure><a href="${file}"><img loading="lazy" src="${file}" alt="${label}"></a><figcaption>${label}</figcaption></figure>`;
+let html='<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LAST NIGHT · Fase 9 · Evidências</title><style>body{background:#101b19;color:#e5e4d0;font:16px system-ui;margin:auto;max-width:1500px;padding:32px}h1,h2{color:#dfb46d}p{max-width:900px;line-height:1.6}section{margin:40px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}figure{margin:0}img{width:100%;border:1px solid #37463e}figcaption{padding:8px 0;color:#bfc5b4}a{color:#dfb46d}</style><h1>LAST NIGHT · Santa Luz · Fase 9</h1><p>Vistas reais do jogo em primeira pessoa. Comparação no mesmo local, orientação, resolução 1280 × 720 e qualidade baixa. Chromium com SwiftShader: as métricas não certificam desempenho em GPU física.</p><p>As inspeções preparadas usam reposicionamento e vida elevada. A partida comum ao final usa somente teclado e mouse, sem hooks nem aceleração de tempo. <a href="comparison.json">Métricas comparadas</a> · <a href="street-routes.json">Travessia das 16 vias</a> · <a href="ordinary-play.json">Registro da partida comum</a></p>';
+for(const e of after.evidence)html+=`<section><h2>${labels[e.name]}</h2><div class="grid">${img(`before-${e.name}.png`,'Antes')}${img(`after-${e.name}.png`,'Depois')}</div></section>`;
+const files=readdirSync(root);
+for(const [title,filter] of [['Interiores e interações',f=>/^(interior-|hospital-|generator|radio|impact-alarm|night-horde)/.test(f)],['Inspeção dos 16 eixos · três vistas por via',f=>f.startsWith('streets-')],['Partida comum · teclado e mouse',f=>f.startsWith('play-')]])html+=`<section><h2>${title}</h2><div class="grid">${files.filter(f=>f.endsWith('.png')&&filter(f)).sort().map(f=>img(f,f.replace('.png',''))).join('')}</div></section>`;
+writeFileSync(`${root}/index.html`,html+'</html>');
+console.log(`Comparison: ${comparison.length} areas. Evidence gallery rebuilt.`);
