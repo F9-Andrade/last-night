@@ -1,0 +1,31 @@
+{
+  "quality": "high",
+  "viewport": "1920x1080",
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "pixelRatio": 1,
+  "seconds": [
+    {
+      "second": 0,
+      "frames": 60
+    },
+    {
+      "second": 1,
+      "frames": 60
+    },
+    {
+      "second": 2,
+      "frames": 60
+    }
+  ],
+  "shaderCompilesBeforeStart": 84,
+  "shaderCompilesAfterStart": 0,
+  "visual": {
+    "ao": "GTAO",
+    "aoResolutionScale": 0.5,
+    "bloom": true,
+    "toneMapping": "AgX",
+    "exposure": 0.94,
+    "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+  },
+  "errors": []
+}

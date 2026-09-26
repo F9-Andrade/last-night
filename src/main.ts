@@ -21,6 +21,10 @@ import { loadSettings, saveSettings, QUALITY_LEVELS, QUALITY_LABELS } from './ga
 import type { Settings } from './game/settings';
 
 const hud = new HUD();
+let renderingReady=false;
+const startButton=hud.el('start') as HTMLButtonElement,onlineButton=hud.el('coop-online') as HTMLButtonElement;
+const startLabel=startButton.innerHTML;
+startButton.disabled=true;onlineButton.disabled=true;startButton.textContent='Preparando Santa Luz…';hud.el('menu').setAttribute('aria-busy','true');
 let view: GameScene;
 try { view = new GameScene(hud.canvas); }
 catch (error) {
@@ -36,6 +40,8 @@ const network=new NetworkManager();
 let coop:CoopSession|undefined;
 const coopHUD=new CoopGameplayHUD(hud.root);
 const coopUI=new CoopUI(network,hud.root,()=>sound.event('select'));
+// The lobby subscription renders immediately, so apply the loading gate afterwards.
+hud.el('menu').inert=true;
 network.onStart=data=>startSession(data);
 network.onEnded=()=>{if(started)menu(false);if(network.state==='error')coopUI.showError();};
 hud.el('coop-online').onclick=()=>coopUI.open();
@@ -72,6 +78,7 @@ function togglePause(): void {
 }
 function start():void {network.leave();startSession();}
 function startSession(session?:StartData): void {
+  if(!renderingReady)return;
   sound.reset();input.look.reset();
   const parameters=new URLSearchParams(location.search);
   const seed=session?.seed??(import.meta.env.DEV&&parameters.has('test')?Number(parameters.get('seed')??1977):crypto.getRandomValues(new Uint32Array(1))[0]);
@@ -105,7 +112,7 @@ for(const key of Object.keys(settings) as (keyof Settings)[]){const control=hud.
 hud.el('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();hud.text('fullscreen-status','');}catch{hud.text('fullscreen-status','Tela cheia indisponível neste navegador.');}};
 window.addEventListener('keydown',e=>{if(e.code==='Escape'&&hud.settingsOpen&&(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)){closeSettings();return;}if(!started||paused||sim.gameOver||hud.settingsOpen||e.repeat)return;if(e.code==='KeyM'){e.preventDefault();toggleMap();}if(e.code==='KeyF'){view.flashlightOn=!view.flashlightOn;sound.event('select');if(settings.captions)hud.notice(view.flashlightOn?'Lanterna ligada':'Lanterna apagada','');}});
 applySettings();
-const inviteCode=new URLSearchParams(location.search).get('room');if(inviteCode)coopUI.open(inviteCode);
+const inviteCode=new URLSearchParams(location.search).get('room');
 window.addEventListener('pagehide',()=>network.leave());
 window.addEventListener('resize', () => view.resize());
 window.addEventListener('blur', () => { if (started && !paused && !sim.gameOver) { hud.inventory(false); togglePause(); } });
@@ -164,7 +171,23 @@ function frame(now: number): void {
   coopHUD.update(coop);
   requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
+// Keep all rendering preparation out of the playable loop. There is no fixed
+// delay or quality downgrade: controls unlock as soon as the GPU is ready.
+void (async()=>{
+  try {
+    await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));
+    await view.prepare(sim);
+    view.render(sim,0,0,true);
+    renderingReady=true;startButton.disabled=false;onlineButton.disabled=false;startButton.innerHTML=startLabel;
+    hud.el('menu').inert=false;hud.el('menu').removeAttribute('aria-busy');
+    last=performance.now();frames=0;statsTime=0;
+    requestAnimationFrame(frame);
+    if(inviteCode)coopUI.open(inviteCode);
+  } catch(error) {
+    console.error('Não foi possível preparar o jogo:',error);
+    hud.el('load-error').hidden=false;hud.text('error-detail','A preparação gráfica foi interrompida. Tente carregar o jogo novamente.');
+  }
+})();
 
 // Explicit opt-in development hook for repeatable gameplay tests; absent in production builds.
 if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {

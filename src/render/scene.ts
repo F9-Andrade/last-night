@@ -88,6 +88,42 @@ export class GameScene {
     this.renderer.info.autoReset=false;this.resize();
   }
   reset(): void {this.impactDecals.reset();this.viewmodel.reset();this.casings.forEach(c=>{c.life=0;c.mesh.visible=false;}); this.particles.forEach(p => { p.life = 0; p.mesh.visible = false; }); this.tracers.forEach(t => { t.life = 0; t.mesh.visible = false; }); this.flashLight.intensity = 0;this.flashlightOn=false; }
+  /** Prepare the actual HDR pipeline and FPS rig before the first playable frame.
+   * Rendering the menu alone never visits the gun or all materials seen at spawn. */
+  async prepare(sim:Simulation):Promise<void> {
+    const composer=this.post.composer,target=this.renderer.getRenderTarget(),toScreen=composer.renderToScreen;
+    composer.renderToScreen=false;
+    try {
+      this.render(sim,0,0,false,false);
+      // Match the render target used during gameplay: compiling against the canvas
+      // would prepare different tone-mapping shader variants.
+      this.renderer.setRenderTarget(composer.readBuffer);
+      await this.renderer.compileAsync(this.scene,this.camera);
+      await this.renderer.compileAsync(this.viewmodel.scene,this.camera);
+      // Allocate/upload geometry, textures, shadow maps and post-process targets.
+      // These frames never reach the canvas and never advance the simulation.
+      this.render(sim,0,0,false);
+      await this.waitForGPU();
+      this.render(sim,0,0,true);
+      await this.waitForGPU();
+    } finally {
+      composer.renderToScreen=toScreen;this.renderer.setRenderTarget(target);this.reset();
+    }
+  }
+  private async waitForGPU():Promise<void> {
+    // Three r180 requires WebGL 2; the installed types still include the old context union.
+    const gl=this.renderer.getContext() as WebGL2RenderingContext,fence=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);
+    if(!fence)throw new Error('Não foi possível preparar os recursos gráficos.');
+    gl.flush();const deadline=performance.now()+30000;
+    try {
+      for(;;){
+        await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));
+        const status=gl.clientWaitSync(fence,0,0);
+        if(status===gl.ALREADY_SIGNALED||status===gl.CONDITION_SATISFIED)return;
+        if(status===gl.WAIT_FAILED||gl.isContextLost()||performance.now()>deadline)throw new Error('A GPU não concluiu a preparação da cena.');
+      }
+    } finally {gl.deleteSync(fence);}
+  }
   metrics(): { meshes: number; materials: number; geometries: number; textures: number; geometryMB: number; cacheMB: number; heapMB: number | null; voxelAssets: number; activeChunks:number; visual:ReturnType<PostProcessing['metrics']>; surfaces:ReturnType<typeof surfaceStats>; dressing:ReturnType<EnvironmentalDressing['stats']>; decals:ReturnType<ImpactDecals['metrics']> } {
     const materials = new Set<THREE.Material>(), geometries = new Set<THREE.BufferGeometry>(); let meshes = 0, bytes = 0;
     [this.scene,this.viewmodel.scene].forEach(scene=>scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Points) { meshes++; geometries.add(o.geometry); for (const m of Array.isArray(o.material) ? o.material : [o.material]) materials.add(m); } }));
@@ -136,7 +172,7 @@ export class GameScene {
     else if(e.type==='hurt'&&!remote){this.kick=this.shake?FPS.cameraShakeAmount:0;this.post.hurt();}
     else if (e.type === 'death') this.burst(e.position.x, .7, e.position.z, 0x64372f, 12);
   }
-  render(sim: Simulation, dt: number, elapsed: number, menu: boolean): void {
+  render(sim: Simulation, dt: number, elapsed: number, menu: boolean, draw=true): void {
     const yaw=menu?Math.PI*.75:this.look?.yaw??sim.player.angle,pitch=menu?-.03:(this.look?.pitch??sim.player.pitch)+sim.player.aimKick;
     this.focus.set(sim.player.x,0,sim.player.z);
     const bob=sim.player.moving?Math.sin(elapsed*(sim.player.running?13:9))*FPS.headBobAmount*this.headBob*(sim.player.crouched?.2:sim.player.running?1:.5):0;
@@ -200,6 +236,6 @@ export class GameScene {
     for (let i = 0; i < this.dustArray.length; i += 3) { this.dustArray[i] += dt * .15; if (this.dustArray[i] > 40) this.dustArray[i] = -40; }
     this.dust.geometry.attributes.position.needsUpdate = true;
     this.viewmodel.syncLighting(this.sun,this.ambient,this.camera,this.interior,this.flashlightOn&&!menu);
-    this.viewmodel.update(sim,this.camera,dt,elapsed,!menu&&!sim.gameOver&&(sim.coopMode==='solo'||sim.player.hp>0));this.remoteView.update(this.remoteStates,elapsed,dt,this.camera);this.renderer.info.reset();this.post.render(dt,sim.player.hp);
+    this.viewmodel.update(sim,this.camera,dt,elapsed,!menu&&!sim.gameOver&&(sim.coopMode==='solo'||sim.player.hp>0));this.remoteView.update(this.remoteStates,elapsed,dt,this.camera);this.renderer.info.reset();if(draw)this.post.render(dt,sim.player.hp);
   }
 }
