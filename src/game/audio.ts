@@ -14,6 +14,7 @@ const ZOMBIE_CALLS=[[0,1.3],[1.65,1.15],[3.08,.92],[4.35,2.8],[7.3,.797]] as con
 /** Local recordings share the procedural effects bus. Audio starts on a user gesture. */
 export class Sound {
   private samples=new Map<SampleId,AudioBuffer>(); private sampleVoices=new Set<SampleVoice>();
+  private sampleLoad:Promise<unknown>=Promise.resolve();
   private reloadVoice?:SampleVoice; private alarmVoice?:SampleVoice;
   private mix={master:80,music:35,effects:85}; private effects?:GainNode; private musicGain?:GainNode; private musicOsc:OscillatorNode[]=[]; private musicClock=0;
   private lastRemoteShot?:{pan:number;attenuation:number;weapon:string};
@@ -43,13 +44,13 @@ export class Sound {
       for(let c=0;c<2;c++){const a=impulse.getChannelData(c);for(let i=0;i<a.length;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/a.length,3)*.4;}
       room.buffer=impulse;this.reverbGain=context.createGain();this.reverbGain.gain.value=0;this.effects.connect(room).connect(this.reverbGain).connect(this.master);
 
-      for(const [id,file] of Object.entries(SAMPLE_FILES)) {
-        void fetch(`${import.meta.env.BASE_URL}audio/${file}`).then(response=>{
+      this.sampleLoad=Promise.all(Object.entries(SAMPLE_FILES).map(([id,file])=>
+        fetch(`${import.meta.env.BASE_URL}audio/${file}`,{signal:AbortSignal.timeout(15000)}).then(response=>{
           if(!response.ok)throw new Error(`Audio ${response.status}`);
           return response.arrayBuffer();
         }).then(bytes=>context.decodeAudioData(bytes)).then(buffer=>this.samples.set(id as SampleId,buffer))
-          .catch(()=>{/* Keep the procedural cue if a recording cannot be loaded. */});
-      }
+          .catch(()=>{/* Keep the procedural cue if a recording cannot be loaded. */})
+      ));
       this.musicGain=this.context.createGain();this.musicGain.gain.value=0;const musicFilter=this.context.createBiquadFilter();musicFilter.type='lowpass';musicFilter.frequency.value=380;this.musicGain.connect(musicFilter).connect(this.master);
       for(const frequency of [55,82.41,110.07]){const osc=this.context.createOscillator();osc.type='triangle';osc.frequency.value=frequency;osc.connect(this.musicGain);osc.start();this.musicOsc.push(osc);}
       this.noise = this.context.createBuffer(1, this.context.sampleRate, this.context.sampleRate);
@@ -61,6 +62,7 @@ export class Sound {
     void this.context.resume().catch(() => {});
   }
   metrics() {return {lastRemoteShot:this.lastRemoteShot,inside:this.inside,generator:!!this.motor,voices:this.voices,peak:this.peakVoices,state:this.context?.state??'uninitialized',samplesLoaded:[...this.samples.keys()],samplesPlaying:[...this.sampleVoices].map(v=>v.id)};}
+  async prepare():Promise<void> {await this.sampleLoad;}
   reset():void {this.motor?.stop();this.motor=undefined;for(const voice of this.sampleVoices)voice.stop();this.reloadVoice=undefined;this.alarmVoice=undefined;}
   private sample(id:SampleId,options:{volume?:number;duration?:number;loop?:boolean;suppressed?:boolean;offset?:number;clipDuration?:number}={}):SampleVoice|undefined {
     const c=this.context,buffer=this.samples.get(id);

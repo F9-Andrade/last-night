@@ -15,7 +15,7 @@ test('provided recordings decode, follow weapon events, cancel reloads and keep 
     Object.assign(window,{audioCheck:{sound,sim,starts,flush}});
     document.getElementById('start')!.onclick=()=>sound.start();
   });
-  await page.locator('#start').click();
+  await page.locator('#start').click();await expect(page.locator('#loading-screen')).toBeHidden({timeout:60000});
   await page.waitForFunction(()=>(window as any).audioCheck.sound.metrics().samplesLoaded.length===6);
   const shot=await page.evaluate(()=>{
     const {sim,sound,flush,starts}=(window as any).audioCheck;
@@ -30,7 +30,7 @@ test('provided recordings decode, follow weapon events, cancel reloads and keep 
   await page.evaluate(()=>(window as any).audioCheck.sound.suspend());
   await page.waitForFunction(()=>(window as any).audioCheck.sound.metrics().state==='suspended');
   expect(await page.evaluate(()=>(window as any).audioCheck.sound.metrics().samplesPlaying)).toContain('reload');
-  await page.locator('#start').click();
+  await page.locator('#start').click();await expect(page.locator('#loading-screen')).toBeHidden({timeout:60000});
   await page.evaluate(()=>{const {sim,flush}=(window as any).audioCheck;sim.cancelReload();flush();});
   expect(await page.evaluate(()=>(window as any).audioCheck.sound.metrics().samplesPlaying)).not.toContain('reload');
   const empty=await page.evaluate(()=>{
@@ -81,7 +81,7 @@ test('provided recordings decode, follow weapon events, cancel reloads and keep 
 test('game reload, car interaction and nearby zombie combat use the local recordings',async({page})=>{
   test.setTimeout(90000);await page.setViewportSize({width:960,height:600});
   await page.addInitScript(()=>localStorage.setItem('last-night-settings',JSON.stringify({quality:'low',shadows:false})));
-  await page.goto('/?test');await page.locator('#start').click();
+  await page.goto('/?test');await page.locator('#start').click();await expect(page.locator('#loading-screen')).toBeHidden({timeout:60000});
   await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().audio.samplesLoaded.length===6);
   await page.evaluate(()=>{const g=(window as any).__LAST_NIGHT__;g.clearWalkers();g.setPhase('dusk');});
   await page.evaluate(()=>{const canvas=document.querySelector('canvas')!;canvas.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));window.dispatchEvent(new PointerEvent('pointerup',{button:0,bubbles:true}));});await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().ammo===11);

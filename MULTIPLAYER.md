@@ -14,6 +14,23 @@ Stack preservado: TypeScript 5.9.3, Three.js 0.180.0, Vite 7.3.6, DOM/CSS e simu
 
 Sem App ID, a interface informa que o coop está indisponível; solo não precisa do SDK/conexão. Sem internet, uma página já carregada pode jogar solo. Isto não implementa instalação offline/PWA. `VITE_*` é público no bundle; o App ID não é senha. Não publique chaves administrativas. As exclusões existentes de `.env`, `.env.*` e `*.local` permanecem; `.env.example` é a exceção.
 
+### Deploy na Netlify e carregamento
+
+`netlify.toml` centraliza a configuração do build publicado: `npm run build`,
+diretório `dist` e o App ID público Photon Realtime usado por este jogo. O arquivo
+local `.env.local` é ignorado pelo Git e não chega a um build remoto. O Vite lê
+`VITE_PHOTON_APP_ID` durante a compilação; um novo deploy é necessário para alterar
+essa configuração. A validação em `vite.config.ts` impede builds Netlify sem um ID
+válido. Não há senha do dashboard, token da Netlify ou chave administrativa nesses
+arquivos. Ao trocar o aplicativo Photon, atualize a configuração de deploy e o
+ambiente de desenvolvimento para usar o mesmo aplicativo.
+
+A tela de carregamento prepara os shaders, os recursos da área inicial e o áudio
+antes de liberar a partida. No coop, a confirmação `loaded` só é enviada depois
+de concluir essa preparação. O coordenador aguarda todos os clientes; o mundo não
+avança durante a espera. A conclusão de um carregamento cancelado não envia uma
+confirmação para outra conexão.
+
 ## Transporte, salas e ciclo preservados
 
 SDK CommonJS convertido pelo Vite; `PhotonPeer.setWebSocketImpl(WebSocket)` seleciona WebSocket nativo antes da conexão. WSS/TCP, sem UDP ou servidor de gameplay adicional. O serviço Photon transporta mensagens; **não executa nossa simulação**.

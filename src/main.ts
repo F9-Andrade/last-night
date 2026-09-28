@@ -19,15 +19,19 @@ import type { Phase } from './game/cycle';
 import { HUD } from './ui/hud';
 import { loadSettings, saveSettings, QUALITY_LEVELS, QUALITY_LABELS } from './game/settings';
 import type { Settings } from './game/settings';
+import {LoadingScreen,paintLoading} from './ui/loading';
 
 const hud = new HUD();
+const loading=new LoadingScreen();loading.show();
 let renderingReady=false;
+let loadingSession=false,scenePreparing=false,sessionPrepared=false,loadGeneration=0;
 const startButton=hud.el('start') as HTMLButtonElement,onlineButton=hud.el('coop-online') as HTMLButtonElement;
 const startLabel=startButton.innerHTML;
 startButton.disabled=true;onlineButton.disabled=true;startButton.textContent='Preparando Santa Luz…';hud.el('menu').setAttribute('aria-busy','true');
 let view: GameScene;
 try { view = new GameScene(hud.canvas); }
 catch (error) {
+  loading.hide();
   console.error('Não foi possível inicializar o renderizador:', error);
   hud.el('load-error').hidden = false;
   hud.text('error-detail', 'Seu navegador precisa de WebGL 2 e aceleração de hardware para abrir LAST NIGHT. Ative a aceleração nas configurações e tente novamente.');
@@ -43,13 +47,14 @@ const coopUI=new CoopUI(network,hud.root,()=>sound.event('select'));
 // The lobby subscription renders immediately, so apply the loading gate afterwards.
 hud.el('menu').inert=true;
 network.onStart=data=>startSession(data);
-network.onEnded=()=>{if(started)menu(false);if(network.state==='error')coopUI.showError();};
+network.onEnded=()=>{if(started||loadingSession)menu(false);if(network.state==='error')coopUI.showError();};
+network.subscribe(()=>{if(loadingSession&&sessionPrepared&&network.state==='playing')finishSessionLoad();});
 hud.el('coop-online').onclick=()=>coopUI.open();
 const settings=loadSettings();
 let settingsReturn='menu';
 const input = new Input(hud.canvas, () => { if(hud.settingsOpen){closeSettings();return;}if(hud.mapOpen){hud.map(false);input.clear();syncCursor(true);return;}if (hud.inventoryOpen) { hud.inventory(false); input.clear();syncCursor(true); } else togglePause(); }, toggleInventory,()=>{if(started&&!paused&&!hud.inventoryOpen&&!hud.mapOpen&&!sim.gameOver)togglePause();});
 view.look=input.look;
-function syncCursor(capture=false):void {input.enabled=started&&!sim.gameOver;input.blocked=!input.enabled||network.state==='loading'||paused||hud.inventoryOpen||hud.mapOpen||hud.settingsOpen||sim.pendingPerks.length>0;if(input.blocked)input.release();else if(capture)input.capture();}
+function syncCursor(capture=false):void {input.enabled=(started||loadingSession)&&!sim.gameOver;input.loading=loadingSession;input.blocked=loadingSession||!input.enabled||network.state==='loading'||paused||hud.inventoryOpen||hud.mapOpen||hud.settingsOpen||sim.pendingPerks.length>0;if(input.blocked&&!loadingSession)input.release();else if(capture)input.capture();}
 function applySettings():void {
   sound.configure(settings);view.setQuality(settings.quality);view.renderer.shadowMap.enabled=settings.shadows&&settings.quality!=='low';view.shake=settings.shake;input.look.sensitivity=settings.sensitivity;view.fov=settings.fov;view.headBob=settings.headBob;
   hud.root.style.setProperty('--ui-scale',String(settings.uiScale));hud.root.classList.toggle('reduce-motion',!settings.shake);hud.captions=settings.captions;
@@ -60,15 +65,16 @@ function applySettings():void {
 }
 function openSettings():void {settingsReturn=started?'pause':'menu';if(started&&!paused)togglePause();hud.settingsOpen=true;hud.el('settings-screen').hidden=false;hud.root.classList.add('paused');input.clear();}
 function closeSettings():void {hud.settingsOpen=false;hud.el('settings-screen').hidden=true;if(settingsReturn==='menu')hud.root.classList.remove('paused');input.clear();}
-function menu(disconnect=true):void {coop?.dispose();coop=undefined;coopHUD.update(undefined);started=false;if(disconnect)network.leave();view.remoteStates=[];view.remoteView.clear();hud.root.classList.remove('coop-playing');input.enabled=false;input.release();sound.reset();started=false;paused=false;sim=new Simulation();view.reset();hud.reset();hud.paused(false);hud.showMenu(true);hud.el('game-over').hidden=true;hud.el('settings-screen').hidden=true;hud.settingsOpen=false;input.clear();sound.suspend();}
+function menu(disconnect=true):void {loadGeneration++;loadingSession=false;sessionPrepared=false;loading.hide();coop?.dispose();coop=undefined;coopHUD.update(undefined);started=false;if(disconnect)network.leave();view.remoteStates=[];view.remoteView.clear();hud.root.classList.remove('coop-playing');input.enabled=false;input.loading=false;input.release();sound.reset();started=false;paused=false;sim=new Simulation();view.reset();hud.reset();hud.paused(false);hud.showMenu(true);hud.el('game-over').hidden=true;hud.el('settings-screen').hidden=true;hud.settingsOpen=false;input.clear();sound.suspend();}
 function toggleMap():void {if(!started||paused||sim.gameOver||sim.pendingPerks.length)return;hud.map(!hud.mapOpen);input.clear();syncCursor(!hud.mapOpen);sound.event('inventory');}
 function toggleInventory(): void {
-  if (!started || paused || sim.gameOver || sim.pendingPerks.length || coop?.incapacitated) return;
+  if (loadingSession || !started || paused || sim.gameOver || sim.pendingPerks.length || coop?.incapacitated) return;
   if(hud.mapOpen)hud.map(false);
   const opening=!hud.inventoryOpen;
   hud.inventory(opening); if(opening) hud.selectItem(sim.atBase?'wood':'ammo'); input.clear(); syncCursor(!opening);sound.event('inventory');
 }
 function togglePause(): void {
+  if(loadingSession)return;
   hud.map(false);
   if (hud.inventoryOpen) { hud.inventory(false); input.clear(); }
   if (!started || sim.gameOver || sim.pendingPerks.length) return;
@@ -76,18 +82,45 @@ function togglePause(): void {
   if(paused&&network.inSession)network.updateLocal({x:sim.player.x,y:floorHeight(sim.player),z:sim.player.z,yaw:sim.player.angle,pitch:sim.player.pitch,vx:0,vz:0,locomotion:0});
   if (paused) sound.suspend(); else sound.start();syncCursor(!paused);
 }
-function start():void {network.leave();startSession();}
-function startSession(session?:StartData): void {
-  if(!renderingReady)return;
-  sound.reset();input.look.reset();
+function start():void {if(loadingSession||scenePreparing)return;network.leave();void startSession().catch(error=>{
+  console.error('Não foi possível preparar a partida:',error);menu();loadingSession=false;
+  hud.el('load-error').hidden=false;hud.text('error-detail','Não foi possível concluir o carregamento. Tente novamente.');
+});}
+function finishSessionLoad():void {
+  loadingSession=false;sessionPrepared=false;input.loading=false;started=true;
+  accumulator=0;last=performance.now();frames=0;statsTime=0;
+  loading.hide();hud.canvas.focus();syncCursor();
+}
+async function startSession(session?:StartData): Promise<void> {
+  if(!renderingReady||loadingSession||scenePreparing)throw new Error('O jogo ainda está carregando.');
+  const generation=++loadGeneration;loadingSession=true;sessionPrepared=false;paused=false;
+  sound.reset();sound.start();input.look.reset();input.clear();
+  // Preserve the click's user activation while controls remain blocked.
+  input.enabled=true;input.loading=true;input.blocked=true;input.capture();
+  loading.show('Preparando sua expedição…');
+  await paintLoading();
+  if(generation!==loadGeneration){loadingSession=false;return;}
+  coop?.dispose();coop=undefined;
   const parameters=new URLSearchParams(location.search);
   const seed=session?.seed??(import.meta.env.DEV&&parameters.has('test')?Number(parameters.get('seed')??1977):crypto.getRandomValues(new Uint32Array(1))[0]);
-  sim = new Simulation(undefined,seed);sim.firstPerson=true; sim.spawnBlockedByView = p => view.inSpawnView(p.x, p.z); started = true; paused = false; input.clear(); accumulator = 0; elapsed = 0; testSpeed = 1;
+  sim = new Simulation(undefined,seed);sim.firstPerson=true; sim.spawnBlockedByView = p => view.inSpawnView(p.x, p.z); started = false; input.clear(); accumulator = 0; elapsed = 0; testSpeed = 1;
   if(session){Object.assign(sim.player,spawnFor(session.actors,network.localActor));sim.player.eyeY=floorHeight(sim.player)+1.72;coop=new CoopSession(network,sim,session);}
   hud.root.classList.toggle('coop-playing',!!session);
   hud.reset(); hud.inventory(false); view.reset(); hud.showMenu(false); hud.paused(false); hud.el('game-over').hidden = true;
-  sound.start(); hud.notice(session?'Vocês chegaram juntos':'Um lugar para voltar',session?'Explore Santa Luz com seus amigos.':'Encontre suprimentos. Volte antes de escurecer.');
-  hud.canvas.focus();syncCursor(true);
+  if(session)view.remoteStates=network.players.filter(p=>!p.isLocal).map(identity=>({identity,snapshot:{...spawnFor(session.actors,identity.actorNumber),y:0,yaw:Math.PI,pitch:0,vx:0,vz:0,locomotion:0,sequence:0,time:0}}));
+  try{
+    scenePreparing=true;
+    await view.prepare(sim,(message,value)=>loading.update(message,value));
+    loading.update('Preparando sons e interface…',90);
+    await Promise.all([sound.prepare(),document.fonts.ready]);
+    if(generation!==loadGeneration){loadingSession=false;return;}
+    view.render(sim,0,0,false);
+    hud.update(sim,0,{x:innerWidth/2,y:innerHeight/2},(x,z,y)=>view.project(x,z,y),view.aimTarget);
+    hud.notice(session?'Vocês chegaram juntos':'Um lugar para voltar',session?'Explore Santa Luz com seus amigos.':'Encontre suprimentos. Volte antes de escurecer.');
+    sessionPrepared=true;
+    if(session)loading.update('Aguardando os outros sobreviventes…',100);else finishSessionLoad();
+  }catch(error){loadingSession=false;input.loading=false;loading.hide();throw error;}
+  finally{scenePreparing=false;}
 }
 hud.el('capture-mouse').onclick=()=>{syncCursor(true);};
 hud.el('start').onclick = start; hud.el('retry').onclick = start; hud.el('restart').onclick = start;
@@ -127,6 +160,7 @@ let debugStats: HTMLDivElement | undefined;
 const testEvents:string[]=[];
 const FIXED_DT = 1 / 60;
 function frame(now: number): void {
+  if(loadingSession||scenePreparing){last=now;requestAnimationFrame(frame);return;}
   const wallDt = (now - last) / 1000, dt = Math.min(wallDt, .1), simFrameDt = Math.min(wallDt, .25); last = now;
   frames++; statsTime += wallDt; if (statsTime >= 1) { fps = Math.round(frames / statsTime); frames = 0; statsTime = 0; if (debugStats) { const m = view.metrics(); debugStats.textContent = `${fps} FPS · ${view.renderer.info.render.calls} DRAW CALLS · ${view.quality.toUpperCase()} | ${Math.round(view.renderer.info.render.triangles / 1000)}k TRI · ${m.materials} MAT · ${m.geometryMB} MB`; } }
   syncCursor();
@@ -176,14 +210,16 @@ function frame(now: number): void {
 void (async()=>{
   try {
     await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));
-    await view.prepare(sim);
+    await view.prepare(sim,(message,value)=>loading.update(message,value));
     view.render(sim,0,0,true);
     renderingReady=true;startButton.disabled=false;onlineButton.disabled=false;startButton.innerHTML=startLabel;
     hud.el('menu').inert=false;hud.el('menu').removeAttribute('aria-busy');
+    loading.hide();
     last=performance.now();frames=0;statsTime=0;
     requestAnimationFrame(frame);
     if(inviteCode)coopUI.open(inviteCode);
   } catch(error) {
+    loading.hide();
     console.error('Não foi possível preparar o jogo:',error);
     hud.el('load-error').hidden=false;hud.text('error-detail','A preparação gráfica foi interrompida. Tente carregar o jogo novamente.');
   }

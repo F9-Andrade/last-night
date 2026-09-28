@@ -15,7 +15,8 @@ export class NetworkManager {
  gameplayMetrics={sent:0,received:0,bytes:0,rejected:0};
  get masterActor(){return this.client?.myRoomMasterActorNr()??0;}
  sendGameplay(code:number,data:unknown,target?:number){if(!this.inSession||!Object.values(GameplayEvent).includes(code as 10))return;const bytes=JSON.stringify(data).length;if(bytes>COOP.maxPayload){this.gameplayMetrics.rejected++;return;}this.client?.raiseEvent(code,data,target?{targetActors:[target]}:{receivers:this.sdk!.LoadBalancing.Constants.ReceiverGroup.Others});this.gameplayMetrics.sent++;this.gameplayMetrics.bytes+=bytes;}
- onStart:(data:StartData)=>void=()=>{};onEnded:()=>void=()=>{};
+ onStart:(data:StartData)=>void|Promise<void>=()=>{};onEnded:()=>void=()=>{};
+ private locallyLoaded=false;
  private listeners=new Set<()=>void>();private sdk?:typeof PhotonAPI;private client?:Client;private generation=0;private timeout?:ReturnType<typeof setTimeout>;private ticker?:ReturnType<typeof setInterval>;
  private probes=new Set<()=>void>();private regionRequest=false;private intent?:{kind:'create'|'join';code?:string;retries:number};private name='';private sequence=0;private lastSample?:PlayerSnapshot;private startedToken='';private lastMetric=0;private sentMark=0;private receivedMark=0;private receiveBudgets=new Map<number,SnapshotBudget>();private sendTime=0;
  get localActor(){return this.client?.myActor().actorNr??0;}
@@ -28,7 +29,7 @@ export class NetworkManager {
  private deadline(message:string,ms=25000){clearTimeout(this.timeout);this.timeout=setTimeout(()=>this.fail(message),ms);}
  private clearDeadline(){clearTimeout(this.timeout);this.timeout=undefined;}
  private clearTransport(){
-  this.generation++;this.clearDeadline();clearInterval(this.ticker);this.ticker=undefined;for(const cancel of [...this.probes])cancel();this.probes.clear();
+  this.generation++;this.locallyLoaded=false;this.clearDeadline();clearInterval(this.ticker);this.ticker=undefined;for(const cancel of [...this.probes])cancel();this.probes.clear();
   const c=this.client;this.client=undefined;c?.disconnect();this.players=[];this.remotes.clear();this.poses.clear();this.receiveBudgets.clear();this.lastSample=undefined;this.startedToken='';this.sequence=0;this.intent=undefined;this.code='';this.regionRequest=false;this.sendTime=0;
  }
  private fail(message:string){const wasGame=this.inSession;this.clearTransport();this.setState('error',message);if(wasGame)this.onEnded();console.warn('[Network]',message);}
@@ -109,10 +110,16 @@ export class NetworkManager {
   c.myRoom().setIsOpen(false);c.myRoom().setCustomProperties({gameState:'loading',token:data.token});
   c.raiseEvent(NetworkEventCode.GameStart,data,{receivers:this.sdk!.LoadBalancing.Constants.ReceiverGroup.Others});this.begin(data);
  }
- private begin(data:StartData){if(this.startedToken)return;this.startedToken=data.token;this.setState('loading','Reunindo sobreviventes…');this.deadline('Um jogador não concluiu o carregamento. Crie uma nova sala.',25000);
-  try{this.onStart(data);this.client!.myActor().setCustomProperty('loaded',data.token);this.refreshPlayers();}catch(error){console.error('[Network] Loading failed',error);this.fail('Não foi possível carregar esta partida.');}
+ private async begin(data:StartData){if(this.startedToken)return;this.startedToken=data.token;this.locallyLoaded=false;const generation=this.generation,client=this.client!;
+  this.setState('loading','Preparando a partida…');this.deadline('Um jogador não concluiu o carregamento. Crie uma nova sala.',90000);
+  try{
+   await this.onStart(data);
+   if(generation!==this.generation||client!==this.client||this.state!=='loading')return;
+   this.locallyLoaded=true;client.myActor().setCustomProperty('loaded',data.token);this.refreshPlayers();
+   if(client.myRoom().getCustomProperty('gameState')==='playing')this.enterPlaying();
+  }catch(error){if(generation!==this.generation)return;console.error('[Network] Loading failed',error);this.fail('Não foi possível carregar esta partida.');}
  }
- private enterPlaying(){this.clearDeadline();this.setState('playing');console.info('[Network] Playing',this.code);}
+ private enterPlaying(){if(!this.locallyLoaded||this.state!=='loading')return;this.clearDeadline();this.setState('playing');console.info('[Network] Playing',this.code);}
  private receive(code:number,data:unknown,actor:number){
   if(!Number.isInteger(actor)||actor===this.localActor||!this.players.some(p=>p.actorNumber===actor))return;
   if(code===NetworkEventCode.GameStart){if(this.state!=='lobby'||actor!==this.client?.myRoomMasterActorNr())return;const start=parseStart(data,this.players.map(p=>p.actorNumber));if(start&&start.seed===this.client.myRoom().getCustomProperty('seed'))this.begin(start);return;}

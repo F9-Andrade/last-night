@@ -13,6 +13,7 @@ test('GPU readiness gates menu and invites without advancing the simulation',asy
   });
   await page.goto('/?test&room=ABC123',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>(window as any).__gpuReadyProbe.polled);
+  await expect(page.locator('#loading-screen')).toBeVisible();
   await expect(page.locator('#menu')).toHaveAttribute('aria-busy','true');
   expect(await page.locator('#menu').evaluate(el=>el.inert)).toBe(true);
   await expect(page.locator('#start')).toBeDisabled();
@@ -21,12 +22,37 @@ test('GPU readiness gates menu and invites without advancing the simulation',asy
   expect(await page.evaluate(()=>(window as any).__LAST_NIGHT__.state().stats.seconds)).toBe(0);
   await page.evaluate(()=>(window as any).__gpuReadyProbe.hold=false);
   await expect(page.locator('#start')).toBeEnabled();
+  await expect(page.locator('#loading-screen')).toBeHidden();
   await expect(page.locator('#coop-panel')).toBeVisible();
   await expect(page.locator('#coop-code-input')).toHaveValue('ABC123');
   await page.locator('#coop-close').click();
   expect(await page.locator('#menu').evaluate(el=>el.inert)).toBe(false);
   await page.locator('#menu-settings').click();
   await expect(page.locator('#settings-screen')).toBeVisible();
+});
+
+test('solo shows loading, blocks gameplay and prepares the current graphics settings',async({page})=>{
+  await page.addInitScript(()=>{
+    localStorage.setItem('last-night-settings',JSON.stringify({quality:'low',shadows:false,master:0}));
+    const probe={hold:false,polled:false};(window as any).__gpuReadyProbe=probe;
+    const wait=WebGL2RenderingContext.prototype.clientWaitSync;
+    WebGL2RenderingContext.prototype.clientWaitSync=function(...args){probe.polled=true;return probe.hold?this.TIMEOUT_EXPIRED:wait.apply(this,args);};
+  });
+  await page.goto('/?test');await expect(page.locator('#loading-screen')).toBeHidden({timeout:60000});
+  await page.locator('#menu-settings').click();await page.locator('#setting-quality').selectOption('high');
+  await page.locator('#setting-shadows').check();await page.locator('#settings-close').click();
+  await page.evaluate(()=>Object.assign((window as any).__gpuReadyProbe,{hold:true,polled:false}));
+  await page.locator('#start').click();await page.waitForFunction(()=>(window as any).__gpuReadyProbe.polled);
+  await expect(page.locator('#loading-screen')).toBeVisible();
+  await page.keyboard.press('Tab');await page.keyboard.press('r');
+  await mkdir('test-results/loading',{recursive:true});await page.screenshot({path:'test-results/loading/solo.png'});
+  const pending=await page.evaluate(()=>(window as any).__LAST_NIGHT__.state());
+  expect(pending.stats.seconds).toBe(0);expect(pending.inventoryOpen).toBe(false);expect(pending.reloadTimer).toBe(0);
+  await page.evaluate(()=>(window as any).__gpuReadyProbe.hold=false);
+  await expect(page.locator('#loading-screen')).toBeHidden({timeout:60000});
+  const ready=await page.evaluate(()=>(window as any).__LAST_NIGHT__.state());
+  expect(ready.settings.quality).toBe('high');expect(ready.render.visual.ao).toBe('GTAO');expect(ready.render.visual.bloom).toBe(true);
+  await expect.poll(()=>page.evaluate(()=>(window as any).__LAST_NIGHT__.state().stats.seconds)).toBeGreaterThan(0);
 });
 
 for(const quality of ['low','high'] as const)test(`cold startup prepares ${quality} graphics before gameplay`,async({page})=>{
@@ -40,7 +66,9 @@ for(const quality of ['low','high'] as const)test(`cold startup prepares ${quali
     WebGL2RenderingContext.prototype.compileShader=function(shader){probe.compiled++;if(probe.started)probe.afterStart++;return compile.call(this,shader);};
     const raf=window.requestAnimationFrame;
     window.requestAnimationFrame=function(callback){return raf.call(window,time=>{callback(time);if(probe.started&&callback.name==='frame')probe.frames.push(time);});};
-    document.addEventListener('click',e=>{if((e.target as Element)?.closest('#start'))probe.started=performance.now();},true);
+    new MutationObserver(()=>{
+      if(!probe.started&&document.getElementById('app')?.classList.contains('playing')&&document.getElementById('loading-screen')?.hidden)probe.started=performance.now();
+    }).observe(document,{subtree:true,attributes:true,attributeFilter:['hidden','class']});
   },quality);
   await page.goto('/?test',{waitUntil:'domcontentloaded'});
   // Click as soon as the game releases the button: no artificial settling period.
@@ -49,6 +77,7 @@ for(const quality of ['low','high'] as const)test(`cold startup prepares ${quali
   const ready=await page.evaluate(()=>(window as any).__LAST_NIGHT__.state());
   expect(ready.time).toBe(0);expect(ready.stats.seconds).toBe(0);
   await page.locator('#start').click();await page.waitForFunction(()=>!!document.pointerLockElement);
+  await expect(page.locator('#loading-screen')).toBeHidden({timeout:60000});
   await page.waitForTimeout(3000);
   const probe=await page.evaluate(()=>(window as any).__startupProbe);
   // Shader work must finish before the first-person view becomes playable.
@@ -60,6 +89,7 @@ for(const quality of ['low','high'] as const)test(`cold startup prepares ${quali
   });
   expect(current.settings.quality).toBe(quality);expect(current.render.visual.ao).toBe(quality==='high'?'GTAO':'off');
   expect(current.render.visual.bloom).toBe(quality==='high');expect(current.player.hp).toBe(100);
+  expect(current.audio.samplesLoaded).toHaveLength(6);
   await page.keyboard.press('Tab');await expect(page.locator('#inventory-panel')).toBeVisible();
   await page.keyboard.press('Tab');await page.waitForFunction(()=>!!document.pointerLockElement);
   await page.keyboard.press('Escape');await expect(page.locator('#pause-screen')).toBeVisible();

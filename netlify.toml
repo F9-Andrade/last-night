@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Public Photon Realtime client identifier; not a dashboard/API secret.
+  # Keep this deployment configuration in one place so Git-based builds retain coop.
+  VITE_PHOTON_APP_ID = "b4b8817d-7283-460c-ba6c-91753b314022"

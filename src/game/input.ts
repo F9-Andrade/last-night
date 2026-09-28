@@ -2,7 +2,7 @@ import type { InputCommand } from './simulation';
 import { MouseLook, relativeMovement, lookDirection } from './first-person';
 export class Input {
   look=new MouseLook(); keys=new Set<string>(); mouse={x:innerWidth/2,y:innerHeight/2}; fire=false; ads=false;
-  enabled=false; blocked=true; private shotRequested=false;private reload=false;private interact=false;private heal=false;private dismantle=false;private slot?:0|1;
+  enabled=false; blocked=true; loading=false; private shotRequested=false;private reload=false;private interact=false;private heal=false;private dismantle=false;private slot?:0|1;
   private expectedUnlock=false; private lockPending=false;private captureAfterUnlock=false;private wasCaptured=false;
   get captured():boolean{return document.pointerLockElement===this.canvas;}
   constructor(private canvas:HTMLCanvasElement,pause:()=>void,inventory:()=>void,private lostLock:()=>void){
@@ -32,14 +32,14 @@ export class Input {
       this.lockPending=false;const locked=this.captured,changed=locked!==this.wasCaptured;this.wasCaptured=locked;
       if(!changed&&!this.expectedUnlock)return;
       document.querySelector('#app')?.classList.toggle('mouse-captured',locked);
-      if(locked){if(!this.enabled||this.blocked)this.release();return;}
+      if(locked){if(!this.enabled||this.blocked&&!this.loading)this.release();return;}
       const expected=this.expectedUnlock;this.expectedUnlock=false;this.clear();
       if(this.captureAfterUnlock&&this.enabled&&!this.blocked){this.captureAfterUnlock=false;this.capture();}
       else if(!expected&&this.enabled&&!this.blocked)this.lostLock();
     });
     document.addEventListener('pointerlockerror',()=>{this.lockPending=false;document.querySelector('#app')?.classList.remove('mouse-captured');});
   }
-  capture():void {if(!this.enabled||this.blocked)return;if(this.expectedUnlock){this.captureAfterUnlock=true;return;}if(this.captured||this.lockPending)return;this.lockPending=true;try{const request=this.canvas.requestPointerLock();if(request)void request.catch(()=>{this.lockPending=false;});}catch{this.lockPending=false;}}
+  capture():void {if(!this.enabled||this.blocked&&!this.loading)return;if(this.expectedUnlock){this.captureAfterUnlock=true;return;}if(this.captured||this.lockPending)return;this.lockPending=true;try{const request=this.canvas.requestPointerLock();if(request)void request.catch(()=>{this.lockPending=false;});}catch{this.lockPending=false;}}
   release():void {this.clear();this.captureAfterUnlock=false;if(this.captured&&!this.expectedUnlock){this.expectedUnlock=true;document.exitPointerLock();}}
   clear():void {this.keys.clear();this.fire=false;this.ads=false;this.shotRequested=false;this.reload=false;this.interact=false;this.heal=false;this.dismantle=false;this.slot=undefined;}
   requestHeal():void {this.heal=true;}

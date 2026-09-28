@@ -90,23 +90,38 @@ export class GameScene {
   reset(): void {this.impactDecals.reset();this.viewmodel.reset();this.casings.forEach(c=>{c.life=0;c.mesh.visible=false;}); this.particles.forEach(p => { p.life = 0; p.mesh.visible = false; }); this.tracers.forEach(t => { t.life = 0; t.mesh.visible = false; }); this.flashLight.intensity = 0;this.flashlightOn=false; }
   /** Prepare the actual HDR pipeline and FPS rig before the first playable frame.
    * Rendering the menu alone never visits the gun or all materials seen at spawn. */
-  async prepare(sim:Simulation):Promise<void> {
+  async prepare(sim:Simulation,progress:(message:string,value:number)=>void=()=>{}):Promise<void> {
     const composer=this.post.composer,target=this.renderer.getRenderTarget(),toScreen=composer.renderToScreen;
+    const yaw=this.look?.yaw,pitch=this.look?.pitch,flashlight=this.flashlightOn,interior=this.interior;
     composer.renderToScreen=false;
     try {
+      progress('Preparando a iluminação de Santa Luz…',20);
       this.render(sim,0,0,false,false);
       // Match the render target used during gameplay: compiling against the canvas
       // would prepare different tone-mapping shader variants.
       this.renderer.setRenderTarget(composer.readBuffer);
       await this.renderer.compileAsync(this.scene,this.camera);
+      progress('Preparando seu equipamento…',40);
       await this.renderer.compileAsync(this.viewmodel.scene,this.camera);
       // Allocate/upload geometry, textures, shadow maps and post-process targets.
       // These frames never reach the canvas and never advance the simulation.
-      this.render(sim,0,0,false);
-      await this.waitForGPU();
+      // Upload the area around the actual spawn, including the view behind the
+      // player. Looking around after loading must not be the first draw of it.
+      for(let angle=0;angle<4;angle++){
+        progress('Carregando os arredores do abrigo…',50+angle*8);
+        if(this.look)this.look.yaw=(yaw??sim.player.angle)+angle*Math.PI/2;
+        this.flashlightOn=angle===3;
+        this.render(sim,0,0,false);
+        await this.waitForGPU();
+      }
+      if(this.look){this.look.yaw=yaw!;this.look.pitch=pitch!;}
+      this.flashlightOn=flashlight;
+      this.render(sim,0,0,false);await this.waitForGPU();
       this.render(sim,0,0,true);
       await this.waitForGPU();
     } finally {
+      if(this.look){this.look.yaw=yaw!;this.look.pitch=pitch!;}
+      this.interior=interior;this.flashlightOn=flashlight;
       composer.renderToScreen=toScreen;this.renderer.setRenderTarget(target);this.reset();
     }
   }
