@@ -12,14 +12,15 @@ import {COOP,GameplayEvent,parseAction,poseOf,shotSeed,boundedJSON} from './game
 import type {ActionRequest} from './gameplay-protocol.ts';
 import {entityId} from './entities.ts';
 import type {StartData,RemotePlayerState} from './protocol.ts';
+import {EnemyInterpolation,EnemyClock} from './enemy-interpolation.ts';
 import {SnapshotBudget} from './rate-limit.ts';
 type RequestDetails=ActionRequest extends infer T?T extends ActionRequest?Omit<T,'seq'|'pose'>:never:never;
-interface EnemyFrame {time:number;x:number;z:number;angle:number;gait:number}
 export class CoopSession {
  owner?:CoopWorld;checkpoint?:WorldCheckpoint;effects:SessionEffect[]=[];error='';lastSnapshotAt=0;
+ private corpseAges=new Map<number,number>();private acidAges=new Map<number,number>();
  private published?:WorldCheckpoint;private lastRecovery=-10000;
- private sequence=0;private reconciliationSeq=0;private shot=0;private master=0;private clock=0;private stateClock=0;private motionClock=0;private holdClock=0;private held=false;private dirty=true;private offset:number|null=null;
- private motionFrames=new Map<number,EnemyFrame[]>();private motionLast=new Map<number,number>();private lastMotionSent=new Map<number,number>();private budgets=new Map<number,SnapshotBudget>();private pending:ActionRequest[]=[];
+ private sequence=0;private reconciliationSeq=0;private shot=0;private master=0;private clock=0;private stateClock=0;private motionClock=0;private holdClock=0;private held=false;private dirty=true;private motionClockSync=new EnemyClock();
+ private motionFrames=new Map<number,EnemyInterpolation>();private lastMotionSent=new Map<number,number>();private budgets=new Map<number,SnapshotBudget>();private pending:ActionRequest[]=[];
  readonly confirmed:SessionEffect[]=[];
  readonly metrics={dropped:0,checkpoints:0,motionBatches:0,hash:'',snapshotBytes:0,migrations:0};
  constructor(readonly network:NetworkManager,readonly local:Simulation,private start:StartData){
@@ -47,7 +48,7 @@ export class CoopSession {
  reviveTarget(){return this.checkpoint?.players.find(p=>p.actor!==this.network.localActor&&p.life==='downed'&&distance(p.player,this.local.player)<=COOP.reviveRange);}
  private tick(dt:number){
   if(this.network.state!=='playing')return;
-  if(this.master!==this.network.masterActor){this.master=this.network.masterActor;this.owner=undefined;this.published=undefined;this.motionLast.clear();this.lastMotionSent.clear();this.budgets.clear();this.metrics.migrations++;
+  if(this.master!==this.network.masterActor){this.master=this.network.masterActor;this.owner=undefined;this.published=undefined;this.motionFrames.clear();this.motionClockSync.clear();this.lastMotionSent.clear();this.budgets.clear();this.metrics.migrations++;
    if(!this.checkpoint){this.error='A sessão não possui um estado recuperável. Volte ao menu e crie outra sala.';return;}
    if(this.network.isHost){this.owner=CoopWorld.restore(this.start.seed,this.checkpoint,this.network.players.map(p=>p.actorNumber));this.dirty=true;this.stateClock=COOP.checkpointInterval;}
   }
@@ -60,7 +61,7 @@ export class CoopSession {
   if(effects.some(e=>['death','hurt','pickup','healed','door','glass','switch'].includes(e.event.type)))this.dirty=true;
   if(this.dirty||this.stateClock>=COOP.checkpointInterval){this.publish();this.dirty=false;this.stateClock=0;}
   if(effects.length){for(let i=0;i<effects.length;i+=80){const batch=effects.slice(i,i+80);this.acceptEffects(batch);this.network.sendGameplay(GameplayEvent.Effects,batch);}}
-  if(this.motionClock>=.1){this.motionClock=0;const rows:number[][]=[];for(const z of this.owner.sim.zombies){if(!z.active)continue;const near=Math.min(...[...this.owner.actors.values()].map(a=>distance(z,a.sim.player)));const rate=near<COOP.nearDistance?COOP.nearRate:near<COOP.midDistance?COOP.midRate:COOP.farRate;
+  if(this.motionClock>=.1){this.motionClock=0;const rows:number[][]=[];for(const z of this.owner.sim.zombies){if(!z.active)continue;let near=Infinity;for(const actor of this.owner.actors.values())near=Math.min(near,distance(z,actor.sim.player));const rate=near<COOP.nearDistance?COOP.nearRate:near<COOP.midDistance?COOP.midRate:COOP.farRate;
     if(this.owner.time-(this.lastMotionSent.get(z.id)??-10)<1/rate-.01)continue;this.lastMotionSent.set(z.id,this.owner.time);rows.push([z.id,z.x,z.z,z.angle,z.gait,z.attack,z.flash,z.reaction,z.windup,z.winding?1:0,z.screamTimer??0]);}
    const data={time:this.owner.time,rows};this.motion(data);this.network.sendGameplay(GameplayEvent.InfectedMotion,data);
   }
@@ -79,12 +80,16 @@ export class CoopSession {
  }
  private acceptEffects(effects:SessionEffect[]){this.confirmed.push(...effects);if(this.confirmed.length>128)this.confirmed.splice(0,this.confirmed.length-128);for(const e of effects){if(e.actor===this.network.localActor&&['shot','reload','reload-out','reload-in','reload-slide','reload-done','empty','switch'].includes(e.event.type))continue;this.effects.push(e);}if(this.effects.length>240)this.effects.splice(0,this.effects.length-240);}
  private apply(c:WorldCheckpoint){
+  this.corpseAges=new Map(c.corpses.map(v=>[v.id,v.age]));this.acidAges=new Map(c.acids.map(v=>[v.id,v.age]));
   this.checkpoint=c;this.lastSnapshotAt=performance.now();this.metrics.checkpoints++;this.metrics.hash=stateHash(c);
   const sim=this.local;sim.loot=structuredClone(c.loot);sim.groundWeapons=structuredClone(c.ground);sim.corpses.bodies=structuredClone(c.corpses);sim.acids=structuredClone(c.acids);
   for(const f of c.facilities){const local=sim.facilities.find(v=>v.id===f.id);if(local)local.state=f.state;}
   for(const p of c.portals){const door=sim.portals.find(d=>d.id===p.id);if(door)Object.assign(door,p);}
   const old=new Map(sim.zombies.map(z=>[z.id,z]));sim.zombies=c.infected.map(z=>{const previous=old.get(z.id);return {...structuredClone(z),x:previous?.x??z.x,z:previous?.z??z.z,angle:previous?.angle??z.angle,path:z.awareness==='idle'?[]:[{x:z.x,z:z.z}]};});
-  for(const id of this.motionFrames.keys())if(!sim.zombies.some(z=>z.id===id))this.motionFrames.delete(id);
+  const ids=new Set(sim.zombies.map(z=>z.id));
+  for(const id of this.motionFrames.keys())if(!ids.has(id))this.motionFrames.delete(id);
+  for(const id of this.lastMotionSent.keys())if(!ids.has(id))this.lastMotionSent.delete(id);
+  this.motionClockSync.observe(c.time*1000,this.lastSnapshotAt);
   // Checkpoints also establish poses for newly spawned entities and recovery.
   for(const z of c.infected)this.pushFrame(z.id,c.time,z.x,z.z,z.angle,z.gait);
   const local=this.localRecord;if(local){sim.player.hp=local.player.hp;sim.player.invulnerable=local.player.invulnerable;sim.action=structuredClone(local.action);
@@ -93,17 +98,20 @@ export class CoopSession {
   }sim.gameOver=c.wipe;
  }
  private pushFrame(id:number,time:number,x:number,z:number,angle:number,gait:number){
-  if(time<=(this.motionLast.get(id)??-1))return;this.motionLast.set(id,time);const now=performance.now();this.offset=this.offset===null?now-time*1000:this.offset+Math.max(-2,Math.min(2,now-time*1000-this.offset))*.1;
-  let frames=this.motionFrames.get(id)??[];const last=frames.at(-1);if(last&&Math.hypot(last.x-x,last.z-z)>8)frames=[];frames.push({time:time*1000+this.offset,x,z,angle,gait});if(frames.length>24)frames.shift();this.motionFrames.set(id,frames);
+  let buffer=this.motionFrames.get(id);if(!buffer){buffer=new EnemyInterpolation();this.motionFrames.set(id,buffer);}
+  return buffer.push(time*1000,{x,z,angle,gait});
  }
  private motion(data:unknown){if(!data||typeof data!=='object')return;const d=data as {time:number;rows:number[][]};if(!Number.isFinite(d.time)||!Array.isArray(d.rows)||d.rows.length>COOP.maxEntities)return;
-  for(const row of d.rows){if(!Array.isArray(row)||row.length!==11||row.some(n=>!Number.isFinite(n))||!Number.isInteger(row[0])||Math.abs(row[1])>157||Math.abs(row[2])>157)continue;const [id,x,z,angle,gait,attack,flash,reaction,windup,winding,screamTimer]=row;const enemy=this.local.zombies.find(z=>z.id===id);if(!enemy)continue;this.pushFrame(id,d.time,x,z,angle,gait);Object.assign(enemy,{attack,flash,reaction,windup,winding:!!winding,screamTimer});}this.metrics.motionBatches++;
+  this.motionClockSync.observe(d.time*1000,performance.now());
+  const enemies=new Map(this.local.zombies.map(z=>[z.id,z]));
+  for(const row of d.rows){if(!Array.isArray(row)||row.length!==11||row.some(n=>!Number.isFinite(n))||!Number.isInteger(row[0])||Math.abs(row[1])>157||Math.abs(row[2])>157)continue;const [id,x,z,angle,gait,attack,flash,reaction,windup,winding,screamTimer]=row;const enemy=enemies.get(id);if(!enemy)continue;if(!this.pushFrame(id,d.time,x,z,angle,gait))continue;Object.assign(enemy,{attack,flash,reaction,windup,winding:!!winding,screamTimer});}this.metrics.motionBatches++;
  }
  render(now=performance.now()){
   const age=this.lastSnapshotAt?Math.min(.6,(now-this.lastSnapshotAt)/1000):0;
-  for(const a of this.local.acids){const base=this.checkpoint?.acids.find(v=>v.id===a.id);if(base)a.age=base.age+age;}
-  for(const c of this.local.corpses.bodies){const base=this.checkpoint?.corpses.find(v=>v.id===c.id);if(base)c.age=base.age+age;}
-  for(const z of this.local.zombies){const frames=this.motionFrames.get(z.id);if(!frames?.length)continue;const target=now-COOP.enemyDelay;while(frames.length>2&&frames[1].time<target)frames.shift();const a=frames[0],b=frames[1]??a,t=Math.max(0,Math.min(1,(target-a.time)/Math.max(1,b.time-a.time)));z.x=a.x+(b.x-a.x)*t;z.z=a.z+(b.z-a.z)*t;z.angle=a.angle+Math.atan2(Math.sin(b.angle-a.angle),Math.cos(b.angle-a.angle))*t;z.gait=a.gait+(b.gait-a.gait)*t;}
+  for(const a of this.local.acids){const base=this.acidAges.get(a.id);if(base!==undefined)a.age=base+age;}
+  for(const c of this.local.corpses.bodies){const base=this.corpseAges.get(c.id);if(base!==undefined)c.age=base+age;}
+  const time=this.motionClockSync.time(now);
+  for(const z of this.local.zombies)this.motionFrames.get(z.id)?.sample(time,z);
   if(this.incapacitated)this.local.player.eyeY=floorHeight(this.local.player)+.6;
  }
  decorate(states:RemotePlayerState[]){return states.map(s=>{const p=this.checkpoint?.players.find(p=>p.actor===s.identity.actorNumber);return {...s,gameplay:p?{life:p.life,hp:p.player.hp,weapon:p.loadout[p.activeSlot]!.type,reload:p.reloadTimer,reloadDuration:p.reloadDuration}:undefined};});}

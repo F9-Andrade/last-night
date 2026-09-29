@@ -1,0 +1,46 @@
+{
+  "before": {
+    "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+    "viewport": "1280x720",
+    "quality": "high",
+    "samples": [
+      {
+        "fps": 60,
+        "calls": 742,
+        "triangles": 934126
+      },
+      {
+        "fps": 60,
+        "calls": 742,
+        "triangles": 934126
+      },
+      {
+        "fps": 60,
+        "calls": 742,
+        "triangles": 934126
+      }
+    ]
+  },
+  "after": {
+    "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+    "viewport": "1280x720",
+    "quality": "high",
+    "samples": [
+      {
+        "fps": 60,
+        "calls": 742,
+        "triangles": 934126
+      },
+      {
+        "fps": 60,
+        "calls": 742,
+        "triangles": 934126
+      },
+      {
+        "fps": 60,
+        "calls": 742,
+        "triangles": 934126
+      }
+    ]
+  }
+}

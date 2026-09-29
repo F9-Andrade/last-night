@@ -16,3 +16,39 @@ test('50–200ms simulated delay with jitter keeps movement bounded and monotoni
 
 test('receive budget accepts delayed batches and rejects sustained flooding',async()=>{const {SnapshotBudget}=await import('../src/network/rate-limit.ts');const b=new SnapshotBudget();for(let i=0;i<40;i++)assert.ok(b.take(100));assert.ok(!b.take(100));assert.ok(b.take(150));assert.ok(!b.take(150));for(let i=1;i<=50;i++)assert.ok(b.take(150+i*50));});
 test('foundation keeps movement and excludes unsynchronized gameplay',async()=>{const {Simulation}=await import('../src/game/simulation.ts');const {collides}=await import('../src/game/world.ts');const sim=new Simulation(undefined,123);sim.foundationMode=true;sim.firstPerson=true;sim.zombies=[];sim.dormantZombies=[];const ammo=sim.ammo,cycle=sim.cycle.elapsed;for(const p of [1,2,3,4])assert.equal(collides(spawnFor([1,2,3,4],p),.4),false);for(let i=0;i<120;i++)sim.update(1/60,{moveX:0,moveZ:.3,aimX:0,aimZ:1,fire:true,trigger:true,run:false,reload:true,interact:true,heal:true});assert.equal(sim.ammo,ammo);assert.equal(sim.cycle.elapsed,cycle);assert.equal(sim.zombies.length,0);assert.equal(sim.action,null);assert.notEqual(sim.player.z,7);});
+
+// Render-cadence regressions: sparse infected packets must not freeze between updates.
+import {EnemyInterpolation,EnemyClock} from '../src/network/enemy-interpolation.ts';
+const enemyPose=(time:number)=>({x:time/1000,z:0,angle:0,gait:time/250});
+for(const interval of [100,300,500])test(`infected presentation stays continuous at 60 Hz with ${interval} ms packets`,()=>{
+ const buffer=new EnemyInterpolation(),out=enemyPose(0);let next=0,previous=0,stalls=0,samples=0;
+ for(let now=0;now<8000;now+=1000/60){
+  if(now>=next){buffer.push(next,enemyPose(next));next+=interval;}
+  buffer.sample(now,out);
+  if(now>3000){samples++;if(out.x-previous<.001)stalls++;assert.ok(out.x-previous<.04);}
+  previous=out.x;
+ }
+ assert.equal(stalls,0,`${stalls}/${samples} frozen frames`);assert.ok(buffer.size<=24);
+});
+test('infected interpolation rejects stale packets, handles angle wrap and bounds outage drift',()=>{
+ const b=new EnemyInterpolation(),out=enemyPose(0);
+ b.push(0,{...enemyPose(0),angle:Math.PI-.1});b.push(100,{...enemyPose(100),angle:-Math.PI+.1});
+ assert.equal(b.push(90,enemyPose(5000)),false);b.sample(200,out);
+ assert.ok(Math.abs(Math.abs(out.angle)-Math.PI)<.11);
+ b.sample(5000,out);assert.ok(out.x<=.2);assert.ok(out.gait<=.8);
+ b.push(5100,{...enemyPose(0),x:20});b.sample(5100,out);assert.equal(out.x,20);assert.equal(b.size,1);
+ b.clear();assert.equal(b.sample(6000,out),false);
+});
+test('infected clock correction is independent of entity count and clears on migration',()=>{
+ const a=new EnemyClock(),b=new EnemyClock();a.observe(100,1000);b.observe(100,1000);
+ a.observe(200,1108);for(let i=0;i<100;i++)b.observe(200,1108);
+ assert.equal(a.time(1200),b.time(1200));b.observe(100,5000);assert.equal(a.time(1200),b.time(1200));
+ b.clear();b.observe(50,5000);assert.equal(b.time(5000),50);
+});
+test('infected buffer handles jitter and near/far transitions without reversing playback',()=>{
+ const b=new EnemyInterpolation(),out=enemyPose(0);let next=0,previous=-1;
+ for(let now=0;now<12000;now+=1000/60){
+  if(now>=next){b.push(next,enemyPose(next));next+=(now<3000||now>7000?100:500)+(Math.floor(now)%3)*15;}
+  b.sample(now,out);assert.ok(out.x>=previous-1e-8);assert.ok(out.x<=now/1000+.11);previous=out.x;
+ }
+});

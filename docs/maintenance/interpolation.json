@@ -1,0 +1,23 @@
+{
+  "description": "Deterministic constant-speed trajectory; 60 Hz sampling, excluding first 3 seconds. Old fixed-delay clamping versus adaptive buffer. Not an FPS benchmark.",
+  "results": [
+    {
+      "packetIntervalMs": 100,
+      "frames": 299,
+      "beforeFrozenFrames": 0,
+      "afterFrozenFrames": 0
+    },
+    {
+      "packetIntervalMs": 300,
+      "frames": 299,
+      "beforeFrozenFrames": 136,
+      "afterFrozenFrames": 0
+    },
+    {
+      "packetIntervalMs": 500,
+      "frames": 299,
+      "beforeFrozenFrames": 203,
+      "afterFrozenFrames": 0
+    }
+  ]
+}

@@ -103,3 +103,27 @@ test('two real Photon clients: visible downed body, revive HUD cleanup and remot
  await a.evaluate(async actor=>{const w=(window as any).__LAST_NIGHT__.coopFixture();const {createWeapon}=await import('/src/game/weapons.ts');const s=w.actors.get(actor).sim;s.loadout[0]=createWeapon('shotgun',w.sim.nextWeaponId++);s.activeSlot=0;},actorB);await expect.poll(async()=>(await read(a)).coop.players.find((p:any)=>p.actor===actorB).loadout[0]?.type).toBe('shotgun');await position(a,90,-30,-Math.PI/2,0);await a.waitForTimeout(300);await a.screenshot({path:`${evidenceDir}/revived-world-weapon.png`});await writeFile(`${evidenceDir}/visual-coop.json`,JSON.stringify({renderer:await renderer(a),checks:['downed body visible','E revive to 40 HP','revive prompt remains hidden after completion','remote shotgun model'],errors},null,2));expect(errors).toEqual([]);
  }finally{for(const p of pages)await p.context().close();}
 });
+
+test('real Photon sparse infected motion remains continuous at render cadence',async({browser})=>{
+ const {pages,errors}=await room(browser,2),[a,b]=pages;
+ try{
+  for(const p of pages)await position(p,88,-30);
+  const id=await a.evaluate(()=>{
+   const w=(window as any).__LAST_NIGHT__.coopFixture(),e=w.sim.spawn({x:88,z:-66});
+   e.speedFactor=0;const start=w.time,step=w.step.bind(w);
+   // Analytic host trajectory isolates transport/presentation from AI decisions and collisions.
+   w.step=(dt:number)=>{step(dt);e.x=88+(w.time-start)*.5;e.z=-66;e.gait=(w.time-start)*4;e.path=[{x:100,z:-66}];};return e.id;
+  });
+  await agreed(pages,id,90);await b.waitForTimeout(2500);
+  const samples=await b.evaluate(id=>new Promise<{dt:number;dx:number;gait:number}[]>(resolve=>{
+   const g=(window as any).__LAST_NIGHT__,samples:{dt:number;dx:number;gait:number}[]=[];
+   let previous=g.infectedMotion(id),last=performance.now(),start=last;
+   function frame(now:number){const current=g.infectedMotion(id);if(previous&&current)samples.push({dt:now-last,dx:current.x-previous.x,gait:current.gait-previous.gait});previous=current;last=now;if(now-start<5000)requestAnimationFrame(frame);else resolve(samples);}
+   requestAnimationFrame(frame);
+  }),id);
+  const stable=samples.filter(s=>s.dt>4&&s.dt<80),stalls=stable.filter(s=>Math.abs(s.dx)<.0001).length;
+  await writeFile(`${evidenceDir}/infected-motion.json`,JSON.stringify({samples:stable.length,stalls,stallRatio:stalls/stable.length,meanFrameMs:stable.reduce((n,s)=>n+s.dt,0)/stable.length,maxStep:Math.max(...stable.map(s=>s.dx)),errors},null,2));
+  expect(stable.length).toBeGreaterThan(100);expect(stalls/stable.length).toBeLessThan(.08);
+  expect(stable.every(s=>s.dx>=-.01&&s.dx<.12&&s.gait>=-.1)).toBe(true);expect(errors).toEqual([]);
+ }finally{for(const p of pages)await p.context().close();}
+});

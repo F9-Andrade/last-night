@@ -36,6 +36,11 @@ export class GameScene {
   scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(FPS.fov,innerWidth/innerHeight,.035,FPS.viewDistance);
   renderer: THREE.WebGLRenderer;
   private post:PostProcessing;private atmosphere:CinematicSky;private dressing:EnvironmentalDressing;private impactDecals:ImpactDecals;
+  private projectedFov=NaN;private projectedAspect=NaN;private projectedFar=NaN;
+  private projectionScratch=new THREE.Vector3();private directionScratch=new THREE.Vector3();
+  private sunOffset=new THREE.Vector3(...VISUAL.sun.offset);
+  private moonColor=new THREE.Color(VISUAL.sun.moon);private sunsetColor=new THREE.Color(0xf2aa7a);private nightAmbient=new THREE.Color(0x7894b4);
+  private lightPoints=[{x:-5.4,z:6},{x:9.6,z:8},{x:-15.9,z:-12},...REGIONS.slice(2).map(r=>({x:r.x-8.8,z:r.z}))].map((p,index)=>({...p,index,distance:0}));
   private shadowCenter=new THREE.Vector3();private sunDirection=new THREE.Vector3(...VISUAL.sun.offset).normalize();
   private shadowRight=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),this.sunDirection).normalize();
   private shadowUp=new THREE.Vector3().crossVectors(this.sunDirection,this.shadowRight);
@@ -156,12 +161,17 @@ export class GameScene {
   resize(): void {
     const w = window.innerWidth, h = window.innerHeight,ratio=this.renderer.getPixelRatio();if(this.renderer.domElement.width!==Math.floor(w*ratio)||this.renderer.domElement.height!==Math.floor(h*ratio))this.renderer.setSize(w, h, false);this.post.resize(w,h); this.projection();
   }
-  private projection(): void {this.camera.aspect=innerWidth/innerHeight;this.camera.updateProjectionMatrix();}
-  aim(_clientX=innerWidth/2,_clientY=innerHeight/2):THREE.Vector3 {
-    const d=this.camera.getWorldDirection(new THREE.Vector3());return this.destination.copy(this.camera.position).addScaledVector(d,50);
+  private projection(): void {
+    const aspect=innerWidth/innerHeight;
+    if(this.projectedFov===this.camera.fov&&this.projectedAspect===aspect&&this.projectedFar===this.camera.far)return;
+    this.camera.aspect=aspect;this.camera.updateProjectionMatrix();
+    this.projectedFov=this.camera.fov;this.projectedAspect=aspect;this.projectedFar=this.camera.far;
   }
-  inSpawnView(x: number, z: number): boolean { const p = new THREE.Vector3(x, 1.5, z).project(this.camera); return p.z>-1&&p.z<1&&Math.abs(p.x)<1.18&&Math.abs(p.y)<1.18; }
-  project(x: number, z: number, y=1.1): { x: number; y: number } { const p = new THREE.Vector3(x, y, z).project(this.camera); return { x: (p.x + 1) / 2 * innerWidth, y: (1 - p.y) / 2 * innerHeight }; }
+  aim(_clientX=innerWidth/2,_clientY=innerHeight/2):THREE.Vector3 {
+    const d=this.camera.getWorldDirection(this.directionScratch);return this.destination.copy(this.camera.position).addScaledVector(d,50);
+  }
+  inSpawnView(x: number, z: number): boolean { const p = this.projectionScratch.set(x, 1.5, z).project(this.camera); return p.z>-1&&p.z<1&&Math.abs(p.x)<1.18&&Math.abs(p.y)<1.18; }
+  project(x: number, z: number, y=1.1): { x: number; y: number } { const p = this.projectionScratch.set(x, y, z).project(this.camera); return { x: (p.x + 1) / 2 * innerWidth, y: (1 - p.y) / 2 * innerHeight }; }
   private burst(x: number, y: number, z: number, color: number, count: number): void {
     let paint = this.particlePaint.get(color); if (!paint) { paint = new THREE.MeshBasicMaterial({ color }); this.particlePaint.set(color, paint); }
     for (let i = 0; i < count; i++) {
@@ -218,25 +228,27 @@ export class GameScene {
     this.sky.copy(this.dayColor).lerp(this.nightColor, night); (this.scene.background as THREE.Color).copy(this.sky);
     const fog = this.scene.fog as THREE.FogExp2; fog.color.copy(this.sky); fog.density = THREE.MathUtils.lerp(VISUAL.fog.density,VISUAL.fog.nightDensity,night);
     this.atmosphere.update(this.camera,night,this.sunDirection,elapsed);
-    this.sun.intensity = THREE.MathUtils.lerp(VISUAL.sun.day,VISUAL.sun.night,night); this.sun.color.setHex(VISUAL.sun.color).lerp(new THREE.Color(VISUAL.sun.moon),night);
+    this.sun.intensity = THREE.MathUtils.lerp(VISUAL.sun.day,VISUAL.sun.night,night); this.sun.color.setHex(VISUAL.sun.color).lerp(this.moonColor,night);
     const sunset = sim.phase === 'night' || sim.phase === 'dawn' ? 0 : Math.sin(sim.cycle.darkness * Math.PI);
-    this.sun.color.lerp(new THREE.Color(0xf2aa7a), sunset * .3);
+    this.sun.color.lerp(this.sunsetColor, sunset * .3);
     this.sun.position.y = VISUAL.sun.offset[1];
     const inside=CITY_SITES.some(s=>s.kind!=='cemetery'&&Math.abs(sim.player.x-s.x)<s.w/2-.25&&Math.abs(sim.player.z-s.z)<s.d/2-.25)||BUILDINGS.some(b=>hasInterior(b)&&Math.abs(sim.player.x-b.x)<b.w/2&&Math.abs(sim.player.z-b.z)<b.d/2);
     this.interior+=(Number(inside)-this.interior)*(1-Math.exp(-Math.max(dt,.001)*2.5));
-    this.ambient.intensity=THREE.MathUtils.lerp(VISUAL.ambient.day,VISUAL.ambient.night,night)*(1-this.interior*.42);this.ambient.color.setHex(VISUAL.ambient.sky).lerp(new THREE.Color(0x7894b4),night);this.ambient.groundColor.setHex(VISUAL.ambient.ground);
+    this.ambient.intensity=THREE.MathUtils.lerp(VISUAL.ambient.day,VISUAL.ambient.night,night)*(1-this.interior*.42);this.ambient.color.setHex(VISUAL.ambient.sky).lerp(this.nightAmbient,night);this.ambient.groundColor.setHex(VISUAL.ambient.ground);
     this.renderer.toneMappingExposure=VISUAL.exposure+this.interior*.10;
     this.town.lamps.emissiveIntensity = .1 + night * 3;
     this.town.emergency.emissiveIntensity = night * (1.7 + Math.sin(elapsed * 1.5) * .15);
-    const lightPoints=[{x:-5.4,z:6},{x:9.6,z:8},{x:-15.9,z:-12},...REGIONS.slice(2).map(r=>({x:r.x-8.8,z:r.z}))].sort((a,b)=>Math.hypot(a.x-this.focus.x,a.z-this.focus.z)-Math.hypot(b.x-this.focus.x,b.z-this.focus.z));
+    const lightPoints=this.lightPoints;
+    for(const point of lightPoints)point.distance=(point.x-this.focus.x)**2+(point.z-this.focus.z)**2;
+    lightPoints.sort((a,b)=>a.distance-b.distance||a.index-b.index);
     this.town.lights.forEach((l,i)=>l.position.set(lightPoints[i].x,4.4,lightPoints[i].z));
     this.town.lights.forEach(l => { l.intensity = night * 25 * (l===this.town.lights[2] ? .85+.15*Math.sin(elapsed*.7):1); }); this.flashLight.intensity = Math.max(0, this.flashLight.intensity - dt * 60);
-    this.torch.intensity=this.flashlightOn&&!menu?48:0;this.torch.position.copy(this.camera.position);this.torch.target.position.copy(this.camera.position).addScaledVector(new THREE.Vector3(direction.x,direction.y,direction.z),12);
+    this.torch.intensity=this.flashlightOn&&!menu?48:0;this.torch.position.copy(this.camera.position);this.torch.target.position.copy(this.camera.position).addScaledVector(this.directionScratch.set(direction.x,direction.y,direction.z),12);
     // Snap the shadow center in light space, keeping the orthographic projection stable while walking.
-    this.shadowCenter.copy(this.focus).add(new THREE.Vector3(direction.x*12,0,direction.z*12));
+    this.shadowCenter.copy(this.focus).add(this.directionScratch.set(direction.x*12,0,direction.z*12));
     const texel=VISUAL.shadow.span*2/this.sun.shadow.mapSize.x;
     for(const axis of [this.shadowRight,this.shadowUp]){const p=this.shadowCenter.dot(axis);this.shadowCenter.addScaledVector(axis,Math.round(p/texel)*texel-p);}
-    this.sun.target.position.copy(this.shadowCenter);this.sun.position.copy(this.shadowCenter).add(new THREE.Vector3(...VISUAL.sun.offset));
+    this.sun.target.position.copy(this.shadowCenter);this.sun.position.copy(this.shadowCenter).add(this.sunOffset);
     this.town.chunks.forEach(g=>{g.visible=Math.hypot(g.position.x-this.focus.x,g.position.z-this.focus.z)<FPS.chunkDistance;});
     for (const b of this.town.buildings) {
       b.group.visible=Math.hypot(b.data.x-this.focus.x,b.data.z-this.focus.z)<FPS.chunkDistance;
