@@ -1,0 +1,8 @@
+{
+  "samples": 301,
+  "stalls": 0,
+  "stallRatio": 0,
+  "meanFrameMs": 16.634883720930226,
+  "maxStep": 0.01037999999923045,
+  "errors": []
+}

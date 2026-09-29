@@ -131,18 +131,19 @@ export class Character {
     this.weapon?.removeFromParent();this.weapon=visual.root;this.magazine=visual.magazine;this.weapon.position.set(0,-.15,WEAPONS[id].slot===0?.38:.66);this.rightArm.add(this.weapon);
     if(this.muzzle){this.weapon.add(this.muzzle);this.muzzle.position.copy(visual.muzzle);this.muzzle.scale.set(.7,.7,1.7).multiplyScalar(WEAPONS[id].flash);}
   }
-  setKind(kind:EnemyKind):void {
-    if(!this.zombie||this.kind===kind)return;this.kind=kind;this.root.name=`voxel-${kind}`;
+  setKind(kind:EnemyKind,variant=this.variant):void {
+    variant=((variant%3)+3)%3;
+    if(!this.zombie||(this.kind===kind&&this.variant===variant))return;this.kind=kind;this.variant=variant;this.root.name=`voxel-${kind}`;
     for(const [part,parent] of [['torso',this.body],['head',this.head],['left-leg',this.leftLeg],['right-leg',this.rightLeg],['left-arm',this.leftArm],['right-arm',this.rightArm]] as const){const mesh=parent.children.find(o=>o instanceof THREE.Mesh&&o.userData.voxelAsset) as THREE.Mesh;mesh.geometry=voxelGeometry(characterPart(part,true,this.variant,kind));}
     const d=ENEMIES[kind];this.head.position.set(-.07,d.headY-.37,d.headZ);
     this.leftLeg.position.set(-.23*d.scaleX,.8*d.scaleY,0);this.rightLeg.position.set(.23*d.scaleX,.8*d.scaleY,0);
     this.leftArm.position.set(-.45*d.scaleX,1.37*d.scaleY,0);this.rightArm.position.set(.45*d.scaleX,1.32*d.scaleY,0);
   }
-  wounds(z:Walker):void {
-    const reaction=z.reaction/BALANCE.combat.stagger;
+  wounds(z:Walker,presentationReaction=z.reaction):void {
+    const reaction=presentationReaction/BALANCE.combat.stagger;
     this.body.rotation.z+=reaction*z.side*(z.zone==='ARMS'?.25:.12);
     this.body.rotation.x-=reaction*(z.zone==='TORSO'?.22:.08);
-    if(z.zone==='LEGS'){this.body.position.y=-Math.min(.3,reaction*.16);(z.side<0?this.leftLeg:this.rightLeg).rotation.x+=reaction*.45;}else this.body.position.y=0;
+    if(z.zone==='LEGS'){this.body.position.y-=Math.min(.3,reaction*.16);(z.side<0?this.leftLeg:this.rightLeg).rotation.x+=reaction*.45;}
     if(z.zone==='HEAD') this.head.rotation.x-=reaction*.55;
     if(z.zone==='ARMS') (z.side<0?this.leftArm:this.rightArm).rotation.z+=reaction*z.side*.65;
     if(z.slow>0) this.leftLeg.rotation.x+=.25;
@@ -152,6 +153,46 @@ export class Character {
       if(m.parent!==part)part.add(m);
       woundPosition(m.position,this.kind,w,i);m.scale.set(.15,.12,.07);
     });
+  }
+  private animatedId=-1;private walkBlend=0;private hitTime=0;private previousHP=0;private previousAttack=0;
+  private attackBlend=0;private screamBlend=0;private spitBlend=0;private windupBlend=0;
+  private lastX=0;private lastZ=0;
+  /** Local presentation only; interpolation provides position/gait and the host still owns combat. */
+  animateInfected(z:Walker,dt:number,time:number,near:boolean):void {
+    const fresh=this.animatedId!==z.id;
+    if(fresh){this.animatedId=z.id;this.walkBlend=0;this.hitTime=0;this.previousHP=z.hp;this.previousAttack=z.attack;this.lastX=z.x;this.lastZ=z.z;this.attackBlend=this.screamBlend=this.spitBlend=this.windupBlend=0;}
+    const step=Math.min(.1,Math.max(0,dt)),ease=1-Math.exp(-step*12);
+    const speed=step>0?Math.hypot(z.x-this.lastX,z.z-this.lastZ)/step:0;
+    this.lastX=z.x;this.lastZ=z.z;
+    this.walkBlend+=(Number(speed>.07&&!fresh)-this.walkBlend)*ease;
+    if(z.hp<this.previousHP)this.hitTime=Math.min(.45,Math.max(z.reaction,.22));
+    this.previousHP=z.hp;this.hitTime=Math.max(0,this.hitTime-step);
+    this.animate(z.gait,true,false,0,z.flash);
+    this.leftLeg.rotation.x*=this.walkBlend;this.rightLeg.rotation.x*=this.walkBlend;
+    const breath=time*(this.kind==='runner'?2.2:1.65)+z.id*1.71;
+    this.body.position.y=Math.abs(Math.sin(z.gait))*.045*this.walkBlend+Math.sin(breath)*.008;
+    this.body.rotation.z*=.35+.65*this.walkBlend;
+    this.body.rotation.x+=Math.sin(breath)*.016;
+    this.head.rotation.y=-.09+Math.sin(breath*.47)*.065;
+    this.head.rotation.z=Math.sin(breath*.61)*.035+(z.id%2?-.08:.08);
+    this.head.rotation.x+=Math.sin(breath+.8)*.027-Math.sin(z.gait)*this.walkBlend*.025;
+    this.leftArm.rotation.x*=.3+.7*this.walkBlend;this.rightArm.rotation.x*=.3+.7*this.walkBlend;
+    this.leftArm.rotation.x+=Math.sin(breath+.8)*.035;this.rightArm.rotation.x+=Math.sin(breath*.9+2)*.04;
+    this.leftArm.rotation.y=Math.sin(breath*.7)*.025;this.rightArm.rotation.y=-Math.sin(breath*.7+.5)*.025;
+    // Blend attack anticipation/recovery instead of snapping entire limbs into a fixed pose.
+    const attacking=z.attack>.4&&(near||this.previousAttack<z.attack);
+    this.previousAttack=z.attack;
+    this.attackBlend+=(Number(attacking)-this.attackBlend)*(1-Math.exp(-step*(attacking?18:7)));
+    this.screamBlend+=(Number(!!z.screamTimer)-this.screamBlend)*ease;
+    this.spitBlend+=(Number(!!z.spitTarget)-this.spitBlend)*ease;
+    this.windupBlend+=(Number(z.winding)-this.windupBlend)*ease;
+    this.leftArm.rotation.x+=(-1.25-this.leftArm.rotation.x)*this.attackBlend;
+    this.rightArm.rotation.x+=(-1.4-this.rightArm.rotation.x)*this.attackBlend;
+    this.body.rotation.x+=(.25-this.body.rotation.x)*this.attackBlend;
+    this.arms.rotation.x-=this.windupBlend*.7+this.spitBlend*.4+this.screamBlend*1.8;
+    this.body.rotation.x-=this.windupBlend*.18+this.spitBlend*.28+this.screamBlend*.36;
+    this.head.rotation.x-=this.spitBlend*.2+this.screamBlend*.5;
+    this.wounds(z,this.hitTime);
   }
   reloadPose(timer:number,duration=BALANCE.pistol.reload,switchTimer=0):void {
     if(!this.magazine)return;

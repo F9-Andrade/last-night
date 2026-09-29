@@ -1,0 +1,9 @@
+{
+  "bodies": 80,
+  "initialMs": 3.8000000002793968,
+  "settleMs": 3,
+  "activeP95Ms": 0.8999999999068677,
+  "peakMs": 3.8000000002793968,
+  "sleepingMeanMs": 0.055833333334885535,
+  "slotsReused": true
+}

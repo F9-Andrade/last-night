@@ -1,0 +1,66 @@
+{
+  "before": {
+    "models": [
+      {
+        "kind": "walker",
+        "triangles": 878,
+        "meshes": 7
+      },
+      {
+        "kind": "runner",
+        "triangles": 804,
+        "meshes": 7
+      },
+      {
+        "kind": "tank",
+        "triangles": 1040,
+        "meshes": 7
+      },
+      {
+        "kind": "spitter",
+        "triangles": 900,
+        "meshes": 7
+      },
+      {
+        "kind": "screamer",
+        "triangles": 572,
+        "meshes": 7
+      }
+    ],
+    "calls": 36,
+    "triangles": 4196,
+    "gpu": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)"
+  },
+  "after": {
+    "models": [
+      {
+        "kind": "walker",
+        "triangles": 1806,
+        "meshes": 7
+      },
+      {
+        "kind": "runner",
+        "triangles": 1596,
+        "meshes": 7
+      },
+      {
+        "kind": "tank",
+        "triangles": 1916,
+        "meshes": 7
+      },
+      {
+        "kind": "spitter",
+        "triangles": 1666,
+        "meshes": 7
+      },
+      {
+        "kind": "screamer",
+        "triangles": 1200,
+        "meshes": 7
+      }
+    ],
+    "calls": 36,
+    "triangles": 8186,
+    "gpu": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)"
+  }
+}

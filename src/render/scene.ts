@@ -22,7 +22,8 @@ import { bodyHit } from '../game/combat';
 import { CorpseView } from './corpses';
 import * as THREE from 'three';
 import { Character } from './models';
-import { voxelStats } from './voxel';
+import {characterPart} from './character-assets';
+import { voxelStats,voxelGeometry } from './voxel';
 import { SurvivalView } from './survival-view';
 import { BALANCE } from '../game/config';
 import { createTown } from './town';
@@ -32,7 +33,7 @@ import type { Simulation, GameEvent } from '../game/simulation';
 interface Particle { mesh: THREE.Mesh; velocity: THREE.Vector3; life: number; maxLife: number }
 export class GameScene {
   shake=true; fov=FPS.fov; headBob=.5; look?:MouseLook; readonly viewmodel=new Viewmodel(); aimTarget=false; flashlightOn=false; private torch=new THREE.SpotLight(0xe2d5b1,0,24,.52,.8,1.5);
-  private corpses: CorpseView; private kick=0;
+  private corpses: CorpseView; private kick=0;private infectedPrepared=false;
   scene = new THREE.Scene(); camera = new THREE.PerspectiveCamera(FPS.fov,innerWidth/innerHeight,.035,FPS.viewDistance);
   renderer: THREE.WebGLRenderer;
   private post:PostProcessing;private atmosphere:CinematicSky;private dressing:EnvironmentalDressing;private impactDecals:ImpactDecals;
@@ -92,7 +93,7 @@ export class GameScene {
     this.post=new PostProcessing(this.renderer,this.scene,this.camera,this.viewmodel);
     this.renderer.info.autoReset=false;this.resize();
   }
-  reset(): void {this.impactDecals.reset();this.viewmodel.reset();this.casings.forEach(c=>{c.life=0;c.mesh.visible=false;}); this.particles.forEach(p => { p.life = 0; p.mesh.visible = false; }); this.tracers.forEach(t => { t.life = 0; t.mesh.visible = false; }); this.flashLight.intensity = 0;this.flashlightOn=false; }
+  reset(): void {this.corpses.reset();this.impactDecals.reset();this.viewmodel.reset();this.casings.forEach(c=>{c.life=0;c.mesh.visible=false;}); this.particles.forEach(p => { p.life = 0; p.mesh.visible = false; }); this.tracers.forEach(t => { t.life = 0; t.mesh.visible = false; }); this.flashLight.intensity = 0;this.flashlightOn=false; }
   /** Prepare the actual HDR pipeline and FPS rig before the first playable frame.
    * Rendering the menu alone never visits the gun or all materials seen at spawn. */
   async prepare(sim:Simulation,progress:(message:string,value:number)=>void=()=>{}):Promise<void> {
@@ -100,6 +101,16 @@ export class GameScene {
     const yaw=this.look?.yaw,pitch=this.look?.pitch,flashlight=this.flashlightOn,interior=this.interior;
     composer.renderToScreen=false;
     try {
+      if(!this.infectedPrepared){
+        progress('Preparando os infectados…',10);
+        // Build the small-voxel variants under the loader, not on the first encounter.
+        for(const kind of ['walker','runner','tank','spitter','screamer'] as const){
+          for(let variant=0;variant<3;variant++)for(const part of ['torso','head','left-arm','right-arm','left-leg','right-leg'] as const)voxelGeometry(characterPart(part,true,variant,kind));
+          this.corpses.prepareKind(kind);
+          await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));
+        }
+        this.infectedPrepared=true;
+      }
       progress('Preparando a iluminação de Santa Luz…',20);
       this.render(sim,0,0,false,false);
       // Match the render target used during gameplay: compiling against the canvas
@@ -217,7 +228,7 @@ export class GameScene {
     this.ring.position.set(sim.player.x, .24, sim.player.z);this.dust.position.set(sim.player.x,0,sim.player.z);
     for (let i = 0; i < this.walkers.length; i++) {
       const c = this.walkers[i], z = sim.zombies[i]; c.root.visible = !!z?.active;
-      if (z?.active) { c.setKind(z.kind);c.root.position.set(z.x, .1, z.z); c.root.rotation.y = z.angle; c.animate(z.gait, z.path.length > 0, false, z.attack > .8 ? .4 : 0, z.flash); c.wounds(z);if(z.attack>.4&&Math.hypot(z.x-sim.player.x,z.z-sim.player.z)<2){c.leftArm.rotation.x=-1.25;c.rightArm.rotation.x=-1.4;c.body.rotation.x=.25;}if(z.screamTimer){c.body.rotation.x=-.22;c.head.rotation.x=-.6;c.arms.rotation.x=-1.8;}else if(z.spitTarget){c.body.rotation.x=-.16;c.head.rotation.x=-.35;c.arms.rotation.x=-.4;}else if(z.winding){c.arms.rotation.x=-.7;c.body.rotation.x=-.12;} }
+      if (z?.active) {c.setKind(z.kind,z.id%3);c.root.position.set(z.x,.1,z.z);c.root.rotation.y=z.angle;c.animateInfected(z,dt,elapsed,Math.hypot(z.x-sim.player.x,z.z-sim.player.z)<2);}
     }
     this.survival.update(sim, dt, elapsed, menu);this.expedition.update(sim,elapsed);
     if (sim.action) { this.survivor.arms.rotation.x = -.35 + Math.sin(elapsed * 8) * .08; this.survivor.body.rotation.x = .08; }

@@ -64,3 +64,38 @@ test('articulated characters reuse part geometry and use a bounded mesh count', 
   assert.equal(ga.length, 7); assert.deepEqual(ga, gb);
   a.animate(1.4, true, false, 0); assert.notEqual(a.leftLeg.rotation.x, a.rightLeg.rotation.x);
 });
+
+test('detailed infected keep bounded shared meshes, deterministic variants and original rig anchors',()=>{
+ const kinds=['walker','runner','tank','spitter','screamer'] as const;
+ for(const kind of kinds)for(let variant=0;variant<3;variant++){
+  const a=new Character(true,variant),b=new Character(true,variant+3);a.setKind(kind);b.setKind(kind);
+  const meshes:THREE.Mesh[]=[],duplicates:THREE.Mesh[]=[];
+  a.root.traverse(o=>{if(o instanceof THREE.Mesh)meshes.push(o);});b.root.traverse(o=>{if(o instanceof THREE.Mesh)duplicates.push(o);});
+  assert.equal(meshes.length,7);assert.deepEqual(meshes.map(m=>m.geometry),duplicates.map(m=>m.geometry));
+  assert.ok(meshes.reduce((n,m)=>n+m.geometry.index!.count/3,0)<2500,`${kind} geometry budget`);
+  for(const part of ['head','torso','left-arm','right-arm','left-leg','right-leg'] as const){
+   const recipe=characterPart(part,true,variant,kind),geometry=voxelGeometry(recipe),grid=new VoxelGrid(recipe.unit);recipe.build(grid);
+   const rebuilt=meshVoxels(grid);assert.deepEqual(geometry.attributes.position.array,rebuilt.attributes.position.array);rebuilt.dispose();
+   assert.equal(recipe.unit,.04);assert.ok(geometry.boundingSphere!.radius<1.4);
+  }
+  assert.deepEqual(a.head.position.toArray(),b.head.position.toArray());a.dispose();b.dispose();
+ }
+ assert.equal(characterPart('head',false).unit,.08);assert.equal(characterPart('head',false).id,'survivor:head:v11');
+});
+
+import {Ragdoll} from '../src/render/ragdoll.ts';
+test('ragdoll gravity and constrained joints settle deterministically at 30/60/144 Hz without drifting forever',()=>{
+ const positions=[[0,.84,0],[0,1.43,0],[0,1.83,.18],[-.45,1.37,0],[.45,1.32,0],[-.45,1.1,.6],[.45,1.1,.6],[-.23,.14,.13],[.23,.14,.13]];
+ const points=positions.map(p=>({position:new THREE.Vector3(...p),radius:.13,mass:1}));
+ const links:[number,number][]=[[0,1],[1,2],[0,2],[0,3],[1,3],[0,4],[1,4],[3,4],[3,5],[4,6],[0,7],[0,8],[7,8]];
+ const runs=[30,60,144].map(fps=>{const r=new Ragdoll(points,links,new THREE.Vector3(.3,.04,.6),11);for(let time=0;time<3;time+=1/fps)r.advance(time);return r;});
+ for(const r of runs){assert.ok(r.settled);assert.deepEqual(r.positions,runs[0].positions);assert.ok(r.positions[1].y<.65);for(const p of r.positions){assert.ok(p.y>=.13);assert.ok(p.length()<3);}for(const [a,b]of links)assert.ok(Math.abs(r.positions[a].distanceTo(r.positions[b])-points[a].position.distanceTo(points[b].position))<.035);const end=r.positions.map(p=>p.clone());r.advance(500);assert.deepEqual(r.positions,end);}
+});
+
+test('infected idle, walk transitions and hit reactions animate without mutating gameplay',async()=>{
+ const {Simulation}=await import('../src/game/simulation.ts');const sim=new Simulation(),z=sim.zombies[0],c=new Character(true,0);
+ c.animateInfected(z,1/60,0,false);const initial=c.head.rotation.toArray();for(let i=1;i<60;i++)c.animateInfected(z,1/60,i/60,false);assert.notDeepEqual(c.head.rotation.toArray(),initial);
+ const still=c.leftLeg.rotation.x;for(let i=0;i<30;i++){z.x+=.025;z.gait+=.06;c.animateInfected(z,1/60,1+i/60,false);}assert.ok(Math.abs(c.leftLeg.rotation.x-still)>.01);
+ z.hp-=10;z.reaction=.28;z.zone='HEAD';const snapshot=structuredClone(z);c.animateInfected(z,1/60,2,false);const hit=c.head.rotation.x;
+ for(let i=0;i<60;i++)c.animateInfected(z,1/60,2+i/60,false);assert.ok(c.head.rotation.x>hit+.1);assert.deepEqual(z,snapshot);c.dispose();
+});

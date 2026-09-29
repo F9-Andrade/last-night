@@ -1,11 +1,23 @@
 import { VoxelGrid, hash } from './voxel.ts';
 import type { VoxelRecipe } from './voxel.ts';
+import {detailInfected} from './infected-details.ts';
 import type { EnemyKind } from '../game/enemies.ts';
 
 export type CharacterPart = 'torso' | 'head' | 'left-leg' | 'right-leg' | 'left-arm' | 'right-arm';
 const SKIN = 0xc9a681, HAIR = 0x3b3c33, BOOT = 0x333b37, PANTS = 0x455654, GOLD = 0xbd9352;
 
-export function characterPart(part: CharacterPart, walker: boolean, variant = 0,kind:EnemyKind='walker'): VoxelRecipe {
+/** Shared by living solo/coop infected and pooled corpses; survivor assets stay unchanged. */
+export function characterPart(part:CharacterPart,walker:boolean,variant=0,kind:EnemyKind='walker'):VoxelRecipe {
+  if(!walker)return baseCharacterPart(part,false,variant,kind);
+  const appearance=((variant%3)+3)%3;
+  return {id:`${kind}-${appearance}:${part}:v12`,unit:.04,build(g){
+    const base=new VoxelGrid(.08);baseCharacterPart(part,true,appearance,kind).build(base);
+    for(const [key,color] of base.cells){const [x,y,z]=VoxelGrid.coordinates(key);g.fill(x*2,y*2,z*2,2,2,2,color);}
+    detailInfected(g,part,kind,appearance);
+  }};
+}
+
+function baseCharacterPart(part: CharacterPart, walker: boolean, variant = 0,kind:EnemyKind='walker'): VoxelRecipe {
   return { id: `${walker ? `${kind}-${variant % 3}` : 'survivor'}:${part}:v11`, unit: .08, build(g) {
     if(walker&&kind!=='walker'){specialPart(g,part,kind,variant);infectedPatina(g,part,variant);return;}
     const skin = walker ? [0x96977d, 0xa59b81, 0x899480][variant % 3] : SKIN;

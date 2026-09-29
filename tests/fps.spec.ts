@@ -25,7 +25,8 @@ test('every FPS weapon: aimed pickup, hip fire, ADS, reload, empty, sprint and h
  test.setTimeout(240000);await start(page);const evidence:any[]=[];
  for(const type of ['pistol','revolver','smg','shotgun','rifle','marksman']){
   await page.evaluate(type=>{const g=(window as any).__LAST_NIGHT__;g.clearWalkers();g.setHealth(100);g.setPhase('dusk');g.setPlayer(88,-30);g.setLook(Math.PI,-.68);g.setInventory({ammo:100,shells:50,rifleAmmo:100});g.dropWeapon(type,88,-32);},type);
-  await expect(page.locator('#weapon-compare')).toBeVisible();await page.keyboard.press('e');await page.waitForFunction(type=>{const s=(window as any).__LAST_NIGHT__.state();return s.weapon.type===type&&s.switchTimer===0;},type);
+  const previousUid=(await state(page)).weapon.uid;
+  await expect(page.locator('#weapon-compare')).toBeVisible();await page.keyboard.press('e');await page.waitForFunction(({type,previousUid})=>{const s=(window as any).__LAST_NIGHT__.state();return s.weapon.uid!==previousUid&&s.weapon.type===type&&s.switchTimer===0;},{type,previousUid});
   await page.evaluate(()=>(window as any).__LAST_NIGHT__.setLook(Math.PI,0));const before=(await state(page)).ammo;
   await button(page,true);await page.waitForFunction(n=>(window as any).__LAST_NIGHT__.state().ammo<n,before);await button(page,false);await page.keyboard.press('r');await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().reloadTimer>0);await page.screenshot({animations:'disabled',path:`${evidenceDir}/${type}-reload.png`});await page.waitForFunction(n=>(window as any).__LAST_NIGHT__.state().ammo===n,before);
   await button(page,true,2);await page.waitForFunction(()=>(window as any).__LAST_NIGHT__.state().camera.fov<72);await page.screenshot({animations:'disabled',path:`${evidenceDir}/${type}-ads.png`});
