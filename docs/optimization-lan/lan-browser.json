@@ -1,0 +1,11 @@
+{
+  "errors": [],
+  "sockets": [
+    "ws://192.168.1.64:8787/lan",
+    "ws://192.168.1.64:8787/lan"
+  ],
+  "players": 2,
+  "hostMigration": true,
+  "production": true,
+  "secureContext": false
+}

@@ -1,5 +1,10 @@
 import { BALANCE } from './config.ts';
 export const ITEMS = {
+  chest: { label: 'Baú', weight: 2, step: 1, hint: '27 espaços. Posicione no chão e abra com o botão direito para guardar itens.' },
+  hide: { label: 'Pele recuperada', weight: .3, step: 1, hint: 'Couro bruto dos infectados. Trate na mesa para fabricar proteção.' },
+  cloth: { label: 'Tecido', weight: .1, step: 1, hint: 'Retalhos aproveitáveis para bandagens, cordas e equipamento.' },
+  cord: { label: 'Corda', weight: .2, step: 1, hint: 'Fibra trançada. Usada em ferramentas e construções.' },
+  bench: { label: 'Mesa inteligente', weight: 3, step: 1, hint: 'Kit dobrável. Na aba Craft, posicione no chão para liberar receitas avançadas.' },
   ammo: { label: 'Munição leve', unit: 'cartuchos', weight: .025, step: 12, hint: 'Pistola, revólver e submetralhadora. R para recarregar.' },
   shells: { label: 'Cartuchos', unit: 'cartuchos', weight: .08, step: 6, hint: 'Reserva da escopeta. Recarga de um cartucho por vez.' },
   rifleAmmo: { label: 'Munição de rifle', unit: 'cartuchos', weight: .045, step: 12, hint: 'Rifle de assalto e de precisão.' },
@@ -11,7 +16,7 @@ export const ITEMS = {
 export type Item = keyof typeof ITEMS;
 export type Stock = Record<Item, number>;
 export const itemKeys = Object.keys(ITEMS) as Item[];
-export const emptyStock = (): Stock => ({ ammo: 0, shells: 0, rifleAmmo: 0, med: 0, wood: 0, scrap: 0, rare: 0 });
+export const emptyStock = (): Stock => ({ ammo: 0, shells: 0, rifleAmmo: 0, med: 0, wood: 0, scrap: 0, hide: 0, cloth: 0, cord: 0, bench: 0, chest: 0, rare: 0 });
 export class Inventory {
   items: Stock = emptyStock(); capacity: number;
   constructor(capacity = BALANCE.inventory.capacity) { this.capacity = capacity; }

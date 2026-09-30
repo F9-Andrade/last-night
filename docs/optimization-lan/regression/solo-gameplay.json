@@ -1,0 +1,89 @@
+{
+  "quality": "high",
+  "viewport": {
+    "width": 1600,
+    "height": 900
+  },
+  "interiorDay": {
+    "meshes": 7709,
+    "materials": 705,
+    "geometries": 556,
+    "textures": 72,
+    "geometryMB": 152.7,
+    "cacheMB": 13.2,
+    "heapMB": 272.8,
+    "voxelAssets": 332,
+    "visual": {
+      "ao": "GTAO",
+      "aoResolutionScale": 0.5,
+      "bloom": true,
+      "toneMapping": "AgX",
+      "exposure": 1.0375071660745203,
+      "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+    },
+    "surfaces": {
+      "materialFamilies": 4,
+      "textureCount": 9,
+      "textureBytesWithMipmaps": 5592405,
+      "resolution": 256,
+      "atlas": "1024×512",
+      "staticBatchMaterialCount": 1
+    },
+    "dressing": {
+      "chunks": 944,
+      "activeChunks": 14,
+      "pieces": 39858,
+      "activePieces": 787,
+      "vegetation": 7284
+    },
+    "decals": {
+      "limit": 96,
+      "active": 0
+    },
+    "activeChunks": 73
+  },
+  "headshotsBefore": 0,
+  "headshotsAfter": 1,
+  "ammoAfterReload": 12,
+  "healthAfterBandage": 65,
+  "pointerLocked": true,
+  "render": {
+    "meshes": 7716,
+    "materials": 708,
+    "geometries": 574,
+    "textures": 73,
+    "geometryMB": 153.4,
+    "cacheMB": 13.2,
+    "heapMB": 272.8,
+    "voxelAssets": 332,
+    "visual": {
+      "ao": "GTAO",
+      "aoResolutionScale": 0.5,
+      "bloom": true,
+      "toneMapping": "AgX",
+      "exposure": 0.9400000070999961,
+      "post": "world → GTAO → FPS rig → restrained bloom → AgX/output → grade/vignette → FXAA"
+    },
+    "surfaces": {
+      "materialFamilies": 4,
+      "textureCount": 9,
+      "textureBytesWithMipmaps": 5592405,
+      "resolution": 256,
+      "atlas": "1024×512",
+      "staticBatchMaterialCount": 1
+    },
+    "dressing": {
+      "chunks": 944,
+      "activeChunks": 14,
+      "pieces": 39858,
+      "activePieces": 916,
+      "vegetation": 7284
+    },
+    "decals": {
+      "limit": 96,
+      "active": 2
+    },
+    "activeChunks": 89
+  },
+  "errors": []
+}

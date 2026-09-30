@@ -1,0 +1,84 @@
+{
+  "before": {
+    "totalSamples": 10501,
+    "idleSamples": 352,
+    "idlePercent": 3.4,
+    "matrixSamples": 4376,
+    "traverseSamples": 1679,
+    "top": [
+      [
+        "updateMatrixWorld",
+        3476
+      ],
+      [
+        "traverse",
+        1679
+      ],
+      [
+        "(program)",
+        1583
+      ],
+      [
+        "multiplyMatrices",
+        900
+      ],
+      [
+        "(idle)",
+        352
+      ],
+      [
+        "",
+        343
+      ],
+      [
+        "update",
+        208
+      ],
+      [
+        "renderObject",
+        156
+      ]
+    ]
+  },
+  "after": {
+    "totalSamples": 9984,
+    "idleSamples": 4872,
+    "idlePercent": 48.8,
+    "matrixSamples": 281,
+    "traverseSamples": 23,
+    "top": [
+      [
+        "(idle)",
+        4872
+      ],
+      [
+        "(program)",
+        1664
+      ],
+      [
+        "projectObject",
+        303
+      ],
+      [
+        "",
+        301
+      ],
+      [
+        "renderObject",
+        284
+      ],
+      [
+        "update",
+        243
+      ],
+      [
+        "intersectsObject",
+        236
+      ],
+      [
+        "updateMatrixWorld",
+        224
+      ]
+    ]
+  }
+}

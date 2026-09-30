@@ -11,9 +11,23 @@ export function characterPart(part:CharacterPart,walker:boolean,variant=0,kind:E
   if(!walker)return baseCharacterPart(part,false,variant,kind);
   const appearance=((variant%3)+3)%3;
   return {id:`${kind}-${appearance}:${part}:v12`,unit:.04,build(g){
-    const base=new VoxelGrid(.08);baseCharacterPart(part,true,appearance,kind).build(base);
+    const base=new VoxelGrid(.08);baseCharacterPart(part,true,appearance,kind==='armored'?'walker':kind==='stalker'?'runner':kind==='bloater'?'spitter':kind).build(base);
     for(const [key,color] of base.cells){const [x,y,z]=VoxelGrid.coordinates(key);g.fill(x*2,y*2,z*2,2,2,2,color);}
-    detailInfected(g,part,kind,appearance);
+    detailInfected(g,part,kind==='armored'?'walker':kind==='stalker'?'runner':kind==='bloater'?'spitter':kind,appearance);
+    if(kind==='armored'){
+      if(part==='torso'){g.fill(-9,23,-7,18,12,2,0x35474b).fill(-8,23,7,16,12,3,0x465452);for(const x of [-6,1])g.fill(x,25,10,5,6,2,0x67756a);g.fill(-7,34,9,14,2,1,0xa5a48a);}
+      if(part==='head')g.fill(-8,8,-8,16,3,16,0x465854).fill(-9,7,-9,18,1,18,0x626f62);
+      if(part.includes('arm'))g.fill(-4,-1,-4,8,4,8,0x4b5852);
+    }
+    if(kind==='stalker'){
+      if(part==='torso')g.fill(-6,24,7,12,9,2,0x343c36).fill(-1,24,9,2,10,1,0x8f8064);
+      if(part==='head'){g.fill(-8,7,-7,16,3,14,0x424b3b).fill(-7,0,-8,14,10,2,0x343e35);g.fill(-5,3,7,3,1,1,0xd1b483).fill(2,3,7,3,1,1,0xd1b483);}
+      if(part.includes('arm'))for(const x of [-3,0,3])g.fill(x,-23,2,1,5,1,0xc2b9a0);
+    }
+    if(kind==='bloater'){
+      if(part==='torso'){g.fill(-10,19,4,20,14,7,0x7b8760);for(const x of [-8,0,5]){g.fill(x,25,11,3,4,2,0xaeb369);g.fill(x,23,12,2,2,1,0x6e6540);}g.fill(-9,17,5,18,2,7,0x6d5140);}
+      if(part==='head')g.fill(-4,-2,7,8,4,3,0x666641).fill(-3,-2,10,6,2,1,0xafaa61);
+    }
   }};
 }
 

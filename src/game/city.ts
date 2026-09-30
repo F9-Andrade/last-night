@@ -1,5 +1,6 @@
+import {EXPANDED_LIMIT,EXPANSION_DISTRICTS,EXPANSION_ROADS} from './expansion.ts';
 /** Authored outer Santa Luz. Data shared by collision, encounters, loot and voxel chunks. */
-export const CITY_LIMIT=156;
+export const CITY_LIMIT=EXPANDED_LIMIT;
 export type SiteKind='hospital'|'school'|'motel'|'market'|'industry'|'fire'|'cemetery'|'quarantine'|'gas'|'police'|'house'|'church'|'terminal';
 export interface Footprint {x:number;z:number;w:number;d:number;h?:number}
 export interface CityProp extends Footprint {kind:'bed'|'desk'|'shelf'|'bench'|'grave'|'crate'|'kitchen'|'locker'|'machine'|'sofa'}
@@ -46,6 +47,14 @@ export const CITY_SITES:CitySite[]=[
  site('church','IGREJA SÃO MIGUEL','church',-25,116,15,21,2,'Velas apagadas, colchões e uma rota de evacuação desenhada no mural.'),
  site('terminal','TERMINAL SANTA LUZ','terminal',62,103,23,13,3,'Partidas canceladas. Um rádio ainda escuta a frequência do Setor Zero.'),
 ];
+// Each outer district has three enterable destinations with distinct uses and routes.
+for(const region of EXPANSION_DISTRICTS){
+ const kinds:SiteKind[]=['police','motel','industry','hospital','market','quarantine','school','cemetery'];
+ const kind=kinds[region.index%kinds.length],risk=3+region.index%4;
+ CITY_SITES.push(site(`${region.id}-hub`,`${region.name} · ${kind==='industry'?'OFICINAS':kind==='police'?'POSTO DA GUARDA':kind==='hospital'?'CLÍNICA':kind==='market'?'ARMAZÉM':kind==='motel'?'PENSÃO':kind==='school'?'ESCOLA':kind==='cemetery'?'MEMORIAL':'CONTENÇÃO'}`,kind,region.x-30,region.z-32,24,22,risk,'O bloqueio foi abandonado. Restaram suprimentos, corredores fechados e infectados.'),
+  site(`${region.id}-home`,`${region.name} · MORADIA`,'house',region.x+28,region.z-28,12,11,2+region.index%2,'Roupas, ferramentas e uma saída pelos fundos.'),
+  site(`${region.id}-store`,`${region.name} · ${region.index%2?'DEPÓSITO':'POSTO'}`,region.index%2?'industry':'gas',region.x+30,region.z+32,20,18,4,'A última carga chegou depois da ordem de evacuação.'));
+}
 export interface Portal extends Footprint {id:string;site:string;kind:'door'|'window';initial:'open'|'closed'|'barred';hp:number;state:'open'|'closed'|'barred';heavy:boolean}
 export const CITY_PORTALS:Portal[]=CITY_SITES.flatMap(s=>[
  {id:`${s.id}-front`,site:s.id,x:s.x,z:s.z+s.d/2,w:3.2,d:.35,kind:'door' as const,initial:(s.kind==='quarantine'||s.kind==='motel'?'barred':s.kind==='cemetery'?'open':'closed') as Portal['state'],state:(s.kind==='quarantine'||s.kind==='motel'?'barred':s.kind==='cemetery'?'open':'closed') as Portal['state'],hp:120,heavy:s.risk>=5},
@@ -60,7 +69,7 @@ export function siteObstacles(s:CitySite):Footprint[]{
  ...(s.kind==='industry'?[{x:s.x-s.w/2+3,z:s.z-s.d/2-2,w:2,d:2}]:s.kind==='gas'?[-5,5].map(x=>({x:s.x+x,z:s.z+s.d/2+5,w:1,d:1})):s.kind==='hospital'?[6,8,10].map(x=>({x:s.x+x,z:s.z-s.d/2+2,w:1.4,d:3})):[]),
  ...s.props.map(p=>({...p,h:p.kind==='sofa'?1.25:p.kind==='kitchen'?1.5:p.kind==='locker'?1.95:p.kind==='machine'?1.9:p.kind==='shelf'?2:p.kind==='bed'?1.7:p.kind==='desk'?1.15:p.kind==='bench'?.8:1.55,x:s.x+p.x,z:s.z+p.z})),...s.partitions.map(p=>({...p,h:3.1,x:s.x+p.x,z:s.z+p.z}))];
 }
-export const CITY_ROADS=[...[-142,-88,88,142].map(x=>({x,z:0,w:7,d:CITY_LIMIT*2})),...[-142,-88,88,147].map(z=>({x:0,z,w:CITY_LIMIT*2,d:7}))];
+export const CITY_ROADS=[...EXPANSION_ROADS,...[-142,-88,88,142].map(x=>({x,z:0,w:7,d:CITY_LIMIT*2})),...[-142,-88,88,147].map(z=>({x:0,z,w:CITY_LIMIT*2,d:7}))];
 export const CITY_LOOT=CITY_SITES.flatMap(s=>[
  {id:`${s.id}-entry`,x:s.x-2,z:s.z+s.d*.25,area:(s.kind==='hospital'?'hospital':s.kind==='police'||s.kind==='quarantine'?'police':s.kind==='industry'||s.kind==='gas'?'gas':s.kind==='house'||s.kind==='motel'?'house':'market'),label:s.kind==='hospital'?'Carrinho de curativos':s.kind==='police'?'Locker da patrulha':'Suprimentos abandonados',site:s.id,valuable:false},
  {id:`${s.id}-deep`,x:s.x+2,z:s.z-s.d*.28,area:(s.kind==='hospital'?'hospital':s.kind==='police'||s.kind==='quarantine'?'police':s.kind==='industry'?'gas':'house'),label:s.risk>=5?'Reserva da área isolada':'Armário do fundo',site:s.id,valuable:s.risk>=4},

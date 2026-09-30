@@ -1,8 +1,9 @@
+import {CITY_LIMIT} from '../game/city.ts';
 import type {WeaponId} from '../game/weapons';
 import type {LifeState} from './gameplay-protocol';
 /** Shared version/build boundary. Gameplay messages live in gameplay-protocol.ts. */
 export const NETWORK_PROTOCOL_VERSION=2;
-export const NETWORK_BUILD='santa-luz-10b-1';
+export const NETWORK_BUILD='santa-luz-chests-1';
 export const NETWORK_SEND_RATE=20;
 export const INTERPOLATION_DELAY=120;
 export const MAX_PLAYERS=4;
@@ -12,7 +13,7 @@ export type RoomState='lobby'|'loading'|'playing';
 export interface NetworkPlayerIdentity {actorNumber:number;playerId:string;displayName:string;isLocal:boolean;isHost:boolean;ready:boolean}
 export interface StartData {seed:number;actors:number[];token:string}
 export interface PlayerSnapshot {sequence:number;time:number;x:number;y:number;z:number;yaw:number;pitch:number;vx:number;vz:number;locomotion:0|1|2|3}
-export interface RemotePlayerState {identity:NetworkPlayerIdentity;snapshot:PlayerSnapshot|null;gameplay?:{life:LifeState;hp:number;weapon:WeaponId;reload:number;reloadDuration:number}}
+export interface RemotePlayerState {identity:NetworkPlayerIdentity;snapshot:PlayerSnapshot|null;gameplay?:{life:LifeState;hp:number;weapon:WeaponId;melee?:import('../game/crafting').MeleeId;reload:number;reloadDuration:number}}
 // Region prefix makes a shared code route to the creator's region, even across continents.
 export const REGIONS:Record<string,string>={A:'asia',B:'au',C:'cae',D:'cn',E:'eu',F:'hk',G:'in',H:'jp',J:'kr',K:'ru',M:'rue',N:'sa',P:'tr',Q:'uae',R:'us',S:'usw',T:'ussc',U:'usn',V:'za'};
 export const CODE_ALPHABET='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -33,7 +34,7 @@ export function encodeSnapshot(s:PlayerSnapshot):number[]{return [NETWORK_PROTOC
 export function parseSnapshot(data:unknown):PlayerSnapshot|null{
  if(!Array.isArray(data)||data.length!==11||data.some(n=>typeof n!=='number'||!Number.isFinite(n)))return null;
  const [v,sequence,time,x,y,z,yaw,pitch,vx,vz,locomotion]=data;
- if(v!==NETWORK_PROTOCOL_VERSION||!Number.isSafeInteger(sequence)||sequence<0||sequence>2147483647||time<0||time>1e13||Math.abs(x)>157||Math.abs(z)>157||y<-.5||y>12||Math.abs(yaw)>Math.PI+.01||Math.abs(pitch)>1.5||Math.abs(vx)>12||Math.abs(vz)>12||![0,1,2,3].includes(locomotion))return null;
+ if(v!==NETWORK_PROTOCOL_VERSION||!Number.isSafeInteger(sequence)||sequence<0||sequence>2147483647||time<0||time>1e13||Math.abs(x)>CITY_LIMIT+1||Math.abs(z)>CITY_LIMIT+1||y<-.5||y>12||Math.abs(yaw)>Math.PI+.01||Math.abs(pitch)>1.5||Math.abs(vx)>12||Math.abs(vz)>12||![0,1,2,3].includes(locomotion))return null;
  return {sequence,time,x,y,z,yaw,pitch,vx,vz,locomotion};
 }
 export function parseStart(data:unknown,members:number[]):StartData|null{
@@ -42,3 +43,6 @@ export function parseStart(data:unknown,members:number[]):StartData|null{
  if([...d.actors].sort((a,b)=>a-b).join()!==[...members].sort((a,b)=>a-b).join())return null;
  return d as StartData;
 }
+
+/** randomUUID requires HTTPS; LAN HTTP still provides getRandomValues. */
+export function sessionToken(){return typeof crypto.randomUUID==='function'?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),v=>v.toString(16).padStart(2,'0')).join('');}

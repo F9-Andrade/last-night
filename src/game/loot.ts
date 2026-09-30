@@ -22,6 +22,7 @@ export function rollLoot(area: LootArea, random: () => number): Stock {
     const row = table.find(entry => (roll -= entry.weight) < 0) ?? table[table.length - 1];
     result[row.item] += row.min + Math.floor(random() * (row.max - row.min + 1));
   }
+  if(area!=='base'&&random()<.55)result.cloth+=1+Math.floor(random()*3);
   return result;
 }
 export function createLoot(): LootPoint[] { return LOOT_POINTS.map(p => ({ ...p, searched: false, contents: emptyStock(), lastFound: null })); }

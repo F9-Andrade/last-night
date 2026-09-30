@@ -1,9 +1,10 @@
+import {spatialBatch} from './spatial-batch';
 import { TREE_POSITIONS } from '../game/world';
 import { hasInterior, ROOM_PROPS } from '../game/interiors';
 import { createDistricts } from './districts';
 import { ROADS } from '../game/districts';
 import * as THREE from 'three';
-import { BUILDINGS, CARS, FENCES, collides, WORLD_LIMIT } from '../game/world';
+import { BUILDINGS, CARS, collides, WORLD_LIMIT } from '../game/world';
 import type { Building } from '../game/world';
 import { box, textSign, batch } from './models';
 import { voxelGeometry, voxelMesh, voxelMaterial } from './voxel';
@@ -58,7 +59,7 @@ export function createTown(scene: THREE.Scene): Town {
   const town: Town = { chunks: [], buildings: [], lamps: new THREE.MeshStandardMaterial({ color: 0xf5cc83, emissive: 0xffc77c, emissiveIntensity: .1 }), lights: [], emergency: new THREE.MeshStandardMaterial({ color: 0xb58b6c, emissive: 0xe39b65, emissiveIntensity: 0 }), supplies: [] };
   town.chunks=createDistricts(scene,town.lamps);
   box(staticWorld, 0, -.45, 0, WORLD_LIMIT*2+90, .7, WORLD_LIMIT*2+90, 0x626951,'earth');
-  for(const r of ROADS) {box(staticWorld,r.x,-.065,r.z,r.w,.12,r.d,0x535b60,'asphalt');for(let n=-WORLD_LIMIT+4;n<WORLD_LIMIT-4;n+=6){if(r.w>r.d)box(staticWorld,n,.015,r.z,2,.02,.12,0xb5af85);else box(staticWorld,r.x,.015,n,.12,.02,2,0xb5af85);}}
+  for(const r of ROADS) {box(staticWorld,r.x,-.065,r.z,r.w,.12,r.d,0x535b60,'asphalt');for(let n=-Math.max(r.w,r.d)/2+4;n<Math.max(r.w,r.d)/2-4;n+=6){if(r.w>r.d)box(staticWorld,r.x+n,.015,r.z,2,.02,.12,0xb5af85);else box(staticWorld,r.x,.015,r.z+n,.12,.02,2,0xb5af85);}}
   // Four orderly city blocks, with weathered asphalt and raised sidewalks.
   box(staticWorld, -12, -.055, 0, 9, .14, 80, 0x535b60,'asphalt'); box(staticWorld, 15, -.055, 0, 7, .14, 80, 0x535b60,'asphalt');
   box(staticWorld, 0, -.04, 13, 80, .16, 8, 0x535b60,'asphalt'); box(staticWorld, 0, -.04, -16, 80, .16, 5, 0x535b60,'asphalt');
@@ -70,16 +71,9 @@ export function createTown(scene: THREE.Scene): Town {
   for (let z = -36; z <= 38; z += 5) if (Math.abs(z - 13) > 6 && Math.abs(z + 16) > 4) box(staticWorld, -12, .035, z, .15, .02, 2.1, 0xc2b781);
   for (let x = -37; x < 39; x += 5) if (Math.abs(x + 12) > 6 && Math.abs(x - 15) > 5) box(staticWorld, x, .055, 13, 2.1, .02, .14, 0xc2b781);
   for (const center of [-12, 15]) for (let i = 0; i < 6; i++) { box(staticWorld, center - 2.8 + i * 1.1, .06, 7.8, .65, .03, 2, 0xc6c5ae); box(staticWorld, center - 2.8 + i * 1.1, .06, 18.3, .65, .03, 2, 0xc6c5ae); }
-  for (const b of BUILDINGS) { const group = building(scene, b); const mats: THREE.Material[] = []; group.traverse(o => { if (o instanceof THREE.Mesh) mats.push(o.material as THREE.Material); }); town.buildings.push({ group, data: b, materials: mats }); }
+  for (const b of BUILDINGS.filter(b=>b.kind!=='base')) { const group = building(scene, b); const mats: THREE.Material[] = []; group.traverse(o => { if (o instanceof THREE.Mesh) mats.push(o.material as THREE.Material); }); town.buildings.push({ group, data: b, materials: mats }); }
   // Courtyard: clear approach, prepared barricade anchors and a recognisable safe-house path.
   box(staticWorld, 1, .21, 4.7, 3.5, .05, 9, 0xb1ab8b,'paving');
-  for (const f of FENCES) {
-    const count = Math.ceil(Math.max(f.w, f.d) / .65);
-    for (let i = 0; i <= count; i++) box(staticWorld, f.x + (f.w > f.d ? (i / count - .5) * f.w : 0), .8, f.z + (f.d > f.w ? (i / count - .5) * f.d : 0), .14, 1.5, .14, 0x777d63);
-    for (const y of [.5, 1.1]) box(staticWorld, f.x, y, f.z, f.w > f.d ? f.w : .12, .14, f.d > f.w ? f.d : .12, 0x8b8d6e);
-  }
-  for (const x of [-1.5, 3.5]) { box(staticWorld, x, .4, 9, .65, .7, .6, 0x5d7169); box(staticWorld, x, .81, 9, .8, .13, .8, 0xd0ac61); }
-  const groundSign = textSign(staticWorld, '07  /  ABRIGO', 1, .25, 7, 2.8, .7, '#b1ab8b', '#607263'); groundSign.rotation.x = -Math.PI / 2;
   CARS.forEach((c, i) => {
     const variants = ['sedan', 'wreck', 'pickup', 'sedan', 'police', 'wreck'] as const;
     const car = voxelMesh(carRecipe(variants[i]??(i===8||i===9?'police':i%3===0?'pickup':'wreck'), c.color),surfaceBatchMaterial('metal')); car.position.set(c.x, .1, c.z); car.rotation.y = c.angle; staticWorld.add(car);
@@ -104,11 +98,18 @@ export function createTown(scene: THREE.Scene): Town {
   const treePositions = TREE_POSITIONS;
   const dummy = new THREE.Object3D();
   for (let variant = 0; variant < 3; variant++) {
-    const positions = treePositions.filter((_, i) => i % 3 === variant);
-    const trees = new THREE.InstancedMesh(voxelGeometry(treeRecipe(variant)), voxelMaterial, positions.length);
-    trees.name = `voxel-trees-${variant}`; trees.castShadow = true; trees.receiveShadow = true;
-    positions.forEach(([x, z], i) => { dummy.position.set(x, .15, z); dummy.scale.setScalar(.85 + random() * .25); dummy.rotation.set(0, random() * 6.28, 0); dummy.updateMatrix(); trees.setMatrixAt(i, dummy.matrix); });
-    scene.add(trees);
+    const cells=new Map<string,THREE.Matrix4[]>();
+    // Preserve the exact RNG order, positions and geometry. Each cell can now be
+    // culled independently by BOTH the camera and the sun's shadow frustum.
+    treePositions.filter((_,i)=>i%3===variant).forEach(([x,z])=>{
+      dummy.position.set(x,.15,z);dummy.scale.setScalar(.85+random()*.25);dummy.rotation.set(0,random()*6.28,0);dummy.updateMatrix();
+      const key=`${Math.floor(x/64)}:${Math.floor(z/64)}`,matrices=cells.get(key)??[];matrices.push(dummy.matrix.clone());cells.set(key,matrices);
+    });
+    for(const [key,matrices] of cells){
+      const trees=new THREE.InstancedMesh(voxelGeometry(treeRecipe(variant)),voxelMaterial,matrices.length);
+      trees.name=`voxel-trees-${variant}:${key}`;trees.castShadow=true;trees.receiveShadow=true;
+      matrices.forEach((matrix,i)=>trees.setMatrixAt(i,matrix));trees.computeBoundingBox();trees.computeBoundingSphere();trees.matrixAutoUpdate=false;scene.add(trees);
+    }
   }
   const grass = new THREE.InstancedMesh(voxelGeometry(grassRecipe()), voxelMaterial, 650); grass.name = 'voxel-grass';
   for (let i = 0; i < 650; i++) {
@@ -144,6 +145,6 @@ export function createTown(scene: THREE.Scene): Town {
     box(staticWorld, x, 2.55, 8.5, .6, .8, .1, 0xb27353); box(staticWorld, x, 2.55, 8.5, .8, .6, .1, 0xb27353);
     textSign(staticWorld, 'PARE', x, 2.55, 8.55, .65, .24, '#b27353');
   }
-  batch(staticWorld);
+  spatialBatch(staticWorld);
   return town;
 }

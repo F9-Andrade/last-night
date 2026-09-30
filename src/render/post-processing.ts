@@ -18,9 +18,15 @@ class WorldAO extends GTAOPass {
   super.setSize(Math.max(1,Math.round(width*this.resolutionScale)),Math.max(1,Math.round(height*this.resolutionScale)));
  }
  override render(renderer:THREE.WebGLRenderer,write:THREE.WebGLRenderTarget,read:THREE.WebGLRenderTarget):void {
-  this.ignored.length=0;this.scene.traverse(o=>{if(o.visible&&o.userData.skipAO){o.visible=false;this.ignored.push(o);}});
   const update=renderer.shadowMap.autoUpdate;renderer.shadowMap.autoUpdate=false;
-  try{super.render(renderer,write,read,0,false);}finally{renderer.shadowMap.autoUpdate=update;this.ignored.forEach(o=>o.visible=true);}
+  try{super.render(renderer,write,read,0,false);}finally{renderer.shadowMap.autoUpdate=update;}
+ }
+ // GTAOPass normally traverses even hidden districts. The same exclusions are
+ // applied only to visible branches; no visual effects or quality are disabled.
+ _overrideVisibility(){
+  this.ignored.length=0;this.scene.traverseVisible(o=>{if(o.userData.skipAO||o instanceof THREE.Points||o instanceof THREE.Line||'isLine2' in o){o.visible=false;this.ignored.push(o);}});
+ }
+ _restoreVisibility(){for(const o of this.ignored)o.visible=true;this.ignored.length=0;
  }
 }
 class RigPass extends Pass {

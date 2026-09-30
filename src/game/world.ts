@@ -34,8 +34,16 @@ export const FENCES: Obstacle[] = [
   { x: -3.8, z: 9, w: 3, d: .4 }, { x: 5.8, z: 9, w: 3, d: .4 },
 ];
 export const TREE_POSITIONS = [[-7,-10],[8,-10],[8,-29],[-20,-33],[34,-32],[35,-10],[21,5],[-33,4],[-19,4],[8,24],[-5,35],[35,35],[-34,34],[-33,-18],[20,-34],[34,22],[-6,-22],[-34,-34],[-3,-12],[8.8,1]];
-const TREE_TRUNKS:Obstacle[]=[...OUTER_HOUSES.map(([x,z])=>({x:x+OUTER_TREE_OFFSET.x,z:z+OUTER_TREE_OFFSET.z,w:.58,d:.58,h:3.8})),...REGIONS.slice(2,12).filter(r=>r.icon==='E'||r.name==='TRIAGEM EXTERNA').flatMap(r=>[[-9,-8],[9,-8],[-9,9],[9,9]].map(([x,z])=>({x:r.x+x,z:r.z+z,w:.58,d:.58,h:3.8}))),...TREE_POSITIONS.map(([x,z])=>({x,z,w:.58,d:.58,h:3.8})),...CITY_SITES.flatMap(s=>Array.from({length:6},(_,i)=>({x:s.x+(i%2?1:-1)*(s.w/2+5),z:s.z-s.d/2+i*s.d/5,w:.6,d:.6,h:3.8})))];
+export const TREE_TRUNKS:Obstacle[]=[...OUTER_HOUSES.map(([x,z])=>({x:x+OUTER_TREE_OFFSET.x,z:z+OUTER_TREE_OFFSET.z,w:.58,d:.58,h:3.8})),...REGIONS.slice(2,12).filter(r=>r.icon==='E'||r.name==='TRIAGEM EXTERNA').flatMap(r=>[[-9,-8],[9,-8],[-9,9],[9,9]].map(([x,z])=>({x:r.x+x,z:r.z+z,w:.58,d:.58,h:3.8}))),...TREE_POSITIONS.map(([x,z])=>({x,z,w:.58,d:.58,h:3.8})),...CITY_SITES.flatMap(s=>Array.from({length:6},(_,i)=>({x:s.x+(i%2?1:-1)*(s.w/2+5),z:s.z-s.d/2+i*s.d/5,w:.6,d:.6,h:3.8})))];
 export const OBSTACLES: Obstacle[] = [
+  ...BUILDINGS.filter(b=>b.kind!=='base').flatMap(b=>hasInterior(b)?roomObstacles(b):[b]), ...WAREHOUSES, ...CARGO_OBSTACLES.map(o=>({...o,h:2.4})), {...PLAZA_MONUMENT,h:3},
+  ...CARS.map(c => ({ h:1.75, x: c.x, z: c.z, w: Math.abs(Math.sin(c.angle)) * 3.7 + Math.abs(Math.cos(c.angle)) * 1.8, d: Math.abs(Math.cos(c.angle)) * 3.7 + Math.abs(Math.sin(c.angle)) * 1.8 })),
+  { x: -27, z: 29, w: 10, d: 5 },
+  { x: -25, z: 22, w: 1.3, d: 1.3 }, { x: -21, z: 22, w: 1.3, d: 1.3 },
+  ...CITY_SITES.flatMap(siteObstacles),
+
+];
+const PLANNING_OBSTACLES: Obstacle[] = [
   ...BUILDINGS.flatMap(b=>hasInterior(b)?roomObstacles(b):[b]), ...FENCES.map(o=>({...o,h:1.45})), ...WAREHOUSES, ...CARGO_OBSTACLES.map(o=>({...o,h:2.4})), {...PLAZA_MONUMENT,h:3},
   ...CARS.map(c => ({ h:1.75, x: c.x, z: c.z, w: Math.abs(Math.sin(c.angle)) * 3.7 + Math.abs(Math.cos(c.angle)) * 1.8, d: Math.abs(Math.cos(c.angle)) * 3.7 + Math.abs(Math.sin(c.angle)) * 1.8 })),
   { x: -27, z: 29, w: 10, d: 5 },
@@ -43,7 +51,8 @@ export const OBSTACLES: Obstacle[] = [
   ...CITY_SITES.flatMap(siteObstacles),
   ...TREE_TRUNKS,
 ];
-export const URBAN=planUrban(OBSTACLES,ROADS,[...BASE_LOOT_POINTS,...FACILITIES,...EVENT_POINTS,...ENCOUNTERS],CITY_SITES);
+// Keep the authored urban layout stable as the shelter and harvestable trees become dynamic.
+export const URBAN=planUrban(PLANNING_OBSTACLES,ROADS,[...BASE_LOOT_POINTS,...FACILITIES,...EVENT_POINTS,...ENCOUNTERS],CITY_SITES);
 OBSTACLES.push(...URBAN.obstacles);
 const SPATIAL_CELL=8;
 const obstacleBins=new Map<string,Obstacle[]>();
@@ -101,41 +110,32 @@ export function wallDistance(origin: Vec2, dir: Vec2, range: number, extra: Obst
   return nearest;
 }
 
-// One-unit cells resolve the narrow side passages of the existing courtyard.
-// Static connectivity is cached once; at most 16 dynamic portal masks are retained.
-const GRID = WORLD_LIMIT*2+2, CELL = 1, NODES = GRID * GRID, ORIGIN=WORLD_LIMIT+.5;
-const position = (n: number): Vec2 => ({ x: (n % GRID) * CELL - ORIGIN, z: Math.floor(n / GRID) * CELL - ORIGIN });
-const node = (p: Vec2): number => Math.max(0, Math.min(GRID - 1, Math.round(p.z + ORIGIN))) * GRID + Math.max(0, Math.min(GRID - 1, Math.round(p.x + ORIGIN)));
-const walkable = Uint8Array.from({ length: NODES }, (_, n) => Number(!collides(position(n), .49)));
-const links: number[][] = Array.from({ length: NODES }, () => []);
-for (let n = 0; n < NODES; n++) if (walkable[n]) {
-  const a = position(n);
-  for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-    const x = n % GRID + dx, z = Math.floor(n / GRID) + dz, next = z * GRID + x;
-    if (x < 0 || x >= GRID || z < 0 || z >= GRID || !walkable[next]) continue;
-    if (wallDistance(a, { x: dx, z: dz }, 1, [], .49) >= 1) links[n].push(next);
-  }
+// Sparse one-meter navigation: populate only visited cells, not the entire 1.56 km² map.
+const GRID = WORLD_LIMIT*2+2, ORIGIN=WORLD_LIMIT+.5;
+const position=(n:number):Vec2=>({x:n%GRID-ORIGIN,z:Math.floor(n/GRID)-ORIGIN});
+const node=(p:Vec2):number=>Math.max(0,Math.min(GRID-1,Math.round(p.z+ORIGIN)))*GRID+Math.max(0,Math.min(GRID-1,Math.round(p.x+ORIGIN)));
+const staticLinks=new Map<number,number[]>(),staticWalkable=new Map<number,boolean>();
+function walkable(n:number){let free=staticWalkable.get(n);if(free===undefined){free=!collides(position(n),.49);staticWalkable.set(n,free);}return free;}
+function neighbors(n:number){let links=staticLinks.get(n);if(links)return links;links=[];const p=position(n);
+ for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){const x=n%GRID+dx,z=Math.floor(n/GRID)+dz,next=z*GRID+x;if(x<0||x>=GRID||z<0||z>=GRID||!walkable(next))continue;if(wallDistance(p,{x:dx,z:dz},1,[],.49)>=1)links.push(next);}
+ if(staticLinks.size>80000){staticLinks.clear();staticWalkable.clear();}staticLinks.set(n,links);return links;
 }
-const masks = new Map<string, Uint8Array>();
-function navigationMask(extra: Obstacle[]): Uint8Array {
-  if (!extra.length) return walkable;
-  const key = extra.map(b => `${b.x}:${b.z}:${b.w}:${b.d}`).join('|');
-  let mask = masks.get(key);
-  if (!mask) {
-    mask = walkable.slice();
-    for(const b of extra){
-      const minX=Math.max(0,Math.floor(b.x-b.w/2-.5+ORIGIN)),maxX=Math.min(GRID-1,Math.ceil(b.x+b.w/2+.5+ORIGIN));
-      const minZ=Math.max(0,Math.floor(b.z-b.d/2-.5+ORIGIN)),maxZ=Math.min(GRID-1,Math.ceil(b.z+b.d/2+.5+ORIGIN));
-      for(let z=minZ;z<=maxZ;z++)for(let x=minX;x<=maxX;x++){const n=z*GRID+x,p=position(n);if(Math.hypot(Math.max(0,Math.abs(p.x-b.x)-b.w/2),Math.max(0,Math.abs(p.z-b.z)-b.d/2))<.5)mask[n]=0;}
-    }
-    if (masks.size >= 16) masks.clear(); masks.set(key, mask);
-  }
-  return mask;
+const dynamicMasks=new Map<string,Set<number>>();
+function blockedCells(extra:Obstacle[]):Set<number>{
+ const key=extra.map(b=>`${b.x}:${b.z}:${b.w}:${b.d}`).join('|');let cells=dynamicMasks.get(key);if(cells)return cells;cells=new Set();
+ for(const b of extra)for(let z=Math.floor(b.z-b.d/2-.5+ORIGIN);z<=Math.ceil(b.z+b.d/2+.5+ORIGIN);z++)for(let x=Math.floor(b.x-b.w/2-.5+ORIGIN);x<=Math.ceil(b.x+b.w/2+.5+ORIGIN);x++){
+  const n=z*GRID+x,p=position(n);if(x>=0&&x<GRID&&z>=0&&z<GRID&&Math.hypot(Math.max(0,Math.abs(p.x-b.x)-b.w/2),Math.max(0,Math.abs(p.z-b.z)-b.d/2))<.5)cells.add(n);
+ }
+ if(dynamicMasks.size>=16)dynamicMasks.clear();dynamicMasks.set(key,cells);return cells;
 }
 export function findPath(from: Vec2, to: Vec2, extra: Obstacle[] = []): Vec2[] {
   const direct=distance(from,to);
   if(direct>.01&&wallDistance(from,{x:(to.x-from.x)/direct,z:(to.z-from.z)/direct},direct,extra,.49)>=direct&&!collides(to,.49,extra))return Array.from({length:Math.ceil(direct/8)},(_,i)=>{const t=(i+1)/Math.ceil(direct/8);return {x:from.x+(to.x-from.x)*t,z:from.z+(to.z-from.z)*t};});
-  const mask = navigationMask(extra);
+  // Restrict dynamic checks to this route's neighborhood; remote tables/trees do not
+  // affect local pursuit. The static grid itself is shared between all actors.
+  const margin=24,minX=Math.min(from.x,to.x)-margin,maxX=Math.max(from.x,to.x)+margin,minZ=Math.min(from.z,to.z)-margin,maxZ=Math.max(from.z,to.z)+margin;
+  extra=extra.filter(b=>b.x+b.w/2>=minX&&b.x-b.w/2<=maxX&&b.z+b.d/2>=minZ&&b.z-b.d/2<=maxZ);
+  const blocked=blockedCells(extra);const free=(n:number)=>!blocked.has(n)&&walkable(n);
   const connects = (p: Vec2, q: Vec2): boolean => {
     const steps = Math.max(1, Math.ceil(distance(p, q) / .15));
     for (let i = 1; i <= steps; i++) if (collides({ x: p.x + (q.x - p.x) * i / steps, z: p.z + (q.z - p.z) * i / steps }, .475, extra)) return false;
@@ -145,7 +145,7 @@ export function findPath(from: Vec2, to: Vec2, extra: Obstacle[] = []): Vec2[] {
     const origin = node(p); let best = -1, bestDistance = Infinity;
     for (let dz = -2; dz <= 2; dz++) for (let dx = -2; dx <= 2; dx++) {
       const x = origin % GRID + dx, z = Math.floor(origin / GRID) + dz, n = z * GRID + x;
-      if (x < 0 || x >= GRID || z < 0 || z >= GRID || !mask[n]) continue;
+      if (x < 0 || x >= GRID || z < 0 || z >= GRID || !free(n)) continue;
       const q = position(n), d = distance(p, q);
       if (d < bestDistance && connects(p, q)) { best = n; bestDistance = d; }
     }
@@ -153,7 +153,7 @@ export function findPath(from: Vec2, to: Vec2, extra: Obstacle[] = []): Vec2[] {
   };
   const start = nearest(from), goal = nearest(to); if (start < 0 || goal < 0) return [];
   if (start === goal) return [to];
-  const previous = new Int32Array(NODES).fill(-1), costs = new Float32Array(NODES).fill(Infinity), closed = new Uint8Array(NODES);
+  const previous=new Map<number,number>(),costs=new Map<number,number>(),closed=new Set<number>();
   const heap: { n: number; f: number }[] = [];
   const heuristic = (n: number): number => Math.abs(n % GRID - goal % GRID) + Math.abs(Math.floor(n / GRID) - Math.floor(goal / GRID));
   const push = (n: number, f: number): void => { let i = heap.length; heap.push({ n, f }); while (i > 0) { const p = (i - 1) >> 1; if (heap[p].f <= f) break; heap[i] = heap[p]; i = p; } heap[i] = { n, f }; };
@@ -162,15 +162,16 @@ export function findPath(from: Vec2, to: Vec2, extra: Obstacle[] = []): Vec2[] {
     if (heap.length) { let i = 0; while (i * 2 + 1 < heap.length) { let child = i * 2 + 1; if (child + 1 < heap.length && heap[child + 1].f < heap[child].f) child++; if (tail.f <= heap[child].f) break; heap[i] = heap[child]; i = child; } heap[i] = tail; }
     return result;
   };
-  costs[start] = 0; push(start, heuristic(start));
-  while (heap.length) {
-    const current = pop(); if (closed[current]) continue;
-    if (current === goal) { const path: Vec2[] = [to]; let n = goal; while (n !== -1) { path.unshift(position(n)); n = previous[n]; } return path; }
-    closed[current] = 1;
-    for (const next of links[current]) {
-      if (!mask[next] || closed[next]) continue;
-      const cost = costs[current] + 1;
-      if (cost < costs[next]) { costs[next] = cost; previous[next] = current; push(next, cost + heuristic(next)); }
+  costs.set(start,0); push(start, heuristic(start));
+  while (heap.length&&closed.size<40000) {
+    const current = pop(); if (closed.has(current)) continue;
+    if (current === goal) { const path: Vec2[] = [to]; let n = goal; while (n !== -1) { path.unshift(position(n)); n = previous.get(n)??-1; } return path; }
+    closed.add(current);
+    for (const next of neighbors(current)) {
+      const p=position(next);if(p.x<minX||p.x>maxX||p.z<minZ||p.z>maxZ)continue;
+      if (!free(next) || closed.has(next)) continue;
+      const cost = costs.get(current)! + 1;
+      if (cost < (costs.get(next)??Infinity)) { costs.set(next,cost); previous.set(next,current); push(next, cost + heuristic(next)*(direct>120?1.3:1.08)); }
     }
   }
   return [];
@@ -207,7 +208,7 @@ export function rayBox(origin:Vec3,dir:Vec3,box:Obstacle,range:number):number {
 export function rayWorld(origin:Vec3,dir:Vec3,range:number,extra:Obstacle[]=[]):number {
  let nearest=range;const end={x:origin.x+dir.x*range,z:origin.z+dir.z*range};
  for(const o of [...nearbyObstacles(Math.min(origin.x,end.x),Math.min(origin.z,end.z),Math.max(origin.x,end.x),Math.max(origin.z,end.z)),...extra])nearest=Math.min(nearest,rayBox(origin,dir,o,range));
- for(const b of [...BUILDINGS,...CITY_SITES.filter(s=>s.kind!=='cemetery')])nearest=Math.min(nearest,rayBox(origin,dir,{...b,bottom:b.h,h:.25},range));
+ for(const b of [...BUILDINGS.filter(b=>b.kind!=='base'),...CITY_SITES.filter(s=>s.kind!=='cemetery')])nearest=Math.min(nearest,rayBox(origin,dir,{...b,bottom:b.h,h:.25},range));
  for(const site of CITY_SITES)if(site.kind==='quarantine')for(const x of [-8,8])nearest=Math.min(nearest,rayBox(origin,dir,{x:site.x+x,z:site.z-4,w:6,d:5,bottom:1.85,h:.3},range));
  if(dir.y<0)nearest=Math.min(nearest,Math.max(0,(origin.y-floorHeight(origin))/-dir.y));
  return nearest;
@@ -221,5 +222,5 @@ export function floorHeight(p:Vec2):number {
 export function ceilingHeight(p:Vec2,radius=0):number {
  const tent=CITY_SITES.find(s=>s.kind==='quarantine'&&[-8,8].some(x=>Math.abs(p.x-s.x-x)<3+radius&&Math.abs(p.z-s.z+4)<2.5+radius));
  if(tent)return 1.85;
- const b=[...BUILDINGS,...CITY_SITES].find(s=>Math.abs(p.x-s.x)<s.w/2&&Math.abs(p.z-s.z)<s.d/2);return b?.h??Infinity;
+ const b=[...BUILDINGS.filter(b=>b.kind!=='base'),...CITY_SITES].find(s=>Math.abs(p.x-s.x)<s.w/2&&Math.abs(p.z-s.z)<s.d/2);return b?.h??Infinity;
 }

@@ -13,7 +13,7 @@ export class FieldMap {
   this.sheet.width=this.sheet.height=900;const c=this.sheet.getContext('2d')!;c.fillStyle='#c9c4a7';c.fillRect(0,0,900,900);
   c.strokeStyle='#68765e25';for(let i=0;i<900;i+=50){c.beginPath();c.moveTo(i,0);c.lineTo(i,900);c.moveTo(0,i);c.lineTo(900,i);c.stroke();}
   c.fillStyle='#e1dac0';for(const r of ROADS)c.fillRect(this.p(r.x-r.w/2),this.p(r.z-r.d/2),r.w*SCALE,r.d*SCALE);
-  for(const b of [...BUILDINGS,...WAREHOUSES,...CITY_SITES,...URBAN.buildings]){c.fillStyle='#8a957a';c.fillRect(this.p(b.x-b.w/2),this.p(b.z-b.d/2),b.w*SCALE,b.d*SCALE);}
+  for(const b of [...BUILDINGS.filter(b=>b.kind!=='base'),...WAREHOUSES,...CITY_SITES,...URBAN.buildings]){c.fillStyle='#8a957a';c.fillRect(this.p(b.x-b.w/2),this.p(b.z-b.d/2),b.w*SCALE,b.d*SCALE);}
   this.paths=regionIcons.map(k=>new Path2D(icon(k).match(/<path d="([^"]+)"/)![1]));
  }
  private p(v:number):number{return 450+v*SCALE;}
@@ -24,9 +24,9 @@ export class FieldMap {
   for(const [i,r]of REGIONS.entries()){
    if(i===0||Math.hypot(r.x-sim.player.x,r.z-sim.player.z)<18||i>=12&&sim.discoveredSites.has(CITY_SITES[i-12].id))this.visited.add(i);
    const x=sx(r.x),z=sz(r.z);if(x<-20||z<-20||x>w+20||z>h+20)continue;
-   if(!this.visited.has(i)){if(full&&i>=12&&CITY_SITES[i-12].kind!=='house'){c.font='15px Field Sans';c.fillStyle='#526148';c.textAlign='center';c.fillText(mapLabels[i],x,z,135);}continue;}
+   if(!this.visited.has(i)){if(full&&i>=12&&CITY_SITES[i-12].kind!=='house'){c.font='15px Field Sans';c.fillStyle='#526148';c.textAlign='center';c.fillText((mapLabels[i]??r.name),x,z,135);}continue;}
    c.save();c.translate(x,z);const scale=full?.8:.7;c.scale(scale,scale);c.fillStyle='#eae2c9';c.strokeStyle='#405346';c.lineWidth=1.5;c.fillRect(-15,-15,30,30);c.strokeRect(-15,-15,30,30);c.translate(-12,-12);c.stroke(this.paths[i]);c.restore();
-   if(full){c.font='bold 14px Field Sans';c.textAlign='center';c.fillStyle='#33483e';c.fillText(mapLabels[i],x,z+25,135);}
+   if(full){c.font='bold 14px Field Sans';c.textAlign='center';c.fillStyle='#33483e';c.fillText((mapLabels[i]??r.name),x,z+25,135);}
   }
   if(sim.worldEvent&&!sim.worldEvent.triggered){const e=sim.worldEvent;c.save();c.translate(sx(e.x),sz(e.z));c.fillStyle=e.kind==='cache'?'#9b783e':'#8d5441';c.rotate(Math.PI/4);c.fillRect(-5,-5,10,10);c.restore();if(full){c.font='11px Field Sans';c.fillStyle='#694c31';c.textAlign='center';c.fillText(e.name,sx(e.x),sz(e.z)-13);}}
   c.save();c.translate(sx(sim.player.x),sz(sim.player.z));c.rotate(-sim.player.angle);c.fillStyle='#354b43';c.strokeStyle='#fff0ce';c.lineWidth=2;c.beginPath();c.moveTo(0,9);c.lineTo(-6,-6);c.lineTo(0,-3);c.lineTo(6,-6);c.closePath();c.fill();c.stroke();c.restore();

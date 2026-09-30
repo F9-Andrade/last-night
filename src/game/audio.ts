@@ -157,6 +157,7 @@ export class Sound {
       if(!event.hit&&event.material!=='air')this.impact(event.material??'concrete');
     }
     if(position&&listener&&type!=='shot'){const d=Math.hypot(position.x-listener.x,position.z-listener.z);if(d>55)return;if(d>.1&&wallDistance(listener,{x:(position.x-listener.x)/d,z:(position.z-listener.z)/d},d,this.barriers)<d-.1)this.attenuation*=.35;}
+    if(type==='melee'){this.tone(140,55,.12,.1,'triangle');}
     if(type==='suspense'){this.attenuation*=.3*this.ambientVolume;this.impact('metal');this.tone(270,85,.7,.055,'triangle');}
     if(type==='door'){this.impact('wood');this.tone(185,95,.22,.08,'triangle');}
     if(type==='glass'){this.impact('metal');this.tone(3200,700,.22,.14,'square');this.tone(4800,1500,.35,.07,'triangle');}

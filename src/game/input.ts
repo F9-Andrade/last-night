@@ -1,15 +1,16 @@
 import type { InputCommand } from './simulation';
 import { MouseLook, relativeMovement, lookDirection } from './first-person';
 export class Input {
+  onPrimary:()=>boolean=()=>false; onSecondary:()=>boolean=()=>false; onCancel:()=>boolean=()=>false;
   look=new MouseLook(); keys=new Set<string>(); mouse={x:innerWidth/2,y:innerHeight/2}; fire=false; ads=false;
-  enabled=false; blocked=true; loading=false; private shotRequested=false;private reload=false;private interact=false;private heal=false;private dismantle=false;private slot?:0|1;
+  enabled=false; blocked=true; loading=false; private shotRequested=false;private reload=false;private interact=false;private heal=false;private dismantle=false;private slot?:0|1|2|3;
   private expectedUnlock=false; private lockPending=false;private captureAfterUnlock=false;private wasCaptured=false;
   get captured():boolean{return document.pointerLockElement===this.canvas;}
   constructor(private canvas:HTMLCanvasElement,pause:()=>void,inventory:()=>void,private lostLock:()=>void){
     window.addEventListener('keydown',e=>{
       if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement||e.target instanceof HTMLTextAreaElement)return;
-      if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','KeyR','KeyE','Escape','Digit1','Digit2','Tab','KeyH','KeyX','KeyC','ControlLeft','Space'].includes(e.code))e.preventDefault();
-      if(e.code==='Escape'&&!e.repeat){this.release();pause();return;}
+      if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','KeyR','KeyE','Escape','Digit1','Digit2','Digit3','Digit4','Tab','KeyH','KeyX','KeyC','ControlLeft','Space'].includes(e.code))e.preventDefault();
+      if(e.code==='Escape'&&!e.repeat){if(this.onCancel())return;this.release();pause();return;}
       if(!this.enabled)return;
       if(e.code==='Tab'&&!e.repeat){inventory();return;}
       if(this.blocked||!this.captured)return;
@@ -17,15 +18,22 @@ export class Input {
       if(e.code==='KeyX'&&!e.repeat)this.dismantle=true;
       if(e.code==='KeyR'&&!e.repeat)this.reload=true;
       if(e.code==='KeyE'&&!e.repeat)this.interact=true;
-      if(e.code==='Digit1')this.slot=0;if(e.code==='Digit2')this.slot=1;
+      if(e.code==='Digit1')this.slot=0;if(e.code==='Digit2')this.slot=1;if(e.code==='Digit3')this.slot=2;if(e.code==='Digit4')this.slot=3;
       // The most recently pressed intent wins; holding both never flips states every tick.
       if(e.code.startsWith('Shift')&&!e.repeat)this.ads=false;
       this.keys.add(e.code);
     });
     window.addEventListener('keyup',e=>this.keys.delete(e.code));
     window.addEventListener('mousemove',e=>{if(this.captured&&!this.lockPending&&this.enabled&&!this.blocked)this.look.move(e.movementX,e.movementY);});
-    canvas.addEventListener('pointerdown',e=>{if(!this.enabled||this.blocked)return;if(!this.captured){this.capture();return;}if(e.button===0){this.fire=true;this.shotRequested=true;}if(e.button===2)this.ads=true;});
-    window.addEventListener('pointerup',e=>{if(e.button===0)this.fire=false;if(e.button===2)this.ads=false;});
+    // Mouse events report every button transition; pointerdown only reports the first
+    // pressed button. Listening to pointerdown alone drops LMB while RMB is held.
+    const down=(e:MouseEvent)=>{if(!this.enabled||this.blocked)return;if(!this.captured){this.capture();return;}if(e.button===0&&!this.onPrimary()){this.fire=true;this.shotRequested=true;}if(e.button===2&&!this.onSecondary())this.ads=true;};
+    const up=(e:MouseEvent)=>{if(e.button===0)this.fire=false;if(e.button===2)this.ads=false;};
+    canvas.addEventListener('mousedown',down);window.addEventListener('mouseup',up);
+    // Keep synthetic pointer events available to the existing test harness, without
+    // handling a native mouse press twice.
+    canvas.addEventListener('pointerdown',e=>{if(!e.isTrusted)down(e);});
+    window.addEventListener('pointerup',e=>{if(!e.isTrusted)up(e);});
     canvas.addEventListener('wheel',e=>{if(this.captured&&!this.blocked){e.preventDefault();this.slot=e.deltaY>0?1:0;}},{passive:false});
     window.addEventListener('blur',()=>this.clear());canvas.addEventListener('contextmenu',e=>e.preventDefault());
     document.addEventListener('pointerlockchange',()=>{

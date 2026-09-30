@@ -1,3 +1,6 @@
+import {solveArm,strikeEnvelope} from './melee-motion';
+import {meleeRecipe} from './crafting-view';
+import type {MeleeId} from '../game/crafting';
 import * as THREE from 'three';
 import { createWeaponVisual } from './weapon-assets';
 import { voxelMesh,voxelMaterial } from './voxel';
@@ -28,6 +31,9 @@ export class Viewmodel {
   g.fill(-1,-1,-7,2,2,9,0xffe2a2).fill(-2,-2,-4,4,4,3,0xffbd61);
   g.fill(-4,-1,-3,8,2,1,0xffd68a).fill(-1,-4,-3,2,8,1,0xffd68a);
  }},new THREE.MeshBasicMaterial({color:new THREE.Color(4.5,2.5,.75),vertexColors:true,transparent:true,opacity:.9,depthWrite:false}));
+ private shoulders=[new THREE.Vector3(.31,-.43,.13),new THREE.Vector3(-.31,-.43,.13)];
+ private upperArms:THREE.Mesh[]=[];private elbow=new THREE.Vector3();private armDirection=new THREE.Vector3();private armAxis=new THREE.Vector3(0,0,1);
+ private meleeMeshes=new Map<MeleeId,THREE.Mesh>();private swing=0;
  private flashTime=0;private recoil=0;ads=0; private cycle=0;private actionTime=0;private movement=0;private shotSide=1;
  private sunVector=new THREE.Vector3();
  constructor(){
@@ -49,6 +55,9 @@ export class Viewmodel {
     g.set(-5,4,-7,0x6e5b46).fill(-4,-4,-11,2,1,5,0x26362d);
    }}));
   }
+  // The existing forearm ends 0.425 m behind its wrist. A second sleeve joins
+  // that elbow to a fixed shoulder below/behind the camera throughout a strike.
+  for(let i=0;i<2;i++){const sleeve=voxelMesh({id:'fps:upper-sleeve:1',unit:.0125,build(g){g.fill(-6,-6,-1,12,12,32,0x4b5745).fill(-6,-6,0,12,2,30,0x354336).fill(-6,4,1,12,2,28,0x687059);}});sleeve.visible=false;this.upperArms.push(sleeve);this.rig.add(sleeve);}
   this.flash.visible=false;this.flash.castShadow=false;this.flash.receiveShadow=false;
   this.gun.add(this.flash,this.flashLight);
  }
@@ -62,12 +71,15 @@ export class Viewmodel {
   this.ambient.color.copy(ambient.color);this.ambient.groundColor.copy(ambient.groundColor);
   this.ambient.intensity=ambient.intensity*(1-indoors*.12)+(flashlight?.25:0);
  }
- event(e:GameEvent):void {if(e.type==='shot'&&e.primary!==false){this.recoil=Math.min(2.5,this.recoil+WEAPONS[e.weapon??'pistol'].recoil*.32);this.flashTime=.048;this.actionTime=.38;this.shotSide*=-1;}}
- reset():void {this.ads=0;this.recoil=0;this.flashTime=0;this.actionTime=0;this.movement=0;this.flash.visible=false;this.flashLight.intensity=0;}
+ event(e:GameEvent):void {if(e.type==='melee'){this.swing=1;this.shotSide*=-1;}if(e.type==='shot'&&e.primary!==false){this.recoil=Math.min(2.5,this.recoil+WEAPONS[e.weapon??'pistol'].recoil*.32);this.flashTime=.048;this.actionTime=.38;this.shotSide*=-1;}}
+ reset():void {this.swing=0;this.ads=0;this.recoil=0;this.flashTime=0;this.actionTime=0;this.movement=0;this.flash.visible=false;this.flashLight.intensity=0;}
  update(sim:Simulation,camera:THREE.PerspectiveCamera,dt:number,time:number,visible:boolean):void {
   this.anchor.visible=visible;this.anchor.position.copy(camera.position);this.anchor.quaternion.copy(camera.quaternion);if(!visible){this.flashLight.intensity=0;this.flashTime=0;return;}
   const id=sim.equipped.type,weapon=sim.weapon,feel=handling[id];
   if(this.id!==id){this.current?.root.removeFromParent();let visual=this.cache.get(id);if(!visual){visual=createWeaponVisual(id,true);this.cache.set(id,visual);}this.current=visual;this.id=id;this.gun.add(visual.root);visual.root.rotation.y=Math.PI;visual.root.scale.setScalar(weapon.slot===0?.48:.65);}
+  this.gun.visible=!sim.meleeMode;this.swing=Math.max(0,this.swing-dt/Math.max(.3,weapon.cooldown));
+  for(const [key,m] of this.meleeMeshes)m.visible=sim.meleeMode&&key===sim.meleeId;
+  if(sim.meleeMode){let m=this.meleeMeshes.get(sim.meleeId);if(!m&&sim.meleeId!=='fists'){m=voxelMesh(meleeRecipe(sim.meleeId));this.meleeMeshes.set(sim.meleeId,m);this.right.add(m);}if(m){m.visible=true;m.position.set(0,.17,-.13);m.rotation.x=-.25;}}
   this.ads+=(Number(sim.player.ads&&!sim.reloadTimer&&!sim.player.running)-this.ads)*(1-Math.exp(-dt*FPS.adsSpeed));
   this.recoil*=Math.exp(-dt*feel.returnSpeed);this.actionTime=Math.max(0,this.actionTime-dt);this.cycle+=dt*(sim.player.running?13:8);
   this.movement+=(Number(sim.player.moving)-this.movement)*(1-Math.exp(-dt*9));
@@ -88,6 +100,20 @@ export class Viewmodel {
   v.action.position.z=-Math.max(this.actionTime>0?cycling:0,charging)*(id==='shotgun'?.2:.08);
   this.right.position.set(this.gun.position.x+.005,this.gun.position.y-.13,this.gun.position.z+.04);this.right.rotation.set(-.18,0,.05+tilt*.15);
   this.left.position.set(THREE.MathUtils.lerp(.1,-.06,this.ads)-tilt*.18,this.gun.position.y-.12-tilt*.17,this.gun.position.z-(weapon.slot===0?.18:0)+tilt*.12);this.left.rotation.set(-.15,-.4,-.35);
+  for(const sleeve of this.upperArms)sleeve.visible=sim.meleeMode;
+  if(sim.meleeMode){
+   const strike=strikeEnvelope(this.swing),fists=sim.meleeId==='fists',thrust=fists||sim.meleeId==='knife'||sim.meleeId==='spear';
+   for(const [i,hand] of [this.right,this.left].entries()){
+    const side=i===0?1:-1,active=fists?side===this.shotSide:i===0,punch=active?strike:0;
+    // Only the striking hand advances. The other hand stays in guard.
+    hand.position.set(side*(.23-punch*(thrust?.14:.27)),-.29+punch*(thrust?.055:.13),-.31-punch*(thrust?.29:.14));
+    solveArm(this.shoulders[i],hand.position,this.elbow,side);
+    this.armDirection.subVectors(this.elbow,hand.position).normalize();hand.quaternion.setFromUnitVectors(this.armAxis,this.armDirection);
+    const sleeve=this.upperArms[i];sleeve.position.copy(this.elbow);this.armDirection.subVectors(this.shoulders[i],this.elbow).normalize();sleeve.quaternion.setFromUnitVectors(this.armAxis,this.armDirection);
+   }
+   const tool=this.meleeMeshes.get(sim.meleeId);if(tool)tool.rotation.x=-.25-strike*(thrust?.55:1.05);
+   this.ads=0;this.flashTime=0;
+  }
   this.flash.visible=this.flashTime>0;this.flash.position.copy(v.muzzle).multiplyScalar(weapon.slot===0?.48:.65);this.flash.position.z*=-1;
   this.flash.scale.setScalar(weapon.flash*.75);this.flash.rotation.z=this.shotSide*.31;
   this.flashLight.position.copy(this.flash.position);this.flashLight.intensity=this.flash.visible?weapon.flash*.32:0;

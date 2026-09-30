@@ -2,7 +2,7 @@ import type { NetworkManager } from '../network/manager';
 import { normalizeCode, validName, sanitizeName } from '../network/protocol';
 import './coop.css';
 
-/** DOM presentation only: Photon and room transitions belong to NetworkManager. */
+/** DOM presentation only: transport and room transitions belong to NetworkManager. */
 export class CoopUI {
  readonly panel=document.createElement('section');
  readonly team=document.createElement('aside');
@@ -11,13 +11,19 @@ export class CoopUI {
  private copyTimer?:ReturnType<typeof setTimeout>;
  constructor(private network:NetworkManager,root:HTMLElement,private cue:()=>void){
   this.panel.id='coop-panel';this.panel.hidden=true;this.panel.setAttribute('aria-label','Coop online');
-  this.panel.innerHTML=`<div class="coop-card"><header><span class="eyebrow">LAST NIGHT / COOP ONLINE</span><button id="coop-close" aria-label="Voltar ao menu">Voltar</button></header><h2>Não vá sozinho.</h2><p class="coop-intro">Reúna até quatro sobreviventes numa sala privada.</p><p id="coop-status" role="status" aria-live="polite"></p>
+  this.panel.innerHTML=`<div class="coop-card"><header><span class="eyebrow">LAST NIGHT / COOP ONLINE</span><button id="coop-close" aria-label="Voltar ao menu">Voltar</button></header><h2>Não vá sozinho.</h2><p class="coop-intro">Reúna até quatro sobreviventes numa sala privada.</p><label for="coop-transport">Conexão</label><select id="coop-transport"><option value="photon">Photon · Online</option><option value="lan">LAN · Rede local</option></select><div id="coop-lan-help" hidden><p>Na mesma rede: o anfitrião executa <code>npm run build</code> e <code>npm run lan</code>. Todos abrem o endereço exibido no terminal. O servidor precisa continuar ligado.</p><label for="coop-lan-address">Endereço do anfitrião</label><div class="coop-code-row"><input id="coop-lan-address" placeholder="192.168.1.10:8787"><button id="coop-lan-open">Abrir jogo LAN</button></div><small>A partida LAN usa o servidor local, sem Photon e sem internet após o jogo ser carregado.</small></div><p id="coop-status" role="status" aria-live="polite"></p>
   <div id="coop-connect"><label for="coop-name">Seu nome</label><input id="coop-name" autocomplete="nickname" maxlength="40" placeholder="Sobrevivente"><div class="coop-actions"><button id="coop-create" class="primary">Criar sala</button><span>ou entre pelo convite</span><form id="coop-join-form"><label for="coop-code-input">Código da sala</label><div class="coop-code-row"><input id="coop-code-input" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="EX: N7PK4X"><button id="coop-join" type="submit">Entrar</button></div></form><button id="coop-retry">Conectar novamente</button></div></div>
   <div id="coop-lobby" hidden><div class="coop-room"><div><small>CÓDIGO DO CONVITE</small><strong id="coop-room-code"></strong></div><div><button id="coop-copy">Copiar código</button><button id="coop-invite">Copiar link</button></div></div><p id="coop-copy-status" role="status"></p><ol id="coop-players"></ol><p id="coop-ready-hint"></p><button id="coop-ready" class="primary">Estou pronto</button><button id="coop-start" class="primary">Iniciar partida</button><button id="coop-leave">Sair da sala</button></div>
   <footer>Sobrevivência em grupo · até quatro jogadores<br><span>Combate e suprimentos compartilhados. Proteja seus companheiros.</span></footer></div>`;
   this.team.id='coop-team';this.team.hidden=true;root.append(this.panel,this.team);
   let name='Sobrevivente';try{name=localStorage.getItem('last-night-player-name')||name;}catch{/* Storage is optional. */}
   this.field('coop-name').value=name;
+  const transport=this.el('coop-transport') as HTMLSelectElement;
+  if(new URLSearchParams(location.search).get('coop')==='lan'){network.mode='lan';transport.value='lan';}
+  transport.onchange=()=>{network.leave();network.mode=transport.value==='lan'?'lan':'photon';void network.connect(this.name());};
+  this.el('coop-lan-open').onclick=()=>{
+   try{const value=this.field('coop-lan-address').value.trim(),url=new URL(value.includes('://')?value:`http://${value}`);if(!['http:','https:'].includes(url.protocol)||url.username||url.password)throw new Error();url.pathname='/';url.search='?coop=lan';url.hash='';location.assign(url.href);}catch{this.el('coop-status').textContent='Informe o endereço exibido no terminal do anfitrião, como 192.168.1.10:8787.';}
+  };
   this.el('coop-close').onclick=()=>this.close();this.el('coop-leave').onclick=()=>{network.leave();void network.connect(this.name());this.cue();};
   this.el('coop-create').onclick=()=>{if(this.commitName())network.create();this.cue();};
   this.el('coop-join-form').onsubmit=e=>{e.preventDefault();if(this.commitName())network.join(this.field('coop-code-input').value);this.cue();};
@@ -36,13 +42,14 @@ export class CoopUI {
  close(){this.opened=false;this.network.leave();this.panel.hidden=true;this.cue();document.getElementById('coop-online')?.focus();}
  showError(){this.opened=true;this.render();}
  private async copy(invite:boolean){
-  const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('room',this.network.code);
+  const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('room',this.network.code);if(this.network.mode==='lan')url.searchParams.set('coop','lan');
   try{await navigator.clipboard.writeText(invite?url.href:this.network.code);this.el('coop-copy-status').textContent=invite?'Link copiado.':'Código copiado.';this.cue();}catch{this.el('coop-copy-status').textContent='Selecione o código acima e copie para compartilhar.';}
   clearTimeout(this.copyTimer);this.copyTimer=setTimeout(()=>this.el('coop-copy-status').textContent='',3500);
  }
  private render(){
   const n=this.network,inRoom=n.state==='lobby'||n.state==='loading',busy=n.state==='connecting'||n.state==='joining'||n.state==='loading';
   if(n.state==='playing')this.opened=false;
+  this.el('coop-lan-help').hidden=n.mode!=='lan'||inRoom;(this.el('coop-transport') as HTMLSelectElement).disabled=inRoom;
   document.getElementById('menu')!.inert=this.opened;
   this.panel.hidden=!this.opened||n.state==='playing';this.el('coop-connect').hidden=inRoom;this.el('coop-lobby').hidden=!inRoom;
   this.el('coop-status').textContent=n.message||(n.state==='connected'?'Conectado. Crie uma sala ou use um convite.':'');

@@ -1,12 +1,13 @@
+import {StaticChunk} from './static-chunk.ts';
 import * as THREE from 'three';
 import { ROADS } from '../game/districts';
-import { BUILDINGS, CARS, URBAN, WORLD_LIMIT, collides } from '../game/world';
+import { BUILDINGS, CARS, URBAN, collides } from '../game/world';
 import { batch, box } from './models';
 import { voxelGeometry, voxelMaterial } from './voxel';
 import { grassRecipe } from './environment-assets';
 import { visualPreset } from './visual-config';
 
-interface DressingChunk { root: THREE.Group; vegetation: THREE.Group; x: number; z: number; pieces: number }
+interface DressingChunk { root: StaticChunk; vegetation: THREE.Group; x: number; z: number; pieces: number }
 
 /** Cosmetic, deterministic curbside dressing. Never registered as simulation obstacles. */
 export class EnvironmentalDressing {
@@ -22,7 +23,7 @@ export class EnvironmentalDressing {
       const cx = Math.floor(x / 32) * 32 + 16, cz = Math.floor(z / 32) * 32 + 16, key = `${cx}:${cz}`;
       let value = this.chunks.get(key);
       if (!value) {
-        const root = new THREE.Group(), vegetation = new THREE.Group(); root.name = `phase11-dressing:${key}`;
+        const root = new StaticChunk(), vegetation = new THREE.Group(); root.name = `phase11-dressing:${key}`;
         root.position.set(cx, 0, cz); scene.add(root); value = { root, vegetation, x: cx, z: cz, pieces: 0 }; this.chunks.set(key, value);
       }
       return value;
@@ -37,9 +38,9 @@ export class EnvironmentalDressing {
       c.vegetation.add(mesh); this.vegetationCount++;
     };
     // Accumulation is concentrated in gutters. Lane centers and junctions stay open.
-    for (const road of ROADS) for (let n = -WORLD_LIMIT + 6; n < WORLD_LIMIT - 6; n += 4.6) for (const side of [-1, 1]) {
+    for (const road of ROADS) for (let n = -Math.max(road.w,road.d)/2 + 6; n < Math.max(road.w,road.d)/2 - 6; n += 4.6) for (const side of [-1, 1]) {
       const horizontal = road.w > road.d, offset = (horizontal ? road.d : road.w) / 2;
-      const x = horizontal ? n : road.x + side * (offset - .27), z = horizontal ? road.z + side * (offset - .27) : n;
+      const x = horizontal ? road.x+n : road.x + side * (offset - .27), z = horizontal ? road.z + side * (offset - .27) : road.z+n;
       if (ROADS.some(r => r !== road && Math.abs(x - r.x) < r.w / 2 + 1 && Math.abs(z - r.z) < r.d / 2 + 1)) continue;
       if (random() > .75 || collides({ x, z }, .32)) continue;
       const central = Math.abs(x) < 39 && Math.abs(z) < 40, floor = central ? .062 : .016;
@@ -54,8 +55,8 @@ export class EnvironmentalDressing {
       if (random() > .24) grass(x + (horizontal ? 0 : side * .44), z + (horizontal ? side * .44 : 0), .65 + random() * 1.05);
     }
     // Irregular larger repaired cracks remain legible from eye height.
-    for (const road of ROADS) for (let n = -WORLD_LIMIT + 13; n < WORLD_LIMIT - 10; n += 24) {
-      const horizontal = road.w > road.d, x = horizontal ? n : road.x + .4, z = horizontal ? road.z + .4 : n;
+    for (const road of ROADS) for (let n = -Math.max(road.w,road.d)/2 + 13; n < Math.max(road.w,road.d)/2 - 10; n += 24) {
+      const horizontal = road.w > road.d, x = horizontal ? road.x+n : road.x + .4, z = horizontal ? road.z + .4 : road.z+n;
       if (collides({ x, z }, .4)) continue;
       let px = x, pz = z;
       for (let j = 0; j < 4; j++) {
@@ -103,7 +104,7 @@ export class EnvironmentalDressing {
       }
       // Tiny details receive shadows; their own sub-pixel shadows add little except cost.
       for (const group of [c.root, c.vegetation]) group.traverse(o => { if (o instanceof THREE.Mesh) { o.castShadow = false; o.receiveShadow = true; } });
-      c.root.add(c.vegetation);
+      c.root.add(c.vegetation);c.root.freeze();
     }
   }
   update(x: number, z: number, quality: string): void {

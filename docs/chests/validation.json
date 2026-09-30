@@ -1,0 +1,18 @@
+{
+  "unitTests": 223,
+  "lanServerTests": 3,
+  "browserScenarios": 2,
+  "browserCoverage": [
+    "solo craft, placement and right-click interaction",
+    "split and drag stacks",
+    "store and retrieve loaded weapon",
+    "close, reopen and reclaim empty chest",
+    "1366x768, 1600x900 and 1920x1080 layout",
+    "two real Photon clients share chest contents",
+    "host migration preserves chest contents"
+  ],
+  "typecheck": "passed",
+  "build": "passed",
+  "buildWarning": "Existing Three.js chunk slightly exceeds 500 kB",
+  "gitDiffCheck": "passed"
+}

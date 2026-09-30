@@ -1,3 +1,6 @@
+import {defenseMaxHP} from './defenses.ts';
+import {createCraftWorld, MELEE, RECIPES, benchNearby, craft, absorb, harvest, infectedLoot, updateCraftWorld} from './crafting.ts';
+import type {CraftGear, MeleeId} from './crafting.ts';
 import {TensionDirector} from './tension.ts';
 import { FPS } from './first-person.ts';
 import { interactionFocus } from './interaction.ts';
@@ -20,7 +23,7 @@ import { MatchCycle } from './cycle.ts';
 import type { Phase } from './cycle.ts';
 import { Inventory, ITEMS, itemKeys, emptyStock } from './inventory.ts';
 import type { Item } from './inventory.ts';
-import { createLoot, rollLoot } from './loot.ts';
+import { createLoot, rollLoot, LOOT_POINTS } from './loot.ts';
 import { createDefenses, obstacleDistance } from './defenses.ts';
 import type { Barricade } from './defenses.ts';
 import { Horde } from './horde.ts';
@@ -30,9 +33,9 @@ import type { Portal } from './city.ts';
 import {cityEncounter,SCREAM,CITY_PACING} from './city-director.ts';
 export type { Phase } from './cycle.ts';
 export const PISTOL = BALANCE.pistol;
-export interface InputCommand { moveX: number; moveZ: number; yaw?:number; pitch?:number; ads?:boolean; crouch?:boolean; aimX: number; aimZ: number; aimY?: number; fire: boolean; trigger?:boolean; slot?:0|1; run: boolean; reload: boolean; interact: boolean; heldInteract?: boolean; heal?: boolean; dismantle?: boolean }
-export interface Walker extends Vec2 { id: number; kind:EnemyKind; hp: number; angle: number; attack: number; flash: number; gait: number; path: Vec2[]; replan: number; active: boolean; defense?: string; wounds: Wound[]; reaction: number; zone: HitZone; side: number; slow: number; heard?: Vec2; hearing: number; windup:number; winding:boolean; spitCooldown:number; spitTarget?:Vec2; screamTimer?:number; screamCooldown?:number; siege?:boolean; patrol?:Vec2; speedFactor?:number; hearingFactor?:number; lastSeen?:Vec2; memory?:number; awareness?:'idle'|'investigate'|'search'|'chase'; staggerCooldown?:number; searchStep?:number }
-export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: number; fromY?:number; zone?: HitZone; material?: string; last?: boolean; weapon?:WeaponId; primary?:boolean; suppressed?:boolean } | { type: 'death' | 'hit' | 'barricade-hit' | 'barricade-break' | 'build' | 'repair' | 'spit-ready' | 'spit' | 'heavy-step' | 'enemy-call' | 'enemy-attack' | 'door' | 'glass' | 'scream-ready' | 'scream' | 'suspense'; position: Vec2; zone?: HitZone; enemy?:EnemyKind; entity?:number;damage?:number;remainingHP?:number } | { type: 'reload-out' | 'reload-in' | 'reload-slide' | 'reload-done' | 'alarm' | 'switch' | 'rare-pickup'; position?: Vec2; weapon?:WeaponId } | { type:'reload' | 'empty'; weapon?:WeaponId; duration?:number } | {type:'hurt';position?:Vec2} | { type: 'pickup' | 'search' | 'heal' | 'healed' | 'warning' | 'night' | 'dawn' | 'countdown' } | { type: 'notice'; text: string; sub: string };
+export interface InputCommand { moveX: number; moveZ: number; yaw?:number; pitch?:number; ads?:boolean; crouch?:boolean; aimX: number; aimZ: number; aimY?: number; fire: boolean; trigger?:boolean; slot?:0|1|2|3; run: boolean; reload: boolean; interact: boolean; heldInteract?: boolean; heal?: boolean; dismantle?: boolean }
+export interface Walker extends Vec2 { id: number; kind:EnemyKind; hp: number; angle: number; attack: number; flash: number; gait: number; path: Vec2[]; replan: number; active: boolean; defense?: string; wounds: Wound[]; reaction: number; zone: HitZone; side: number; slow: number; heard?: Vec2; hearing: number; windup:number; winding:boolean; spitCooldown:number; spitTarget?:Vec2; screamTimer?:number; screamCooldown?:number; siege?:boolean; patrol?:Vec2; speedFactor?:number; hearingFactor?:number; lastSeen?:Vec2; memory?:number; awareness?:'idle'|'investigate'|'search'|'chase'; staggerCooldown?:number; searchStep?:number; chargeTarget?:Vec2;chargeTime?:number }
+export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: number; fromY?:number; zone?: HitZone; material?: string; last?: boolean; weapon?:WeaponId; primary?:boolean; suppressed?:boolean } | { type: 'melee' | 'death' | 'hit' | 'barricade-hit' | 'barricade-break' | 'build' | 'repair' | 'spit-ready' | 'spit' | 'heavy-step' | 'enemy-call' | 'enemy-attack' | 'door' | 'glass' | 'scream-ready' | 'scream' | 'suspense'; position: Vec2; zone?: HitZone; enemy?:EnemyKind; entity?:number;damage?:number;remainingHP?:number } | { type: 'reload-out' | 'reload-in' | 'reload-slide' | 'reload-done' | 'alarm' | 'switch' | 'rare-pickup'; position?: Vec2; weapon?:WeaponId } | { type:'reload' | 'empty'; weapon?:WeaponId; duration?:number } | {type:'hurt';position?:Vec2} | { type: 'pickup' | 'search' | 'heal' | 'healed' | 'warning' | 'night' | 'dawn' | 'countdown' } | { type: 'notice'; text: string; sub: string };
 export interface Action { kind: 'search' | 'heal' | 'build' | 'repair' | 'dismantle' | 'base' | 'facility' | 'silence' | 'event' | 'portal' | 'board'; target: string; elapsed: number; duration: number; origin: Vec2 }
 export interface Acid extends Vec2 {id:number;from:Vec2;age:number;tick:number}
 export class Simulation {
@@ -52,7 +55,9 @@ export class Simulation {
   inventory = new Inventory(); storage = new Inventory(Infinity); cycle: MatchCycle; horde = new Horde();
   events: GameEvent[] = []; action: Action | null = null;
   kills = 0; baseHP = BALANCE.base.hp;
-  loadout:[WeaponItem|null,WeaponItem|null]=[null,createWeapon('pistol',0)]; activeSlot:0|1=1;
+  loadout:[WeaponItem|null,WeaponItem|null]=[null,createWeapon('pistol',0)]; activeSlot:0|1|2|3=1;
+  crafting=createCraftWorld();gear:CraftGear={melee:'fists',owned:['fists'],armor:0,armorTier:0};packCrafted=false;
+  private emptyHands=createWeapon('pistol',0);
   groundWeapons:GroundWeapon[]=[]; nextWeaponId=1; equipmentRolled=new Set<string>(); discoveredWeapons=new Set<number>([0]);
   portals:(Portal&Barricade)[]=CITY_PORTALS.map(p=>({...p,label:p.kind==='window'?'Janela':'Porta',built:true,flash:0}));
   discoveredSites=new Set<string>(); activatedSites=new Set<string>(); weaponStorage:WeaponItem[]=[];
@@ -72,9 +77,11 @@ export class Simulation {
   }
   random(): number { this.seed = (Math.imul(1664525, this.seed) + 1013904223) >>> 0; return this.seed / 4294967296; }
   contentRandom=():number=>{this.contentSeed=(Math.imul(1664525,this.contentSeed)+1013904223)>>>0;return this.contentSeed/4294967296;};
-  get equipped():WeaponItem {return this.loadout[this.activeSlot]!;}
-  get weapon(){return weaponStats(this.equipped);}
-  get ammo():number{return this.equipped.magazine;}
+  get meleeMode(){return this.activeSlot>=2;}
+  get meleeId():MeleeId{return this.activeSlot===3?'fists':this.gear.melee;}
+  get equipped():WeaponItem {return (this.activeSlot<2?this.loadout[this.activeSlot as 0|1]:null)??this.emptyHands;}
+  get weapon(){const gun=weaponStats(this.equipped);if(!this.meleeMode)return gun;const m=MELEE[this.meleeId];return {...gun,name:m.name,damage:m.damage,range:m.reach,falloff:m.reach,cooldown:m.cooldown,recoil:.15,kick:.12,pellets:1,spread:0,noise:7,move:1,magazine:0,automatic:false};}
+  get ammo():number{return this.meleeMode?0:this.equipped.magazine;}
   set ammo(n:number){this.equipped.magazine=Math.max(0,Math.floor(n));}
   get maxHP():number{return BALANCE.player.hp+(this.perks.has('tough')?15:0);}
   get buildWood():number{return BALANCE.barricade.wood-(this.perks.has('builder')&&!this.builderUsed?2:0);}
@@ -87,12 +94,19 @@ export class Simulation {
   }
   get phase(): Phase { return this.cycle.phase; }
   get untilNight(): number { return this.cycle.untilNight; }
-  get reserve(): number { return this.inventory.items[this.weapon.ammo]; }
+  get reserve(): number { return this.meleeMode?0:this.inventory.items[this.weapon.ammo]; }
   set reserve(value: number) { this.inventory.items[this.weapon.ammo] = Math.max(0, Math.floor(value)); }
   get activeWalkers(): number { return this.zombies.filter(z => z.active).length; }
   get threat(): number { return this.activeWalkers + (this.phase === 'night' ? Math.max(0, this.horde.budget - this.horde.spawned) : 0); }
   get atBase(): boolean { return this.player.x > -5 && this.player.x < 7 && this.player.z > .35 && this.player.z < 12; }
-  get solidDefenses(): Barricade[] { return [...this.barricades.filter(b=>b.hp>0),...this.portals.filter(p=>p.state!=='open'&&p.hp>0)]; }
+  private craftCollisionSource?:typeof this.crafting;private craftCollisionRevision=-1;private craftCollisionTables=-1;private craftCollisions:Barricade[]=[];
+  get solidDefenses():Barricade[] {
+    if(this.craftCollisionSource!==this.crafting||this.craftCollisionRevision!==this.crafting.revision||this.craftCollisionTables!==this.crafting.tables.length){
+      this.craftCollisionSource=this.crafting;this.craftCollisionRevision=this.crafting.revision;this.craftCollisionTables=this.crafting.tables.length;
+      this.craftCollisions=[...this.crafting.trees.filter(t=>t.hp>0).map(t=>({id:`tree-${t.id}`,label:'Árvore',x:t.x,z:t.z,w:.58,d:.58,h:3.8,hp:1e6,built:true,flash:0})),...this.crafting.chests.map(t=>({id:`chest-${t.id}`,label:'Baú',x:t.x,z:t.z,w:1.3,d:1.3,h:.95,hp:1e6,built:true,flash:0})),...this.crafting.tables.map(t=>({id:`table-${t.id}`,label:'Mesa inteligente',x:t.x,z:t.z,w:1.5,d:1.5,h:1.1,hp:t.hp,built:true,flash:0}))];
+    }
+    return [...this.barricades.filter(b=>b.hp>0&&!b.open&&(!b.trap||b.trap==='wire')),...this.portals.filter(p=>p.state!=='open'&&p.hp>0),...this.craftCollisions];
+  }
   get nearbyPortal(){if(this.firstPerson)return this.focus?.kind==='portal'?this.portals.find(v=>v.id===this.focus!.id):undefined;return this.portals.find(p=>distance(p,this.player)<2.5&&this.canReach(p,p.id));}
   get nearbyLoot() {if(this.firstPerson)return this.focus?.kind==='loot'?this.loot.find(v=>v.id===this.focus!.id):undefined; return this.loot.find(s => (!s.searched || itemKeys.some(k => s.contents[k] > 0)) && distance(s, this.player) < BALANCE.interaction.range && this.canReach(s)); }
   get nearbyDefense() {if(this.firstPerson)return this.focus?.kind==='defense'?this.barricades.find(v=>v.id===this.focus!.id):undefined; return this.barricades.find(b => obstacleDistance(this.player, b) < 2.1 && this.canReach({ x: Math.max(b.x - b.w / 2, Math.min(b.x + b.w / 2, this.player.x)), z: b.z })); }
@@ -124,12 +138,13 @@ export class Simulation {
     return z;
   }
   reload(): void {
+    if(this.meleeMode)return;
     if (this.gameOver || this.switchTimer || this.reloadTimer || this.ammo >= this.weapon.magazine || !this.reserve) return;
     this.reloadDuration=this.weapon.reload*(this.perks.has('pressure')&&this.player.hp<this.maxHP*.35?.75:1);
     this.reloadTimer = this.reloadDuration; this.events.push({ type: 'reload', weapon:this.equipped.type, duration:this.reloadDuration });
   }
-  switchWeapon(slot:0|1):void {
-    if(this.gameOver||!this.loadout[slot]||slot===this.activeSlot||this.switchTimer)return;
+  switchWeapon(slot:0|1|2|3):void {
+    if(this.gameOver||(slot<2&&!this.loadout[slot as 0|1])||slot===this.activeSlot||this.switchTimer)return;
     this.cancelReload();this.action=null;this.activeSlot=slot;this.switchTimer=.32;this.recoil=0;this.events.push({type:'switch',weapon:this.equipped.type});
   }
   private equipmentPosition(center:Vec2):Vec2 {
@@ -162,9 +177,11 @@ export class Simulation {
     if (this.gameOver || this.shotTimer > 1e-8 || this.switchTimer > 0) return;
     const weapon=this.weapon;
     if(this.reloadTimer>0){if(weapon.reloadStyle==='shell'&&this.ammo>0)this.cancelReload();else return;}
-    if (!this.ammo) { this.events.push({ type: 'empty', weapon:this.equipped.type }); this.shotTimer = .4; this.reload(); return; }
+    if (this.meleeMode&&this.player.stamina<MELEE[this.meleeId].stamina){this.notice('SEM FÔLEGO','Recupere o fôlego antes de atacar.');return;}
+    if (!this.meleeMode&&!this.ammo) { this.events.push({ type: 'empty', weapon:this.equipped.type }); this.shotTimer = .4; this.reload(); return; }
     this.onBeforeShot?.();
-    this.ammo--; this.shotTimer += weapon.cooldown; this.recoil = weapon.recoil*(this.perks.has('steady')?.85:1);
+    if(this.meleeMode){this.player.stamina-=MELEE[this.meleeId].stamina;this.player.staminaDelay=1.4;this.events.push({type:'melee',position:{...this.player}});}else this.ammo--; this.shotTimer += weapon.cooldown; this.recoil = weapon.recoil*(this.perks.has('steady')?.85:1);
+    if(this.meleeMode&&this.coopMode!=='replica'&&harvest(this)){this.noise(this.player,9);return;}
     const slope=this.anatomicalAim ? (this.aimHeight-1.3)/this.aimDistance : 0;
     const impacts=new Map<Walker,{damage:number;zone:HitZone;side:number;y:number;dir:Vec2}>();
     for(let pellet=0;pellet<weapon.pellets;pellet++){
@@ -177,7 +194,7 @@ export class Simulation {
       const shotSlope=fps?Math.tan(Math.max(-FPS.pitchLimit,Math.min(FPS.pitchLimit,shotPitch))):slope;
       const cos=1/Math.sqrt(1+shotSlope*shotSlope),ray={x:dir.x*cos,y:shotSlope*cos,z:dir.z*cos};
       const origin={x:this.player.x,y:originY,z:this.player.z};
-      const barriers=this.solidDefenses.map(p=>({...p,h:'kind' in p?p.kind==='window'?2.4:2.8:1.4}));
+      const barriers=this.solidDefenses.map(p=>({...p,h:'kind' in p?p.kind==='window'?2.4:2.8:p.h??1.4}));
       let limit=fps?rayWorld(origin,ray,weapon.range,barriers)*cos:wallDistance(this.player,dir,weapon.range,this.portals.filter(p=>p.state!=='open'&&p.hp>0));
       if(!fps&&slope<0)limit=Math.min(limit,1.3/-slope);
       let hits=(this.coopMode==='replica'?[]:this.zombies).filter(z=>z.active).map(z=>({z,hit:bodyHit(this.player,dir,shotSlope,z,limit,originY)})).filter(v=>v.hit).sort((a,b)=>a.hit!.distance-b.hit!.distance).slice(0,this.equipped.affix==='piercing'?2:1);
@@ -198,31 +215,38 @@ export class Simulation {
       for(let n=0;n<hits.length;n++){
         const {z,hit}=hits[n];const h=hit!;
         const falloff=h.distance<=weapon.falloff?1:Math.max(.25,1-(h.distance-weapon.falloff)/(weapon.range-weapon.falloff)*.75);
-        const damage=weapon.damage*BALANCE.combat.multipliers[h.zone]*falloff*(n?.55:1)*(this.ammo===0&&this.perks.has('last')?1.2:1)*(h.zone==='HEAD'&&this.equipped.affix==='precise'?1.1:1);
+        const damage=weapon.damage*BALANCE.combat.multipliers[h.zone]*falloff*(n?.55:1)*(!this.meleeMode&&this.ammo===0&&this.perks.has('last')?1.2:1)*(h.zone==='HEAD'&&this.equipped.affix==='precise'?1.1:1);
         const prior=impacts.get(z);impacts.set(z,{damage:damage+(prior?.damage??0),zone:prior?.zone==='HEAD'?'HEAD':h.zone,side:h.side,y:h.y,dir});
       }
       const first=hits[0]?.hit,last=hits.at(-1)?.hit,nearest=last?.distance??limit;
       if(this.coopMode!=='replica'&&glass&&glass.state==='closed'&&!hits.length){glass.state='open';glass.hp=0;this.noise(glass,35);this.events.push({type:'glass',position:glass});}
       const end=blockedPoint??{x:this.player.x+dir.x*nearest,z:this.player.z+dir.z*nearest};
       if(this.coopMode==='solo'&&pellet===0&&!first){const car=URBAN.vehicles.find(v=>['police','hatch'].includes(v.kind)&&Math.abs(v.x-end.x)<=v.w/2+.12&&Math.abs(v.z-end.z)<=v.d/2+.12);if(car&&!this.vehicleAlarms.has(car.id)){this.vehicleAlarms.add(car.id);this.startAlarm(car,16);}}
-      this.events.push({type:'shot',from:fps?{x:muzzle.x,z:muzzle.z}:{x:this.player.x+dir.x*.75,z:this.player.z+dir.z*.75},fromY:fps?muzzle.y:1.3,to:end,hit:!!first,y:blockedPoint?.y??last?.y??originY+shotSlope*nearest,zone:first?.zone,material:nearest>=weapon.range*cos-.01?'air':impactMaterial(end,this.solidDefenses),last:this.ammo===0,weapon:this.equipped.type,primary:pellet===0,suppressed:this.equipped.affix==='quiet'});
+      if(!this.meleeMode)this.events.push({type:'shot',from:fps?{x:muzzle.x,z:muzzle.z}:{x:this.player.x+dir.x*.75,z:this.player.z+dir.z*.75},fromY:fps?muzzle.y:1.3,to:end,hit:!!first,y:blockedPoint?.y??last?.y??originY+shotSlope*nearest,zone:first?.zone,material:nearest>=weapon.range*cos-.01?'air':impactMaterial(end,this.solidDefenses),last:this.ammo===0,weapon:this.equipped.type,primary:pellet===0,suppressed:this.equipped.affix==='quiet'});
     }
     if(this.firstPerson){this.player.aimKick=Math.min(.12,this.player.aimKick+weapon.recoil*FPS.recoilScale);this.player.bloom=Math.min(.09,this.player.bloom+weapon.recoil*.012);}
     if(this.coopMode!=='replica')this.noise(this.player,weapon.noise);
-    for(const [victim,{damage,zone,side,y,dir}] of impacts){
+    for(const [victim,impact] of impacts){
+      const {zone,side,y,dir}=impact;const damage=impact.damage*(victim.kind==='armored'&&zone==='TORSO'?.5:1);
       const enemy=ENEMIES[victim.kind];
       if(zone==='HEAD')this.stats.headshots++;
       if(zone==='HEAD'&&this.perks.has('cold'))this.player.stamina=Math.min(100,this.player.stamina+8);
       victim.hp -= damage; victim.flash = .14; const stagger=(victim.staggerCooldown??0)<=0; victim.reaction=stagger?BALANCE.combat.stagger*enemy.stagger*(weapon.pellets>1&&damage>70?2:1):Math.min(victim.reaction,.05); if(stagger)victim.staggerCooldown=.85; victim.zone=zone; victim.side=side;
       if(zone==='HEAD'&&this.openingReady&&this.perks.has('opening')){victim.reaction*=2;this.openingReady=false;}
+      if(victim.chargeTarget&&victim.windup>0&&(damage>=20||zone==='HEAD')){victim.chargeTarget=undefined;victim.chargeTime=0;victim.windup=0;victim.spitCooldown=5;}
       if(victim.kind==='spitter'&&victim.spitTarget&&(damage>=20||zone==='HEAD')){victim.spitTarget=undefined;victim.windup=0;victim.spitCooldown=2;}
       if(victim.kind==='screamer'&&victim.screamTimer&&(damage>=SCREAM.interrupt||zone==='HEAD')){victim.screamTimer=0;victim.screamCooldown=5;}
       if(zone==='LEGS'&&stagger) victim.slow=damage>=18?BALANCE.combat.legSlow:.25;
       victim.wounds.push({zone,side,y}); if(victim.wounds.length>BALANCE.combat.woundLimit) victim.wounds.shift();
       const kick=weapon.kick*enemy.knockback*(stagger?1:.1);move(victim, dir.x*kick, dir.z*kick, enemy.radius, this.solidDefenses);
       this.events.push({ type: 'hit', position: { x: victim.x, z: victim.z }, zone,enemy:victim.kind,entity:victim.id,damage:Math.min(damage,Math.max(0,victim.hp+damage)),remainingHP:Math.max(0,victim.hp) });
-      if (victim.hp <= 0) { victim.active = false; victim.path=[]; this.corpses.add(victim,dir,this.zombies.indexOf(victim)%3); this.kills++;if(victim.kind!=='walker')this.stats.specials++;this.events.push({ type: 'death', position: { x: victim.x, z: victim.z }, zone,enemy:victim.kind,entity:victim.id,damage:Math.min(damage,Math.max(0,victim.hp+damage)),remainingHP:Math.max(0,victim.hp) }); }
+      if(victim.hp<=0)this.killInfected(victim,dir,zone);
     }
+  }
+  private killInfected(z:Walker,dir:Vec2,zone:HitZone='TORSO'):void {
+    if(!z.active)return;z.active=false;z.path=[];this.corpses.add(z,dir,z.id%3);infectedLoot(this,z);this.kills++;if(z.kind!=='walker')this.stats.specials++;
+    if(z.kind==='bloater'&&this.acids.length<ACID.capacity){this.acids.push({id:this.nextAcidId++,x:z.x,z:z.z,from:{x:z.x,z:z.z},age:0,tick:ACID.flight});this.events.push({type:'spit',position:{x:z.x,z:z.z},enemy:z.kind});}
+    this.events.push({type:'death',position:{x:z.x,z:z.z},zone,enemy:z.kind,entity:z.id,remainingHP:0});
   }
   noise(position: Vec2,radius:number):void {
     this.director.hear(radius);
@@ -253,7 +277,7 @@ export class Simulation {
   }
   private hurt(damage:number,position?:Vec2):void {
     if(this.player.invulnerable>0)return;
-    this.stats.damage+=Math.min(this.player.hp,damage);this.player.hp=Math.max(0,this.player.hp-damage);this.player.invulnerable=.55;this.action=null;this.cancelReload();this.events.push({type:'hurt',position});
+    damage=absorb(this,damage);this.stats.damage+=Math.min(this.player.hp,damage);this.player.hp=Math.max(0,this.player.hp-damage);this.player.invulnerable=.55;this.action=null;this.cancelReload();this.events.push({type:'hurt',position});
   }
   private updateWorld(dt:number):void {
     for(const acid of this.acids){acid.age+=dt;acid.tick-=dt;if(acid.age>=ACID.flight&&acid.tick<=0){acid.tick=ACID.interval;const d=distance(acid,this.player);if(d<ACID.radius&&(d<.01||wallDistance(acid,{x:(this.player.x-acid.x)/d,z:(this.player.z-acid.z)/d},d,this.solidDefenses)>=d-.05))this.hurt(ACID.damage,acid.from);}}
@@ -276,27 +300,25 @@ export class Simulation {
     this.notice(this.worldEvent.name.toUpperCase(),this.atBase?'Rádio do abrigo: há um sinal temporário marcado no mapa.':'Um sinal distante foi marcado no mapa; avalie o tempo de retorno.');
   }
 
-  resource(item: Item): number { return this.inventory.items[item] + this.storage.items[item]; }
+  resource(item: Item): number { return this.inventory.items[item]; }
   private pay(cost: Partial<Record<Item, number>>): boolean {
     if (itemKeys.some(k => this.resource(k) < (cost[k] ?? 0))) return false;
-    for (const k of itemKeys) { const amount = cost[k] ?? 0, carried = Math.min(amount, this.inventory.items[k]); this.inventory.take(k, carried); this.storage.take(k, amount - carried); }
+    for (const k of itemKeys) { const amount = cost[k] ?? 0, carried = Math.min(amount, this.inventory.items[k]); this.inventory.take(k, carried);  }
     return true;
   }
   manage(kind: 'deposit' | 'withdraw' | 'discard' | 'rare', item: Item): void {
     if (this.gameOver || this.action) return;
     if (kind === 'discard') { this.inventory.take(item, Math.min(ITEMS[item].step, this.inventory.items[item])); return; }
     if (!this.atBase) return;
-    if (kind === 'deposit') this.inventory.transfer(this.storage, item, this.inventory.items[item]);
-    if (kind === 'withdraw') this.storage.transfer(this.inventory, item, ITEMS[item].step);
+
     if (kind === 'rare' && this.baseHP < BALANCE.base.hp && this.pay({ rare: 1 })) { this.baseHP = Math.min(BALANCE.base.hp, this.baseHP + BALANCE.base.rareRepair); this.events.push({ type: 'repair', position: BASE }); this.notice('REFORÇO DE EMERGÊNCIA', `Abrigo +${BALANCE.base.rareRepair} HP`); }
   }
-  storeWeapon(slot:0|1):boolean {
-    const gun=this.loadout[slot];if(this.gameOver||this.action||!this.atBase||!gun||this.weaponStorage.length>=4||!this.loadout[slot===0?1:0])return false;
-    this.weaponStorage.push(gun);this.loadout[slot]=null;if(this.activeSlot===slot)this.activeSlot=slot===0?1:0;this.cancelReload();this.switchTimer=.32;return true;
-  }
-  retrieveWeapon(uid:number):boolean {
-    if(this.gameOver||this.action||!this.atBase)return false;const i=this.weaponStorage.findIndex(g=>g.uid===uid);if(i<0)return false;
-    const gun=this.weaponStorage.splice(i,1)[0],slot=WEAPONS[gun.type].slot,old=this.loadout[slot];if(old)this.weaponStorage.push(old);this.loadout[slot]=gun;this.activeSlot=slot;this.cancelReload();this.switchTimer=.32;return true;
+  // Legacy requests cannot access an invisible shelter stash. Use a placed chest.
+  storeWeapon(_slot:0|1):boolean { return false; }
+  retrieveWeapon(_uid:number):boolean { return false; }
+  grantItems(item:Item,amount:number,position:Vec2=this.player):void {
+    const accepted=this.inventory.add(item,amount),left=amount-accepted;
+    if(left)this.loot.push({id:`reward-${this.crafting.next++}`,x:position.x,z:position.z,area:'outside',label:'Suprimentos recuperados',searched:true,lastFound:null,contents:{...emptyStock(),[item]:left}});
   }
   private begin(kind: Action['kind'], target: string, duration: number): void {
     this.cancelReload();
@@ -324,11 +346,14 @@ export class Simulation {
         else if(input.interact&&this.nearbyEvent)this.begin('event',String(this.nearbyEvent.id),1.8);
         else if (loot && input.interact) this.begin('search', loot.id, loot.searched ? .4 : BALANCE.interaction.search);
         else if (b) {
+          if(b.id==='bed-gate'&&b.hp>0&&input.interact){if(!b.open||obstacleDistance(this.player,b)>.6&&!this.zombies.some(z=>z.active&&obstacleDistance(z,b)<.7)&&!this.coopTargets.some(p=>obstacleDistance(p,b)<.6)){b.open=!b.open;this.zombies.forEach(z=>z.replan=0);this.events.push({type:'door',position:b});}return;}
+
           if (b.hp <= 0 && input.interact) {
+            if(RECIPES.some(r=>r.module===b.id)&&!benchNearby(this)){this.notice('MESA NECESSÁRIA','Posicione uma mesa próxima para construir este módulo.');return;}
             if (obstacleDistance(this.player, b) < .6 || this.zombies.some(z => z.active && obstacleDistance(z, b) < .6)) this.notice('PONTO OCUPADO', 'Afaste-se um pouco da marcação para construir.');
             else if (this.resource('wood') >= this.buildWood && this.resource('scrap') >= BALANCE.barricade.scrap) this.begin('build', b.id, BALANCE.interaction.build);
             else this.notice('FALTAM MATERIAIS', `${this.buildWood} madeira + ${BALANCE.barricade.scrap} sucata · explore as caixas próximas`);
-          } else if (b.hp > 0 && b.hp < BALANCE.barricade.hp && this.resource('wood') >= BALANCE.barricade.repairWood && this.resource('scrap') >= this.repairScrap) this.begin('repair', b.id, BALANCE.interaction.repair);
+          } else if (b.hp > 0 && b.hp < defenseMaxHP(b) && this.resource('wood') >= BALANCE.barricade.repairWood && this.resource('scrap') >= this.repairScrap) this.begin('repair', b.id, BALANCE.interaction.repair);
         } else if (input.interact && distance(this.player, BASE) < 2.7 && (!this.firstPerson||this.focus?.kind==='base') && this.baseHP < BALANCE.base.hp && this.resource('scrap') >= BALANCE.base.repairCost) this.begin('base', '', BALANCE.base.repairTime);
       }
     }
@@ -338,7 +363,7 @@ export class Simulation {
     if (action.kind === 'heal') {
       if (this.inventory.take('med', 1)) { this.player.hp = Math.min(this.maxHP, this.player.hp + BALANCE.interaction.healAmount);if(this.perks.has('medic'))this.player.stamina=100; this.events.push({ type: 'healed' }); }
     } else if (action.kind === 'search') {
-      const loot = this.loot.find(l => l.id === action.target)!;
+      const loot = this.loot.find(l => l.id === action.target);if(!loot)return;
       if (!loot.searched) {
         loot.contents = loot.area === 'base' || loot.id === 'base-wood' ? emptyStock() : rollLoot(loot.area, () => this.random());
         if(loot.restocked)for(const key of itemKeys)loot.contents[key]=Math.floor(loot.contents[key]*.5);
@@ -380,17 +405,20 @@ export class Simulation {
       if (this.pay({ scrap: BALANCE.base.repairCost })) { this.baseHP = Math.min(BALANCE.base.hp, this.baseHP + BALANCE.base.repairAmount); this.events.push({ type: 'repair', position: BASE }); }
     } else {
       const b = this.barricades.find(b => b.id === action.target)!;
+      if(action.kind==='build'){const recipe=RECIPES.find(r=>r.module===b.id);if(recipe){craft(this,recipe.id);return;}}
       if (action.kind === 'build' && b.hp <= 0 && obstacleDistance(this.player, b) >= .6 && !this.zombies.some(z => z.active && obstacleDistance(z, b) < .6) && this.pay({ wood: this.buildWood, scrap: BALANCE.barricade.scrap })) {
-        if(this.perks.has('builder'))this.builderUsed=true;b.hp = BALANCE.barricade.hp; b.built = true; this.events.push({ type: 'build', position: b }); this.notice('BARRICADA ERGUIDA', 'Segure E para reparar · X para desmontar e liberar passagem.');
-      } else if (action.kind === 'repair' && b.hp > 0 && b.hp < BALANCE.barricade.hp && this.pay({ wood: BALANCE.barricade.repairWood, scrap: this.repairScrap })) {
-        this.stats.repairs++;b.hp = Math.min(BALANCE.barricade.hp, b.hp + BALANCE.barricade.repairAmount); this.events.push({ type: 'repair', position: b });
+        if(this.perks.has('builder'))this.builderUsed=true;b.hp = BALANCE.barricade.hp; b.built = true;b.open=false; this.events.push({ type: 'build', position: b }); this.notice('BARRICADA ERGUIDA', 'Segure E para reparar · X para desmontar e liberar passagem.');
+      } else if (action.kind === 'repair' && b.hp > 0 && b.hp < defenseMaxHP(b) && this.pay({ wood: BALANCE.barricade.repairWood, scrap: this.repairScrap })) {
+        this.stats.repairs++;b.hp = Math.min(defenseMaxHP(b), b.hp + BALANCE.barricade.repairAmount); this.events.push({ type: 'repair', position: b });
       } else if (action.kind === 'dismantle' && b.hp > 0) {
-        this.storage.add('wood', Math.floor(BALANCE.barricade.wood * .5 * b.hp / BALANCE.barricade.hp)); b.hp = 0; b.built = false; this.events.push({ type: 'barricade-break', position: b });
+        this.grantItems('wood', Math.floor(BALANCE.barricade.wood * .5 * b.hp / defenseMaxHP(b))); b.hp = 0; b.built = false; this.events.push({ type: 'barricade-break', position: b });
       }
       this.zombies.forEach(z => { z.replan = 0; });
     }
   }
   damageBarricade(b: Barricade, amount: number): void {
+    if(b.id.startsWith('table-')){const t=this.crafting.tables.find(t=>`table-${t.id}`===b.id);if(!t||amount<=0)return;t.hp=Math.max(0,t.hp-amount);b.hp=t.hp;this.crafting.revision++;if(!t.hp){this.crafting.tables.splice(this.crafting.tables.indexOf(t),1);this.zombies.forEach(z=>z.replan=0);}this.events.push({type:t.hp?'barricade-hit':'barricade-break',position:t});return;}
+
     if (b.hp <= 0 || amount <= 0) return;
     b.hp = Math.max(0, b.hp - amount); b.flash = .18;
     if(!b.hp){const p=this.portals.find(p=>p.id===b.id);if(p)p.state='open';}
@@ -403,9 +431,9 @@ export class Simulation {
     if (event === 'countdown') this.events.push({ type: 'countdown' });
     if (event === 'night') { for(const z of this.zombies)if(z.active&&distance(z,BASE)<65)z.siege=true;this.horde.start(this.day); this.zombies.forEach(z => { z.replan = 0; }); this.events.push({ type: 'night' }); this.notice(`NOITE ${this.day}`, 'Defenda o abrigo.'); }
     if (event === 'survived') this.notice('VOCÊ SOBREVIVEU', 'Por um instante, a cidade fica em silêncio.');
-    if (event === 'dawn') { this.stats.nights++;this.pendingPerks=perkOffer(this.perks,this.contentRandom); this.events.push({ type: 'dawn' }); this.horde.active = false; this.storage.add('scrap', BALANCE.reward.scrap); this.storage.add('rare', BALANCE.reward.rare); this.notice(`AMANHECER — DIA ${this.day + 1}`, '+3 sucata · +1 reserva selada no abrigo'); }
+    if (event === 'dawn') { this.stats.nights++;this.pendingPerks=perkOffer(this.perks,this.contentRandom); this.events.push({ type: 'dawn' }); this.horde.active = false; this.grantItems('scrap', BALANCE.reward.scrap); this.grantItems('rare', BALANCE.reward.rare); this.notice(`AMANHECER — DIA ${this.day + 1}`, '+3 sucata · +1 reserva selada. Excedentes ficam no chão.'); }
     if (event === 'day') {
-      const empty = this.loot.filter(l => l.searched && !itemKeys.some(k => l.contents[k]) && l.area !== 'base'&&!l.site&&!l.restocked);
+      const empty = this.loot.filter(l => l.searched && !itemKeys.some(k => l.contents[k]) && l.area !== 'base'&&!l.site&&!l.restocked&&LOOT_POINTS.some(p=>p.id===l.id));
       // Refill only a subset; leftovers are never overwritten and the opening cache stays exhausted.
       for (let i = empty.length - 1; i > 0; i--) { const j = Math.floor(this.random() * (i + 1)); [empty[i], empty[j]] = [empty[j], empty[i]]; }
       empty.slice(0, Math.ceil(empty.length * BALANCE.reward.restock)).forEach(l => { l.searched = false; l.guaranteed = undefined;l.restocked=true; });
@@ -446,6 +474,7 @@ export class Simulation {
     this.fireHeld=input.fire;
     if(this.coopMode!=='replica')this.interact(input, dt);
     if(this.coopMode!=='solo')return;
+    updateCraftWorld(this,dt);
     this.barricades.forEach(b => { b.flash = Math.max(0, b.flash - dt); });
     if (this.phase === 'night') this.horde.update(dt, this.day, () => !!this.spawn(undefined,nightEnemy(this.day,this.horde.spawned,this.horde.budget)));
     else if (this.phase === 'day') { this.spawnTimer -= dt; if (this.spawnTimer <= 0) { if (distance(this.player,BASE)<65&&this.activeWalkers < Math.min(10, BALANCE.horde.dayCap + this.day - 1)) this.spawn(); this.spawnTimer = BALANCE.horde.dayInterval; } }
@@ -506,13 +535,27 @@ export class Simulation {
   }
   updateCoopWorld(dt:number,targets:Simulation['player'][]):void {
     this.coopTargets=targets;
+    updateCraftWorld(this,dt,targets);
+    if(this.phase==='night')this.horde.update(dt,this.day,()=>!!this.spawn(undefined,nightEnemy(this.day,this.horde.spawned,this.horde.budget)));
+    for(const event of this.cycle.update(dt,this.horde.complete&&!this.zombies.some(z=>z.active&&(z.siege||distance(z,BASE)<50))))this.transition(event);
     if(targets.length)this.player=targets[0];
     this.updateWalkers(dt,this.solidDefenses);
     for(const acid of this.acids){acid.age+=dt;acid.tick-=dt;if(acid.age>=ACID.flight&&acid.tick<=0){acid.tick=ACID.interval;for(const p of targets){const d=distance(acid,p);if(p.hp>0&&d<ACID.radius&&(d<.01||wallDistance(acid,{x:(p.x-acid.x)/d,z:(p.z-acid.z)/d},d,this.solidDefenses)>=d-.05))this.onCoopDamage?.(p,ACID.damage,acid.from);}}}
     this.acids=this.acids.filter(a=>a.age<ACID.flight+ACID.lifetime);
     this.corpses.update(dt,this.player);
   }
-  private updateWalkers(dt: number, solid: Barricade[]): void {
+  private updateTraps(dt:number):void {
+    for(const b of this.barricades){if(!b.trap||b.hp<=0)continue;b.trapTimer=Math.max(0,(b.trapTimer??0)-dt);if(b.trapTimer>0)continue;
+      const targets=this.zombies.filter(z=>z.active&&obstacleDistance(z,b)<(b.trap==='wire'?1:.45));if(!targets.length)continue;b.trapTimer=1;
+      for(const z of targets.slice(0,4)){const damage=b.trap==='spikes'?24:b.trap==='wire'?12:8;z.hp-=damage;z.flash=.12;z.slow=Math.max(z.slow,b.trap==='snare'?3:1.2);b.hp=Math.max(0,b.hp-5);
+        this.events.push({type:'hit',position:{x:z.x,z:z.z},zone:'LEGS',enemy:z.kind,entity:z.id,damage,remainingHP:Math.max(0,z.hp)});
+        if(z.hp<=0)this.killInfected(z,{x:0,z:1},'LEGS');
+      }
+      if(!b.hp)this.events.push({type:'barricade-break',position:b});
+    }
+  }
+  private updateWalkers(dt: number, worldSolids: Barricade[]): void {
+    this.updateTraps(dt);
     // Spatial bins avoid all-pairs separation as the horde grows.
     const bins = new Map<string, Walker[]>(); const cell = 2;
     for (const z of this.zombies) if (z.active) { const key = `${Math.floor(z.x / cell)},${Math.floor(z.z / cell)}`; const bucket = bins.get(key) ?? []; bucket.push(z); bins.set(key, bucket); }
@@ -525,6 +568,7 @@ export class Simulation {
       if(!player){z.path=[];continue;}
       const definition=ENEMIES[z.kind];
       if(distance(z,player)>CITY_PACING.sleep&&!z.siege)continue;
+      const solid=worldSolids.filter(b=>Math.abs(b.x-z.x)<=100+b.w/2&&Math.abs(b.z-z.z)<=100+b.d/2);
       z.screamCooldown=Math.max(0,(z.screamCooldown??0)-dt);
       if(z.screamTimer){z.screamTimer=Math.max(0,z.screamTimer-dt);if(!z.screamTimer){this.noise(z,SCREAM.noise);z.screamCooldown=SCREAM.cooldown;this.events.push({type:'scream',position:{x:z.x,z:z.z},enemy:z.kind});}continue;}
       z.staggerCooldown=Math.max(0,(z.staggerCooldown??0)-dt);z.memory=Math.max(0,(z.memory??0)-dt);z.reaction=Math.max(0,z.reaction-dt); z.slow=Math.max(0,z.slow-dt); z.hearing=Math.max(0,z.hearing-dt);
@@ -553,21 +597,36 @@ export class Simulation {
       if (!target) { z.path = []; z.gait += dt * .8; continue; }
       let defense = solid.find(b => b.id === z.defense && b.hp > 0);
       if (z.replan <= 0) {
-        const route = findPath(z, target); let previous: Vec2 = z; defense = undefined;
+        const route = findPath(z, target,solid.filter(b=>b.id.startsWith('tree-'))); let previous: Vec2 = z; defense = undefined;
         // A barricade intersecting the static route is a purposeful target, not a failed path.
         for (const point of route.length ? route : [target]) {
           const d = distance(previous, point), steps = Math.ceil(d / .3);
-          for (let i = 0; i <= steps && !defense; i++) { const t = steps ? i / steps : 0; defense = solid.find(b => b.hp > 0 && obstacleDistance({ x: previous.x + (point.x - previous.x) * t, z: previous.z + (point.z - previous.z) * t }, b) < .5); }
+          for (let i = 0; i <= steps && !defense; i++) { const t = steps ? i / steps : 0; defense = solid.find(b => b.hp > 0 && !b.id.startsWith('tree-') && obstacleDistance({ x: previous.x + (point.x - previous.x) * t, z: previous.z + (point.z - previous.z) * t }, b) < .5); }
           if (defense) break; previous = point;
         }
         z.defense = defense?.id;
         const goal = defense ? defense.d>defense.w?{x:defense.x+(z.x>=defense.x?1:-1)*(defense.w/2+.8),z:Math.max(defense.z-defense.d/2+.7,Math.min(defense.z+defense.d/2-.7,z.z))}:{ x: defense.w < 3 ? defense.x : Math.max(defense.x - defense.w / 2 + .8, Math.min(defense.x + defense.w / 2 - .8, z.x)), z: defense.z + (z.z >= defense.z ? 1 : -1) * (defense.d / 2 + .9) } : target;
-        z.path = findPath(z, goal, solid.filter(b => b.hp > 0));
+        z.path = findPath(z, goal, solid);
+        // Adjacent prefab modules can cover a barrier's preferred approach face.
+        // Try its other exposed faces instead of repeatedly targeting a blocked point.
+        if(!z.path.length&&defense){const b=defense,margin=.8;
+          const approaches=[{x:b.x-b.w/2-margin,z:b.z},{x:b.x+b.w/2+margin,z:b.z},{x:b.x,z:b.z-b.d/2-margin},{x:b.x,z:b.z+b.d/2+margin}].filter(p=>!collides(p,.49,solid)).sort((a,b)=>distance(z,a)-distance(z,b));
+          for(const p of approaches){z.path=findPath(z,p,solid);if(z.path.length)break;}
+        }
         z.replan = (distance(z,player)>45?2:.7) + this.random() * .4;
       }
       // Never hit a target through a live barrier or a building.
       const td = distance(z, target), direct = { x: (target.x - z.x) / (td || 1), z: (target.z - z.z) / (td || 1) };
       const clearTarget = wallDistance(z, direct, td, solid.filter(b => b.hp > 0)) >= td - .05;
+      if(z.kind==='stalker'&&chasing&&clearTarget&&td>3&&td<13&&z.spitCooldown<=0&&!z.chargeTarget&&z.reaction<=0){z.chargeTarget={x:player.x,z:player.z};z.windup=.7;z.chargeTime=1.1;z.spitCooldown=8;this.events.push({type:'enemy-call',position:{x:z.x,z:z.z},enemy:z.kind});}
+      if(z.chargeTarget){
+        const cd=distance(z,z.chargeTarget),cx=(z.chargeTarget.x-z.x)/(cd||1),cz=(z.chargeTarget.z-z.z)/(cd||1);z.angle=Math.atan2(cx,cz);
+        if(z.windup>0){z.windup=Math.max(0,z.windup-dt);continue;}
+        z.chargeTime=Math.max(0,(z.chargeTime??0)-dt);const before={x:z.x,z:z.z};
+        move(z,cx*7.2*dt,cz*7.2*dt,definition.radius,solid);z.gait+=dt*9;
+        const hit=distance(z,player)<1.35&&clearTarget;if(hit){if(this.onCoopDamage)this.onCoopDamage(player,18,z);else this.hurt(18,z);z.attack=1.5;this.events.push({type:'enemy-attack',position:{x:z.x,z:z.z},enemy:z.kind});}
+        if(hit||cd<.6||!z.chargeTime||distance(before,z)<dt){z.chargeTarget=undefined;z.chargeTime=0;z.replan=0;}continue;
+      }
       if(z.kind==='spitter'&&chasing&&clearTarget&&td>2.7&&td<ACID.range&&z.spitCooldown<=0&&z.reaction<=0){z.spitTarget={x:player.x,z:player.z};z.windup=ACID.windup;this.events.push({type:'spit-ready',position:z,enemy:z.kind});continue;}
       if(z.kind==='screamer'&&chasing&&clearTarget&&!z.screamCooldown&&z.reaction<=0){z.screamTimer=SCREAM.windup;this.events.push({type:'scream-ready',position:{x:z.x,z:z.z},enemy:z.kind});continue;}
       const canHitPlayer = chasing && td < BALANCE.walker.playerRange && clearTarget;

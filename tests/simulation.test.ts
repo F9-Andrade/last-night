@@ -9,9 +9,9 @@ function clean(): Simulation { const s = new Simulation(); s.zombies = []; s.spa
 function step(s: Simulation, seconds: number, command = input): void { for (let i = 0; i < Math.round(seconds * 60); i++) s.update(1 / 60, command); }
 
 test('movement slides along colliders and respects map boundaries', () => {
-  const p = { x: 1, z: 1 }; move(p, .1, -1); assert.ok(p.z>=.45&&p.z<1); assert.ok(Math.abs(p.x-1.1)<1e-8);
-  move(p, 400, 0); assert.ok(!collides(p));assert.ok(p.x<7);
-  assert.ok(collides({ x: 1, z: -4 })); assert.ok(!collides({ x: 1, z: 7 }));
+  const p = { x: -26, z: -22.5 }; move(p, .1, -1); assert.ok(p.z>=-22.56&&p.z<-22.4); assert.ok(Math.abs(p.x+25.9)<1e-8);
+  move(p, 400, 0); assert.ok(!collides(p));assert.ok(p.x<157);
+  assert.ok(collides({ x: -26, z: -27 })); assert.ok(!collides({ x: 1, z: 7 }));
 });
 test('diagonal motion is normalized; sprint consumes stamina', () => {
   const a = clean(), b = clean(); a.player.x = b.player.x = 0; a.player.z = b.player.z = 13;
@@ -26,9 +26,9 @@ test('pistol damages nearest Walker, honors cadence and kills in three hits', ()
   s.shotTimer = 0; s.shoot(); s.shotTimer = 0; s.shoot(); assert.equal(s.kills, 1); assert.equal(z.active, false);
 });
 test('walls stop bullets even with a muzzle close to the wall', () => {
-  const s = clean(); s.player.x = 1; s.player.z = .5; s.player.angle = Math.PI;
-  const z = s.spawn({ x: 1, z: -12 })!; s.shoot(); assert.equal(z.hp, 90);
-  assert.equal(wallDistance({ x: 1, z: 1 }, { x: 0, z: -1 }, 20), 1);
+  const s = clean(); s.player.x = -26; s.player.z = -22.5; s.player.angle = Math.PI;
+  const z = s.spawn({ x: -26, z: -34 })!; s.shoot(); assert.equal(z.hp, 90);
+  assert.equal(wallDistance({ x: -26, z: -22 }, { x: 0, z: -1 }, 20), 1);
 });
 test('reload conserves ammunition, prevents firing and cannot overfill magazine', () => {
   const s = clean(); s.ammo = 5; s.reserve = 3; s.reload(); s.shoot(); assert.equal(s.ammo, 5);
@@ -37,20 +37,20 @@ test('reload conserves ammunition, prevents firing and cannot overfill magazine'
 });
 test('searched ammunition enters reserve once; medicine is carried for timed use', () => {
   const s = clean(); step(s, 1 / 60, { ...input, interact: true }); assert.equal(s.reserve, 60);
-  s.player.x = -2; s.player.z = 3; step(s, 1 / 60, { ...input, interact: true }); assert.equal(s.reserve, 60);
-  step(s, 1); assert.equal(s.reserve, 96); step(s, 1, { ...input, interact: true }); assert.equal(s.reserve, 96);
+  const cache=s.loot.find(l=>l.id==='police-locker')!;cache.area='base';cache.guaranteed={ammo:24};s.player.x=cache.x;s.player.z=cache.z; step(s, 1 / 60, { ...input, interact: true }); assert.equal(s.reserve, 60);
+  step(s, 1); assert.equal(s.reserve, 84); step(s, 1, { ...input, interact: true }); assert.equal(s.reserve, 84);
   s.player.x = 23; s.player.z = -17; step(s, 1 / 60, { ...input, interact: true }); step(s, 1);
   assert.ok(s.inventory.items.med >= 3); assert.equal(s.player.hp, 100);
   s.player.hp = 40; step(s, 1 / 60, { ...input, heal: true }); step(s, 2.5); assert.equal(s.player.hp, 85);
 });
-test('navigation routes around the safe house instead of walking through it', () => {
-  const path = findPath({ x: 1, z: -12 }, { x: 1, z: 3 }); assert.ok(path.length > 5);
-  assert.ok(path.every(p => !collides(p, .45))); assert.ok(path.some(p => Math.abs(p.x - 1) > 5));
+test('navigation routes around an intact house instead of walking through it', () => {
+  const path = findPath({ x: -26, z: -34 }, { x: -26, z: -21 }); assert.ok(path.length > 5);
+  assert.ok(path.every(p => !collides(p, .45))); assert.ok(path.some(p => Math.abs(p.x + 26) > 4.5));
 });
 test('night budget is bounded and dawn requires clearing every remaining Walker', () => {
   const s = clean(); s.setPhase('preparation', 29.99); step(s, .05); assert.equal(s.phase, 'night'); assert.ok(s.zombies.length > 0);
   s.horde.spawned = s.horde.budget; s.zombies = []; step(s, 3.1); assert.equal(s.phase, 'dawn');
-  assert.equal(s.storage.items.rare, 1); assert.equal(s.storage.items.scrap, 3);
+  assert.equal(s.inventory.items.rare, 1); assert.equal(s.inventory.items.scrap, 4);
   step(s, 10.1); assert.equal(s.day, 2); assert.equal(s.phase, 'day');
   s.setPhase('night'); assert.equal(s.horde.budget, 31);
   for (let i = 0; i < 100; i++) s.spawn({ x: 1, z: 13 }); assert.equal(s.zombies.filter(z => z.active).length, 40);

@@ -14,7 +14,7 @@ test('infill varies height and typology, stays outside circulation and has reach
  assert.ok(URBAN.buildings.length>=45);assert.equal(new Set(URBAN.buildings.map(b=>b.style)).size,4);assert.ok(new Set(URBAN.buildings.map(b=>b.h)).size>=4);
  for(const b of URBAN.buildings){assert.ok(collides(b,.4));assert.ok(!ROADS.some(r=>Math.abs(b.x-r.x)<(b.w+r.w)/2&&Math.abs(b.z-r.z)<(b.d+r.d)/2));}
  for(const a of URBAN.alleys){assert.ok(!collides(a,.45),a.id);assert.ok(findPath(BASE,a).length,a.id);assert.ok(LOOT_POINTS.some(l=>l.id===a.id));}
- assert.equal(new Set(URBAN.vehicles.map(v=>v.kind)).size,9);assert.equal(URBAN.scenes.length,7);
+ assert.equal(new Set(URBAN.vehicles.map(v=>v.kind)).size,9);assert.equal(URBAN.scenes.filter(s=>!s.id.startsWith('outer-')).length,7);assert.equal(URBAN.scenes.filter(s=>s.id.startsWith('outer-')).length,24);
 });
 test('director traverses all states, supplies relief and never mutates survivor inputs',()=>{
  const d=new TensionDirector(),p={...observation};for(let i=0;i<40;i++)d.update(1,[p]);assert.equal(d.state,'SUSPENSE');

@@ -1,3 +1,4 @@
+import {VisibleGroup} from './static-chunk.ts';
 import type { Walker } from '../game/simulation';
 import { BALANCE } from '../game/config.ts';
 import * as THREE from 'three';
@@ -89,7 +90,7 @@ const contactGeometry = new THREE.CircleGeometry(.57, 20);
 const contactMaterial = new THREE.MeshBasicMaterial({ color: 0x152627, transparent: true, opacity: .25, depthWrite: false });
 
 export class Character {
-  root = new THREE.Group(); body = new THREE.Group(); leftLeg = new THREE.Group(); rightLeg = new THREE.Group(); arms = new THREE.Group();
+  root = new VisibleGroup(); body = new THREE.Group(); leftLeg = new THREE.Group(); rightLeg = new THREE.Group(); arms = new THREE.Group();
   head = new THREE.Group(); leftArm = new THREE.Group(); rightArm = new THREE.Group();
   weapon?: THREE.Group; magazine?: THREE.Mesh; private marks: THREE.Mesh[]=[];
   muzzle: THREE.Mesh | null = null; private paint: THREE.MeshStandardMaterial;
@@ -192,6 +193,7 @@ export class Character {
     this.arms.rotation.x-=this.windupBlend*.7+this.spitBlend*.4+this.screamBlend*1.8;
     this.body.rotation.x-=this.windupBlend*.18+this.spitBlend*.28+this.screamBlend*.36;
     this.head.rotation.x-=this.spitBlend*.2+this.screamBlend*.5;
+    if(z.kind==='stalker'&&z.chargeTarget){this.body.rotation.x+=z.windup>0?.3:.5;this.leftArm.rotation.x-=.5;this.rightArm.rotation.x-=.5;}
     this.wounds(z,this.hitTime);
   }
   reloadPose(timer:number,duration=BALANCE.pistol.reload,switchTimer=0):void {
@@ -217,7 +219,7 @@ export class Character {
     this.leftArm.rotation.z = this.zombie ? -.12 + Math.sin(gait) * .045 : running ? -.08 : 0;
     this.rightArm.rotation.z = this.zombie ? .15 : running ? .06 : 0;
     this.head.rotation.x=this.zombie?.08:0; this.body.rotation.x=this.zombie?.16:running?.12:0;
-    if(this.zombie&&this.kind==='runner'){this.body.rotation.x=.32;this.body.position.y-=.03;this.leftArm.rotation.x=Math.sin(gait)*.8;this.rightArm.rotation.x=-Math.sin(gait)*.75;this.head.rotation.x=-.2;}
+    if(this.zombie&&(this.kind==='runner'||this.kind==='stalker')){this.body.rotation.x=.32;this.body.position.y-=.03;this.leftArm.rotation.x=Math.sin(gait)*.8;this.rightArm.rotation.x=-Math.sin(gait)*.75;this.head.rotation.x=-.2;}
     if(this.zombie&&this.kind==='tank'){this.body.rotation.x=.11;this.body.position.y=Math.abs(Math.sin(gait))*.035;this.body.rotation.z=Math.sin(gait)*.04;this.leftArm.rotation.x=Math.sin(gait)*.12;this.rightArm.rotation.x=-Math.sin(gait)*.12;}
     if(this.zombie&&this.kind==='spitter'){this.body.rotation.x=.18;this.head.rotation.x=-.16;this.head.rotation.z=Math.sin(gait*.2)*.07;this.leftArm.rotation.x=.3;}
     if(this.weapon) {this.weapon.position.z=(WEAPONS[this.weaponId].slot===0?.38:.66)-recoil*.08;this.weapon.rotation.x=-recoil*.22;if(WEAPONS[this.weaponId].slot===0){this.leftArm.rotation.y=.5;this.leftArm.rotation.x=-.18;}else this.leftArm.rotation.y=.8;}

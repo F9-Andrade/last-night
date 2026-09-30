@@ -1,3 +1,4 @@
+import type {Barricade} from '../game/defenses';
 import type { VoxelRecipe } from './voxel';
 import { voxelBox } from './environment-assets';
 import type { Item } from '../game/inventory';
@@ -61,4 +62,21 @@ export function barricadeRecipe(width: number, stage: number): VoxelRecipe {
     }
     if (stage === 0) { voxelBox(g, 0, .8, .29, Math.min(.8, width / 2), .4, .08, 0x9d7950); voxelBox(g, 0, .8, .35, .4, .1, .03, 0xd0b976); }
   } };
+}
+
+/** Shared geometry per width, damage stage and tier; never rebuilt per frame. */
+export function defenseRecipe(b:Pick<Barricade,'w'|'d'|'tier'|'trap'>,stage:number):VoxelRecipe {
+ const width=Math.max(b.w,b.d),tier=b.tier??0,base=barricadeRecipe(width,stage);
+ return {id:`defense:${width}:${stage}:${tier}:${b.trap??'wall'}`,unit:.1,build(g){
+  if(b.trap){
+   if(stage===3){voxelBox(g,0,.1,0,width,.12,.4,0x5e5545);return;}
+   if(b.trap==='spikes'){for(let x=-width/2+.2;x<width/2;x+=.4)for(const z of [-.4,.4]){voxelBox(g,x,.36,z,.14,.65,.14,0x796347);voxelBox(g,x,.76,z,.08,.18,.08,0xb5a27b);}voxelBox(g,0,.1,0,width,.16,1,0x514a36);}
+   else if(b.trap==='snare'){for(const x of [-.65,.65])voxelBox(g,x,.1,0,.12,.15,1.3,0x7d765d);for(const z of [-.65,.65])voxelBox(g,0,.1,z,1.3,.15,.12,0x7d765d);voxelBox(g,0,.15,0,.5,.08,.5,0x68665c);}
+   else {for(const x of [-width/2+.15,width/2-.15])voxelBox(g,x,.65,0,.18,1.3,.18,0x6e5945);for(const y of [.3,.65,1]){voxelBox(g,0,y,0,width,.06,.07,0x9b9b8e);for(let x=-width/2+.3;x<width/2;x+=.4){voxelBox(g,x,y,0,.06,.23,.12,0xa19b87);voxelBox(g,x,y,.03,.2,.06,.12,0x77766b);}}}
+   return;
+  }
+  base.build(g);if(stage===3)return;
+  if(tier>=1)for(let x=-width/2+.25;x<width/2;x+=.65){voxelBox(g,x,.7,.2,.45,.8,.1,0x6c7260);for(const y of [.4,1.05])voxelBox(g,x,y,.27,.6,.1,.08,0xa29372);}
+  if(tier>=2)for(let x=-width/2+.5;x<width/2;x+=1){voxelBox(g,x,1,.35,.8,1.2,.12,0x66716d);voxelBox(g,x,.5,.42,.7,.1,.06,0x976a48);for(const y of [.55,1.45])voxelBox(g,x-.25,y,.45,.08,.08,.06,0xa6a895);}
+ }};
 }

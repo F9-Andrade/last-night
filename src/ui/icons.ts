@@ -1,5 +1,17 @@
 /** LAST NIGHT field marks: original 24-unit silhouettes and 1.65-unit cut lines. */
 const paths = {
+  chest: '<path d="M3 5h18v16H3zM3 11h18M10 9h4v5h-4zM6 5v6m12-6v6"/>',
+  axe: '<path d="m7 22 5-17m-3 0 10-2 3 8-10 2M11 5l-5-2-3 7 7 3"/>',
+  knife: '<path d="m4 21 6-7m-3-2 6 6m-3-3 10-12c2 8-4 12-7 14z"/>',
+  spear: '<path d="M3 22 16 8m-3 0 8-6-2 10z"/>',
+  machete: '<path d="m3 22 5-6m-2-2 5 4M8 15l9-13 5 3-12 12z"/>',
+  club: '<path d="m6 22 5-10-1-3 5-7 6 3-3 8-3 1-5 9zM12 7l7 4"/>',
+  armor: '<path d="m4 3 5-1 3 4 3-4 5 1-2 6 3 10-9 3-9-3L6 9zM7 11h10m-10 4h10"/>',
+  hide: '<path d="m5 3 4 2h6l4-2-1 6 3 3-3 3 1 6-4-2H9l-4 2 1-6-3-3 3-3z"/>',
+  cloth: '<path d="M4 4h16v16H4zM4 9h16M9 4v16m5-16v16M4 14h16"/>',
+  cord: '<path d="M6 4c12-4 17 8 7 10S0 23 16 20M5 6c9-2 13 5 6 6S1 19 16 18"/>',
+  bench: '<path d="M2 9h20v4H2zM5 13v9m14-9v9M7 9V3h10v6M10 5h4M5 18h14"/>',
+
   school: '<path d="M3 21V8l9-5 9 5v13M8 21v-7h8v7M12 6v5m-3-2h6M5 11h2m10 0h2"/>',
   fire: '<path d="M13 2c2 5-1 6 2 9l3-4c5 7 2 14-6 14S1 14 8 7c-1 5 1 6 2 7 3-3 1-7 3-12Z"/>',
   cemetery: '<path d="M5 21V9a7 7 0 0 1 14 0v12M3 21h18M12 6v10m-4-6h8"/>',

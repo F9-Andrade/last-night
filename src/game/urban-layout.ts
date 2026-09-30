@@ -1,3 +1,4 @@
+import {EXPANSION_DISTRICTS} from './expansion.ts';
 /** Fixed, deterministic city infill. Planning is done once, never while playing.
  * Every solid has the same footprint in navigation, raycasts and presentation.
  */
@@ -53,6 +54,16 @@ export function planUrban(existing:UrbanRect[],roads:UrbanRect[],protectedPoints
   const horizontal=road.w>road.d,x=horizontal?n:road.x+road.w/2-1.4,z=horizontal?road.z+road.d/2-1.4:n;
   if(Math.abs(x)<35&&Math.abs(z)<40||roads.some(r=>r!==road&&overlap({x,z,w:8,d:8},r,3)))continue;
   addCar(x,z,kinds[(vehicles.length+3)%kinds.length],horizontal?Math.PI/2:0,vehicles.length%11===0,vehicles.length%13===0);
+ }
+ for(const region of EXPANSION_DISTRICTS){
+  for(let i=0;i<12;i++){
+   const x=region.x+[-76,-52,-28,28,52,76][i%6],z=region.z+(i<6?-70:70),w=8+i%3,d=8;
+   const lot={x,z,w,d};if(reserved.some(o=>overlap(lot,o,2))||roads.some(o=>overlap(lot,o,2)))continue;
+   const floors=1+(region.index+i)%3,h=floors*2.9+.3,style:UrbanBuilding['style']=i%4===0?'shop':i%3===0?'apartment':'house';
+   buildings.push({...lot,id:`outer-building-${region.index}-${i}`,h,floors,style,color:palette[(region.index+i)%palette.length],damage:i%5,name:names[(region.index+i)%names.length],front:i<6?1:-1});
+  }
+  for(let i=0;i<4;i++)addCar(region.x+(i%2?2:-2),region.z-65+i*35,kinds[(region.index+i)%kinds.length],i%2?.12:-.08,i%3===0,i===2);
+  scenes.push({id:`outer-scene-${region.index}`,x:region.x-2,z:region.z+8,kind:region.index%3===0?'checkpoint':region.index%3===1?'evacuation':'delivery',story:'Bagagens, carga e barricadas abandonadas.'});
  }
  return {buildings,vehicles,scenes,alleys,obstacles:[...buildings,...vehicles]};
 }

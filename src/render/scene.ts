@@ -1,3 +1,4 @@
+import {CraftingView} from './crafting-view';
 import {EnvironmentalDressing} from './environmental-dressing';
 import {ImpactDecals} from './impact-decals';
 import {surfaceStats} from './surface-materials';
@@ -45,7 +46,7 @@ export class GameScene {
   private shadowCenter=new THREE.Vector3();private sunDirection=new THREE.Vector3(...VISUAL.sun.offset).normalize();
   private shadowRight=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),this.sunDirection).normalize();
   private shadowUp=new THREE.Vector3().crossVectors(this.sunDirection,this.shadowRight);
-  private survival: SurvivalView;
+  private survival: SurvivalView;private craftingView:CraftingView;craftPreview:'bench'|'chest'|undefined;openChest:number|undefined;
   readonly remoteView=new RemotePlayers(this.scene);remoteStates:RemotePlayerState[]=[];
   private expedition:ExpeditionView; town: Town; survivor = new Character(); walkers: Character[] = [];
   private city:CityView; private urban:UrbanView;
@@ -73,7 +74,7 @@ export class GameScene {
     this.torch.shadow.mapSize.set(512,512);this.torch.shadow.bias=-.00015;this.torch.shadow.normalBias=.02;this.torch.shadow.camera.near=.15;this.torch.shadow.camera.far=25;
     this.scene.add(this.sun, this.sun.target, this.ambient, this.flashLight,this.torch,this.torch.target);
     this.town = createTown(this.scene);this.expedition=new ExpeditionView(this.scene); this.corpses=new CorpseView(this.scene); this.survival = new SurvivalView(this.scene); this.scene.add(this.survivor.root);
-    this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);
+    this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);this.craftingView=new CraftingView(this.scene);
     for (let i = 0; i < BALANCE.walker.capacity; i++) { const c = new Character(true, i); c.root.visible = false; this.walkers.push(c); this.scene.add(c.root); }
     this.ring = new THREE.Mesh(new THREE.RingGeometry(.69, .74, 40), new THREE.MeshBasicMaterial({ color: 0xe8d7a5, transparent: true, opacity: .65, depthWrite: false }));
     this.ring.rotation.x = -Math.PI / 2; this.scene.add(this.ring);
@@ -104,7 +105,7 @@ export class GameScene {
       if(!this.infectedPrepared){
         progress('Preparando os infectados…',10);
         // Build the small-voxel variants under the loader, not on the first encounter.
-        for(const kind of ['walker','runner','tank','spitter','screamer'] as const){
+        for(const kind of ['walker','runner','tank','spitter','screamer','armored','stalker','bloater'] as const){
           for(let variant=0;variant<3;variant++)for(const part of ['torso','head','left-arm','right-arm','left-leg','right-leg'] as const)voxelGeometry(characterPart(part,true,variant,kind));
           this.corpses.prepareKind(kind);
           await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));
@@ -230,7 +231,7 @@ export class GameScene {
       const c = this.walkers[i], z = sim.zombies[i]; c.root.visible = !!z?.active;
       if (z?.active) {c.setKind(z.kind,z.id%3);c.root.position.set(z.x,.1,z.z);c.root.rotation.y=z.angle;c.animateInfected(z,dt,elapsed,Math.hypot(z.x-sim.player.x,z.z-sim.player.z)<2);}
     }
-    this.survival.update(sim, dt, elapsed, menu);this.expedition.update(sim,elapsed);
+    this.craftingView.update(sim,menu?undefined:this.craftPreview,this.openChest,dt);this.survival.update(sim, dt, elapsed, menu);this.expedition.update(sim,elapsed);
     if (sim.action) { this.survivor.arms.rotation.x = -.35 + Math.sin(elapsed * 8) * .08; this.survivor.body.rotation.x = .08; }
     else this.survivor.body.rotation.x = sim.player.running?.12:sim.player.exhausted?.05+Math.sin(elapsed*4)*.012:0;
     const smooth = (x: number): number => { x = THREE.MathUtils.clamp(x, 0, 1); return x * x * (3 - 2 * x); };

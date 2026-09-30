@@ -1,3 +1,4 @@
+import {placeChest,moveChest} from '../src/game/chests.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Simulation} from '../src/game/simulation.ts';
@@ -12,8 +13,8 @@ const idle={moveX:0,moveZ:0,aimX:1,aimZ:15,fire:false,run:false,reload:false,int
 function clean(city=false){const s=new Simulation();s.zombies=[];s.spawnTimer=99999;s.eventTimer=99999;s.roamTimer=99999;s.encounters=new Set(ENCOUNTERS.map((_,i)=>i));if(!city)s.activatedSites=new Set(CITY_SITES.map(s=>s.id));return s;}
 function step(s:Simulation,t:number,input=idle){for(let i=0;i<Math.ceil(t*60);i++)s.update(1/60,input);}
 function use(s:Simulation,key:'interact'|'dismantle'='interact'){s.update(1/60,{...idle,[key]:true});step(s,5.2);}
-test('city has 4x useful area, distinct sites, two entrances and reachable loot in every room',()=>{
- assert.equal((CITY_LIMIT/78)**2,4);assert.equal(CITY_SITES.length,20);assert.equal(CITY_PORTALS.length,40);assert.equal(CITY_LOOT.length,60);
+test('city has 16x the previous useful area, distinct sites, two entrances and reachable loot in every room',()=>{
+ assert.equal((CITY_LIMIT/156)**2,16);assert.equal(CITY_SITES.length,92);assert.equal(CITY_PORTALS.length,184);assert.equal(CITY_LOOT.length,276);
  for(const site of CITY_SITES){const entry={x:site.x,z:site.z+site.d/2+2};assert.ok(findPath(BASE,entry).length,site.id);assert.ok(site.props.length>=3);for(const loot of CITY_LOOT.filter(l=>l.site===site.id)){assert.equal(collides(loot,.45),false,loot.id);assert.ok(findPath(entry,loot).length,loot.id);}}
  assert.ok(distance(BASE,CITY_SITES[1])>150);assert.ok(activeCityChunks(1,7).length<CITY_SITES.length);
 });
@@ -44,8 +45,9 @@ test('roaming packs have ten mobile walkers and cannot appear inside camera or h
 test('quarantine is optional, stronger than residential, with bounded special composition',()=>{
  const q=cityEncounter(CITY_SITES.find(s=>s.kind==='quarantine')!,5,100),home=cityEncounter(CITY_SITES.find(s=>s.kind==='house')!,1,100);assert.ok(q.length>home.length);for(const kind of ['tank','screamer','spitter','runner'])assert.ok(q.includes(kind as any));assert.ok(q.length<=12);assert.ok(q.filter(k=>k==='walker').length>=q.length/2-1);assert.ok(BALANCE.horde.first===22&&BALANCE.horde.maximum===76);
 });
-test('stash preserves weapon IDs, affixes and loaded rounds without duplicate pickup or remote access',()=>{
- const s=clean();s.loadout[0]=createWeapon('rifle',5,'rare');s.loadout[0].magazine=7;s.activeSlot=0;assert.ok(s.storeWeapon(0));assert.equal(s.ammo,12);assert.equal(s.weaponStorage[0].magazine,7);assert.equal(s.storeWeapon(1),false);assert.ok(s.retrieveWeapon(5));assert.equal(s.ammo,7);assert.equal(s.weaponStorage.length,0);Object.assign(s.player,{x:88,z:0});assert.equal(s.storeWeapon(0),false);assert.equal(clean().weaponStorage.length,0);
+test('placed chest preserves weapon IDs and loaded rounds without remote access',()=>{
+ const s=clean();Object.assign(s.player,{x:1,z:12,angle:0});s.inventory.items.chest=1;assert.ok(placeChest(s));const c=s.crafting.chests[0];const transfer=(source:any,target:any)=>moveChest(s,{chest:c.id,revision:c.revision,source,target,amount:1});
+ s.loadout[0]=createWeapon('rifle',5,'rare');s.loadout[0].magazine=7;s.activeSlot=0;assert.ok(transfer({weapon:0},0));assert.equal(s.ammo,12);assert.ok(transfer({weapon:1},1));assert.equal(s.activeSlot,3);assert.ok(transfer({slot:0},'bag'));assert.equal(s.ammo,7);assert.equal(c.slots.filter(Boolean).length,1);Object.assign(s.player,{x:88,z:0});assert.equal(transfer({weapon:0},2),false);
 });
 test('microevent anchors are navigable; no reward duplication or reset of visited house',()=>{
  for(const p of CACHE_STORIES){assert.equal(collides(p,.45),false,p.name);assert.ok(findPath(BASE,p).length,p.name);}const s=clean(),p=CACHE_STORIES[0];s.worldEvent={...p,id:1,kind:'cache',life:100,triggered:false};Object.assign(s.player,p);use(s);assert.ok(s.worldEvent.triggered);const next=s.nextWeaponId;use(s);assert.equal(s.nextWeaponId,next);

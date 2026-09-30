@@ -1,3 +1,4 @@
+import {StaticChunk,VisibleGroup} from './static-chunk.ts';
 import * as THREE from 'three';
 import {CITY_SITES,CITY_PORTALS,activeCityChunks} from '../game/city';
 import type {CitySite,CityProp} from '../game/city';
@@ -10,13 +11,13 @@ import {facadeWeathering} from './facade-weathering';
 
 /** Static district batches, independently hidden roofs and a small mutable portal layer. */
 export class CityView {
- private chunks:{site:CitySite;root:THREE.Group;roof:THREE.Group;walls:THREE.Group;paint:THREE.MeshStandardMaterial}[]=[];
+ private chunks:{site:CitySite;root:StaticChunk;roof:THREE.Group;walls:THREE.Group;paint:THREE.MeshStandardMaterial}[]=[];
  private portals=new Map<string,{root:THREE.Group;panel:THREE.Mesh;boards:THREE.Group}>();
  private lights=[new THREE.PointLight(0xe6d6ba,0,19,2),new THREE.PointLight(0xb7c5d2,0,19,2)];
  active=0;
  constructor(scene:THREE.Scene){
   for(const site of CITY_SITES){
-   const root=new THREE.Group();root.name=`city:${site.id}`;root.position.set(site.x,0,site.z);scene.add(root);
+   const root=new StaticChunk();root.name=`city:${site.id}`;root.position.set(site.x,0,site.z);scene.add(root);
    const floor=new THREE.Group();root.add(floor);box(floor,0,.08,0,site.w+7,.16,site.d+7,0x8c947d,'paving');box(floor,0,.19,0,site.w,.06,site.d,site.kind==='hospital'?0xb3b9a4:0x7d8a79,'paving');
    const walls=new THREE.Group();root.add(walls);const roof=new THREE.Group();root.add(roof);
    const h=site.kind==='cemetery'?1.7:site.h;
@@ -53,9 +54,9 @@ export class CityView {
    if(site.kind!=='house'){const car=voxelMesh(carRecipe(site.kind==='police'?'police':'wreck',site.kind==='hospital'?0xc3c3ac:0x8e8770));car.position.set(-site.w/2+3,.1,site.d/2+5.8);car.rotation.y=Math.PI/2;root.add(car);}
    for(const x of [-site.w/2-2,site.w/2+2]){box(floor,x,2.5,site.d/2,.14,5,.14,0x536e5f);const bulb=box(floor,x,5,site.d/2,.5,.18,.5,0xd2c38d);bulb.material=new THREE.MeshStandardMaterial({color:0xd2c38d,emissive:0xc7bc86,emissiveIntensity:1.2});}
    batch(floor);batch(roof);batch(walls);const paint=surfaceBatchMaterial('plaster');walls.traverse(o=>{if(o instanceof THREE.Mesh&&!(o.material as THREE.MeshStandardMaterial).map)o.material=paint;});
-   this.chunks.push({site,root,roof,walls,paint});
+   root.freeze();this.chunks.push({site,root,roof,walls,paint});
   }
-  for(const p of CITY_PORTALS){const root=new THREE.Group();root.position.set(p.x,0,p.z);scene.add(root);const panel=box(root,0,p.kind==='window'?1.2:1.4,0,p.w, p.kind==='window'?2.4:2.8,p.d,p.kind==='window'?0x8aaea0:p.heavy?0x566f67:0x997f5d);if(p.kind==='window'){panel.material=weatherSurface(new THREE.MeshStandardMaterial({color:0x7b9591,transparent:true,opacity:.42,roughness:.35}),'glass');}
+  for(const p of CITY_PORTALS){const root=new VisibleGroup();root.position.set(p.x,0,p.z);scene.add(root);const panel=box(root,0,p.kind==='window'?1.2:1.4,0,p.w, p.kind==='window'?2.4:2.8,p.d,p.kind==='window'?0x8aaea0:p.heavy?0x566f67:0x997f5d);if(p.kind==='window'){panel.material=weatherSurface(new THREE.MeshStandardMaterial({color:0x7b9591,transparent:true,opacity:.42,roughness:.35}),'glass');}
    const boards=new THREE.Group();root.add(boards);for(const y of [.6,1.3,2])box(boards,0,y,0,p.w>p.d?p.w+.2:.5,.18,p.d>p.w?p.d+.2:.5,0xa28c69);batch(boards);this.portals.set(p.id,{root,panel,boards});
   }
   for(const light of this.lights)scene.add(light);

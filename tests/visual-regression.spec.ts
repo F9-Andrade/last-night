@@ -1,7 +1,7 @@
 import {test, expect, type Page} from '@playwright/test';
 import {mkdir, writeFile} from 'node:fs/promises';
 
-const evidence = 'docs/phase11/regression';
+const evidence = process.env.REGRESSION_EVIDENCE ?? 'docs/phase11/regression';
 const state = (page: Page) => page.evaluate(() => (window as any).__LAST_NIGHT__.state());
 
 async function recapture(page: Page): Promise<void> {

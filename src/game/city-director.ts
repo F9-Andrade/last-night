@@ -8,6 +8,9 @@ export function cityEncounter(site:CitySite,day:number,health:number):EnemyKind[
  if(site.risk>=5)group[count-3]='spitter';
  if(site.kind==='quarantine'||site.kind==='industry'&&day>=2)group[1]='tank';
  if(site.kind==='quarantine')group[count-4]='runner';
+ if(site.risk>=4&&site.kind==='police')group[0]='armored';
+ if(site.risk>=4&&(site.kind==='cemetery'||site.kind==='quarantine'))group[0]='bloater';
+ if(site.risk>=4&&(site.kind==='industry'||site.kind==='motel'))group[0]='stalker';
  return group;
 }
 export const SCREAM={windup:1.35,cooldown:14,range:18,noise:58,interrupt:18};

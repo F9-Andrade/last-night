@@ -99,3 +99,13 @@ test('infected idle, walk transitions and hit reactions animate without mutating
  z.hp-=10;z.reaction=.28;z.zone='HEAD';const snapshot=structuredClone(z);c.animateInfected(z,1/60,2,false);const hit=c.head.rotation.x;
  for(let i=0;i<60;i++)c.animateInfected(z,1/60,2+i/60,false);assert.ok(c.head.rotation.x>hit+.1);assert.deepEqual(z,snapshot);c.dispose();
 });
+
+test('craft tool geometry is shared and tree harvesting updates original instances without extra city meshes',async()=>{
+ const {CraftingView,meleeRecipe,benchRecipe}=await import('../src/render/crafting-view.ts');
+ const {Simulation}=await import('../src/game/simulation.ts');
+ const scene=new THREE.Scene(),tree=new THREE.InstancedMesh(voxelGeometry(treeRecipe(0)),new THREE.MeshStandardMaterial(),1);tree.name='voxel-trees-0';const m=new THREE.Matrix4().makeTranslation(-7,.15,-10);tree.setMatrixAt(0,m);scene.add(tree);
+ const view=new CraftingView(scene),s=new Simulation(),t=s.crafting.trees.find(t=>t.x===-7&&t.z===-10)!;const count=scene.children.length;
+ t.hp=0;view.update(s,false);const dead=new THREE.Matrix4();tree.getMatrixAt(0,dead);assert.equal(dead.determinant(),0);t.hp=100;view.update(s,false);tree.getMatrixAt(0,dead);assert.ok(dead.elements.every((v,i)=>Math.abs(v-m.elements[i])<1e-6));assert.equal(scene.children.length,count);
+ for(const id of ['club','knife','axe','spear','machete'] as const){const g=voxelGeometry(meleeRecipe(id));assert.ok(g.index!.count>0);assert.ok(g.index!.count/3<2500);assert.equal(voxelGeometry(meleeRecipe(id)),g);}
+ assert.ok(voxelGeometry(benchRecipe).index!.count/3<5000);
+});
