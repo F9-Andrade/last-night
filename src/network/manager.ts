@@ -1,4 +1,6 @@
 import {LanTransport} from './lan';
+import type {BrowserLanTransport} from './lan-webrtc';
+import {LAN_CODE} from './protocol';
 import {MessageAssembler,splitMessage,FRAGMENT_EVENT,FRAGMENT_SIZE} from './fragments';
 import {GameplayEvent,COOP} from './gameplay-protocol';
 import {SnapshotBudget} from './rate-limit';
@@ -9,7 +11,7 @@ import type {ConnectionState,NetworkPlayerIdentity,StartData,PlayerSnapshot,Remo
 import {InterpolationBuffer} from './interpolation.ts';
 const APP_VERSION=`${NETWORK_BUILD}-p${NETWORK_PROTOCOL_VERSION}`;
 export class NetworkManager {
- mode:'photon'|'lan'='photon';private lan?:LanTransport;
+ mode:'photon'|'lan'='photon';private lan?:LanTransport|BrowserLanTransport;private lanPublishSeed?:number;
  state:ConnectionState='disconnected';message='';region='';code='';players:NetworkPlayerIdentity[]=[];
  readonly remotes=new Map<number,InterpolationBuffer>();
  metrics={sent:0,received:0,rejected:0,sendRate:0,receiveRate:0,payloadBytes:0,averagePayloadBytes:0,ping:0};
@@ -30,17 +32,20 @@ export class NetworkManager {
   if(this.lan){this.lan.event(code,data,target);return;}
   if(this.client&&this.sdk)this.client.raiseEvent(code,data,target?{targetActors:[target]}:{receivers:this.sdk.LoadBalancing.Constants.ReceiverGroup.Others});
  }
- private connectLan(){
-  const generation=this.generation;this.region='LAN';this.setState('connecting','Conectando ao servidor da rede local…');this.deadline('Servidor LAN não respondeu. Abra o endereço do computador que hospeda a partida.');
-  this.lan=new LanTransport(this.name,m=>{
+ private async connectLan(){
+  const generation=this.generation;this.region='LAN';this.setState('connecting','Preparando conexão LAN…');this.deadline('A sinalização LAN não respondeu. Verifique a internet e tente novamente.',45000);
+  const Transport=new URLSearchParams(location.search).get('lan')==='server'?LanTransport:(await import('./lan-webrtc')).BrowserLanTransport;
+  if(generation!==this.generation)return;
+  this.lan=new Transport(this.name,m=>{
    if(generation!==this.generation)return;
-   if(m.type==='connected'){this.clearDeadline();this.setState('connected','LAN conectada. Crie uma sala ou use o código.');}
+   if(m.type==='connected'){this.clearDeadline();this.setState('connected','LAN pronta. Crie sua expedição ou entre pelo código.');if(this.lanPublishSeed!==undefined&&this.lan && 'host' in this.lan){const seed=this.lanPublishSeed;this.lanPublishSeed=undefined;this.lan.host(seed);}}
    else if(m.type==='room'){
     this.code=m.code;this.players=m.players.map((p:NetworkPlayerIdentity)=>({...p,isLocal:p.actorNumber===this.localActor,isHost:p.actorNumber===this.masterActor}));
     this.syncRemotes();
     if(this.state==='joining'||this.state==='connected'){this.clearDeadline();this.setState('lobby','Você entrou na sala LAN.');this.startTicker();}else this.emit();
    }else if(m.type==='start'){const data=parseStart(m.data,this.players.map(p=>p.actorNumber));if(data&&data.seed===this.lan?.seed)void this.begin(data);}
    else if(m.type==='playing')this.enterPlaying();
+   else if(m.type==='notice'){this.message=m.message;this.emit();}
    else if(m.type==='event')this.receive(m.code,m.data,m.actor);
    else if(m.type==='error'){if(this.inSession||m.fatal)this.fail(m.message);else{this.clearDeadline();this.setState('connected',m.message);}}
   },message=>{if(generation===this.generation)this.fail(message);});
@@ -64,7 +69,7 @@ export class NetworkManager {
  private deadline(message:string,ms=25000){clearTimeout(this.timeout);this.timeout=setTimeout(()=>this.fail(message),ms);}
  private clearDeadline(){clearTimeout(this.timeout);this.timeout=undefined;}
  private clearTransport(){
-  this.assembler.clear();this.messageId=0;this.generation++;this.locallyLoaded=false;this.clearDeadline();clearInterval(this.ticker);this.ticker=undefined;for(const cancel of [...this.probes])cancel();this.probes.clear();
+  this.lanPublishSeed=undefined;this.assembler.clear();this.messageId=0;this.generation++;this.locallyLoaded=false;this.clearDeadline();clearInterval(this.ticker);this.ticker=undefined;for(const cancel of [...this.probes])cancel();this.probes.clear();
   this.lan?.close();this.lan=undefined;const c=this.client;this.client=undefined;c?.disconnect();this.players=[];this.remotes.clear();this.poses.clear();this.receiveBudgets.clear();this.lastSample=undefined;this.startedToken='';this.sequence=0;this.intent=undefined;this.code='';this.regionRequest=false;this.sendTime=0;
  }
  private fail(message:string){const wasGame=this.inSession;this.clearTransport();this.setState('error',message);if(wasGame)this.onEnded();console.warn('[Network]',message);}
@@ -72,7 +77,7 @@ export class NetworkManager {
  dispose(){this.leave();this.listeners.clear();this.onStart=()=>{};this.onEnded=()=>{};}
  async connect(name:string,region?:string,pending?:{kind:'join';code:string;retries:number}){
   this.clearTransport();this.name=sanitizeName(name);this.intent=pending;this.region=region??'';
-  if(this.mode==='lan'){this.connectLan();return;}
+  if(this.mode==='lan'){const current=this.generation;try{await this.connectLan();}catch{if(current===this.generation)this.fail('Não foi possível carregar a conexão LAN. Atualize a página e tente novamente.');}return;}
   const appId=import.meta.env.VITE_PHOTON_APP_ID?.trim();
   if(!appId||! /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(appId)){this.setState('error','Coop indisponível: configure VITE_PHOTON_APP_ID. Você pode jogar solo.');return;}
   const generation=this.generation;this.setState('connecting','Conectando à rede…');this.deadline('A conexão demorou demais. Tente novamente.',45000);
@@ -125,9 +130,10 @@ export class NetworkManager {
  });}
  setName(value:string){this.name=sanitizeName(value);try{localStorage.setItem('last-night-player-name',this.name);}catch{/* Optional storage. */}if(this.lan)this.lan.send({type:'name',name:this.name});else this.applyName();}
  private applyName(){const actor=this.client?.myActor();if(!actor)return;actor.setName(this.name);actor.setCustomProperties({displayName:this.name,ready:false,playerId:this.client!.getUserId?.()??''});}
- create(){if(this.state!=='connected')return;if(this.lan){this.setState('joining','Criando sala LAN…');this.deadline('O servidor LAN não respondeu.');this.lan.send({type:'create'});return;}if(!this.client)return;if(!validName(this.name)){this.setState('connected','Use um nome de 2 a 20 caracteres.');return;}this.intent={kind:'create',retries:0};this.setState('joining','Criando sala…');this.deadline('Não foi possível criar a sala a tempo.');this.createHere();}
+ openLan(name:string,seed:number){if(this.inSession)return;this.mode='lan';const clean=sanitizeName(name);void this.connect(validName(clean)?clean:'Sobrevivente');this.lanPublishSeed=seed;}
+ create(){if(this.state!=='connected')return;if(this.lan && 'host' in this.lan){this.lan.host(crypto.getRandomValues(new Uint32Array(1))[0]);return;}if(this.lan){this.setState('joining','Criando sala LAN…');this.deadline('O servidor LAN não respondeu.');this.lan.send({type:'create'});return;}if(!this.client)return;if(!validName(this.name)){this.setState('connected','Use um nome de 2 a 20 caracteres.');return;}this.intent={kind:'create',retries:0};this.setState('joining','Criando sala…');this.deadline('Não foi possível criar a sala a tempo.');this.createHere();}
  private createHere(){this.code=generateCode(this.region);this.client!.createRoom(this.code,{maxPlayers:MAX_PLAYERS,isVisible:false,isOpen:true,playerTTL:0,roomTTL:0,customGameProperties:{protocol:NETWORK_PROTOCOL_VERSION,build:NETWORK_BUILD,gameState:'lobby',seed:crypto.getRandomValues(new Uint32Array(1))[0]}});}
- join(value:string){if(this.state!=='connected')return;if(this.lan){if(!/^L[0-9A-F]{5}$/i.test(value.trim())){this.setState('connected','Código LAN inválido. Use o código mostrado pelo líder.');return;}this.setState('joining','Entrando na sala LAN…');this.deadline('O servidor LAN não respondeu.');this.lan.send({type:'join',code:value.trim().toUpperCase()});return;}const code=normalizeCode(value);if(!validCode(code)){this.setState('connected','Código inválido. Use os seis caracteres do convite.');return;}if(!validName(this.name)){this.setState('connected','Use um nome de 2 a 20 caracteres.');return;}const target=roomRegion(code)!;
+ join(value:string){if(this.state!=='connected')return;if(this.lan){if(!(this.lan && 'host' in this.lan?LAN_CODE.test(value.trim().toUpperCase()):/^L[0-9A-F]{5}$/i.test(value.trim()))){this.setState('connected','Código LAN inválido. Use o código mostrado pelo líder.');return;}this.setState('joining','Entrando na sala LAN…');this.deadline('Não foi possível conectar pela LAN. Confira a mesma rede e o isolamento Wi-Fi.',45000);this.lan.send({type:'join',code:value.trim().toUpperCase()});return;}const code=normalizeCode(value);if(!validCode(code)){this.setState('connected','Código inválido. Use os seis caracteres do convite.');return;}if(!validName(this.name)){this.setState('connected','Use um nome de 2 a 20 caracteres.');return;}const target=roomRegion(code)!;
   if(target!==this.region){void this.connect(this.name,target,{kind:'join',code,retries:0});return;}this.joinHere(code);
  }
  private joinHere(code:string){this.intent={kind:'join',code,retries:0};this.setState('joining','Entrando na sala…');this.deadline('A entrada na sala demorou demais.');this.client!.joinRoom(code,{createIfNotExists:false});}
@@ -173,7 +179,7 @@ export class NetworkManager {
  private startTicker(){clearInterval(this.ticker);this.metrics={sent:0,received:0,rejected:0,sendRate:0,receiveRate:0,payloadBytes:0,averagePayloadBytes:0,ping:0};this.lastMetric=performance.now();this.sentMark=0;this.receivedMark=0;
   let previousTick=performance.now();
   this.ticker=setInterval(()=>{const now=performance.now();const tickDt=Math.min(.25,(now-previousTick)/1000);previousTick=now;this.onTick(tickDt);if(this.inSession&&this.lastSample&&now-this.sendTime>=1000/NETWORK_SEND_RATE-1){this.sendTime=now;const payload=encodeSnapshot({...this.lastSample,sequence:this.sequence++,time:Math.round(now)});this.sendEvent(NetworkEventCode.PlayerSnapshot,payload);this.metrics.sent++;this.metrics.payloadBytes+=JSON.stringify(payload).length;}
-   const dt=(now-this.lastMetric)/1000;if(dt>=1){this.metrics.sendRate=(this.metrics.sent-this.sentMark)/dt;this.metrics.receiveRate=(this.metrics.received-this.receivedMark)/dt;this.metrics.averagePayloadBytes=this.metrics.sent?this.metrics.payloadBytes/this.metrics.sent:0;this.metrics.ping=this.client?.getRtt()??0;this.client?.updateRtt();this.lastMetric=now;this.sentMark=this.metrics.sent;this.receivedMark=this.metrics.received;this.emit();}
+   const dt=(now-this.lastMetric)/1000;if(dt>=1){this.metrics.sendRate=(this.metrics.sent-this.sentMark)/dt;this.metrics.receiveRate=(this.metrics.received-this.receivedMark)/dt;this.metrics.averagePayloadBytes=this.metrics.sent?this.metrics.payloadBytes/this.metrics.sent:0;this.metrics.ping=this.lan && 'host' in this.lan?this.lan.ping:this.client?.getRtt()??0;this.client?.updateRtt();this.lastMetric=now;this.sentMark=this.metrics.sent;this.receivedMark=this.metrics.received;this.emit();}
   },1000/NETWORK_SEND_RATE);
  }
 }

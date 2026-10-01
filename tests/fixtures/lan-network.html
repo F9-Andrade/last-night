@@ -1,0 +1,4 @@
+<!doctype html><html><head><meta charset="utf-8"><title>LAN transport fixture</title></head><body><script type="module">
+import {NetworkManager} from '/src/network/manager.ts';
+const network=new NetworkManager();network.mode='lan';window.network=network;window.received=[];network.onGameplay=(code,data,actor)=>window.received.push({code,data,actor});
+</script></body></html>

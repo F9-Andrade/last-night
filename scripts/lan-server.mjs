@@ -54,6 +54,6 @@ export function createLanServer({root=resolve('dist'),port=8787,host='0.0.0.0'}=
  return {server,rooms,listen:()=>new Promise(resolve=>server.listen(port,host,()=>resolve(server.address()))),close:()=>new Promise(resolve=>{clearInterval(heartbeat);for(const c of clients)c.ws.terminate();wss.close();server.close(resolve);})};
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const lan=createLanServer({port:Number(process.env.LAN_PORT)||8787});await lan.listen();console.log('LAST NIGHT LAN — mantenha este terminal aberto.');for(const entries of Object.values(networkInterfaces()))for(const n of entries??[])if(n.family==='IPv4')console.log(`Abra em cada computador: http://${n.address}:${Number(process.env.LAN_PORT)||8787}/?coop=lan`);
+ const lan=createLanServer({port:Number(process.env.LAN_PORT)||8787});await lan.listen();console.log('LAST NIGHT LAN — mantenha este terminal aberto.');for(const entries of Object.values(networkInterfaces()))for(const n of entries??[])if(n.family==='IPv4')console.log(`Abra em cada computador: http://${n.address}:${Number(process.env.LAN_PORT)||8787}/?coop=lan&lan=server`);
  for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>{void lan.close().then(()=>process.exit(0));});
 }

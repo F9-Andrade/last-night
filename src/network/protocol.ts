@@ -3,10 +3,11 @@ import type {WeaponId} from '../game/weapons';
 import type {LifeState} from './gameplay-protocol';
 /** Shared version/build boundary. Gameplay messages live in gameplay-protocol.ts. */
 export const NETWORK_PROTOCOL_VERSION=2;
-export const NETWORK_BUILD='santa-luz-chests-1';
+export const NETWORK_BUILD='santa-luz-browser-lan-1';
 export const NETWORK_SEND_RATE=20;
 export const INTERPOLATION_DELAY=120;
 export const MAX_PLAYERS=4;
+export const LAN_CODE=/^L-[A-F0-9]{10}$/;
 export const NetworkEventCode={PlayerSnapshot:1,GameStart:2} as const;
 export type ConnectionState='disconnected'|'connecting'|'connected'|'joining'|'lobby'|'loading'|'playing'|'error';
 export type RoomState='lobby'|'loading'|'playing';

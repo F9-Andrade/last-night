@@ -1,0 +1,26 @@
+{
+  "errors": [],
+  "websocketHosts": [
+    "127.0.0.1:5173",
+    "127.0.0.1:5173",
+    "127.0.0.1:5173",
+    "0.peerjs.com",
+    "0.peerjs.com",
+    "0.peerjs.com",
+    "0.peerjs.com"
+  ],
+  "players": 3,
+  "preservedChest": true,
+  "lateJoin": true,
+  "shooting": true,
+  "hostMigration": true,
+  "photonUsed": false,
+  "unitTests": 225,
+  "lanServerTests": 3,
+  "browserLanScenarios": 2,
+  "photonRegressionScenarios": 1,
+  "legacyLanProductionScenarios": 1,
+  "typecheck": "passed",
+  "build": "passed",
+  "physicalMultiDeviceTest": false
+}

@@ -75,6 +75,18 @@ export class Simulation {
     // Guaranteed starter supplies stay active. A few optional caches vary between expeditions.
     for(const l of this.loot)if(!l.guaranteed&&this.contentRandom()<.18)l.searched=true;
   }
+  /** Detached state copy for opening an existing expedition to LAN. Keep class prototypes and bound RNG. */
+  cloneForCoop():Simulation {
+    const copy=new Simulation(this.cycle.durations,this.runSeed);
+    const classes=new Set(['inventory','storage','cycle','horde','corpses','director']);
+    for(const [key,value] of Object.entries(this)){
+      if(typeof value==='function')continue;
+      if(classes.has(key))Object.assign(Reflect.get(copy,key),structuredClone(value));
+      else Reflect.set(copy,key,structuredClone(value));
+    }
+    copy.events=[];copy.focus=null;copy.spawnBlockedByView=this.spawnBlockedByView;
+    return copy;
+  }
   random(): number { this.seed = (Math.imul(1664525, this.seed) + 1013904223) >>> 0; return this.seed / 4294967296; }
   contentRandom=():number=>{this.contentSeed=(Math.imul(1664525,this.contentSeed)+1013904223)>>>0;return this.contentSeed/4294967296;};
   get meleeMode(){return this.activeSlot>=2;}

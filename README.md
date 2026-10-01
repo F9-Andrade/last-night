@@ -13,7 +13,7 @@ npm install
 npm run dev -- --host 127.0.0.1
 ```
 
-Abra o endereço do Vite, normalmente **http://localhost:5173**, e clique em **Jogar**. Esse gesto habilita o áudio e captura o mouse. O modo solo usa assets locais e funciona sem um servidor de partida. O modo cooperativo utiliza Photon Realtime; configuração e limites estão em [MULTIPLAYER.md](MULTIPLAYER.md).
+Abra o endereço do Vite, normalmente **http://localhost:5173**, e clique em **Jogar**. Esse gesto habilita o áudio e captura o mouse. O modo solo usa assets locais e funciona sem um servidor de partida. O cooperativo oferece duas conexões independentes: **Photon / Online** e **LAN / WebRTC**. Para LAN pelo site, inicie a expedição, pressione **Esc → Abrir para LAN** e compartilhe o código com jogadores da mesma rede. Não exige programa local; internet é usada para encontrar os participantes. Consulte [LAN pelo site](docs/browser-lan/README.md) e [MULTIPLAYER.md](MULTIPLAYER.md).
 
 ```sh
 npm test

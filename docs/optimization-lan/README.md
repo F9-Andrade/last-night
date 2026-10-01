@@ -1,5 +1,7 @@
 # Oficina, LAN e otimização de renderização
 
+> Registro da implementação anterior. A opção LAN do site agora usa WebRTC independente do Photon: veja [LAN pelo site](../browser-lan/README.md). O servidor abaixo permanece disponível como ferramenta local opcional, usando `?coop=lan&lan=server`.
+
 ## Correção da mesa inteligente
 
 A oficina comparava o HTML gerado com `element.innerHTML`. O navegador normaliza esse HTML (por exemplo, SVG, entidades e atributos), fazendo trechos equivalentes parecerem diferentes. Isso recriava botões durante atualizações do HUD, podendo destruir o alvo entre pressionar e soltar o mouse.
@@ -17,7 +19,7 @@ npm run build
 npm run lan
 ```
 
-O terminal mostra os endereços disponíveis. Todos os jogadores abrem o endereço IP do anfitrião, como `http://192.168.1.10:8787/?coop=lan`, escolhem LAN e criam/entram na sala pelo código. O processo do servidor deve permanecer aberto. A porta pode ser configurada por `LAN_PORT`. O servidor serve os arquivos compilados de `dist`; após alterações no jogo é necessário executar o build novamente.
+O terminal mostra os endereços disponíveis. Todos os jogadores abrem o endereço IP do anfitrião, como `http://192.168.1.10:8787/?coop=lan&lan=server`, escolhem LAN e criam/entram na sala pelo código. O processo do servidor deve permanecer aberto. A porta pode ser configurada por `LAN_PORT`. O servidor serve os arquivos compilados de `dist`; após alterações no jogo é necessário executar o build novamente.
 
 A LAN funciona sem Photon/App ID e não depende de internet para jogar depois que os arquivos locais estão disponíveis. Não há descoberta automática de computadores: o endereço é informado pelo anfitrião. É preciso que os dispositivos consigam acessar a porta local, sem isolamento entre clientes Wi-Fi. Nenhuma configuração de firewall ou roteador foi alterada.
 

@@ -24,11 +24,11 @@ export class CoopSession {
  private motionFrames=new Map<number,EnemyInterpolation>();private lastMotionSent=new Map<number,number>();private budgets=new Map<number,SnapshotBudget>();private pending:ActionRequest[]=[];
  readonly confirmed:SessionEffect[]=[];
  readonly metrics={dropped:0,checkpoints:0,motionBatches:0,hash:'',snapshotBytes:0,migrations:0};
- constructor(readonly network:NetworkManager,readonly local:Simulation,private start:StartData){
+ constructor(readonly network:NetworkManager,readonly local:Simulation,private start:StartData,preserved?:CoopWorld){
   local.foundationMode=false;local.coopMode='replica';local.zombies=[];local.dormantZombies=[];
   local.onBeforeShot=()=>{const seed=shotSeed(network.localActor,++this.shot);local.seed=seed;this.enqueue({kind:'fire',shot:this.shot,weapon:local.equipped.type,seed,ads:local.player.ads,bloom:local.player.bloom,kick:local.player.aimKick});};
   network.onGameplay=(code,data,actor)=>this.receive(code,data,actor);network.onTick=dt=>this.tick(dt);
-  this.master=network.masterActor;if(network.isHost)this.owner=new CoopWorld(start.seed,start.actors);
+  this.master=network.masterActor;if(network.isHost)this.owner=preserved??new CoopWorld(start.seed,start.actors);if(preserved)this.apply(preserved.checkpoint());
  }
  get localRecord(){return this.checkpoint?.players.find(p=>p.actor===this.network.localActor);}
  get incapacitated(){return !!this.localRecord&&this.localRecord.life!=='alive';}
@@ -55,7 +55,7 @@ export class CoopSession {
    if(this.network.isHost){this.owner=CoopWorld.restore(this.start.seed,this.checkpoint,this.network.players.map(p=>p.actorNumber));this.dirty=true;this.stateClock=COOP.checkpointInterval;}
   }
   if(!this.owner)return;
-  this.owner.setMembers(this.network.players.map(p=>p.actorNumber));
+  if(this.owner.setMembers(this.network.players.map(p=>p.actorNumber))){this.published=undefined;this.dirty=true;}
   for(const [actor,pose] of this.network.poses)this.owner.setPose(actor,pose);
   this.clock+=dt;let steps=0;while(this.clock>=1/60&&steps++<15){this.owner.step(1/60);this.clock-=1/60;}
   this.stateClock+=dt;this.motionClock+=dt;
@@ -94,7 +94,7 @@ export class CoopSession {
   this.motionClockSync.observe(c.time*1000,this.lastSnapshotAt);
   // Checkpoints also establish poses for newly spawned entities and recovery.
   for(const z of c.infected)this.pushFrame(z.id,c.time,z.x,z.z,z.angle,z.gait);
-  const local=this.localRecord;if(local){sim.player.hp=local.player.hp;sim.player.invulnerable=local.player.invulnerable;sim.action=structuredClone(local.action);
+  const local=this.localRecord;if(local){if(this.metrics.checkpoints===1)sim.perks=new Set(local.perks);sim.builderUsed=local.builderUsed;sim.openingReady=local.openingReady;sim.player.hp=local.player.hp;sim.player.invulnerable=local.player.invulnerable;sim.action=structuredClone(local.action);
    if(local.lastSeq>=this.reconciliationSeq){sim.inventory.items={...local.inventory};sim.storage.items={...local.storage};sim.loadout=structuredClone(local.loadout);sim.activeSlot=local.activeSlot;sim.gear=structuredClone(local.gear);sim.packCrafted=local.packCrafted;sim.inventory.capacity=local.capacity;sim.reloadTimer=local.reloadTimer;sim.reloadDuration=local.reloadDuration;sim.switchTimer=local.switchTimer;sim.weaponStorage=structuredClone(local.weaponStorage);}
    if(local.life!=='alive'){sim.player.eyeY=floorHeight(sim.player)+.6;sim.player.moving=false;sim.player.running=false;sim.action=null;sim.cancelReload();}
   }sim.gameOver=c.wipe;
