@@ -1,0 +1,64 @@
+/* Field rations: compact instruments and original voxel supply illustrations. */
+.nutrition-meters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 -4px;color:#d0b794;pointer-events:none}.nutrition-meter{display:grid;grid-template-columns:17px 1fr auto;gap:3px 5px;align-items:center;font-size:10px;text-shadow:0 2px 3px #000;background:linear-gradient(90deg,#12100ecc,#12100e35);padding:5px 6px 6px;border-top:1px solid #c3aa842b}.nutrition-meter .icon{width:15px;height:15px;grid-row:span 2}.nutrition-meter b{font-size:11px;font-variant-numeric:tabular-nums;font-weight:700}.nutrition-meter>i{grid-column:2/4;height:3px;background:#8a775731;overflow:hidden}.nutrition-meter em{display:block;height:100%;background:currentColor;transition:width .2s linear}.nutrition-meter#nutrition-thirst{color:#a7c4ca}.nutrition-meter.low{color:#e7aa67}.nutrition-meter#nutrition-thirst.low{color:#e7aa67}.nutrition-meter.critical,.nutrition-meter#nutrition-thirst.critical{color:#ea7867}.nutrition-meters>small{grid-column:1/-1;color:#e6b597;font-size:10px;margin-top:-4px;text-shadow:0 2px 4px #000}
+.playing .base-status{bottom:251px}.loot-feed{bottom:294px}.night-active .loot-feed{bottom:303px}
+#consumption-progress{position:absolute;bottom:115px;left:50%;transform:translateX(-50%);width:290px;max-width:40vw;display:flex;gap:8px;align-items:center;padding:10px 12px;background:#13110fec;border-left:2px solid #b79868;color:#e5dac8;pointer-events:none;zoom:var(--ui-scale)}#consumption-art{flex:none;width:43px;height:43px}#consumption-art .item-art{width:100%;height:100%}#consumption-progress>div:last-child{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;gap:7px}#consumption-label{font-size:11px;line-height:1.3;font-weight:600}#consumption-time{font-size:10px;font-variant-numeric:tabular-nums;color:#b6a48d}#consumption-progress i{grid-column:1/-1;display:block;height:3px;background:#6b584d50}#consumption-progress i b{display:block;height:100%;background:#c1b285;transition:width .1s linear}.paused #consumption-progress{visibility:hidden}.inventory-open #consumption-progress{left:42%;max-width:28vw}.consuming #crosshair{opacity:.35}
+.supplies-filter{display:flex;gap:7px;margin:0 0 11px;border-bottom:1px solid #94806a45;padding-bottom:10px}.supplies-filter button{padding:6px 8px;background:#151310b0;border:1px solid #79695652;color:#c0b09e;font-size:11px}.supplies-filter button[aria-pressed=true]{border-color:#b08458;color:#f2dbc2;background:#47312261}.supplies-filter button:hover{border-color:#dfba8e}.supplies-filter small{display:inline-block;min-width:15px;padding-left:3px;color:#d4b084;font-size:10px}.inventory-panel.equipment-tab .supplies-filter,.inventory-panel.craft-tab .supplies-filter{display:none}.inventory-panel .inventory-items{max-height:min(32dvh,350px);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#705241 #141211;padding-right:3px;padding-bottom:3px;scroll-padding:3px}.inventory-panel .item-slot:focus-visible{outline-offset:-4px}.inventory-panel .inventory-items .empty-slot{display:none}.inventory-panel .food-art{filter:drop-shadow(2px 5px 2px #0008)}.item-slot.empty:not(.selected) .food-art{filter:grayscale(.4);opacity:.5}.food-benefits{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 11px}.food-benefits span{font-size:10px;border:1px solid #9e946340;padding:4px 6px;color:#c7c999;background:#27271870}.food-benefits .food-cost{color:#d4a389;border-color:#b67e603d;background:#45261e60}.food-benefits span:last-child{color:#b8ac9d;border-color:#8d77653d;background:#24201c70}.item-actions .consume-button{background:#454b2b80;border-color:#afb47a66;color:#e0e2b9;min-width:100px}.item-actions .consume-button:hover:not(:disabled){background:#626538;color:#fffbe9}.item-actions .consume-button:disabled{opacity:.45}.loot-receipt>.item-art{width:27px;height:27px;flex:none}.chest-slot .food-art{width:100%;height:100%}
+@media(max-height:800px){.inventory-panel .inventory-items{max-height:28dvh}.inventory-panel .supplies-filter{margin-bottom:9px;padding-bottom:8px}.food-benefits{margin-bottom:8px;gap:4px}#item-details .food-benefits span{padding:3px 5px}#consumption-progress{bottom:100px}.nutrition-meters{gap:6px;margin-top:8px}}
+@media(max-width:1100px){.playing .base-status{bottom:236px}.nutrition-meter{font-size:9px;padding:5px 4px;column-gap:3px}.nutrition-meter b{font-size:10px}.nutrition-meter .icon{width:13px;height:13px}}
+@media(max-width:760px){#consumption-progress{max-width:240px;width:240px;bottom:215px;left:50%}.inventory-open #consumption-progress{display:none}.nutrition-meter>span{font-size:8px}.nutrition-meter{grid-template-columns:13px 1fr auto}.supplies-filter button{font-size:10px;padding:6px}.inventory-panel .inventory-items{max-height:27dvh}}
+@media(prefers-reduced-motion:reduce){.nutrition-meter em,#consumption-progress i b{transition:none}}
+/* Keep identity and actions anchored. Only the supply grid scrolls in this tab. */
+#inventory-panel:not(.equipment-tab):not(.craft-tab){display:flex;flex-direction:column;height:calc(100dvh / var(--ui-scale) - var(--inventory-top) - 24px);max-height:calc(100dvh / var(--ui-scale) - var(--inventory-top) - 24px);overflow:hidden}
+#inventory-panel>.inventory-heading,#inventory-panel>.inventory-tabs,#inventory-panel>.capacity,#inventory-panel>.supplies-filter,#inventory-panel>#item-details,#inventory-panel>.inventory-use,#inventory-panel>footer,#inventory-panel>#place-chest{flex-shrink:0}
+#inventory-panel>.inventory-tabs{margin:12px 0 10px}
+#inventory-panel>.capacity{margin:6px 0 11px;gap:6px}
+#inventory-panel>.capacity>i{height:7px}
+#inventory-panel>.inventory-items{flex:1 1 auto;min-height:90px;max-height:none;align-content:start}
+#inventory-panel>#item-details{min-height:0;margin-top:10px;padding-top:10px}
+#inventory-panel>#item-details p{min-height:0;margin:8px 0}
+#inventory-panel>.inventory-use{margin-top:8px}
+#inventory-panel>footer{margin-top:9px;padding-top:8px}
+#inventory-panel>footer p{font-size:10px;margin-bottom:5px}
+#inventory-panel .item-slot:focus{scroll-margin:4px}
+@media(max-height:800px){
+ #inventory-panel{padding:17px 21px 14px}
+ #inventory-panel>.inventory-heading h2{font-size:27px}
+ #inventory-panel>.inventory-tabs{margin:8px 0}
+ #inventory-panel>.inventory-tabs button{padding:8px 3px}
+ #inventory-panel>.capacity{margin:5px 0 9px}
+ #inventory-panel>.inventory-items{min-height:82px}
+ #inventory-panel .inventory-items .item-slot{min-height:101px!important}
+ #inventory-panel>#item-details p{font-size:11px;line-height:1.45;margin:6px 0}
+ #inventory-panel>#item-details h3{font-size:17px}
+ #inventory-panel>#item-details header .item-art{width:29px;height:29px}
+ #inventory-panel>footer #inventory-context{display:none}
+ #inventory-panel>.inventory-use button{padding:8px 5px}
+}
+@media(max-height:680px){
+ #inventory-panel{--inventory-top:58px;padding:14px 18px 12px}
+ #inventory-panel>.inventory-heading h2{font-size:25px}
+ #inventory-panel>.inventory-heading .eyebrow{font-size:8px}
+ #inventory-panel>.inventory-heading .icon-button{width:28px;height:28px}
+ #inventory-panel>.inventory-tabs{margin:6px 0}
+ #inventory-panel>.inventory-tabs button{padding:7px 3px;font-size:11px}
+ #inventory-panel>.capacity{font-size:10px;margin:4px 0 7px}
+ #inventory-panel>.capacity strong{font-size:10px}
+ #inventory-panel>.supplies-filter{margin-bottom:6px;padding-bottom:6px}
+ #inventory-panel>.supplies-filter button{padding:5px 7px;font-size:10px}
+ #inventory-panel>.inventory-items{min-height:80px}
+ #inventory-panel .inventory-items .item-slot{min-height:91px!important}
+ #inventory-panel>#item-details{margin-top:7px;padding-top:7px}
+ #inventory-panel>#item-details h3{font-size:15px}
+ #inventory-panel>#item-details p{font-size:10px;margin:5px 0}
+ #inventory-panel .food-benefits{margin-bottom:6px}
+ #inventory-panel .food-benefits span{font-size:9px;padding:3px 4px}
+ #inventory-panel .item-actions button{padding:7px 9px;font-size:11px}
+ #inventory-panel>.inventory-use{margin-top:6px}
+ #inventory-panel>.inventory-use button{font-size:10px;padding:6px 5px}
+ #inventory-panel>footer{font-size:9px;margin-top:7px;padding-top:7px}
+}
+@media(max-height:520px){
+ /* Very short windows retain access to every control via a single outer scroller. */
+ #inventory-panel:not(.equipment-tab):not(.craft-tab){display:block;overflow:auto;height:auto}
+ #inventory-panel>.inventory-items{display:grid;max-height:180px}
+}

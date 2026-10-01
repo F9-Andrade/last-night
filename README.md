@@ -74,6 +74,12 @@ Infectados precisam enxergar para perseguir a posição atual. Ao perder visão,
 
 Hatches e viaturas selecionados podem disparar um alarme após impacto. Geradores usam um motor próprio, fazem barulho enquanto ligados e liberam depósitos. A reverberação e o vento mudam suavemente entre interior, rua e abrigo. Relatório, comparações e limites de validação: [PHASE9_REPORT.md](PHASE9_REPORT.md).
 
+## Alimentação e hidratação
+
+Saciedade e hidratação diminuem durante a expedição; correr aumenta o gasto. Procure feijão, carne, sardinha e fruta em conserva, biscoitos, ração de campanha, água e refrigerante nos containers da cidade. Mercados e casas favorecem mantimentos. Abra **Tab → Suprimentos → Alimentos**, escolha um item e clique em **Comer/Beber**. A arma é abaixada e a embalagem é aberta antes do consumo. Mover, atacar, trocar equipamento ou sofrer dano interrompe a ação sem gastar o alimento.
+
+As necessidades baixas reduzem a recuperação do fôlego; chegar a zero causa dano gradual. Comida não substitui bandagens. Os alimentos ocupam peso na mochila e podem ser guardados nos baús fabricados. Tudo funciona no solo, Photon e LAN, com necessidades individuais e consumo validado pelo anfitrião. [Balanço, imagens e validação](docs/nutrition/README.md).
+
 ## Apresentação visual — Fase 11
 
 Sol lateral quente, sombras estáveis, céu com nuvens, materiais gastos, detalhes de abandono e arma iluminada pelo ambiente formam o passe visual atual. Alta e Ultra incluem GTAO; os quatro presets ajustam sombras, distância, vegetação e efeitos. A mochila mantém o background grunge e os seis ícones fornecidos.

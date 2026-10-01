@@ -1,3 +1,4 @@
+import {isFood} from '../game/nutrition.ts';
 import {CITY_LIMIT} from '../game/city.ts';
 import {createPatch,applyPatch} from './world-patch.ts';
 import {Simulation} from '../game/simulation.ts';
@@ -39,6 +40,7 @@ export class CoopSession {
  beforeStep(dt:number,input:InputCommand):InputCommand {
   this.holdClock+=dt;
   if(this.error||!this.ready||this.incapacitated)return {...input,moveX:0,moveZ:0,fire:false,trigger:false,reload:false,interact:false,heldInteract:false,heal:false,run:false,slot:undefined};
+  if(this.local.consumption&&(Math.hypot(input.moveX,input.moveZ)>.01||input.run||input.fire||input.reload||input.heal||input.interact||input.heldInteract||input.dismantle||input.slot!==undefined)){this.enqueue({kind:'cancel-consume'});this.local.cancelConsumption();}
   if(input.dismantle)this.enqueue({kind:'dismantle'});
   if(input.reload)this.enqueue({kind:'reload'});if(input.slot!==undefined)this.enqueue({kind:'switch',slot:input.slot});if(input.heal)this.enqueue({kind:'heal'});
   const target=this.reviveTarget();const held=!!input.heldInteract;
@@ -60,7 +62,7 @@ export class CoopSession {
   this.clock+=dt;let steps=0;while(this.clock>=1/60&&steps++<15){this.owner.step(1/60);this.clock-=1/60;}
   this.stateClock+=dt;this.motionClock+=dt;
   const effects=this.owner.effects.splice(0);
-  if(effects.some(e=>['death','hurt','pickup','healed','door','glass','switch'].includes(e.event.type)))this.dirty=true;
+  if(effects.some(e=>['death','hurt','pickup','healed','door','glass','switch','consume-start','consume-done','consume-cancel'].includes(e.event.type)))this.dirty=true;
   if(this.dirty||this.stateClock>=COOP.checkpointInterval){this.publish();this.dirty=false;this.stateClock=0;}
   if(effects.length){for(let i=0;i<effects.length;i+=80){const batch=effects.slice(i,i+80);this.acceptEffects(batch);this.network.sendGameplay(GameplayEvent.Effects,batch);}}
   if(this.motionClock>=.1){this.motionClock=0;const rows:number[][]=[];for(const z of this.owner.sim.zombies){if(!z.active)continue;let near=Infinity;for(const actor of this.owner.actors.values())near=Math.min(near,distance(z,actor.sim.player));const rate=near<COOP.nearDistance?COOP.nearRate:near<COOP.midDistance?COOP.midRate:COOP.farRate;
@@ -76,8 +78,8 @@ export class CoopSession {
   if(code===GameplayEvent.WorldPatch){const c=this.checkpoint?applyPatch(this.checkpoint,data):null;if(c)this.apply(c);else {this.metrics.dropped++;if(performance.now()-this.lastRecovery>1000){this.lastRecovery=performance.now();this.network.sendGameplay(GameplayEvent.RecoveryRequest,{},this.network.masterActor);}}}
   if(code===GameplayEvent.WorldCheckpoint){const c=parseCheckpoint(data);if(!c||c.revision<=(this.checkpoint?.revision??0)){this.metrics.dropped++;return;}this.apply(c);}
   if(code===GameplayEvent.InfectedMotion)this.motion(data);
-  if(code===GameplayEvent.Effects){if(!Array.isArray(data)||data.length>80||!boundedJSON(data,6000)){this.metrics.dropped++;return;}const allowed=['melee','build','repair','warning','night','dawn','countdown','shot','hit','death','hurt','pickup','healed','heal','search','reload','reload-out','reload-in','reload-slide','reload-done','empty','switch','rare-pickup','door','glass','spit','spit-ready','scream','scream-ready','enemy-call','enemy-attack','heavy-step','notice','barricade-hit','barricade-break'];
-   const effects=data.filter((v):v is SessionEffect=>{if(!v||typeof v!=='object'||!Number.isInteger(v.actor)||!Number.isInteger(v.shot)||!v.event||!allowed.includes(v.event.type))return false;const e=v.event;if(e.type==='notice')return typeof e.text==='string'&&typeof e.sub==='string';if(e.weapon!==undefined&&!Object.hasOwn(WEAPONS,e.weapon))return false;const pos=(p:unknown)=>!!p&&typeof p==='object'&&Number.isFinite((p as {x:number}).x)&&Number.isFinite((p as {z:number}).z);if(e.type==='shot')return pos(e.from)&&pos(e.to)&&Number.isFinite(e.y)&&typeof e.hit==='boolean';if(['hit','death','door','glass','spit','spit-ready','scream','scream-ready','enemy-call','enemy-attack','heavy-step'].includes(e.type))return pos(e.position);return true;});this.acceptEffects(effects);
+  if(code===GameplayEvent.Effects){if(!Array.isArray(data)||data.length>80||!boundedJSON(data,6000)){this.metrics.dropped++;return;}const allowed=['consume-start','consume-done','consume-cancel','melee','build','repair','warning','night','dawn','countdown','shot','hit','death','hurt','pickup','healed','heal','search','reload','reload-out','reload-in','reload-slide','reload-done','empty','switch','rare-pickup','door','glass','spit','spit-ready','scream','scream-ready','enemy-call','enemy-attack','heavy-step','notice','barricade-hit','barricade-break'];
+   const effects=data.filter((v):v is SessionEffect=>{if(!v||typeof v!=='object'||!Number.isInteger(v.actor)||!Number.isInteger(v.shot)||!v.event||!allowed.includes(v.event.type))return false;const e=v.event;if(['consume-start','consume-done','consume-cancel'].includes(e.type))return isFood((e as {item?:unknown}).item);if(e.type==='notice')return typeof e.text==='string'&&typeof e.sub==='string';if(e.weapon!==undefined&&!Object.hasOwn(WEAPONS,e.weapon))return false;const pos=(p:unknown)=>!!p&&typeof p==='object'&&Number.isFinite((p as {x:number}).x)&&Number.isFinite((p as {z:number}).z);if(e.type==='shot')return pos(e.from)&&pos(e.to)&&Number.isFinite(e.y)&&typeof e.hit==='boolean';if(['hit','death','door','glass','spit','spit-ready','scream','scream-ready','enemy-call','enemy-attack','heavy-step'].includes(e.type))return pos(e.position);return true;});this.acceptEffects(effects);
   }
  }
  private acceptEffects(effects:SessionEffect[]){this.confirmed.push(...effects);if(this.confirmed.length>128)this.confirmed.splice(0,this.confirmed.length-128);for(const e of effects){if(e.actor===this.network.localActor&&['melee','shot','reload','reload-out','reload-in','reload-slide','reload-done','empty','switch'].includes(e.event.type))continue;this.effects.push(e);}if(this.effects.length>240)this.effects.splice(0,this.effects.length-240);}
@@ -94,9 +96,9 @@ export class CoopSession {
   this.motionClockSync.observe(c.time*1000,this.lastSnapshotAt);
   // Checkpoints also establish poses for newly spawned entities and recovery.
   for(const z of c.infected)this.pushFrame(z.id,c.time,z.x,z.z,z.angle,z.gait);
-  const local=this.localRecord;if(local){if(this.metrics.checkpoints===1)sim.perks=new Set(local.perks);sim.builderUsed=local.builderUsed;sim.openingReady=local.openingReady;sim.player.hp=local.player.hp;sim.player.invulnerable=local.player.invulnerable;sim.action=structuredClone(local.action);
-   if(local.lastSeq>=this.reconciliationSeq){sim.inventory.items={...local.inventory};sim.storage.items={...local.storage};sim.loadout=structuredClone(local.loadout);sim.activeSlot=local.activeSlot;sim.gear=structuredClone(local.gear);sim.packCrafted=local.packCrafted;sim.inventory.capacity=local.capacity;sim.reloadTimer=local.reloadTimer;sim.reloadDuration=local.reloadDuration;sim.switchTimer=local.switchTimer;sim.weaponStorage=structuredClone(local.weaponStorage);}
-   if(local.life!=='alive'){sim.player.eyeY=floorHeight(sim.player)+.6;sim.player.moving=false;sim.player.running=false;sim.action=null;sim.cancelReload();}
+  const local=this.localRecord;if(local){if(this.metrics.checkpoints===1)sim.perks=new Set(local.perks);sim.builderUsed=local.builderUsed;sim.openingReady=local.openingReady;sim.player.hp=local.player.hp;sim.player.invulnerable=local.player.invulnerable;sim.action=structuredClone(local.action);sim.nutrition=structuredClone(local.nutrition);
+   if(local.lastSeq>=this.reconciliationSeq){const consumption=structuredClone(local.consumption);if(consumption&&sim.consumption?.item===consumption.item)consumption.elapsed=Math.min(consumption.duration,Math.max(consumption.elapsed,Math.min(consumption.elapsed+.35,sim.consumption.elapsed)));sim.consumption=consumption;sim.inventory.items={...local.inventory};sim.storage.items={...local.storage};sim.loadout=structuredClone(local.loadout);sim.activeSlot=local.activeSlot;sim.gear=structuredClone(local.gear);sim.packCrafted=local.packCrafted;sim.inventory.capacity=local.capacity;sim.reloadTimer=local.reloadTimer;sim.reloadDuration=local.reloadDuration;sim.switchTimer=local.switchTimer;sim.weaponStorage=structuredClone(local.weaponStorage);}
+   if(local.life!=='alive'){sim.player.eyeY=floorHeight(sim.player)+.6;sim.player.moving=false;sim.player.running=false;sim.action=null;sim.consumption=null;sim.cancelReload();}
   }sim.gameOver=c.wipe;
  }
  private pushFrame(id:number,time:number,x:number,z:number,angle:number,gait:number){
@@ -116,7 +118,7 @@ export class CoopSession {
   for(const z of this.local.zombies)this.motionFrames.get(z.id)?.sample(time,z);
   if(this.incapacitated)this.local.player.eyeY=floorHeight(this.local.player)+.6;
  }
- decorate(states:RemotePlayerState[]){return states.map(s=>{const p=this.checkpoint?.players.find(p=>p.actor===s.identity.actorNumber);return {...s,gameplay:p?{life:p.life,hp:p.player.hp,weapon:p.loadout[p.activeSlot as 0|1]?.type??'pistol',melee:p.activeSlot>=2?(p.activeSlot===3?'fists':p.gear.melee):undefined,reload:p.reloadTimer,reloadDuration:p.reloadDuration}:undefined};});}
+ decorate(states:RemotePlayerState[]){return states.map(s=>{const p=this.checkpoint?.players.find(p=>p.actor===s.identity.actorNumber);return {...s,gameplay:p?{life:p.life,hp:p.player.hp,consumption:p.consumption?{...p.consumption,elapsed:Math.min(p.consumption.duration,p.consumption.elapsed+Math.min(.6,(performance.now()-this.lastSnapshotAt)/1000))}:null,weapon:p.loadout[p.activeSlot as 0|1]?.type??'pistol',melee:p.activeSlot>=2?(p.activeSlot===3?'fists':p.gear.melee):undefined,reload:p.reloadTimer,reloadDuration:p.reloadDuration}:undefined};});}
  dispose(){this.network.onGameplay=()=>{};this.network.onTick=()=>{};this.local.onBeforeShot=undefined;this.effects=[];this.pending=[];this.owner=undefined;this.motionFrames.clear();}
  debug(){return {...this.metrics,gameplay:{...this.network.gameplayMetrics},confirmed:this.confirmed,actor:this.network.localActor,master:this.master,snapshotAge:this.lastSnapshotAt?performance.now()-this.lastSnapshotAt:null,entities:this.owner?.registry.size??(this.checkpoint?this.checkpoint.infected.length+this.checkpoint.loot.length+this.checkpoint.portals.length:0),infected:this.checkpoint?.infected.length??0,revision:this.checkpoint?.revision??0,players:this.checkpoint?.players,error:this.error};}
 }

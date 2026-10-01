@@ -3,7 +3,7 @@ import type { Vec2 } from './world.ts';
 import type { Stock } from './inventory.ts';
 import type {LootArea} from './loot.ts';
 export const BASE_LOOT_POINTS: (Vec2 & { id: string; area: LootArea; label: string; guaranteed?: Partial<Stock>;site?:string;valuable?:boolean;restocked?:boolean })[] = [
-  { id: 'market-crate', x: -22, z: .5, area: 'market', label: 'Caixa de entregas', guaranteed: { wood: 5 } },
+  { id: 'market-crate', x: -22, z: .5, area: 'market', label: 'Caixa de entregas', guaranteed: { wood: 5, cannedBeans: 1, water: 1 } },
   { id: 'market-locker', x: -29, z: 1.5, area: 'market', label: 'Armário do mercado' },
   { id: 'hospital-case', x: 23, z: -17, area: 'hospital', label: 'Caixa médica', guaranteed: { med: 2 } },
   { id: 'hospital-locker', x: 29, z: -17, area: 'hospital', label: 'Armário de emergência' },

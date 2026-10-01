@@ -1,4 +1,5 @@
 import { BALANCE } from './config.ts';
+import { FOODS } from './nutrition.ts';
 export const ITEMS = {
   chest: { label: 'Baú', weight: 2, step: 1, hint: '27 espaços. Posicione no chão e abra com o botão direito para guardar itens.' },
   hide: { label: 'Pele recuperada', weight: .3, step: 1, hint: 'Couro bruto dos infectados. Trate na mesa para fabricar proteção.' },
@@ -12,11 +13,12 @@ export const ITEMS = {
   wood: { label: 'Madeira', unit: 'peças', weight: .5, step: 1, hint: 'Construir e reparar barricadas.' },
   scrap: { label: 'Sucata', unit: 'peças', weight: .25, step: 1, hint: 'Reforçar barricadas e reparar o abrigo.' },
   rare: { label: 'Reserva selada', unit: 'unidades', weight: 1, step: 1, hint: 'No abrigo: recuperação de emergência de 250 HP.' },
+  ...Object.fromEntries(Object.entries(FOODS).map(([key, food]) => [key, { ...food, step: 1 }])) as { [K in keyof typeof FOODS]: typeof FOODS[K] & { step: number } },
 } as const;
 export type Item = keyof typeof ITEMS;
 export type Stock = Record<Item, number>;
 export const itemKeys = Object.keys(ITEMS) as Item[];
-export const emptyStock = (): Stock => ({ ammo: 0, shells: 0, rifleAmmo: 0, med: 0, wood: 0, scrap: 0, hide: 0, cloth: 0, cord: 0, bench: 0, chest: 0, rare: 0 });
+export const emptyStock = (): Stock => Object.fromEntries(itemKeys.map(key => [key, 0])) as Stock;
 export class Inventory {
   items: Stock = emptyStock(); capacity: number;
   constructor(capacity = BALANCE.inventory.capacity) { this.capacity = capacity; }

@@ -1,3 +1,6 @@
+import {NutritionHUD} from './nutrition';
+import type {FoodId} from '../game/nutrition';
+import {itemArt} from './item-art';
 import {defenseMaxHP} from '../game/defenses';
 import { REGIONS } from '../game/districts';
 import type { Simulation } from '../game/simulation';
@@ -13,13 +16,15 @@ import { FieldMap,regionIcons } from './map';
 const clock=(seconds:number):string=>`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
 const natural=(text:string):string=>text.charAt(0).toUpperCase()+text.slice(1).toLocaleLowerCase('pt-BR');
 export class HUD {
+  onConsume:(item:FoodId)=>void=()=>{};
+  private nutrition: NutritionHUD;
   inventoryOpen=false; mapOpen=false; settingsOpen=false; captions=true; mutations=0; updates=0;
   root:HTMLDivElement;canvas:HTMLCanvasElement; variety:VarietyHUD;
   private els=new Map<string,HTMLElement>();private htmlCache=new Map<string,string>();private styleCache=new Map<string,string>();
   private noticeTimer=0;private hitTimer=0;private hurtTimer=0;private tick=0;private mapTick=0;private phase='';private objectiveTime=0;private tutorialTime=0;
   private previous?:Stock;private previousAmmo=12;private lootNotices:{item:Item;amount:number;until:number}[]=[];private age=0;private fieldMap=new FieldMap();
   private closeTimer?:ReturnType<typeof setTimeout>;private seen=new Set<string>();
-  constructor(){this.root=document.querySelector('#app')!;this.root.innerHTML=layout();this.root.insertAdjacentHTML('beforeend','<div id="return-base" hidden></div><div id="base-marker" hidden></div>');this.canvas=this.root.querySelector('#game')!;this.variety=new VarietyHUD(this.root);
+  constructor(){this.root=document.querySelector('#app')!;this.root.innerHTML=layout();this.root.insertAdjacentHTML('beforeend','<div id="return-base" hidden></div><div id="base-marker" hidden></div>');this.canvas=this.root.querySelector('#game')!;this.variety=new VarietyHUD(this.root);this.nutrition=new NutritionHUD(this.root,k=>this.selectItem(k));this.nutrition.onConsume=k=>this.onConsume(k);
     for(const k of itemKeys)this.el(`select-${k}`).onclick=()=>this.selectItem(k);
     this.el('map-legend').innerHTML=[0,1,2,3,4,5,12,18,19].map(i=>`<p>${icon(regionIcons[i])}<span>${natural(REGIONS[i].name)}</span></p>`).join('');
   }
@@ -28,7 +33,7 @@ export class HUD {
   html(id:string,value:string):void {if(this.htmlCache.get(id)!==value){this.el(id).innerHTML=value;this.htmlCache.set(id,value);this.mutations++;}}
   private style(id:string,property:string,value:string):void {const key=id+property;if(this.styleCache.get(key)!==value){this.el(id).style.setProperty(property,value);this.styleCache.set(key,value);this.mutations++;}}
   selectItem(k:Item):void {for(const item of itemKeys){const selected=k===item;this.el(`detail-${item}`).hidden=!selected;this.el(`select-${item}`).classList.toggle('selected',selected);this.el(`select-${item}`).setAttribute('aria-pressed',String(selected));}this.el(`select-${k}`).dispatchEvent(new CustomEvent('item-select',{bubbles:true}));}
-  reset():void {this.variety.reset();this.previous=undefined;this.phase='';this.age=0;this.lootNotices=[];this.tutorialTime=0;this.fieldMap.reset();this.seen.clear();this.inventory(false);this.map(false);this.el('loot-feed').innerHTML='';this.htmlCache.delete('loot-feed');}
+  reset():void {this.variety.reset();this.nutrition.reset();this.previous=undefined;this.phase='';this.age=0;this.lootNotices=[];this.tutorialTime=0;this.fieldMap.reset();this.seen.clear();this.inventory(false);this.map(false);this.el('loot-feed').innerHTML='';this.htmlCache.delete('loot-feed');}
   showMenu(show:boolean):void {this.el('menu').hidden=!show;this.root.classList.toggle('playing',!show);if(show){this.inventory(false);this.map(false);this.noticeTimer=0;}}
   paused(value:boolean):void {this.text('pause-description',this.root.classList.contains('coop-playing')?'Seus controles estão pausados. A cidade e seus companheiros continuam.':'A cidade pode esperar. Você ainda tem uma noite pela frente.');this.el('pause-screen').hidden=!value;this.root.classList.toggle('paused',value);}
   inventory(show:boolean):void {clearTimeout(this.closeTimer);this.inventoryOpen=show;this.root.classList.toggle('inventory-open',show);this.el('inventory-panel').classList.toggle('closing',!show);if(show){this.map(false);this.el('inventory-panel').hidden=false;}else this.closeTimer=setTimeout(()=>{if(!this.inventoryOpen)this.el('inventory-panel').hidden=true;},100);}
@@ -55,7 +60,7 @@ export class HUD {
     this.el('notice').classList.toggle('visible',this.noticeTimer>0&&this.root.classList.contains('playing'));
     this.style('crosshair','transform',`translate(${Math.round(mouse.x)}px,${Math.round(mouse.y)}px)`);this.style('crosshair','--bloom',`${((sim.recoil*3+(sim.player.moving?2:0)+sim.player.bloom*24)*(sim.player.ads?.2:sim.player.crouched?.7:1)).toFixed(1)}px`);
     this.root.classList.toggle('ads',sim.player.ads);this.root.classList.toggle('crouched',sim.player.crouched);this.style('damage-direction','opacity',String(Math.max(0,this.hurtTimer)*2));this.el('crosshair').classList.toggle('hit',this.hitTimer>0);this.el('crosshair').classList.toggle('on-target',aimTarget);this.style('damage-vignette','opacity',String(Math.max(0,this.hurtTimer).toFixed(2)));
-    this.tick+=dt;this.mapTick+=dt;if(this.tick<.1&&this.updates)return;this.tick=0;this.updates++;this.variety.update(sim);
+    this.tick+=dt;this.mapTick+=dt;if(this.tick<.1&&this.updates)return;this.tick=0;this.updates++;this.variety.update(sim);this.nutrition.update(sim);
     this.text('health',String(Math.ceil(sim.player.hp)));this.style('health-bar','width',`${Math.min(100,sim.player.hp/sim.maxHP*100).toFixed(0)}%`);this.text('health-state',sim.player.hp<30?'Precisa de cuidados':sim.player.hp<70?'Ferido':'Sem ferimentos');this.root.classList.toggle('low-health',sim.player.hp<30);
     this.style('stamina-bar','width',`${sim.player.stamina.toFixed(0)}%`);this.el('stamina').classList.toggle('relevant',sim.player.running||sim.player.stamina<96);
     this.el('stamina').classList.toggle('exhausted',sim.player.exhausted);this.text('stamina-label',sim.player.exhausted?'Exausto':'Fôlego');
@@ -82,8 +87,8 @@ export class HUD {
     this.root.classList.toggle('at-base',sim.atBase);this.root.classList.toggle('night-active',sim.phase==='night');
     for(const k of ['wood','scrap','med'] as const)this.text(`resource-${k}`,String(sim.inventory.items[k]));
     this.el('threat').hidden=sim.phase!=='night';this.text('threat-label',sim.cycle.silence>0?'Silêncio.':'Pressão da horda');this.style('horde-bar','width',`${Math.min(100,sim.threat/Math.max(1,sim.horde.budget)*100)}%`);
-    if(this.previous){for(const k of itemKeys){const amount=sim.inventory.items[k]-this.previous[k];if(amount&&(k!=='ammo'||amount>0||this.inventoryOpen)){const old=this.lootNotices.find(n=>n.item===k&&this.age<n.until);if(old){old.amount+=amount;old.until=this.age+3;}else this.lootNotices.push({item:k,amount,until:this.age+3});}}}this.previous={...sim.inventory.items};this.lootNotices=this.lootNotices.filter(n=>n.until>this.age&&n.amount).slice(-4);this.html('loot-feed',this.lootNotices.map(n=>`<div class="loot-receipt ${n.amount<0?'spent':''}">${icon(n.item)}<b>${n.amount>0?'+':''}${n.amount}</b><span>${ITEMS[n.item].label}</span></div>`).join(''));
-    if(this.inventoryOpen){this.el('place-chest').hidden=!sim.inventory.items.chest;this.text('capacity-label',`${sim.inventory.weight.toFixed(1)} / ${sim.inventory.capacity} kg`);this.style('capacity-bar','width',`${sim.inventory.weight/sim.inventory.capacity*100}%`);this.el('inventory-panel').classList.toggle('full',sim.inventory.weight>sim.inventory.capacity*.9);this.text('inventory-context','Guarde itens em um baú fabricado na mesa inteligente.');for(const k of itemKeys){this.text(`item-${k}`,String(sim.inventory.items[k]));(this.el(`discard-${k}`) as HTMLButtonElement).disabled=!sim.inventory.items[k]||!!action;this.el(`select-${k}`).classList.toggle('empty',!sim.inventory.items[k]);}(this.el('use-med') as HTMLButtonElement).disabled=!sim.inventory.items.med||sim.player.hp>=sim.maxHP||!!action;(this.el('use-rare') as HTMLButtonElement).disabled=!sim.atBase||!sim.resource('rare')||sim.baseHP>=BALANCE.base.hp||!!action;}
+    if(this.previous){for(const k of itemKeys){const amount=sim.inventory.items[k]-this.previous[k];if(amount&&(k!=='ammo'||amount>0||this.inventoryOpen)){const old=this.lootNotices.find(n=>n.item===k&&this.age<n.until);if(old){old.amount+=amount;old.until=this.age+3;}else this.lootNotices.push({item:k,amount,until:this.age+3});}}}this.previous={...sim.inventory.items};this.lootNotices=this.lootNotices.filter(n=>n.until>this.age&&n.amount).slice(-4);this.html('loot-feed',this.lootNotices.map(n=>`<div class="loot-receipt ${n.amount<0?'spent':''}">${itemArt(n.item)}<b>${n.amount>0?'+':''}${n.amount}</b><span>${ITEMS[n.item].label}</span></div>`).join(''));
+    if(this.inventoryOpen){this.el('place-chest').hidden=!sim.inventory.items.chest;this.text('capacity-label',`${sim.inventory.weight.toFixed(1)} / ${sim.inventory.capacity} kg`);this.style('capacity-bar','width',`${sim.inventory.weight/sim.inventory.capacity*100}%`);this.el('inventory-panel').classList.toggle('full',sim.inventory.weight>sim.inventory.capacity*.9);this.text('inventory-context','Guarde itens em um baú fabricado na mesa inteligente.');for(const k of itemKeys){this.text(`item-${k}`,String(sim.inventory.items[k]));(this.el(`discard-${k}`) as HTMLButtonElement).disabled=!sim.inventory.items[k]||!!action||!!sim.consumption;this.el(`select-${k}`).classList.toggle('empty',!sim.inventory.items[k]);}(this.el('use-med') as HTMLButtonElement).disabled=!sim.inventory.items.med||sim.player.hp>=sim.maxHP||!!action||!!sim.consumption;(this.el('use-rare') as HTMLButtonElement).disabled=!sim.atBase||!sim.resource('rare')||sim.baseHP>=BALANCE.base.hp||!!action||!!sim.consumption;}
     const hint=!this.seen.has('move')&&this.age<8?'<kbd>W A S D</kbd> Mova-se. O abrigo é seu ponto de retorno.':sim.player.hp<70&&sim.inventory.items.med&&!this.seen.has('heal')?'<kbd>H</kbd> Uma bandagem pode ajudar.':'';
     if(sim.player.moving&&this.age>3)this.seen.add('move');if(sim.action?.kind==='heal')this.seen.add('heal');if(this.tutorialTime<=0)this.html('tutorial',hint);
     const region=REGIONS.reduce((a,b)=>Math.hypot(a.x-sim.player.x,a.z-sim.player.z)<Math.hypot(b.x-sim.player.x,b.z-sim.player.z)?a:b);this.text('region-name',natural(region.name));

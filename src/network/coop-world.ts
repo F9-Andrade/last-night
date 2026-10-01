@@ -19,6 +19,7 @@ export interface SessionEffect {actor:number;shot:number;event:GameEvent}
 export interface PlayerRecord {
  actor:number;life:LifeState;bleed:number;lastSeq:number;shotSeq:number;lastFire:number;player:Simulation['player'];
  perks:import('../game/perks.ts').PerkId[];builderUsed:boolean;openingReady:boolean;
+ nutrition:Simulation['nutrition'];consumption:Simulation['consumption'];
  inventory:Inventory['items'];storage:Inventory['items'];loadout:[WeaponItem|null,WeaponItem|null];activeSlot:0|1|2|3;gear:Simulation['gear'];packCrafted:boolean;capacity:number;
  reloadTimer:number;reloadDuration:number;shotTimer:number;switchTimer:number;action:Simulation['action'];weaponStorage:WeaponItem[];reviveTarget:number;reviveProgress:number;
 }
@@ -33,7 +34,7 @@ export class CoopWorld {
  readonly sim:Simulation;readonly actors=new Map<number,ActorRecord>();readonly registry=new NetworkEntityRegistry<object>();
  time=0;revision=0;wipe=false;effects:SessionEffect[]=[];private drops=new Set<number>();private cityClock=0;
  constructor(seed:number,members:number[],source?:Simulation){
-  this.sim=source?source.cloneForCoop():new Simulation(undefined,seed);this.sim.coopMode='actor';this.sim.firstPerson=true;this.sim.onCoopDamage=(player,damage,origin)=>{const actor=[...this.actors.values()].find(a=>a.sim.player===player);if(actor)this.damage(actor.actor,damage,origin);};
+  this.sim=source?source.cloneForCoop():new Simulation(undefined,seed);this.sim.coopMode='actor';this.sim.firstPerson=true;this.sim.onCoopDamage=(player,damage,origin,cause)=>{const actor=[...this.actors.values()].find(a=>a.sim.player===player);if(actor)this.damage(actor.actor,damage,origin,cause);};
   for(const actor of members)this.addActor(actor,members,source);
   if(source){this.time=source.stats.seconds;for(const z of source.zombies)if(!z.active)this.drops.add(z.id);}
   this.refreshRegistry();
@@ -41,7 +42,7 @@ export class CoopWorld {
  private addActor(actor:number,members:number[],source?:Simulation){
   const s=source?source.cloneForCoop():new Simulation(undefined,this.sim.runSeed);s.coopMode='actor';s.firstPerson=true;
   if(!source){s.loadout[1]!.uid=actor*1000000;Object.assign(s.player,spawnFor(members,actor));s.player.eyeY=floorHeight(s.player)+1.72;}
-  s.zombies=[];
+  s.zombies=[];s.onCoopDamage=(_player,damage,origin,cause)=>this.damage(actor,damage,origin,cause);
   this.actors.set(actor,{actor,sim:s,life:'alive',bleed:0,lastSeq:0,shotSeq:0,lastFire:-100,holdAt:-100,reviveTarget:0,reviveProgress:0,intentAt:-100,lastDamage:-100});this.bind(s);
  }
  static fromSolo(source:Simulation,actor:number){return new CoopWorld(source.runSeed,[actor],source);}
@@ -49,12 +50,15 @@ export class CoopWorld {
  private compact(event:GameEvent):GameEvent{return 'position' in event&&event.position?{...event,position:{x:event.position.x,z:event.position.z}}:event;}
  private collect(a:ActorRecord){this.sim.baseHP=a.sim.baseHP;this.sim.nextWeaponId=a.sim.nextWeaponId;this.sim.contentSeed=a.sim.contentSeed;for(const event of a.sim.events)this.effects.push({actor:a.actor,shot:a.shotSeq,event:this.compact(event)});a.sim.events=[];}
  setMembers(members:number[]){let changed=false;for(const actor of this.actors.keys())if(!members.includes(actor)){this.actors.delete(actor);changed=true;}for(const actor of members)if(!this.actors.has(actor)){this.addActor(actor,members);changed=true;}if(changed)this.refreshRegistry();return changed;}
- setPose(actor:number,pose:PlayerSnapshot){const a=this.actors.get(actor);if(!a||a.life!=='alive')return;Object.assign(a.sim.player,{x:pose.x,z:pose.z,angle:pose.yaw,pitch:pose.pitch,crouched:pose.locomotion===3,running:pose.locomotion===2,moving:pose.locomotion!==0});a.sim.player.eyeY=floorHeight(a.sim.player)+(a.sim.player.crouched?1.08:1.72);}
+ setPose(actor:number,pose:PlayerSnapshot&{moving?:boolean}){const a=this.actors.get(actor);if(!a||a.life!=='alive')return;Object.assign(a.sim.player,{x:pose.x,z:pose.z,angle:pose.yaw,pitch:pose.pitch,crouched:pose.locomotion===3,running:pose.locomotion===2,moving:pose.moving??(pose.locomotion===1||pose.locomotion===2||pose.locomotion===3&&Math.hypot(pose.vx,pose.vz)>.1)});a.sim.player.eyeY=floorHeight(a.sim.player)+(a.sim.player.crouched?1.08:1.72);}
  request(actor:number,r:ActionRequest):boolean {
   const a=this.actors.get(actor);if(!a||r.seq<=a.lastSeq||this.wipe)return false;a.lastSeq=r.seq;
   if(a.life!=='alive')return false;const s=a.sim;
   // Presence remains client-owned, but actions cannot originate far from its latest position.
   if(distance(s.player,r.pose)>2.5)return false;this.setPose(actor,r.pose);this.bind(s);s.focus=interactionFocus(s);
+  if(r.kind==='consume'){const ok=s.beginConsume(r.item);if(ok){a.reviveTarget=0;a.reviveProgress=0;a.worldHeld=false;}this.collect(a);return ok;}
+  if(r.kind==='cancel-consume'){s.cancelConsumption();this.collect(a);return true;}
+  if(s.consumption&&!(r.kind==='hold'&&!r.held)){s.cancelConsumption();this.collect(a);}
   if(r.kind==='fire'){
    if(r.shot<=a.shotSeq)return false;a.shotSeq=r.shot;
    if(s.equipped.type!==r.weapon||r.seed!==shotSeed(actor,r.shot)||s.player.running||s.shotTimer>1e-8||s.switchTimer>0||(!s.meleeMode&&s.ammo<=0)||s.reloadTimer>0&&s.weapon.reloadStyle!=='shell'||this.time-a.lastFire<s.weapon.cooldown*.85)return false;
@@ -85,9 +89,9 @@ export class CoopWorld {
   // Sequential requests + shared object references make pickups atomic on this coordinator.
   s.update(0,{...idle,interact:true});this.collect(a);this.refreshRegistry();return true;
  }
- damage(actor:number,amount:number,source?:{x:number;z:number}){
-  const a=this.actors.get(actor);if(!a||a.life!=='alive'||!Number.isFinite(amount)||amount<=0||a.sim.player.invulnerable>0)return;
-  a.sim.player.hp=Math.max(0,a.sim.player.hp-absorb(a.sim,amount));a.sim.player.invulnerable=.55;a.sim.action=null;a.sim.cancelReload();a.reviveProgress=0;a.reviveTarget=0;a.lastDamage=this.time;
+ damage(actor:number,amount:number,source?:{x:number;z:number},cause?:'deprivation'){
+  const a=this.actors.get(actor);if(!a||a.life!=='alive'||!Number.isFinite(amount)||amount<=0||cause!=='deprivation'&&a.sim.player.invulnerable>0)return;
+  a.sim.player.hp=Math.max(0,a.sim.player.hp-(cause==='deprivation'?amount:absorb(a.sim,amount)));if(cause!=='deprivation')a.sim.player.invulnerable=.55;a.sim.cancelConsumption();a.sim.action=null;a.sim.cancelReload();a.reviveProgress=0;a.reviveTarget=0;a.lastDamage=this.time;
   this.effects.push({actor,shot:0,event:{type:'hurt',position:source}});
   if(!a.sim.player.hp){a.life='downed';a.bleed=COOP.bleedout;this.effects.push({actor,shot:0,event:{type:'notice',text:'Sobrevivente incapacitado',sub:'Aproxime-se e segure E para reviver.'}});}
  }
@@ -123,7 +127,7 @@ export class CoopWorld {
  }}
  refreshRegistry(){this.registry.clear();for(const z of this.sim.zombies)if(z.active)this.registry.register(entityId('infected',z.id),z);for(const l of this.sim.loot)this.registry.register(entityId('container',l.id),l);for(const f of this.sim.facilities)this.registry.register(entityId('container',f.id),f);for(const d of this.sim.portals)this.registry.register(entityId('door',d.id),d);for(const g of this.sim.groundWeapons)this.registry.register(entityId('weapon',g.item.uid),g);for(const a of this.actors.values())this.registry.register(entityId('player',a.actor),a);}
  checkpoint():WorldCheckpoint {
-  const s=this.sim;const players:PlayerRecord[]=[...this.actors.values()].map(a=>({actor:a.actor,perks:[...a.sim.perks],builderUsed:a.sim.builderUsed,openingReady:a.sim.openingReady,life:a.life,bleed:a.bleed,lastSeq:a.lastSeq,shotSeq:a.shotSeq,lastFire:a.lastFire,player:a.sim.player,inventory:a.sim.inventory.items,storage:a.sim.storage.items,loadout:a.sim.loadout,activeSlot:a.sim.activeSlot,gear:a.sim.gear,packCrafted:a.sim.packCrafted,capacity:a.sim.inventory.capacity,reloadTimer:a.sim.reloadTimer,reloadDuration:a.sim.reloadDuration,shotTimer:a.sim.shotTimer,switchTimer:a.sim.switchTimer,action:a.sim.action,weaponStorage:a.sim.weaponStorage,reviveTarget:a.reviveTarget,reviveProgress:a.reviveProgress}));
+  const s=this.sim;const players:PlayerRecord[]=[...this.actors.values()].map(a=>({actor:a.actor,perks:[...a.sim.perks],builderUsed:a.sim.builderUsed,openingReady:a.sim.openingReady,life:a.life,bleed:a.bleed,lastSeq:a.lastSeq,shotSeq:a.shotSeq,lastFire:a.lastFire,player:a.sim.player,nutrition:a.sim.nutrition,consumption:a.sim.consumption,inventory:a.sim.inventory.items,storage:a.sim.storage.items,loadout:a.sim.loadout,activeSlot:a.sim.activeSlot,gear:a.sim.gear,packCrafted:a.sim.packCrafted,capacity:a.sim.inventory.capacity,reloadTimer:a.sim.reloadTimer,reloadDuration:a.sim.reloadDuration,shotTimer:a.sim.shotTimer,switchTimer:a.sim.switchTimer,action:a.sim.action,weaponStorage:a.sim.weaponStorage,reviveTarget:a.reviveTarget,reviveProgress:a.reviveProgress}));
   const infected=s.zombies.filter(z=>z.active).map(({path:_path,...z})=>z);
   const corpses=s.corpses.bodies.map(c=>({id:c.id,x:c.x,z:c.z,angle:c.angle,fall:c.fall,variant:c.variant,age:c.age,wounds:c.wounds,kind:c.kind}));
   return JSON.parse(JSON.stringify({survival:{crafting:s.crafting,barricades:s.barricades,baseHP:s.baseHP,phase:s.phase,elapsed:s.cycle.elapsed,day:s.day,silence:s.cycle.silence,horde:{active:s.horde.active,spawned:s.horde.spawned,budget:s.horde.budget,wave:s.horde.wave,timer:s.horde.timer}},v:2,revision:++this.revision,time:this.time,seed:s.seed,contentSeed:s.contentSeed,nextId:s.nextId,nextWeaponId:s.nextWeaponId,nextAcidId:s.nextAcidId,wipe:this.wipe,players,infected,loot:s.loot,facilities:s.facilities.map(f=>({id:f.id,state:f.state})),portals:s.portals.map(p=>({id:p.id,state:p.state,hp:p.hp})),ground:s.groundWeapons,corpses,acids:s.acids,activated:[...s.activatedSites]})) as WorldCheckpoint;
@@ -134,7 +138,7 @@ export class CoopWorld {
   restoreSurvival(s,c.survival);
   for(const f of c.facilities){const local=s.facilities.find(v=>v.id===f.id);if(local)local.state=f.state;}
   for(const p of c.portals){const door=s.portals.find(d=>d.id===p.id);if(door)Object.assign(door,p);}
-  for(const p of c.players){const a=world.actors.get(p.actor)!;Object.assign(a,{life:p.life,bleed:p.bleed,lastSeq:p.lastSeq,shotSeq:p.shotSeq,lastFire:p.lastFire});Object.assign(a.sim.player,p.player);a.sim.perks=new Set(p.perks);a.sim.builderUsed=p.builderUsed;a.sim.openingReady=p.openingReady;a.sim.inventory.items={...p.inventory};a.sim.storage.items={...p.storage};a.sim.loadout=structuredClone(p.loadout);a.sim.activeSlot=p.activeSlot;a.sim.gear=structuredClone(p.gear);a.sim.packCrafted=p.packCrafted;a.sim.inventory.capacity=p.capacity;a.sim.reloadTimer=p.reloadTimer;a.sim.reloadDuration=p.reloadDuration;a.sim.shotTimer=p.shotTimer;a.sim.switchTimer=p.switchTimer;a.sim.weaponStorage=structuredClone(p.weaponStorage);a.sim.action=null;world.bind(a.sim);}
+  for(const p of c.players){const a=world.actors.get(p.actor)!;Object.assign(a,{life:p.life,bleed:p.bleed,lastSeq:p.lastSeq,shotSeq:p.shotSeq,lastFire:p.lastFire});Object.assign(a.sim.player,p.player);a.sim.nutrition=structuredClone(p.nutrition);a.sim.consumption=structuredClone(p.consumption);a.sim.perks=new Set(p.perks);a.sim.builderUsed=p.builderUsed;a.sim.openingReady=p.openingReady;a.sim.inventory.items={...p.inventory};a.sim.storage.items={...p.storage};a.sim.loadout=structuredClone(p.loadout);a.sim.activeSlot=p.activeSlot;a.sim.gear=structuredClone(p.gear);a.sim.packCrafted=p.packCrafted;a.sim.inventory.capacity=p.capacity;a.sim.reloadTimer=p.reloadTimer;a.sim.reloadDuration=p.reloadDuration;a.sim.shotTimer=p.shotTimer;a.sim.switchTimer=p.switchTimer;a.sim.weaponStorage=structuredClone(p.weaponStorage);a.sim.action=null;world.bind(a.sim);}
   world.setMembers(members);world.refreshRegistry();return world;
  }
 }

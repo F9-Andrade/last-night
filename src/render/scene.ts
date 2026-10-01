@@ -119,7 +119,9 @@ export class GameScene {
       this.renderer.setRenderTarget(composer.readBuffer);
       await this.renderer.compileAsync(this.scene,this.camera);
       progress('Preparando seu equipamento…',40);
+      this.viewmodel.prepareProvisions();
       await this.renderer.compileAsync(this.viewmodel.scene,this.camera);
+      this.viewmodel.warmProvisions(this.renderer,this.camera);
       // Allocate/upload geometry, textures, shadow maps and post-process targets.
       // These frames never reach the canvas and never advance the simulation.
       // Upload the area around the actual spawn, including the view behind the

@@ -1,5 +1,15 @@
 /** LAST NIGHT field marks: original 24-unit silhouettes and 1.65-unit cut lines. */
 const paths = {
+  hunger: '<path d="M4 3v6m3-6v6M2 3v8l3 3v7m3-18v8l-3 3M17 3l-4 8h5m0-8v18"/>',
+  thirst: '<path d="m12 2-7 10a8 8 0 1 0 14 0zM8 14v2l2 2"/>',
+  cannedBeans: '<path d="m5 4 3-2h8l3 2v16l-3 2H8l-3-2zM5 6h14M5 18h14m-9-6 1-3 4 1 1 3-2 2-4-1z"/>',
+  cannedMeat: '<path d="M4 4h16v16H4zM4 7h16M4 17h16m-8-8 4 2-1 4h-5l-2-3z"/>',
+  cannedFish: '<path d="M3 5h18v14H3zM3 8h18M3 16h18m-5-4-5-3-4 3 4 3 5-3 3 3V9z"/>',
+  cannedFruit: '<path d="m5 4 3-2h8l3 2v16l-3 2H8l-3-2zM5 6h14M5 18h14m-3-6-2-2h-4l-2 2 2 4h4zM12 10V8"/>',
+  crackers: '<path d="M5 2h14v20H5zM5 7h14M5 18h14m-10-8h6v5H9zM11 12h2"/>',
+  ration: '<path d="m5 2 2 2h10l2-2 2 20H3zM4 7h16M9 10h6v7H9zM9 13h6M5 19h14"/>',
+  water: '<path d="M9 2h6v5l4 4v10H5V11l4-4zM9 5h6M5 13h14M5 18h14"/>',
+  soda: '<path d="m7 2-2 4v14l2 2h10l2-2V6l-2-4zM5 6h14M5 19h14m-6-12-4 7h5l-3 5"/>',
   chest: '<path d="M3 5h18v16H3zM3 11h18M10 9h4v5h-4zM6 5v6m12-6v6"/>',
   axe: '<path d="m7 22 5-17m-3 0 10-2 3 8-10 2M11 5l-5-2-3 7 7 3"/>',
   knife: '<path d="m4 21 6-7m-3-2 6 6m-3-3 10-12c2 8-4 12-7 14z"/>',

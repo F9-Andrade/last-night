@@ -1,3 +1,6 @@
+import {FOODS,type FoodId} from '../game/nutrition';
+import {createFoodVisual,type FoodVisual} from './food-assets';
+import {consumptionMotion,type ConsumptionMotion} from './nutrition-motion';
 import {strikeEnvelope} from './melee-motion';
 import {MELEE} from '../game/crafting';
 import {meleeRecipe} from './crafting-view';
@@ -7,10 +10,11 @@ import * as THREE from 'three';
 import { Character } from './models';
 import type { RemotePlayerState } from '../network/protocol';
 
-interface Avatar {character:Character;tag:THREE.Sprite;name:string;crouch:number;shot:number;side:number;melee?:THREE.Mesh;meleeId?:MeleeId}
+interface Avatar {character:Character;tag:THREE.Sprite;name:string;crouch:number;shot:number;side:number;melee?:THREE.Mesh;meleeId?:MeleeId;provisions:Map<FoodId,FoodVisual>;food?:FoodVisual;foodId?:FoodId}
 /** Rendered presence has no camera, input, health, collision or gameplay authority. */
 export class RemotePlayers {
  private avatars=new Map<number,Avatar>();
+ private foodMotion:ConsumptionMotion={show:0,open:0,lift:0,scoop:0,bite:0,settle:0};
  constructor(private scene:THREE.Scene){}
  get count(){return this.avatars.size;}
  private nameTag(name:string){
@@ -28,7 +32,7 @@ export class RemotePlayers {
    if(identity.isLocal||!s)continue;
    let avatar=this.avatars.get(identity.actorNumber);
    if(avatar&&avatar.name!==identity.displayName){this.remove(identity.actorNumber);avatar=undefined;}
-   if(!avatar){const character=new Character(false,identity.actorNumber%4),tag=this.nameTag(identity.displayName);character.root.add(tag);this.scene.add(character.root);avatar={character,tag,name:identity.displayName,crouch:0,shot:0,side:1};this.avatars.set(identity.actorNumber,avatar);}
+   if(!avatar){const character=new Character(false,identity.actorNumber%4),tag=this.nameTag(identity.displayName);character.root.add(tag);this.scene.add(character.root);avatar={character,tag,name:identity.displayName,crouch:0,shot:0,side:1,provisions:new Map()};this.avatars.set(identity.actorNumber,avatar);}
    const c=avatar.character;c.root.position.set(s.x,s.y,s.z);c.root.rotation.y=s.yaw;
    if(gameplay)c.setWeapon(gameplay.weapon);avatar.shot=Math.max(0,avatar.shot-dt/(gameplay?.melee?MELEE[gameplay.melee].cooldown:1/7));
    c.animate(time,s.locomotion===1||s.locomotion===2||s.locomotion===3&&Math.hypot(s.vx,s.vz)>.1,s.locomotion===2,gameplay?.melee?0:avatar.shot*2);
@@ -43,6 +47,16 @@ export class RemotePlayers {
     c.arms.position.set(0,0,0);c.arms.rotation.set(0,0,0);
     for(const [side,arm] of [[1,c.rightArm],[-1,c.leftArm]] as const){const hit=(fists?side===avatar.side:side===1)?strike:0;arm.rotation.set(-s.pitch*.65-.22-hit*.5,side*(.12-hit*.18),side*(.12-hit*.1));}
    }
+   const consumption=gameplay?.consumption;
+   if(consumption&&!incapacitated){
+    if(avatar.foodId!==consumption.item){if(avatar.food)avatar.food.root.visible=false;let food=avatar.provisions.get(consumption.item);if(!food){food=createFoodVisual(consumption.item);avatar.provisions.set(consumption.item,food);c.rightArm.add(food.root);}avatar.food=food;avatar.foodId=consumption.item;}
+    const food=avatar.food!,drink=FOODS[consumption.item].kind==='drink',m=consumptionMotion(consumption.elapsed/consumption.duration,drink,food.kind==='packet',this.foodMotion);
+    food.root.visible=true;food.root.position.set(0,-.12,.47);food.root.rotation.set(m.lift*.55,Math.PI,0);
+    c.arms.rotation.set(0,0,0);c.arms.position.set(0,0,0);c.rightArm.rotation.set(-.14-m.lift*.8,.27,-.14);c.leftArm.rotation.set(-.25-m.bite*.65,-.7,.12);
+    c.head.rotation.x=.035+Math.sin(time*6)*m.bite*.016;
+    if(food.kind==='can'){food.lid.rotation.x=consumption.item==='soda'?0:-m.open*2.35;if(food.tab)food.tab.rotation.x=-m.open*1.15;}else food.lid.visible=m.open<.95;
+    if(c.weapon)c.weapon.visible=false;if(avatar.melee)avatar.melee.visible=false;
+   }else if(avatar.food)avatar.food.root.visible=false;
    if(incapacitated){c.body.rotation.z=Math.PI/2;c.body.position.y=.64;c.body.position.x=.85;c.head.rotation.x=0;}else c.body.position.x=0;
    avatar.tag.position.y=incapacitated?.95:2.35-avatar.crouch*.52;const distance=c.root.position.distanceTo(camera.position);avatar.tag.visible=distance<22;avatar.tag.material.opacity=Math.min(1,Math.max(0,(22-distance)/6));
   }

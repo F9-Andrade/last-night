@@ -1,3 +1,6 @@
+import {FOODS,type FoodId} from '../game/nutrition';
+import {createFoodVisual,createEatingSpoon,type FoodVisual} from './food-assets';
+import {consumptionMotion,smoothStage,type ConsumptionMotion} from './nutrition-motion';
 import {solveArm,strikeEnvelope} from './melee-motion';
 import {meleeRecipe} from './crafting-view';
 import type {MeleeId} from '../game/crafting';
@@ -36,6 +39,10 @@ export class Viewmodel {
  private meleeMeshes=new Map<MeleeId,THREE.Mesh>();private swing=0;
  private flashTime=0;private recoil=0;ads=0; private cycle=0;private actionTime=0;private movement=0;private shotSide=1;
  private sunVector=new THREE.Vector3();
+ private provisions=new Map<FoodId,FoodVisual>();private food?:FoodVisual;private foodId?:FoodId;private spoon=createEatingSpoon();
+ private consumptionPose:ConsumptionMotion={show:0,open:0,lift:0,scoop:0,bite:0,settle:0};
+ private consumeBlend=0;private consumeProgress=0;private sprint=0;private hurt=0;private hurtSide=1;
+ private hands:THREE.Group[]=[];
  constructor(){
   this.sun.position.set(-2,3,1);this.scene.add(this.anchor,this.ambient,this.sun,this.sun.target);
   this.anchor.add(this.rig);this.rig.add(this.gun,this.right,this.left);
@@ -59,7 +66,20 @@ export class Viewmodel {
   // that elbow to a fixed shoulder below/behind the camera throughout a strike.
   for(let i=0;i<2;i++){const sleeve=voxelMesh({id:'fps:upper-sleeve:1',unit:.0125,build(g){g.fill(-6,-6,-1,12,12,32,0x4b5745).fill(-6,-6,0,12,2,30,0x354336).fill(-6,4,1,12,2,28,0x687059);}});sleeve.visible=false;this.upperArms.push(sleeve);this.rig.add(sleeve);}
   this.flash.visible=false;this.flash.castShadow=false;this.flash.receiveShadow=false;
-  this.gun.add(this.flash,this.flashLight);
+  this.gun.add(this.flash,this.flashLight);this.spoon.visible=false;this.rig.add(this.spoon);this.hands.push(this.right,this.left);
+ }
+ /** Mesh all eight provisions under the loading screen, reusing materials and geometry. */
+ prepareProvisions():void {
+  if(this.provisions.size)return;
+  for(const id of Object.keys(FOODS) as FoodId[]){const food=createFoodVisual(id);food.root.visible=false;this.rig.add(food.root);this.provisions.set(id,food);}
+ }
+ /** Upload each provision once while the loader renders into its offscreen target. */
+ warmProvisions(renderer:THREE.WebGLRenderer,camera:THREE.PerspectiveCamera):void {
+  this.prepareProvisions();
+  const saved=[...this.provisions.values()].map(food=>({food,visible:food.root.visible,position:food.root.position.clone()}));
+  const spoonVisible=this.spoon.visible;this.spoon.visible=true;
+  try {for(const {food} of saved){food.root.visible=true;food.root.position.set(0,-.2,-.6);}this.render(renderer,camera);}
+  finally {for(const {food,visible,position} of saved){food.root.visible=visible;food.root.position.copy(position);}this.spoon.visible=spoonVisible;}
  }
  /** Copy the world's light in world coordinates, so turning never rotates the sun with the gun. */
  syncLighting(sun:THREE.DirectionalLight,ambient:THREE.HemisphereLight,camera:THREE.PerspectiveCamera,interior=0,flashlight=false):void {
@@ -71,26 +91,29 @@ export class Viewmodel {
   this.ambient.color.copy(ambient.color);this.ambient.groundColor.copy(ambient.groundColor);
   this.ambient.intensity=ambient.intensity*(1-indoors*.12)+(flashlight?.25:0);
  }
- event(e:GameEvent):void {if(e.type==='melee'){this.swing=1;this.shotSide*=-1;}if(e.type==='shot'&&e.primary!==false){this.recoil=Math.min(2.5,this.recoil+WEAPONS[e.weapon??'pistol'].recoil*.32);this.flashTime=.048;this.actionTime=.38;this.shotSide*=-1;}}
- reset():void {this.swing=0;this.ads=0;this.recoil=0;this.flashTime=0;this.actionTime=0;this.movement=0;this.flash.visible=false;this.flashLight.intensity=0;}
+ event(e:GameEvent):void {if(e.type==='hurt'){this.hurt=1;this.hurtSide*=-1;}if(e.type==='melee'){this.swing=1;this.shotSide*=-1;}if(e.type==='shot'&&e.primary!==false){this.recoil=Math.min(2.5,this.recoil+WEAPONS[e.weapon??'pistol'].recoil*.32);this.flashTime=.048;this.actionTime=.38;this.shotSide*=-1;}}
+ reset():void {this.consumeBlend=0;this.sprint=0;this.hurt=0;this.foodId=undefined;if(this.food)this.food.root.visible=false;this.food=undefined;this.spoon.visible=false;this.swing=0;this.ads=0;this.recoil=0;this.flashTime=0;this.actionTime=0;this.movement=0;this.flash.visible=false;this.flashLight.intensity=0;}
  update(sim:Simulation,camera:THREE.PerspectiveCamera,dt:number,time:number,visible:boolean):void {
   this.anchor.visible=visible;this.anchor.position.copy(camera.position);this.anchor.quaternion.copy(camera.quaternion);if(!visible){this.flashLight.intensity=0;this.flashTime=0;return;}
-  const id=sim.equipped.type,weapon=sim.weapon,feel=handling[id];
+  const id=sim.equipped.type,weapon=sim.weapon,feel=handling[id],consuming=!!sim.consumption;
+  this.sprint+=(Number(sim.player.running&&!consuming)-this.sprint)*(1-Math.exp(-dt*9));this.hurt=Math.max(0,this.hurt-dt*2.7);
   if(this.id!==id){this.current?.root.removeFromParent();let visual=this.cache.get(id);if(!visual){visual=createWeaponVisual(id,true);this.cache.set(id,visual);}this.current=visual;this.id=id;this.gun.add(visual.root);visual.root.rotation.y=Math.PI;visual.root.scale.setScalar(weapon.slot===0?.48:.65);}
   this.gun.visible=!sim.meleeMode;this.swing=Math.max(0,this.swing-dt/Math.max(.3,weapon.cooldown));
   for(const [key,m] of this.meleeMeshes)m.visible=sim.meleeMode&&key===sim.meleeId;
   if(sim.meleeMode){let m=this.meleeMeshes.get(sim.meleeId);if(!m&&sim.meleeId!=='fists'){m=voxelMesh(meleeRecipe(sim.meleeId));this.meleeMeshes.set(sim.meleeId,m);this.right.add(m);}if(m){m.visible=true;m.position.set(0,.17,-.13);m.rotation.x=-.25;}}
-  this.ads+=(Number(sim.player.ads&&!sim.reloadTimer&&!sim.player.running)-this.ads)*(1-Math.exp(-dt*FPS.adsSpeed));
-  this.recoil*=Math.exp(-dt*feel.returnSpeed);this.actionTime=Math.max(0,this.actionTime-dt);this.cycle+=dt*(sim.player.running?13:8);
+  this.ads+=(Number(sim.player.ads&&!sim.reloadTimer&&!sim.player.running&&!consuming)-this.ads)*(1-Math.exp(-dt*FPS.adsSpeed));
+  this.recoil*=Math.exp(-dt*feel.returnSpeed);this.actionTime=Math.max(0,this.actionTime-dt);this.cycle+=dt*(8+this.sprint*5);
   this.movement+=(Number(sim.player.moving)-this.movement)*(1-Math.exp(-dt*9));
-  const bob=this.movement*(sim.player.crouched?.002:sim.player.running?.017:.006)*(1-this.ads*.82);
+  const bob=this.movement*(sim.player.crouched?.002:.006+this.sprint*.011)*(1-this.ads*.82);
   const breath=Math.sin(time*1.3)*.0014*(1-this.ads*.6);
   const reload=sim.reloadTimer?1-sim.reloadTimer/sim.reloadDuration:0,tilt=sim.reloadTimer?Math.sin(reload*Math.PI):0;
   const swapping=sim.switchTimer?Math.sin(Math.PI*sim.switchTimer/.32):0;
   this.rig.position.set(Math.sin(this.cycle)*bob+Math.sin(time*.71)*.0008,Math.abs(Math.cos(this.cycle))*bob+breath,0);
-  this.rig.rotation.set(0,Math.sin(this.cycle)*bob*.4,Math.sin(this.cycle*.5)*bob*.6);
-  this.gun.position.set(.23*(1-this.ads),THREE.MathUtils.lerp(-.25,id==='marksman'?-.154:weapon.slot===0?-.13:-.143,this.ads)-tilt*.14-swapping*.4-(sim.player.running?.16:0),weapon.slot===0?-.55:-.48);
-  this.gun.position.z+=this.recoil*feel.back;this.gun.rotation.set(this.recoil*feel.pitch-tilt*.3-(sim.player.running?.5:0),tilt*.35,tilt*.28+(sim.player.running?-.25:0)+this.recoil*feel.roll*this.shotSide);
+  const flinch=Math.sin((1-this.hurt)*Math.PI)*this.hurt;
+  this.rig.position.y-=flinch*.036;this.rig.position.z+=flinch*.028;
+  this.rig.rotation.set(-flinch*.055,Math.sin(this.cycle)*bob*.4,Math.sin(this.cycle*.5)*bob*.6+flinch*.065*this.hurtSide);
+  this.gun.position.set(.23*(1-this.ads),THREE.MathUtils.lerp(-.25,id==='marksman'?-.154:weapon.slot===0?-.13:-.143,this.ads)-tilt*.14-swapping*.4-this.sprint*.13,weapon.slot===0?-.55:-.48);
+  this.gun.position.z+=this.recoil*feel.back;this.gun.rotation.set(this.recoil*feel.pitch-tilt*.3-this.sprint*.43,tilt*.35,tilt*.28-this.sprint*.23+this.recoil*feel.roll*this.shotSide);
   const v=this.current!,style=weapon.reloadStyle;
   v.magazine.visible=style!=='shell'||!!sim.reloadTimer;
   v.magazine.position.set(style==='cylinder'?-tilt*.22:0,sim.reloadTimer?-Math.sin(Math.min(1,reload/.72)*Math.PI)*.5:0,0);
@@ -101,9 +124,10 @@ export class Viewmodel {
   this.right.position.set(this.gun.position.x+.005,this.gun.position.y-.13,this.gun.position.z+.04);this.right.rotation.set(-.18,0,.05+tilt*.15);
   this.left.position.set(THREE.MathUtils.lerp(.1,-.06,this.ads)-tilt*.18,this.gun.position.y-.12-tilt*.17,this.gun.position.z-(weapon.slot===0?.18:0)+tilt*.12);this.left.rotation.set(-.15,-.4,-.35);
   for(const sleeve of this.upperArms)sleeve.visible=sim.meleeMode;
+  this.spoon.visible=false;
   if(sim.meleeMode){
    const strike=strikeEnvelope(this.swing),fists=sim.meleeId==='fists',thrust=fists||sim.meleeId==='knife'||sim.meleeId==='spear';
-   for(const [i,hand] of [this.right,this.left].entries()){
+   for(const [i,hand] of this.hands.entries()){
     const side=i===0?1:-1,active=fists?side===this.shotSide:i===0,punch=active?strike:0;
     // Only the striking hand advances. The other hand stays in guard.
     hand.position.set(side*(.23-punch*(thrust?.14:.27)),-.29+punch*(thrust?.055:.13),-.31-punch*(thrust?.29:.14));
@@ -114,10 +138,54 @@ export class Viewmodel {
    const tool=this.meleeMeshes.get(sim.meleeId);if(tool)tool.rotation.x=-.25-strike*(thrust?.55:1.05);
    this.ads=0;this.flashTime=0;
   }
-  this.flash.visible=this.flashTime>0;this.flash.position.copy(v.muzzle).multiplyScalar(weapon.slot===0?.48:.65);this.flash.position.z*=-1;
+  // Sprint lowers the held object and lets the supporting hand counter-swing.
+  // It remains a wrist target solved from a fixed shoulder, including unarmed sprint.
+  if(this.sprint>.001&&!consuming){
+   this.left.position.x-=this.sprint*.12;this.left.position.y-=this.sprint*(.05+Math.sin(this.cycle)*.035);this.left.position.z+=this.sprint*.07;
+   if(sim.meleeMode){this.right.position.y-=this.sprint*(.055-Math.sin(this.cycle)*.035);this.right.position.z+=this.sprint*.075;}
+   this.anchorArm(1);if(sim.meleeMode)this.anchorArm(0);
+  }
+  this.animateConsumption(sim,dt);
+  this.flash.visible=this.flashTime>0&&!consuming;this.flash.position.copy(v.muzzle).multiplyScalar(weapon.slot===0?.48:.65);this.flash.position.z*=-1;
   this.flash.scale.setScalar(weapon.flash*.75);this.flash.rotation.z=this.shotSide*.31;
   this.flashLight.position.copy(this.flash.position);this.flashLight.intensity=this.flash.visible?weapon.flash*.32:0;
   this.flashTime=Math.max(0,this.flashTime-dt);
+ }
+ private anchorArm(index:number):void {
+  const hand=this.hands[index],side=index===0?1:-1;
+  solveArm(this.shoulders[index],hand.position,this.elbow,side);
+  this.armDirection.subVectors(this.elbow,hand.position).normalize();hand.quaternion.setFromUnitVectors(this.armAxis,this.armDirection);
+  const sleeve=this.upperArms[index];sleeve.visible=true;sleeve.position.copy(this.elbow);this.armDirection.subVectors(this.shoulders[index],this.elbow).normalize();sleeve.quaternion.setFromUnitVectors(this.armAxis,this.armDirection);
+ }
+ private animateConsumption(sim:Simulation,dt:number):void {
+  const action=sim.consumption;
+  this.consumeBlend+=(Number(!!action)-this.consumeBlend)*(1-Math.exp(-dt*(action?17:22)));
+  if(action){
+   if(this.foodId!==action.item){this.prepareProvisions();if(this.food)this.food.root.visible=false;this.foodId=action.item;this.food=this.provisions.get(action.item);}
+   this.consumeProgress=Math.min(1,action.elapsed/action.duration);
+  }
+  if(!this.food||this.consumeBlend<.005){if(this.food)this.food.root.visible=false;return;}
+  const food=this.food,drink=FOODS[this.foodId!].kind==='drink',packet=food.kind==='packet';
+  const m=consumptionMotion(this.consumeProgress,drink,packet,this.consumptionPose),blend=this.consumeBlend;
+  const raise=m.show*blend,opening=smoothStage(this.consumeProgress,.12,.21)*(1-smoothStage(this.consumeProgress,.29,.39));
+  // Keep the whole tilted bottle in front of the near plane, including its neck.
+  // Lifting a 28 cm bottle towards the camera by its base otherwise magnifies it into the HUD.
+  food.root.visible=true;food.root.position.set(-.13+m.lift*.07,-.32-(1-raise)*.34+m.lift*(drink?.12:.16),(drink?-.53:-.43)+m.lift*(drink?.09:.12));
+  food.root.rotation.set(drink?m.lift*1.05:packet?m.lift*.35:0,.17,-.12+m.lift*.17);
+  // Lid folds away from the mouth. Caps are unscrewed then held clear of the lip.
+  if(food.kind==='can'){food.lid.rotation.x=this.foodId==='soda'?0:-m.open*2.35;if(food.tab)food.tab.rotation.x=this.foodId==='soda'?-m.open*1.15:-Math.sin(m.open*Math.PI)*1.2;}
+  else if(food.kind==='bottle'){food.lid.rotation.y=m.open*Math.PI*3;food.lid.position.y=.255+m.open*.055;food.lid.visible=m.open<.95;}
+  else {food.lid.rotation.z=m.open*.6;food.lid.position.x=m.open*.1;food.lid.visible=m.open<.95;food.content.visible=m.open>.4;}
+  this.gun.position.y-=raise*.65;
+  for(const mesh of this.meleeMeshes.values())mesh.visible=false;
+  this.left.position.lerp(food.root.position,blend);this.left.position.x-=blend*.04;this.left.position.y-=blend*.018;this.left.position.z+=blend*.075;
+  const spooning=!drink&&!packet&&this.consumeProgress>.33&&this.consumeProgress<.85;
+  this.right.position.x=THREE.MathUtils.lerp(this.right.position.x,.23-opening*.27-m.scoop*.28-m.bite*.11,blend);
+  this.right.position.y=THREE.MathUtils.lerp(this.right.position.y,-.33-(1-raise)*.34+opening*.18+m.scoop*.13+m.bite*.035,blend);
+  this.right.position.z=THREE.MathUtils.lerp(this.right.position.z,-.38-opening*.02-m.scoop*.005+m.bite*.035,blend);
+  this.anchorArm(0);this.anchorArm(1);
+  this.spoon.visible=spooning&&blend>.25;this.spoon.position.copy(this.right.position);this.spoon.position.z-=.04;this.spoon.rotation.set(m.bite*1.8,0,-.25+m.scoop*.3);
+  this.flashTime=0;
  }
  render(renderer:THREE.WebGLRenderer,camera:THREE.PerspectiveCamera):void {if(!this.anchor.visible)return;const clear=renderer.autoClear;renderer.autoClear=false;renderer.clearDepth();renderer.render(this.scene,camera);renderer.autoClear=clear;}
  get material(){return voxelMaterial;}

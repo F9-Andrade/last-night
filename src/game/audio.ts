@@ -1,3 +1,4 @@
+import {FOODS,type FoodId} from './nutrition';
 import type { WeaponId } from './weapons';
 import type { EnemyKind } from './enemies';
 import type { Settings } from './settings';
@@ -22,6 +23,7 @@ export class Sound {
   private context?: AudioContext; private master?: GainNode; private noise?: AudioBuffer;
   muted = false; private stepTimer = 0; private windGain?: GainNode; private windFilter?: BiquadFilterNode;
   private inside=false;private shelterMix=1;private reverbGain?:GainNode;private barriers:{x:number;z:number;w:number;d:number}[]=[];private motor?:{osc:OscillatorNode;gain:GainNode;pan:StereoPannerNode;stop:()=>void};
+  private foodSound?:FoodId;private foodElapsed=0;private foodCues=0;
   private breathTimer=0;private heartbeatTimer=0;private enemyStepTimer=0;private ambientVolume=.7;
   private spatialPan(position:Vec2,listener:Vec2&{angle?:number}):number {const dx=position.x-listener.x,dz=position.z-listener.z,yaw=listener.angle??Math.PI;return Math.max(-.85,Math.min(.85,(-Math.cos(yaw)*dx+Math.sin(yaw)*dz)/Math.max(3,Math.hypot(dx,dz))));}
   breathing(dt:number,sim:Simulation):void {
@@ -63,7 +65,7 @@ export class Sound {
   }
   metrics() {return {lastRemoteShot:this.lastRemoteShot,inside:this.inside,generator:!!this.motor,voices:this.voices,peak:this.peakVoices,state:this.context?.state??'uninitialized',samplesLoaded:[...this.samples.keys()],samplesPlaying:[...this.sampleVoices].map(v=>v.id)};}
   async prepare():Promise<void> {await this.sampleLoad;}
-  reset():void {this.motor?.stop();this.motor=undefined;for(const voice of this.sampleVoices)voice.stop();this.reloadVoice=undefined;this.alarmVoice=undefined;}
+  reset():void {this.foodSound=undefined;this.foodCues=0;this.motor?.stop();this.motor=undefined;for(const voice of this.sampleVoices)voice.stop();this.reloadVoice=undefined;this.alarmVoice=undefined;}
   private sample(id:SampleId,options:{volume?:number;duration?:number;loop?:boolean;suppressed?:boolean;offset?:number;clipDuration?:number}={}):SampleVoice|undefined {
     const c=this.context,buffer=this.samples.get(id);
     if(!c||!buffer||!this.effects||this.voices>=BALANCE.audio.voices)return;
@@ -85,6 +87,7 @@ export class Sound {
   }
   sync(sim:Simulation,active=true):void {
     if(!active){this.reset();return;}
+    this.consumptionSounds(sim);
     this.inside=[...CITY_SITES,...BUILDINGS.filter(b=>['hospital','market','police'].includes(b.kind))].some(b=>Math.abs(b.x-sim.player.x)<b.w/2&&Math.abs(b.z-sim.player.z)<b.d/2&&b.kind!=='cemetery');
     this.shelterMix=Math.min(1,Math.hypot(sim.player.x-1,sim.player.z-3)/24);this.barriers=sim.solidDefenses;
     this.reverbGain?.gain.setTargetAtTime(this.inside?.24:0,this.context?.currentTime??0,.4);
@@ -98,6 +101,26 @@ export class Sound {
       this.alarmVoice.gain.gain.setTargetAtTime(.65*Math.max(0,1-Math.hypot(dx,dz)/65)/(1+Math.hypot(dx,dz)*.07),this.context.currentTime,.05);
       this.alarmVoice.pan.pan.setTargetAtTime(this.spatialPan(sim.alarmPosition,sim.player),this.context.currentTime,.05);
     }
+  }
+  private consumptionSounds(sim:Simulation):void {
+    const action=sim.consumption;
+    if(!action){this.foodSound=undefined;this.foodCues=0;return;}
+    if(this.foodSound!==action.item||action.elapsed<this.foodElapsed-.1){this.foodSound=action.item;this.foodCues=0;}
+    this.foodElapsed=action.elapsed;this.pan=0;this.attenuation=1;
+    const p=action.elapsed/action.duration,drink=FOODS[action.item].kind==='drink',packet=action.item==='ration'||action.item==='crackers';
+    if(p>=.18&&!(this.foodCues&1)){this.foodCues|=1;this.provisionNoise(packet?2400:action.item==='water'?1300:4300,packet?.18:.07,packet?.035:.024);if(!packet)this.tone(action.item==='water'?380:1900,action.item==='water'?190:720,.085,.032,'triangle');}
+    if(p>=.38&&!(this.foodCues&2)){this.foodCues|=2;if(!drink&&!packet)this.tone(950,670,.045,.018,'triangle');}
+    if(p>=.59&&!(this.foodCues&4)){this.foodCues|=4;if(drink){this.tone(155,85,.12,.025);this.provisionNoise(450,.13,.012);}else this.provisionNoise(action.item==='crackers'?1800:700,.13,action.item==='crackers'?.035:.016);}
+    if(p>=.72&&!(this.foodCues&8)){this.foodCues|=8;if(drink)this.tone(120,72,.12,.018);else this.provisionNoise(620,.1,.012);}
+  }
+  /** Short, filtered foley reuses the noise buffer and respects the global voice limit. */
+  private provisionNoise(frequency:number,duration:number,volume:number):void {
+    if(!this.context||!this.effects||!this.noise||this.voices>=BALANCE.audio.voices)return;
+    const c=this.context,source=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain(),now=c.currentTime;
+    source.buffer=this.noise;filter.type='bandpass';filter.frequency.value=frequency;filter.Q.value=.9;
+    gain.gain.setValueAtTime(.001,now);gain.gain.linearRampToValueAtTime(volume,now+.012);gain.gain.exponentialRampToValueAtTime(.001,now+duration);
+    source.connect(filter).connect(gain).connect(this.effects);this.voices++;this.peakVoices=Math.max(this.peakVoices,this.voices);source.start(now,.2);source.stop(now+duration+.01);
+    source.onended=()=>{source.disconnect();filter.disconnect();gain.disconnect();this.voices--;};
   }
   private syncGenerator(sim:Simulation):void {
     const f=sim.facilities.find(f=>f.kind==='generator'&&f.state==='powered'&&Math.hypot(f.x-sim.player.x,f.z-sim.player.z)<32),c=this.context;

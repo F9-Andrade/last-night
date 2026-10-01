@@ -3,7 +3,7 @@ import type {WeaponId} from '../game/weapons';
 import type {LifeState} from './gameplay-protocol';
 /** Shared version/build boundary. Gameplay messages live in gameplay-protocol.ts. */
 export const NETWORK_PROTOCOL_VERSION=2;
-export const NETWORK_BUILD='santa-luz-browser-lan-1';
+export const NETWORK_BUILD='santa-luz-nutrition-1';
 export const NETWORK_SEND_RATE=20;
 export const INTERPOLATION_DELAY=120;
 export const MAX_PLAYERS=4;
@@ -14,7 +14,7 @@ export type RoomState='lobby'|'loading'|'playing';
 export interface NetworkPlayerIdentity {actorNumber:number;playerId:string;displayName:string;isLocal:boolean;isHost:boolean;ready:boolean}
 export interface StartData {seed:number;actors:number[];token:string}
 export interface PlayerSnapshot {sequence:number;time:number;x:number;y:number;z:number;yaw:number;pitch:number;vx:number;vz:number;locomotion:0|1|2|3}
-export interface RemotePlayerState {identity:NetworkPlayerIdentity;snapshot:PlayerSnapshot|null;gameplay?:{life:LifeState;hp:number;weapon:WeaponId;melee?:import('../game/crafting').MeleeId;reload:number;reloadDuration:number}}
+export interface RemotePlayerState {identity:NetworkPlayerIdentity;snapshot:PlayerSnapshot|null;gameplay?:{life:LifeState;hp:number;consumption?:import('../game/simulation').Simulation['consumption'];weapon:WeaponId;melee?:import('../game/crafting').MeleeId;reload:number;reloadDuration:number}}
 // Region prefix makes a shared code route to the creator's region, even across continents.
 export const REGIONS:Record<string,string>={A:'asia',B:'au',C:'cae',D:'cn',E:'eu',F:'hk',G:'in',H:'jp',J:'kr',K:'ru',M:'rue',N:'sa',P:'tr',Q:'uae',R:'us',S:'usw',T:'ussc',U:'usn',V:'za'};
 export const CODE_ALPHABET='ABCDEFGHJKMNPQRSTUVWXYZ23456789';

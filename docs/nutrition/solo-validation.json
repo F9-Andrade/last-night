@@ -1,0 +1,86 @@
+{
+  "errors": [],
+  "foods": [
+    {
+      "item": "cannedBeans",
+      "nutrition": {
+        "hunger": 55.81325000000004,
+        "thirst": 30.750999999999696,
+        "starvationTimer": 0
+      }
+    },
+    {
+      "item": "cannedMeat",
+      "nutrition": {
+        "hunger": 63.81700000000006,
+        "thirst": 20.755999999999702,
+        "starvationTimer": 0
+      }
+    },
+    {
+      "item": "cannedFish",
+      "nutrition": {
+        "hunger": 55.816250000000096,
+        "thirst": 18.7549999999997,
+        "starvationTimer": 0
+      }
+    },
+    {
+      "item": "cannedFruit",
+      "nutrition": {
+        "hunger": 47.81550000000013,
+        "thirst": 40.753999999999834,
+        "starvationTimer": 0
+      }
+    },
+    {
+      "item": "crackers",
+      "nutrition": {
+        "hunger": 45.8440000000001,
+        "thirst": 19.791999999999746,
+        "starvationTimer": 0
+      }
+    },
+    {
+      "item": "ration",
+      "nutrition": {
+        "hunger": 71.76600000000022,
+        "thirst": 16.68799999999962,
+        "starvationTimer": 0
+      }
+    },
+    {
+      "item": "water",
+      "nutrition": {
+        "hunger": 29.834249999999994,
+        "thirst": 66.7789999999996,
+        "starvationTimer": 0
+      }
+    },
+    {
+      "item": "soda",
+      "nutrition": {
+        "hunger": 35.83650000000016,
+        "thirst": 50.78199999999989,
+        "starvationTimer": 0
+      }
+    }
+  ],
+  "resolutions": [
+    [
+      1366,
+      768
+    ],
+    [
+      1920,
+      1080
+    ],
+    [
+      960,
+      640
+    ]
+  ],
+  "movementCancellation": true,
+  "damageCancellation": true,
+  "adsAfterFood": true
+}

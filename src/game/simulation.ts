@@ -28,6 +28,8 @@ import { createDefenses, obstacleDistance } from './defenses.ts';
 import type { Barricade } from './defenses.ts';
 import { Horde } from './horde.ts';
 import { updateStamina } from './stamina.ts';
+import { FOODS, isFood, createNutrition, nutritionRecovery, advanceNutrition, applyFood } from './nutrition.ts';
+import type { FoodId, Consumption } from './nutrition.ts';
 import { CITY_PORTALS, CITY_SITES } from './city.ts';
 import type { Portal } from './city.ts';
 import {cityEncounter,SCREAM,CITY_PACING} from './city-director.ts';
@@ -35,7 +37,7 @@ export type { Phase } from './cycle.ts';
 export const PISTOL = BALANCE.pistol;
 export interface InputCommand { moveX: number; moveZ: number; yaw?:number; pitch?:number; ads?:boolean; crouch?:boolean; aimX: number; aimZ: number; aimY?: number; fire: boolean; trigger?:boolean; slot?:0|1|2|3; run: boolean; reload: boolean; interact: boolean; heldInteract?: boolean; heal?: boolean; dismantle?: boolean }
 export interface Walker extends Vec2 { id: number; kind:EnemyKind; hp: number; angle: number; attack: number; flash: number; gait: number; path: Vec2[]; replan: number; active: boolean; defense?: string; wounds: Wound[]; reaction: number; zone: HitZone; side: number; slow: number; heard?: Vec2; hearing: number; windup:number; winding:boolean; spitCooldown:number; spitTarget?:Vec2; screamTimer?:number; screamCooldown?:number; siege?:boolean; patrol?:Vec2; speedFactor?:number; hearingFactor?:number; lastSeen?:Vec2; memory?:number; awareness?:'idle'|'investigate'|'search'|'chase'; staggerCooldown?:number; searchStep?:number; chargeTarget?:Vec2;chargeTime?:number }
-export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: number; fromY?:number; zone?: HitZone; material?: string; last?: boolean; weapon?:WeaponId; primary?:boolean; suppressed?:boolean } | { type: 'melee' | 'death' | 'hit' | 'barricade-hit' | 'barricade-break' | 'build' | 'repair' | 'spit-ready' | 'spit' | 'heavy-step' | 'enemy-call' | 'enemy-attack' | 'door' | 'glass' | 'scream-ready' | 'scream' | 'suspense'; position: Vec2; zone?: HitZone; enemy?:EnemyKind; entity?:number;damage?:number;remainingHP?:number } | { type: 'reload-out' | 'reload-in' | 'reload-slide' | 'reload-done' | 'alarm' | 'switch' | 'rare-pickup'; position?: Vec2; weapon?:WeaponId } | { type:'reload' | 'empty'; weapon?:WeaponId; duration?:number } | {type:'hurt';position?:Vec2} | { type: 'pickup' | 'search' | 'heal' | 'healed' | 'warning' | 'night' | 'dawn' | 'countdown' } | { type: 'notice'; text: string; sub: string };
+export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: number; fromY?:number; zone?: HitZone; material?: string; last?: boolean; weapon?:WeaponId; primary?:boolean; suppressed?:boolean } | { type: 'melee' | 'death' | 'hit' | 'barricade-hit' | 'barricade-break' | 'build' | 'repair' | 'spit-ready' | 'spit' | 'heavy-step' | 'enemy-call' | 'enemy-attack' | 'door' | 'glass' | 'scream-ready' | 'scream' | 'suspense'; position: Vec2; zone?: HitZone; enemy?:EnemyKind; entity?:number;damage?:number;remainingHP?:number } | { type: 'reload-out' | 'reload-in' | 'reload-slide' | 'reload-done' | 'alarm' | 'switch' | 'rare-pickup'; position?: Vec2; weapon?:WeaponId } | { type:'reload' | 'empty'; weapon?:WeaponId; duration?:number } | {type:'hurt';position?:Vec2} | { type: 'pickup' | 'search' | 'heal' | 'healed' | 'warning' | 'night' | 'dawn' | 'countdown' } | { type: 'notice'; text: string; sub: string } | { type: 'consume-start' | 'consume-done' | 'consume-cancel'; item: FoodId };
 export interface Action { kind: 'search' | 'heal' | 'build' | 'repair' | 'dismantle' | 'base' | 'facility' | 'silence' | 'event' | 'portal' | 'board'; target: string; elapsed: number; duration: number; origin: Vec2 }
 export interface Acid extends Vec2 {id:number;from:Vec2;age:number;tick:number}
 export class Simulation {
@@ -44,7 +46,7 @@ export class Simulation {
   coopMode:'solo'|'replica'|'actor'='solo';
   onBeforeShot?:()=>void;
   coopTargets:Simulation['player'][]=[];
-  onCoopDamage?:(player:Simulation['player'],damage:number,position?:Vec2)=>void;
+  onCoopDamage?:(player:Simulation['player'],damage:number,position?:Vec2,cause?:'deprivation')=>void;
   stats = { seconds: 0, headshots: 0, loot: 0, damage: 0, nights: 0, specials:0, weapons:0, bestRarity:'common' as Rarity, repairs:0 };
   firstPerson=false; focus:Focus|null=null;
   player = {pitch:0,ads:false,crouched:false,eyeY:FPS.eyeHeight+.22,aimKick:0,bloom:0, x: 1, z: 7, hp: BALANCE.player.hp, stamina: 100, exhausted:false, staminaDelay:0, angle: Math.PI, moving: false, running: false, invulnerable: 0 };
@@ -54,6 +56,7 @@ export class Simulation {
   zombies: Walker[] = []; loot = createLoot(); barricades = createDefenses();
   inventory = new Inventory(); storage = new Inventory(Infinity); cycle: MatchCycle; horde = new Horde();
   events: GameEvent[] = []; action: Action | null = null;
+  nutrition = createNutrition(); consumption: Consumption | null = null;
   kills = 0; baseHP = BALANCE.base.hp;
   loadout:[WeaponItem|null,WeaponItem|null]=[null,createWeapon('pistol',0)]; activeSlot:0|1|2|3=1;
   crafting=createCraftWorld();gear:CraftGear={melee:'fists',owned:['fists'],armor:0,armorTier:0};packCrafted=false;
@@ -150,12 +153,14 @@ export class Simulation {
     return z;
   }
   reload(): void {
+    this.cancelConsumption();
     if(this.meleeMode)return;
     if (this.gameOver || this.switchTimer || this.reloadTimer || this.ammo >= this.weapon.magazine || !this.reserve) return;
     this.reloadDuration=this.weapon.reload*(this.perks.has('pressure')&&this.player.hp<this.maxHP*.35?.75:1);
     this.reloadTimer = this.reloadDuration; this.events.push({ type: 'reload', weapon:this.equipped.type, duration:this.reloadDuration });
   }
   switchWeapon(slot:0|1|2|3):void {
+    this.cancelConsumption();
     if(this.gameOver||(slot<2&&!this.loadout[slot as 0|1])||slot===this.activeSlot||this.switchTimer)return;
     this.cancelReload();this.action=null;this.activeSlot=slot;this.switchTimer=.32;this.recoil=0;this.events.push({type:'switch',weapon:this.equipped.type});
   }
@@ -168,6 +173,7 @@ export class Simulation {
     const g={...position,item:createWeapon(type,this.nextWeaponId++,rarity,this.contentRandom),source};this.groundWeapons.push(g);return g;
   }
   equipGround(uid:number):boolean {
+    this.cancelConsumption();
     if(this.gameOver||this.switchTimer)return false;
     const index=this.groundWeapons.findIndex(g=>g.item.uid===uid&&distance(g,this.player)<2.4&&this.canReach(g));if(index<0)return false;
     const ground=this.groundWeapons[index],slot=WEAPONS[ground.item.type].slot,old=this.loadout[slot];
@@ -185,6 +191,7 @@ export class Simulation {
     this.notice(PERKS[id].name.toUpperCase(),PERKS[id].hint);this.events.push({type:'rare-pickup'});return true;
   }
   shoot(): void {
+    this.cancelConsumption();
     if (this.firstPerson&&this.player.running)return;
     if (this.gameOver || this.shotTimer > 1e-8 || this.switchTimer > 0) return;
     const weapon=this.weapon;
@@ -289,6 +296,7 @@ export class Simulation {
   }
   private hurt(damage:number,position?:Vec2):void {
     if(this.player.invulnerable>0)return;
+    this.cancelConsumption();
     damage=absorb(this,damage);this.stats.damage+=Math.min(this.player.hp,damage);this.player.hp=Math.max(0,this.player.hp-damage);this.player.invulnerable=.55;this.action=null;this.cancelReload();this.events.push({type:'hurt',position});
   }
   private updateWorld(dt:number):void {
@@ -313,13 +321,50 @@ export class Simulation {
   }
 
   resource(item: Item): number { return this.inventory.items[item]; }
+  beginConsume(item: FoodId): boolean {
+    if (!isFood(item) || this.gameOver || this.player.hp <= 0 || this.foundationMode || this.consumption || this.action || this.reloadTimer || this.switchTimer || this.shotTimer > 0 || this.player.moving || this.player.running || this.inventory.items[item] < 1) return false;
+    const food = FOODS[item];
+    if (!(food.hunger > 0 && this.nutrition.hunger < 99.9 || food.thirst > 0 && this.nutrition.thirst < 99.9)) return false;
+    this.player.ads = false;
+    this.consumption = { item, elapsed: 0, duration: food.duration };
+    this.events.push({ type: 'consume-start', item });
+    return true;
+  }
+  cancelConsumption(): void {
+    if (!this.consumption) return;
+    this.events.push({ type: 'consume-cancel', item: this.consumption.item });
+    this.consumption = null;
+  }
+  private updateNutrition(dt: number): void {
+    if (this.coopMode !== 'replica') {
+      const hunger = this.nutrition.hunger, thirst = this.nutrition.thirst;
+      const damage = advanceNutrition(this.nutrition, dt, this.player.running);
+      if (hunger >= 25 && this.nutrition.hunger < 25) this.notice('FOME', 'Procure mantimentos. A fome reduz a recuperação do fôlego.');
+      if (thirst >= 25 && this.nutrition.thirst < 25) this.notice('SEDE', 'Procure água ou bebidas. A desidratação reduz a recuperação do fôlego.');
+      if (damage) {
+        if (this.onCoopDamage) this.onCoopDamage(this.player, damage, undefined, 'deprivation');
+        else {
+          this.stats.damage += Math.min(this.player.hp, damage); this.player.hp = Math.max(0, this.player.hp - damage);
+          this.cancelConsumption(); this.action = null; this.cancelReload(); this.events.push({ type: 'hurt' });
+        }
+      }
+    }
+    const consumption = this.consumption;
+    if (!consumption) return;
+    if (this.inventory.items[consumption.item] < 1 || this.player.hp <= 0) { this.cancelConsumption(); return; }
+    consumption.elapsed = Math.min(consumption.duration, consumption.elapsed + Math.max(0, dt));
+    // Replicas only animate the gesture. The owner confirms inventory and nutrition atomically.
+    if (this.coopMode === 'replica' || consumption.elapsed + 1e-8 < consumption.duration) return;
+    this.consumption = null;
+    if (this.inventory.take(consumption.item, 1)) { applyFood(this.nutrition, consumption.item); this.events.push({ type: 'consume-done', item: consumption.item }); }
+  }
   private pay(cost: Partial<Record<Item, number>>): boolean {
     if (itemKeys.some(k => this.resource(k) < (cost[k] ?? 0))) return false;
     for (const k of itemKeys) { const amount = cost[k] ?? 0, carried = Math.min(amount, this.inventory.items[k]); this.inventory.take(k, carried);  }
     return true;
   }
   manage(kind: 'deposit' | 'withdraw' | 'discard' | 'rare', item: Item): void {
-    if (this.gameOver || this.action) return;
+    if (this.gameOver || this.action || this.consumption) return;
     if (kind === 'discard') { this.inventory.take(item, Math.min(ITEMS[item].step, this.inventory.items[item])); return; }
     if (!this.atBase) return;
 
@@ -333,6 +378,7 @@ export class Simulation {
     if(left)this.loot.push({id:`reward-${this.crafting.next++}`,x:position.x,z:position.z,area:'outside',label:'Suprimentos recuperados',searched:true,lastFound:null,contents:{...emptyStock(),[item]:left}});
   }
   private begin(kind: Action['kind'], target: string, duration: number): void {
+    this.cancelConsumption();
     this.cancelReload();
     this.action = { kind, target, duration, elapsed: 0, origin: { x: this.player.x, z: this.player.z } };
     if(kind==='search' && (target.includes('locker')||target==='gallery-store')) this.noise(this.player,BALANCE.noise.search);
@@ -340,7 +386,7 @@ export class Simulation {
   }
   private interact(input: InputCommand, dt: number): void {
     if (this.action && (this.player.moving || input.fire || input.reload || distance(this.action.origin, this.player) > .25 || (this.action.kind === 'repair' && !input.heldInteract && !input.interact))) this.action = null;
-    if (!this.action && !this.player.moving && !input.fire && !this.reloadTimer) {
+    if (!this.action && !this.consumption && !this.player.moving && !input.fire && !this.reloadTimer) {
       if (input.heal && this.player.hp < this.maxHP && this.inventory.items.med > 0) this.begin('heal', '', BALANCE.interaction.heal);
       else if(input.dismantle&&this.nearbyPortal?.state==='open'){
         if(this.inventory.items.wood>=2)this.begin('board',this.nearbyPortal.id,1.8);else this.notice('FALTAM TÁBUAS','Leve 2 madeiras para barricar esta entrada.');
@@ -378,7 +424,7 @@ export class Simulation {
       const loot = this.loot.find(l => l.id === action.target);if(!loot)return;
       if (!loot.searched) {
         loot.contents = loot.area === 'base' || loot.id === 'base-wood' ? emptyStock() : rollLoot(loot.area, () => this.random());
-        if(loot.restocked)for(const key of itemKeys)loot.contents[key]=Math.floor(loot.contents[key]*.5);
+        if(loot.restocked)for(const key of itemKeys)if(!isFood(key))loot.contents[key]=Math.floor(loot.contents[key]*.5);
         if(loot.valuable){loot.contents[loot.area==='hospital'?'med':loot.area==='gas'?'scrap':'rifleAmmo']+=loot.area==='hospital'?2:loot.area==='gas'?6:12;}
         for (const k of itemKeys) loot.contents[k] += loot.guaranteed?.[k] ?? 0;
         if(loot.area!=='base'&&loot.id!=='base-wood'){
@@ -466,8 +512,12 @@ export class Simulation {
     if(input.yaw!==undefined){this.firstPerson=true;this.player.angle=input.yaw;this.player.pitch=input.pitch??0;}
     this.player.aimKick*=Math.exp(-dt*7);this.player.bloom=Math.max(0,this.player.bloom-dt*.07);
     this.player.crouched=!!input.crouch||(this.player.crouched&&ceilingHeight(this.player,FPS.radius)-floorHeight(this.player)<FPS.bodyHeight);
-    this.player.ads=!!input.ads&&!input.run&&!this.reloadTimer;
+    this.player.ads=!!input.ads&&!input.run&&!this.reloadTimer&&!this.consumption;
+    const staminaBefore = this.player.stamina, wasExhausted = this.player.exhausted;
     updateStamina(this.player,dt,input.run&&this.player.moving&&!this.player.crouched&&!this.player.ads);
+    if (this.player.stamina > staminaBefore) this.player.stamina = staminaBefore + (this.player.stamina - staminaBefore) * nutritionRecovery(this.nutrition);
+    if (wasExhausted && this.player.stamina < BALANCE.player.sprintRecovery) this.player.exhausted = true;
+    if (this.player.moving || input.run || input.fire || input.reload || input.slot !== undefined || input.heal || input.interact || input.heldInteract || input.dismantle) this.cancelConsumption();
     if (this.player.running || input.heal || input.interact || input.dismantle) this.cancelReload();
     if(input.slot!==undefined)this.switchWeapon(input.slot);
     if (this.reloadTimer > 0) { const previous=1-this.reloadTimer/this.reloadDuration; const next=previous+dt/this.reloadDuration;
@@ -479,6 +529,8 @@ export class Simulation {
     if(!this.firstPerson)this.player.angle = Math.atan2(input.aimX - this.player.x, input.aimZ - this.player.z);
     this.player.eyeY+=((this.player.crouched?FPS.crouchEye:FPS.eyeHeight)+floorHeight(this.player)-this.player.eyeY)*(1-Math.exp(-dt*FPS.stepSpeed));
     if(this.foundationMode){this.focus=null;this.events.length=0;return;}
+    this.updateNutrition(dt);
+    if(this.player.hp<=0){this.cancelConsumption();this.action=null;if(this.coopMode==='solo')this.gameOver=true;return;}
     if(this.firstPerson)this.focus=interactionFocus(this);
     this.anatomicalAim=input.aimY!==undefined; this.aimHeight=input.aimY??1.3; this.aimDistance=Math.max(.1,Math.hypot(input.aimX-this.player.x,input.aimZ-this.player.z));
     this.noiseTimer-=dt; if(this.coopMode!=='replica' && this.player.running && this.noiseTimer<=0) { this.noise(this.player,BALANCE.noise.sprint); this.noiseTimer=.6; }
