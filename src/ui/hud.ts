@@ -13,10 +13,12 @@ import { layout } from './layout';
 import { VarietyHUD } from './variety';
 import { RARITIES } from '../game/weapons';
 import { FieldMap,regionIcons } from './map';
+import type {MapPeer} from './map';
 const clock=(seconds:number):string=>`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
 const natural=(text:string):string=>text.charAt(0).toUpperCase()+text.slice(1).toLocaleLowerCase('pt-BR');
 export class HUD {
   onConsume:(item:FoodId)=>void=()=>{};
+  mapPeers:()=>readonly MapPeer[]=()=>[];
   private nutrition: NutritionHUD;
   inventoryOpen=false; mapOpen=false; settingsOpen=false; captions=true; mutations=0; updates=0;
   root:HTMLDivElement;canvas:HTMLCanvasElement; variety:VarietyHUD;
@@ -61,7 +63,8 @@ export class HUD {
     this.style('crosshair','transform',`translate(${Math.round(mouse.x)}px,${Math.round(mouse.y)}px)`);this.style('crosshair','--bloom',`${((sim.recoil*3+(sim.player.moving?2:0)+sim.player.bloom*24)*(sim.player.ads?.2:sim.player.crouched?.7:1)).toFixed(1)}px`);
     this.root.classList.toggle('ads',sim.player.ads);this.root.classList.toggle('crouched',sim.player.crouched);this.style('damage-direction','opacity',String(Math.max(0,this.hurtTimer)*2));this.el('crosshair').classList.toggle('hit',this.hitTimer>0);this.el('crosshair').classList.toggle('on-target',aimTarget);this.style('damage-vignette','opacity',String(Math.max(0,this.hurtTimer).toFixed(2)));
     this.tick+=dt;this.mapTick+=dt;if(this.tick<.1&&this.updates)return;this.tick=0;this.updates++;this.variety.update(sim);this.nutrition.update(sim);
-    this.text('health',String(Math.ceil(sim.player.hp)));this.style('health-bar','width',`${Math.min(100,sim.player.hp/sim.maxHP*100).toFixed(0)}%`);this.text('health-state',sim.player.hp<30?'Precisa de cuidados':sim.player.hp<70?'Ferido':'Sem ferimentos');this.root.classList.toggle('low-health',sim.player.hp<30);
+    this.text('health',String(Math.ceil(sim.player.hp)));
+    const healthMeter=this.el('health-meter'),hp=String(Math.max(0,Math.ceil(sim.player.hp)));if(healthMeter.getAttribute('aria-valuenow')!==hp)healthMeter.setAttribute('aria-valuenow',hp);if(healthMeter.getAttribute('aria-valuemax')!==String(sim.maxHP))healthMeter.setAttribute('aria-valuemax',String(sim.maxHP));this.style('health-bar','width',`${Math.min(100,sim.player.hp/sim.maxHP*100).toFixed(0)}%`);this.text('health-state',sim.player.hp<30?'Precisa de cuidados':sim.player.hp<70?'Ferido':'Sem ferimentos');this.root.classList.toggle('low-health',sim.player.hp<30);
     this.style('stamina-bar','width',`${sim.player.stamina.toFixed(0)}%`);this.el('stamina').classList.toggle('relevant',sim.player.running||sim.player.stamina<96);
     this.el('stamina').classList.toggle('exhausted',sim.player.exhausted);this.text('stamina-label',sim.player.exhausted?'Exausto':'Fôlego');
     this.style('base-bar','width',`${Math.min(100,sim.baseHP/BALANCE.base.hp*100).toFixed(1)}%`);this.text('base-hp',String(Math.ceil(sim.baseHP)));this.root.classList.toggle('base-hurt',sim.baseHP<BALANCE.base.hp*.4);
@@ -91,8 +94,8 @@ export class HUD {
     if(this.inventoryOpen){this.el('place-chest').hidden=!sim.inventory.items.chest;this.text('capacity-label',`${sim.inventory.weight.toFixed(1)} / ${sim.inventory.capacity} kg`);this.style('capacity-bar','width',`${sim.inventory.weight/sim.inventory.capacity*100}%`);this.el('inventory-panel').classList.toggle('full',sim.inventory.weight>sim.inventory.capacity*.9);this.text('inventory-context','Guarde itens em um baú fabricado na mesa inteligente.');for(const k of itemKeys){this.text(`item-${k}`,String(sim.inventory.items[k]));(this.el(`discard-${k}`) as HTMLButtonElement).disabled=!sim.inventory.items[k]||!!action||!!sim.consumption;this.el(`select-${k}`).classList.toggle('empty',!sim.inventory.items[k]);}(this.el('use-med') as HTMLButtonElement).disabled=!sim.inventory.items.med||sim.player.hp>=sim.maxHP||!!action||!!sim.consumption;(this.el('use-rare') as HTMLButtonElement).disabled=!sim.atBase||!sim.resource('rare')||sim.baseHP>=BALANCE.base.hp||!!action||!!sim.consumption;}
     const hint=!this.seen.has('move')&&this.age<8?'<kbd>W A S D</kbd> Mova-se. O abrigo é seu ponto de retorno.':sim.player.hp<70&&sim.inventory.items.med&&!this.seen.has('heal')?'<kbd>H</kbd> Uma bandagem pode ajudar.':'';
     if(sim.player.moving&&this.age>3)this.seen.add('move');if(sim.action?.kind==='heal')this.seen.add('heal');if(this.tutorialTime<=0)this.html('tutorial',hint);
-    const region=REGIONS.reduce((a,b)=>Math.hypot(a.x-sim.player.x,a.z-sim.player.z)<Math.hypot(b.x-sim.player.x,b.z-sim.player.z)?a:b);this.text('region-name',natural(region.name));
-    if(this.mapTick>=.5){this.mapTick=0;this.fieldMap.draw(this.el('minimap') as HTMLCanvasElement,sim);if(this.mapOpen)this.fieldMap.draw(this.el('full-map') as HTMLCanvasElement,sim,true);}
+    const region=REGIONS.reduce((a,b)=>Math.hypot(a.x-sim.player.x,a.z-sim.player.z)<Math.hypot(b.x-sim.player.x,b.z-sim.player.z)?a:b);this.text('region-name',natural(region.name));if(this.mapOpen){this.text('map-region',natural(region.name));this.text('map-coordinates',`${Math.abs(Math.round(sim.player.x))} m ${sim.player.x<0?'O':'L'} · ${Math.abs(Math.round(sim.player.z))} m ${sim.player.z<0?'N':'S'}`);}
+    if(this.mapTick>=.2){this.mapTick=0;if(this.root.classList.contains('playing')){if(this.mapOpen)this.fieldMap.draw(this.el('full-map') as HTMLCanvasElement,sim,true,this.mapPeers());else if(!this.inventoryOpen&&!this.variety.craft.open)this.fieldMap.draw(this.el('minimap') as HTMLCanvasElement,sim,false,this.mapPeers());}}
     const offscreen=project&&sim.zombies.some(z=>{if(!z.active||Math.hypot(z.x-sim.player.x,z.z-sim.player.z)>5)return false;const p=project(z.x,z.z);return p.x<0||p.x>innerWidth||p.y<0||p.y>innerHeight;});this.el('danger-edge').hidden=!offscreen||!this.captions;
   }
 }

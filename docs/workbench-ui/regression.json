@@ -1,0 +1,51 @@
+{
+  "solo": {
+    "errors": [],
+    "fps": 53,
+    "calls": 402,
+    "triangles": 455479,
+    "gear": {
+      "melee": "axe",
+      "owned": [
+        "fists",
+        "axe"
+      ],
+      "armor": 80,
+      "armorTier": 1
+    },
+    "trees": 1,
+    "quality": "medium"
+  },
+  "coop": {
+    "errors": [],
+    "revision": 23,
+    "migrations": 1,
+    "snapshotBytes": 173787,
+    "phase": "preparation",
+    "baseHP": 890
+  },
+  "expansion": {
+    "errors": [],
+    "scenes": [
+      {
+        "x": -468,
+        "z": -449,
+        "fps": 60,
+        "calls": 180,
+        "triangles": 77975
+      },
+      {
+        "x": 468,
+        "z": 447,
+        "fps": 60,
+        "calls": 187,
+        "triangles": 73379
+      }
+    ],
+    "viewport": {
+      "width": 1600,
+      "height": 900
+    },
+    "quality": "medium"
+  }
+}

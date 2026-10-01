@@ -25,6 +25,7 @@ import { HUD } from './ui/hud';
 import { loadSettings, saveSettings, QUALITY_LEVELS, QUALITY_LABELS } from './game/settings';
 import type { Settings } from './game/settings';
 import {LoadingScreen,paintLoading} from './ui/loading';
+import './ui/field-hud.css';
 
 const hud = new HUD();
 const loading=new LoadingScreen();loading.show();
@@ -48,6 +49,8 @@ const sound = new Sound();
 const network=new NetworkManager();
 let coop:CoopSession|undefined;
 const coopHUD=new CoopGameplayHUD(hud.root);
+// Reuse the already interpolated avatars; map refreshes never add network traffic.
+hud.mapPeers=()=>view.remoteStates.flatMap(({snapshot,gameplay})=>snapshot?[{x:snapshot.x,z:snapshot.z,angle:snapshot.yaw,hp:gameplay?.hp??100}]:[]);
 const chestHUD=new ChestHUD(hud.root);
 const coopUI=new CoopUI(network,hud.root,()=>sound.event('select'));
 // The lobby subscription renders immediately, so apply the loading gate afterwards.

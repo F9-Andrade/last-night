@@ -19,7 +19,9 @@
     "test:melee": "playwright test --config playwright.melee.config.ts",
     "test:chests": "playwright test --config playwright.chests.config.ts",
     "test:browser-lan": "playwright test --config playwright.browser-lan.config.ts",
-    "test:nutrition": "playwright test --config playwright.nutrition.config.ts"
+    "test:nutrition": "playwright test --config playwright.nutrition.config.ts",
+    "test:workbench": "playwright test --config playwright.workbench-ui.config.ts",
+    "test:field-hud": "playwright test --config playwright.field-hud.config.ts"
   },
   "dependencies": {
     "peerjs": "^1.5.5",

@@ -1,0 +1,160 @@
+/* Field instruments: clear center, transparent readouts, city-first navigation. */
+#app{--hud-edge:28px;--hud-health:#85bd7b;--hud-shadow:0 1px 3px #000,0 2px 9px #0009}
+#app .topbar{inset:22px var(--hud-edge) auto}
+#app .brand{display:flex;visibility:visible;padding:0;background:none;gap:9px;font-size:17px;letter-spacing:1px;text-shadow:var(--hud-shadow);color:#eee8da;opacity:.9}
+#app .brand .emblem{width:25px;height:25px;color:#c2855d}
+#app .top-actions{gap:5px}
+#app .top-actions .icon-button{background:#14171380;border:1px solid #c1b79f26;border-radius:0;width:32px;height:32px;color:#ded9ce}
+#app .top-actions .icon-button:hover{background:#3e4535d9;border-color:#b9a181}
+#app .top-actions .icon{width:16px;height:16px}
+#app #cycle{left:var(--hud-edge);top:66px;width:224px;height:84px;max-width:none;transform:none;padding:0;text-align:left;background:transparent;background-image:none;border:0;box-shadow:none;text-shadow:var(--hud-shadow);zoom:var(--ui-scale)}
+#cycle .cycle-dial{width:54px;height:43px;top:4px;left:0;filter:drop-shadow(0 1px 2px #000a)}
+#cycle #phase-icon{left:18px;top:21px;color:#e0b27b}
+#cycle #phase-icon .icon{width:18px;height:18px}
+#cycle #day{left:69px;top:3px;color:#c9c8b9;letter-spacing:1.2px;font-size:9px}
+#cycle #phase{left:69px;top:20px;font-size:13px;letter-spacing:.2px;color:#f3eee2}
+#cycle .clock-readout{top:49px;left:0;right:auto;justify-content:start;gap:9px;font-size:10px;color:#d0ccbe;background:none;border:0;padding:0}
+#cycle #timer{font-size:18px;letter-spacing:.7px;line-height:1;color:#f5ecdc}
+#cycle.urgent #timer{color:#efb57b}
+#cycle.is-night #phase-icon{color:#bdccd1}
+#app #objective{left:var(--hud-edge);top:164px;max-width:218px}
+#objective>i{height:18px;width:2px;background:#c79868}
+#objective h2{font-size:12px;letter-spacing:.2px}
+#objective p{font-size:10px;line-height:1.55;max-width:205px;color:#dbd7cd}
+#app #coop-health{left:var(--hud-edge);top:156px;width:200px;max-width:26vw;padding:0;background:transparent;background-image:none;border:0;box-shadow:none;white-space:normal;text-shadow:var(--hud-shadow);zoom:var(--ui-scale)}
+#app #coop-team{display:none}
+#app .threat{top:30px;width:180px;font-size:10px;text-shadow:var(--hud-shadow)}
+#app .horde-track{height:3px;margin-top:7px;transform:none}
+#app .horde-track i{background:#b59a76}
+
+/* The inset is north-up and square; never squash the city into a rectangle. */
+#app #map-toggle{top:76px;right:var(--hud-edge);width:228px;padding:9px;background:#101714eb;color:#e3dfce;border:1px solid #bcb19755;box-shadow:0 5px 24px #0004,inset 0 0 0 3px #080d0b;clip-path:none;border-radius:0;transform:none;filter:none;opacity:1;zoom:var(--ui-scale);transition:border-color .15s}
+#app #map-toggle:hover{transform:none;border-color:#d0aa75}
+#app .map-title{padding:0 1px 8px;border:0;align-items:center;font-size:10px;letter-spacing:.3px}
+#app .map-title>span:first-child{display:flex;align-items:baseline;gap:8px}
+#app .map-title small{font-size:7px;font-weight:400;letter-spacing:1.3px;color:#a8ad98}
+#app .map-title b{font-size:12px;font-weight:700;color:#eee5d4}
+#app .map-title .map-north{font-size:10px;color:#d2b488}
+#app #minimap{display:block;width:100%;height:auto;aspect-ratio:1;border:1px solid #b1ba9252;background:#536345;image-rendering:auto}
+#app .map-footer{padding:8px 1px 0;border:0;font-size:9px;gap:7px;color:#d9d6c5}
+#app .map-footer>span{max-width:175px}
+#app .map-footer kbd{min-width:17px;height:17px;padding:1px 4px;color:#d9c6a3;border:1px solid #c7b48b4d;border-radius:0;background:transparent;font-size:9px}
+#app.inventory-open #map-toggle,#app.map-open #map-toggle{opacity:0;visibility:hidden;pointer-events:none}
+#app.workbench-open #map-toggle,#app.workbench-open #coop-health,#app.chest-open #map-toggle{visibility:hidden}
+
+/* Survival essentials share a calm hierarchy and reserve red for injury. */
+#app .bottom-hud{left:var(--hud-edge);bottom:24px;width:292px;color:#e6e2d4;text-shadow:var(--hud-shadow)}
+#app .survivor-panel{gap:12px}
+#app .survivor-stamp{width:30px;border:0;transform:none;color:var(--hud-health);opacity:1;padding:0}
+#app .survivor-stamp>.icon{width:25px;height:25px}
+#app .survivor-stamp small{font-size:7px;letter-spacing:1.5px;margin-top:4px}
+#app .vital-title>span{font-size:11px;letter-spacing:.2px;color:#dddcd1}
+#app .vital-title strong{font-size:37px;letter-spacing:-1px;color:#f2eee3}
+#app .vital-title>.icon{width:13px;height:13px;color:var(--hud-health)}
+#app .health-track{height:7px;transform:none;margin-top:8px;background:#142315ad;border:1px solid #b1cea43b}
+#app .health-track i{background:linear-gradient(90deg,#59955c,var(--hud-health));box-shadow:inset 0 1px #dcffcf36}
+#app .health-track::after{background:repeating-linear-gradient(90deg,transparent 0 calc(25% - 1px),#101b1245 calc(25% - 1px) 25%)}
+#app.low-health .health-track i{background:#d58165}
+#app.low-health .survivor-stamp{color:#d58165}
+#app .stamina-row{margin-top:8px;gap:6px;opacity:.45}
+#app .stamina-row.relevant{opacity:1}
+#app .stamina-row>span{font-size:8px;letter-spacing:.5px}
+#app .stamina-track{height:2px}
+#app .stamina-track i{background:#d2b486}
+#app .nutrition-meters{gap:10px;margin:11px 0 0}
+#app .nutrition-meter{padding:4px 0 5px;background:none;border:0;font-size:9px;color:#dbc49a}
+#app #nutrition-thirst{color:#a7c8d0}
+#app .nutrition-meter.low,#app #nutrition-thirst.low{color:#ecb66d}
+#app .nutrition-meter.critical,#app #nutrition-thirst.critical{color:#e18c76}
+#app .nutrition-meter em{opacity:.9}
+#app .resource-strip{min-height:53px;margin-top:10px;background:#151711bd;border:1px solid #adab9061;box-shadow:none;padding:0;gap:0}
+#app .resource-strip>span{min-height:51px;border-right:1px solid #adab9033;gap:5px}
+#app .resource-strip>span:last-child{border:0}
+#app .resource-strip .item-art{width:36px;height:36px}
+#app .resource-strip .bag-key{max-width:52px;color:#d8b48a}
+#app .resource-strip .bag-key .icon{width:29px;height:29px}
+#app .resource-strip .bag-key kbd{left:31px;top:34px;border-radius:0;font-size:7px;height:14px;min-width:16px}
+#app .resource-strip b{font-size:17px}
+#app .base-status{left:var(--hud-edge);bottom:237px;gap:9px;padding:0;opacity:1;background:none;text-shadow:var(--hud-shadow)}
+#app .base-status>.icon{width:19px;height:19px;color:#cebea0}
+#app .base-status span{font-size:10px;color:#d7d2c4}
+#app .base-status b{font-size:12px;font-variant-numeric:tabular-nums}
+#app .base-track{width:158px;height:3px;background:#302f2580;margin-top:6px}
+#app .base-track i{background:#c3bb9a}
+#app.base-hurt .base-track i{background:#d18b6c}
+#app .loot-feed{left:var(--hud-edge);bottom:276px}
+#app .weapon-panel{right:var(--hud-edge);bottom:24px;width:278px;min-width:0;text-shadow:var(--hud-shadow)}
+#app .weapon-top{background:linear-gradient(90deg,#10171370,transparent);padding:7px 6px 30px;border-top:1px solid #c6b29426}
+#app .weapon-name{font-size:14px;letter-spacing:.1px}
+#app .weapon-top small{color:#c9c8b9;font-size:9px!important}
+#app .weapon-slots button{border-radius:0;background:#1c21185c;border-bottom:1px solid #9899853b;color:#d1cebc}
+#app .weapon-slots button.selected{background:#8b644130;color:#f3d3a4;border-color:#cb9b63}
+#app .ammo{height:72px;gap:15px}
+#app .ammo>strong{font-size:62px;letter-spacing:-2px}
+#app .ammo-reserve{border-left:1px solid #d2c7b159;padding-left:13px}
+#app .ammo-reserve b{font-size:22px;color:#d8d2c2}
+#app .ammo-reserve small{font-size:8px;letter-spacing:.5px}
+#app #reload-label{font-size:9px;color:#c7c4b5}
+#app .cartridges{gap:3px;height:5px}
+#app .cartridges i{background:#e5dac2;transform:none;border:0;height:4px}
+#app .cartridges i.spent{background:#dad5c338}
+#app .tutorial{font-size:10px;max-width:330px;bottom:24px}
+#app .tutorial kbd{font-size:9px;border-radius:0;height:20px}
+
+/* Atlas: richly colored geography inside a restrained field instrument. */
+#app #map-screen{z-index:24;padding:24px;background:#090f12c9}
+#app .map-sheet{width:min(1140px,calc(100dvh + 240px),calc(100dvw - 48px));height:min(900px,calc(100dvh - 48px));max-height:none;display:flex;flex-direction:column;overflow:hidden;padding:22px 24px 14px;background:linear-gradient(#18201df5,#101813fa),url('/ui/distressed-panel.png') center/100% 100%;color:#dedbca;border:1px solid #9f9d7959;box-shadow:0 18px 70px #0008;transform:none}
+#app .map-sheet header{flex-shrink:0;padding-bottom:15px;align-items:center;border-bottom:1px solid #a19c7c3b}
+#app .map-sheet .eyebrow{color:#aaad97;font-size:9px;letter-spacing:1.1px}
+#app .map-sheet h2{font-size:30px;letter-spacing:.5px;text-transform:uppercase;margin:3px 0 0}
+#app #map-close{color:#e2d8c1;border:1px solid #9e997547;background:none;border-radius:0}
+#app #map-close:hover{background:#9e997521}
+#app .map-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 190px;grid-template-rows:minmax(0,1fr);align-items:stretch;gap:22px;padding:17px 0}
+#app .field-map-frame{min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;background:#0b1511;border:1px solid #91a1803d;container-type:size}
+#app #full-map{display:block;width:min(100cqw,100cqh);height:min(100cqw,100cqh);max-height:none;object-fit:contain;aspect-ratio:1}
+#app .map-body aside{overflow-y:auto;min-height:0;padding:1px 3px 0 0;scrollbar-width:thin;scrollbar-color:#707958 #17211b}
+#app .map-location{display:grid;gap:6px;padding-bottom:16px;margin-bottom:17px;border-bottom:1px solid #a19c7c3b}
+#app #map-region{font-size:14px;line-height:1.3;color:#e5dcc6;font-weight:700}
+#app #map-coordinates{font:10px monospace;color:#a7b69d}
+#app #map-legend{margin-top:12px}
+#app #map-legend p{gap:9px;font-size:10px;margin:11px 0;color:#d0d3bd}
+#app #map-legend .icon{width:17px;height:17px;color:#c3b581}
+#app .map-terrain-key{display:grid;gap:8px;padding:15px 0 0;border-top:1px solid #a19c7c3b;margin-top:17px;font-size:9px;color:#bfc6b0}
+.map-terrain-key span{display:flex;align-items:center;gap:9px}
+.map-terrain-key i{display:inline-block;width:12px;height:8px;border:1px solid #fff2}
+.map-terrain-key .map-roof{background:#a97c59}.map-terrain-key .map-green{background:#668253}.map-terrain-key .map-road{background:#535b58}
+#app .map-body aside>p{font-size:10px;line-height:1.6;color:#aeb69f}
+#app .map-body .map-live{font-size:9px;padding-top:11px;margin-top:16px;border-top:1px solid #a19c7c3b;color:#c5b99a}
+#app .map-sheet footer{flex-shrink:0;gap:16px;padding-top:12px;border-top:1px solid #a19c7c3b;font-size:10px;color:#c4c8b2}
+#app .map-sheet footer>span{display:flex;align-items:center;gap:8px}
+#app .map-sheet footer i{display:inline-block;height:7px;width:7px;margin-left:8px}
+#app .map-sheet footer i:first-child{margin-left:0}
+.map-key-home{background:#d9b569}.map-key-self{background:#69dec3;clip-path:polygon(50% 0,100% 100%,50% 75%,0 100%)}.map-key-team{background:#8ac9df;border-radius:50%}
+#app .map-sheet kbd{border-radius:0;color:#ddc99f;border-color:#a69c725c;background:none;font-size:9px;height:19px}
+#app.paused #coop-health{opacity:.14}
+#app.map-open #coop-health{visibility:hidden}
+
+@media(min-width:1600px) and (min-height:850px){#app #map-toggle{width:250px;top:82px}#app .bottom-hud{width:308px}#app .weapon-panel{width:292px}#app .base-track{width:174px}}
+@media(max-width:1100px), (max-height:700px){
+ #app{--hud-edge:20px}#app .brand{font-size:14px}#app .brand .emblem{width:21px;height:21px}
+ #app #cycle{top:56px;width:210px;height:80px}#app #coop-health{top:139px;width:174px}#app #objective{top:145px;width:184px}
+ #app #map-toggle{width:196px;top:65px}#app .map-title small{display:none}#app .map-footer{font-size:8px}
+ #app .bottom-hud{width:260px;bottom:20px}#app .vital-title strong{font-size:31px}#app .vital-title>span{font-size:10px}
+ #app .resource-strip{min-height:45px}#app .resource-strip>span{min-height:43px}#app .resource-strip .item-art{width:30px;height:30px}#app .resource-strip b{font-size:15px}
+ #app .resource-strip .bag-key .icon{width:24px;height:24px}#app .resource-strip .bag-key kbd{top:29px;left:27px}
+ #app .base-status{bottom:216px}#app .base-track{width:130px}#app .loot-feed{bottom:251px}
+ #app .weapon-panel{width:247px;bottom:20px}#app .ammo>strong{font-size:54px}#app .ammo{height:66px}
+ #app .map-sheet{padding:16px 18px 12px}#app .map-body{gap:15px;grid-template-columns:minmax(0,1fr) 158px;padding:12px 0}#app .map-sheet h2{font-size:25px}#app .map-sheet header{padding-bottom:10px}
+}
+@media(max-width:760px){
+ #app{--hud-edge:14px}#app .topbar{top:14px}#app .brand{font-size:12px;gap:6px}#app .brand .emblem{width:18px;height:18px}
+ #app #cycle{top:49px;width:188px}#cycle #phase{font-size:11px}#cycle #day{font-size:8px}#cycle #timer{font-size:16px}
+ #app #coop-health{top:131px;width:155px;max-width:35vw}#app #objective{display:flex;top:137px;width:150px}
+ #app #map-toggle{top:57px;width:158px;padding:6px}#app .map-title b{font-size:10px}#app .map-title{padding-bottom:5px}#app .map-footer{padding-top:5px;font-size:7px}
+ #app .bottom-hud{width:216px;bottom:15px}#app .vital-title strong{font-size:28px}#app .survivor-stamp{width:23px}#app .vital-title>span{font-size:8px}#app .survivor-panel{gap:8px}
+ #app .nutrition-meter{font-size:8px}#app .base-status{bottom:206px}#app .base-track{width:110px}#app .loot-feed{bottom:240px}
+ #app .weapon-panel{width:207px;bottom:15px}#app .ammo>strong{font-size:47px}#app .ammo-reserve b{font-size:18px}#app .ammo{gap:10px}#app .weapon-name{font-size:12px}
+ #app #map-screen{padding:10px}#app .map-sheet{width:100%;height:calc(100dvh - 20px);padding:14px}#app .map-body{display:flex;flex-direction:column;gap:0}#app .field-map-frame{flex:1}#app .map-body aside{display:none}
+ #app .map-sheet footer{font-size:8px;gap:5px}#app .map-sheet footer>span{gap:5px}#app .map-sheet footer i{margin-left:4px}#app .map-sheet .eyebrow{font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){#app #map-toggle{transition:none}}

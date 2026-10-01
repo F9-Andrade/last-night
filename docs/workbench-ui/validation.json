@@ -1,0 +1,180 @@
+{
+  "errors": [],
+  "checkpoints": [
+    {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "dialog": {
+        "x": 73,
+        "y": 20,
+        "width": 1220,
+        "height": 728
+      },
+      "details": {
+        "x": 102,
+        "y": 124,
+        "width": 642.9375,
+        "height": 401.421875
+      },
+      "materials": [
+        {
+          "item": "cord",
+          "bounds": {
+            "x": 102,
+            "y": 425.828125,
+            "width": 634.9375,
+            "height": 29
+          }
+        },
+        {
+          "item": "wood",
+          "bounds": {
+            "x": 102,
+            "y": 454.828125,
+            "width": 634.9375,
+            "height": 29
+          }
+        },
+        {
+          "item": "scrap",
+          "bounds": {
+            "x": 102,
+            "y": 483.828125,
+            "width": 634.9375,
+            "height": 29
+          }
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "dialog": {
+        "x": 320,
+        "y": 120,
+        "width": 1280,
+        "height": 840
+      },
+      "details": {
+        "x": 349,
+        "y": 254,
+        "width": 671.171875,
+        "height": 454.609375
+      },
+      "materials": [
+        {
+          "item": "cord",
+          "bounds": {
+            "x": 349,
+            "y": 597.390625,
+            "width": 663.171875,
+            "height": 32
+          }
+        },
+        {
+          "item": "wood",
+          "bounds": {
+            "x": 349,
+            "y": 629.390625,
+            "width": 663.171875,
+            "height": 32
+          }
+        },
+        {
+          "item": "scrap",
+          "bounds": {
+            "x": 349,
+            "y": 661.390625,
+            "width": 663.171875,
+            "height": 32
+          }
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 960,
+        "height": 640
+      },
+      "dialog": {
+        "x": 14,
+        "y": 14,
+        "width": 932,
+        "height": 612
+      },
+      "details": {
+        "x": 35,
+        "y": 100,
+        "width": 506.96875,
+        "height": 333
+      },
+      "materials": [
+        {
+          "item": "cord",
+          "bounds": {
+            "x": 35,
+            "y": 341.03125,
+            "width": 500.96875,
+            "height": 25
+          }
+        },
+        {
+          "item": "wood",
+          "bounds": {
+            "x": 35,
+            "y": 366.03125,
+            "width": 500.96875,
+            "height": 25
+          }
+        },
+        {
+          "item": "scrap",
+          "bounds": {
+            "x": 35,
+            "y": 391.03125,
+            "width": 500.96875,
+            "height": 25
+          }
+        }
+      ]
+    }
+  ],
+  "mutationMetrics": {
+    "idle": {
+      "durationMs": 600,
+      "records": 0,
+      "createdElements": 0,
+      "removedElements": 0,
+      "createdTextNodes": 0,
+      "removedTextNodes": 0
+    },
+    "stockChanged": {
+      "durationMs": 600,
+      "records": 1,
+      "createdElements": 0,
+      "removedElements": 0,
+      "createdTextNodes": 1,
+      "removedTextNodes": 1
+    }
+  },
+  "checks": [
+    "all three ingredients visible without scrolling at all viewports",
+    "zero element churn during idle and stock updates",
+    "accent-insensitive search",
+    "category and available filters",
+    "repeated and slow recipe clicks",
+    "live stock updates preserve nodes, focus, caret and scroll",
+    "craft cost charged once",
+    "close, reopen and reclaim"
+  ],
+  "crafted": {
+    "recipe": "axe",
+    "wood": 4,
+    "scrap": 7,
+    "cord": 1
+  }
+}

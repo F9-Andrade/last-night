@@ -1,0 +1,23 @@
+.coop-player-health{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:5px;margin:0 0 13px;background:transparent;border:0;box-shadow:none;line-height:1.2}
+.coop-player-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#efe9dc;font-size:12px;font-weight:600;letter-spacing:.15px;background:transparent}
+.coop-player-hp{color:#c9e4c1;font-size:11px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.coop-player-health-track{grid-column:1/-1;height:4px;background:#a3ba9933;box-shadow:0 1px 2px #0009;overflow:hidden}
+.coop-player-health-fill{display:block;width:100%;height:100%;background:var(--hud-health,#85bd7b);transform:scaleX(var(--health,1));transform-origin:left;transition:transform .15s linear}
+.coop-player-state{grid-column:1/-1;color:#dfb67e;font-size:10px;letter-spacing:.15px;font-variant-numeric:tabular-nums}
+.coop-player-health[data-life="downed"] .coop-player-name,.coop-player-health[data-life="downed"] .coop-player-hp{color:#e3bd89}
+.coop-player-health[data-life="dead"] .coop-player-name,.coop-player-health[data-life="dead"] .coop-player-hp,.coop-player-health[data-life="dead"] .coop-player-state{color:#b5b4aa}
+.coop-health-debug{display:block;max-width:230px;font-size:9px;line-height:1.45;color:#b8c0a9}
+#pause-coop-room{margin-top:19px;padding-top:16px;border-top:1px solid #a2927938;font-size:12px;line-height:1.5}
+#pause-coop-summary{display:block;color:#e4d8c4;font-size:12px;font-weight:600}
+#pause-coop-players{margin:5px 0 10px;color:#bcb4a6;overflow-wrap:anywhere}
+#pause-coop-invitation label{display:block;margin:10px 0 6px;color:#c8bbaa;font-size:11px}
+#pause-coop-code{display:block;box-sizing:border-box;width:100%;min-width:0;padding:8px;background:#14110f;color:#e4d8c6;border:1px solid #7b6450;font:700 19px monospace;letter-spacing:.09em;text-align:center}
+.pause-coop-actions{display:flex;gap:8px;margin-top:8px}
+.pause-coop-actions button{flex:1;padding:9px 10px;background:#251e18;color:#e5d8c4;border:1px solid #7b6450;font:inherit;cursor:pointer}
+.pause-coop-actions button:hover{background:#493429}
+.pause-coop-actions button:focus-visible{outline:2px solid #dd9b6e;outline-offset:2px}
+#pause-coop-copy-status{margin:7px 0 0;color:#cbc5aa;font-size:11px}
+#pause-coop-copy-status:empty{display:none}
+#pause-coop-debug{display:block;margin-top:9px;color:#a69e90;font-size:10px}
+@media(max-height:800px){.coop-player-health{margin-bottom:10px;row-gap:4px}.coop-player-name{font-size:11px}.coop-player-hp{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.coop-player-health-fill{transition:none}}
