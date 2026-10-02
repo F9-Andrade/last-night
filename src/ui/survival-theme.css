@@ -29,3 +29,13 @@ button,input,select{border-radius:0}button:focus-visible,input:focus-visible,sel
 
 /* Keep temporary notifications clear of the shelter meter. */
 .playing.inventory-open .minimap-panel{opacity:0;visibility:hidden}.loot-feed{bottom:247px}
+
+/* Inventory construction actions must not fall back to browser button colors. */
+#inventory-panel #craft-details>button,#inventory-panel #place-chest{
+ appearance:none;display:block;width:100%;min-height:42px;margin-top:10px;padding:10px 12px;
+ background:#30251d;color:#f0dfc6;border:1px solid #a37d55;border-radius:0;
+ font:600 12px 'Field Sans',sans-serif;line-height:1.5;text-align:center;
+}
+#inventory-panel #craft-details>button:hover:not(:disabled),#inventory-panel #place-chest:hover:not(:disabled){background:#493323;border-color:#dbab74;color:#fff0da}
+#inventory-panel #craft-details>button:focus-visible,#inventory-panel #place-chest:focus-visible{outline:2px solid #e4b77e;outline-offset:2px}
+#inventory-panel #craft-details>button:disabled,#inventory-panel #place-chest:disabled{background:#24231f;color:#bcb5a7;border-color:#635c4f;opacity:1;cursor:not-allowed}
