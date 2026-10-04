@@ -2,6 +2,7 @@ import {CraftingView} from './crafting-view';
 import {ConstructionView} from './construction-view';
 import type {BuildPreview} from './construction-view';
 import {structureFloorHeight,structureSurfaceY} from '../game/construction';
+import type {StructurePlacement} from '../game/construction';
 import {EnvironmentalDressing} from './environmental-dressing';
 import {ImpactDecals} from './impact-decals';
 import {surfaceStats} from './surface-materials';
@@ -50,7 +51,7 @@ export class GameScene {
   private shadowRight=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),this.sunDirection).normalize();
   private shadowUp=new THREE.Vector3().crossVectors(this.sunDirection,this.shadowRight);
   private survival: SurvivalView;private craftingView:CraftingView;private constructionView:ConstructionView;
-  craftPreview:'bench'|'chest'|undefined;openChest:number|undefined;buildPreview:BuildPreview|undefined;
+  craftPreview:'bench'|'chest'|undefined;openChest:number|undefined;buildPreview:BuildPreview|undefined;buildPlacement:StructurePlacement|undefined;
   furnitureMove:{kind:'bench'|'chest';id:number}|undefined;furnitureRotation=0;
   readonly remoteView=new RemotePlayers(this.scene);remoteStates:RemotePlayerState[]=[];
   private expedition:ExpeditionView; town: Town; survivor = new Character(); walkers: Character[] = [];
@@ -96,6 +97,9 @@ export class GameScene {
     const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(this.dustArray, 3));
     this.dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0xe5d6ae, size: .05, transparent: true, opacity: .4, depthWrite: false })); this.scene.add(this.dust);
     this.atmosphere=new CinematicSky(this.scene);this.dressing=new EnvironmentalDressing(this.scene);this.impactDecals=new ImpactDecals(this.scene);
+    // The world is rendered for both colour and AO. Transform it once after all
+    // presentation updates; both passes must consume that same frame snapshot.
+    this.scene.matrixWorldAutoUpdate=false;
     this.post=new PostProcessing(this.renderer,this.scene,this.camera,this.viewmodel);
     this.renderer.info.autoReset=false;this.resize();
   }
@@ -241,7 +245,7 @@ export class GameScene {
       if (z?.active) {c.setKind(z.kind,z.id%3);c.root.position.set(z.x,.1,z.z);c.root.rotation.y=z.angle;c.animateInfected(z,dt,elapsed,Math.hypot(z.x-sim.player.x,z.z-sim.player.z)<2);}
     }
     this.craftingView.update(sim,menu?undefined:this.craftPreview,this.openChest,dt,this.furnitureMove,this.furnitureRotation);
-    this.constructionView.update(sim,menu?undefined:this.buildPreview,dt);this.survival.update(sim, dt, elapsed, menu);this.expedition.update(sim,elapsed);
+    this.constructionView.update(sim,menu?undefined:this.buildPreview,dt,this.buildPlacement);this.survival.update(sim, dt, elapsed, menu);this.expedition.update(sim,elapsed);
     if (sim.action) { this.survivor.arms.rotation.x = -.35 + Math.sin(elapsed * 8) * .08; this.survivor.body.rotation.x = .08; }
     else this.survivor.body.rotation.x = sim.player.running?.12:sim.player.exhausted?.05+Math.sin(elapsed*4)*.012:0;
     const smooth = (x: number): number => { x = THREE.MathUtils.clamp(x, 0, 1); return x * x * (3 - 2 * x); };
@@ -292,6 +296,7 @@ export class GameScene {
     for (let i = 0; i < this.dustArray.length; i += 3) { this.dustArray[i] += dt * .15; if (this.dustArray[i] > 40) this.dustArray[i] = -40; }
     this.dust.geometry.attributes.position.needsUpdate = true;
     this.viewmodel.syncLighting(this.sun,this.ambient,this.camera,this.interior,this.flashlightOn&&!menu);
-    this.viewmodel.update(sim,this.camera,dt,elapsed,!menu&&!sim.gameOver&&(sim.coopMode==='solo'||sim.player.hp>0));this.remoteView.update(this.remoteStates,elapsed,dt,this.camera);this.renderer.info.reset();if(draw)this.post.render(dt,sim.player.hp);
+    this.viewmodel.update(sim,this.camera,dt,elapsed,!menu&&!sim.gameOver&&(sim.coopMode==='solo'||sim.player.hp>0));this.remoteView.update(this.remoteStates,elapsed,dt,this.camera);
+    this.scene.updateMatrixWorld();this.renderer.info.reset();if(draw)this.post.render(dt,sim.player.hp);
   }
 }

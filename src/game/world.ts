@@ -55,13 +55,26 @@ const PLANNING_OBSTACLES: Obstacle[] = [
 export const URBAN=planUrban(PLANNING_OBSTACLES,ROADS,[...BASE_LOOT_POINTS,...FACILITIES,...EVENT_POINTS,...ENCOUNTERS],CITY_SITES);
 OBSTACLES.push(...URBAN.obstacles);
 const SPATIAL_CELL=8;
-const obstacleBins=new Map<string,Obstacle[]>();
-for(const o of OBSTACLES)for(let x=Math.floor((o.x-o.w/2)/SPATIAL_CELL);x<=Math.floor((o.x+o.w/2)/SPATIAL_CELL);x++)for(let z=Math.floor((o.z-o.d/2)/SPATIAL_CELL);z<=Math.floor((o.z+o.d/2)/SPATIAL_CELL);z++){
-  const key=`${x}:${z}`,bucket=obstacleBins.get(key)??[];bucket.push(o);obstacleBins.set(key,bucket);
+function indexObstacles(obstacles:Obstacle[]):Map<string,Obstacle[]>{
+ const bins=new Map<string,Obstacle[]>();
+ for(const o of obstacles)for(let x=Math.floor((o.x-o.w/2)/SPATIAL_CELL);x<=Math.floor((o.x+o.w/2)/SPATIAL_CELL);x++)for(let z=Math.floor((o.z-o.d/2)/SPATIAL_CELL);z<=Math.floor((o.z+o.d/2)/SPATIAL_CELL);z++){
+  const key=`${x}:${z}`,bucket=bins.get(key)??[];bucket.push(o);bins.set(key,bucket);
+ }
+ return bins;
 }
-function nearbyObstacles(minX:number,minZ:number,maxX:number,maxZ:number):Obstacle[]{
+const obstacleBins=indexObstacles(OBSTACLES),emptyObstacles:Obstacle[]=[];
+// These authored ceilings do not change during a match. Build their geometry and
+// spatial lookup once, rather than recreating every city roof for each aim ray.
+const roofBins=indexObstacles([
+ ...[...BUILDINGS.filter(b=>b.kind!=='base'),...CITY_SITES.filter(s=>s.kind!=='cemetery')].map(b=>({x:b.x,z:b.z,w:b.w,d:b.d,bottom:b.h,h:.25})),
+ ...CITY_SITES.filter(s=>s.kind==='quarantine').flatMap(site=>[-8,8].map(x=>({x:site.x+x,z:site.z-4,w:6,d:5,bottom:1.85,h:.3}))),
+]);
+function nearbyObstacles(minX:number,minZ:number,maxX:number,maxZ:number,bins=obstacleBins):Obstacle[]{
+  const x0=Math.floor(minX/SPATIAL_CELL),x1=Math.floor(maxX/SPATIAL_CELL),z0=Math.floor(minZ/SPATIAL_CELL),z1=Math.floor(maxZ/SPATIAL_CELL);
+  // Most movement/interaction queries fit in one cell; its array is read-only to callers.
+  if(x0===x1&&z0===z1)return bins.get(`${x0}:${z0}`)??emptyObstacles;
   const found=new Set<Obstacle>();
-  for(let x=Math.floor(minX/SPATIAL_CELL);x<=Math.floor(maxX/SPATIAL_CELL);x++)for(let z=Math.floor(minZ/SPATIAL_CELL);z<=Math.floor(maxZ/SPATIAL_CELL);z++)for(const o of obstacleBins.get(`${x}:${z}`)??[])found.add(o);
+  for(let x=x0;x<=x1;x++)for(let z=z0;z<=z1;z++)for(const o of bins.get(`${x}:${z}`)??emptyObstacles)found.add(o);
   return [...found];
 }
 export const SUPPLIES = [
@@ -74,11 +87,14 @@ export const SUPPLIES = [
 ];
 export function collides(p: Vec2, radius = .45, extra: Obstacle[] = []): boolean {
   if (Math.abs(p.x) > WORLD_LIMIT - radius || Math.abs(p.z) > WORLD_LIMIT - radius) return true;
-  return [...nearbyObstacles(p.x-radius,p.z-radius,p.x+radius,p.z+radius), ...extra].some(o => {
+  const hits=(o:Obstacle)=>{
     const dx = Math.max(Math.abs(p.x - o.x) - o.w / 2, 0);
     const dz = Math.max(Math.abs(p.z - o.z) - o.d / 2, 0);
     return dx * dx + dz * dz < radius * radius;
-  });
+  };
+  for(const o of nearbyObstacles(p.x-radius,p.z-radius,p.x+radius,p.z+radius))if(hits(o))return true;
+  for(const o of extra)if(hits(o))return true;
+  return false;
 }
 export function move(p: Vec2, dx: number, dz: number, radius = .45, extra: Obstacle[] = [], height=0): void {
   const blocked=(v:Vec2)=>collides(v,radius,extra)||(height>0&&ceilingHeight(v,radius)-floorHeight(v)<height);
@@ -93,9 +109,11 @@ export function distance(a: Vec2, b: Vec2): number { return Math.hypot(a.x - b.x
 export function wallDistance(origin: Vec2, dir: Vec2, range: number, extra: Obstacle[] = [], radius = 0): number {
   let nearest = range;
   const end={x:origin.x+dir.x*range,z:origin.z+dir.z*range};
-  for (const o of [...nearbyObstacles(Math.min(origin.x,end.x)-radius,Math.min(origin.z,end.z)-radius,Math.max(origin.x,end.x)+radius,Math.max(origin.z,end.z)+radius), ...extra]) {
+  const minX=Math.min(origin.x,end.x)-radius,minZ=Math.min(origin.z,end.z)-radius,maxX=Math.max(origin.x,end.x)+radius,maxZ=Math.max(origin.z,end.z)+radius;
+  const intersect=(o:Obstacle)=>{
+    if(o.x+o.w/2<minX||o.x-o.w/2>maxX||o.z+o.d/2<minZ||o.z-o.d/2>maxZ)return;
     let near = 0, far = range;
-    for (const axis of ['x', 'z'] as const) {
+    for (const axis of horizontalAxes) {
       const half = (axis === 'x' ? o.w : o.d) / 2 + radius;
       if (Math.abs(dir[axis]) < 1e-8) {
         if (origin[axis] < o[axis] - half || origin[axis] > o[axis] + half) far = -1;
@@ -106,9 +124,12 @@ export function wallDistance(origin: Vec2, dir: Vec2, range: number, extra: Obst
       }
     }
     if (near <= far && far >= 0) nearest = Math.min(nearest, near);
-  }
+  };
+  for(const o of nearbyObstacles(minX,minZ,maxX,maxZ))intersect(o);
+  for(const o of extra)intersect(o);
   return nearest;
 }
+const horizontalAxes=['x','z'] as const;
 
 // Sparse one-meter navigation: populate only visited cells, not the entire 1.56 km² map.
 const GRID = WORLD_LIMIT*2+2, ORIGIN=WORLD_LIMIT+.5;
@@ -207,9 +228,13 @@ export function rayBox(origin:Vec3,dir:Vec3,box:Obstacle,range:number):number {
 }
 export function rayWorld(origin:Vec3,dir:Vec3,range:number,extra:Obstacle[]=[]):number {
  let nearest=range;const end={x:origin.x+dir.x*range,z:origin.z+dir.z*range};
- for(const o of [...nearbyObstacles(Math.min(origin.x,end.x),Math.min(origin.z,end.z),Math.max(origin.x,end.x),Math.max(origin.z,end.z)),...extra])nearest=Math.min(nearest,rayBox(origin,dir,o,range));
- for(const b of [...BUILDINGS.filter(b=>b.kind!=='base'),...CITY_SITES.filter(s=>s.kind!=='cemetery')])nearest=Math.min(nearest,rayBox(origin,dir,{...b,bottom:b.h,h:.25},range));
- for(const site of CITY_SITES)if(site.kind==='quarantine')for(const x of [-8,8])nearest=Math.min(nearest,rayBox(origin,dir,{x:site.x+x,z:site.z-4,w:6,d:5,bottom:1.85,h:.3},range));
+ const minX=Math.min(origin.x,end.x),minZ=Math.min(origin.z,end.z),maxX=Math.max(origin.x,end.x),maxZ=Math.max(origin.z,end.z);
+ for(const o of nearbyObstacles(minX,minZ,maxX,maxZ))nearest=Math.min(nearest,rayBox(origin,dir,o,range));
+ for(const o of extra){
+  if(o.x+o.w/2<minX||o.x-o.w/2>maxX||o.z+o.d/2<minZ||o.z-o.d/2>maxZ)continue;
+  nearest=Math.min(nearest,rayBox(origin,dir,o,range));
+ }
+ for(const o of nearbyObstacles(minX,minZ,maxX,maxZ,roofBins))nearest=Math.min(nearest,rayBox(origin,dir,o,range));
  if(dir.y<0)nearest=Math.min(nearest,Math.max(0,(origin.y-floorHeight(origin))/-dir.y));
  return nearest;
 }

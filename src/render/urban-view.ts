@@ -11,6 +11,7 @@ interface Chunk {root:StaticChunk;detail:THREE.Group;x:number;z:number}
 export class UrbanView {
  private chunks=new Map<string,Chunk>();active=0;
  private smoke:THREE.InstancedMesh;private dummy=new THREE.Object3D();
+ private smokeScenes=URBAN.scenes.filter(s=>s.kind==='crash'||s.kind==='delivery');
  constructor(scene:THREE.Scene){
   const chunk=(x:number,z:number)=>{const key=`${Math.floor(x/32)}:${Math.floor(z/32)}`;let c=this.chunks.get(key);if(!c){const root=new StaticChunk(),detail=new THREE.Group();root.position.set(Math.floor(x/32)*32+16,0,Math.floor(z/32)*32+16);root.add(detail);scene.add(root);c={root,detail,x:root.position.x,z:root.position.z};this.chunks.set(key,c);}return c;};
   for(const b of URBAN.buildings){const c=chunk(b.x,b.z),g=new THREE.Group(),detail=new THREE.Group();g.position.set(b.x-c.x,0,b.z-c.z);detail.position.copy(g.position);c.root.add(g);c.detail.add(detail);this.building(g,detail,b);}
@@ -93,7 +94,7 @@ export class UrbanView {
   if(s.kind==='delivery'){for(let i=0;i<4;i++)box(g,3,.15,i*1.1,1,.25,.8,0x8d805e);}
  }
  update(sim:Simulation,time:number){
-  this.active=0;for(const c of this.chunks.values()){const d=Math.hypot(c.x-sim.player.x,c.z-sim.player.z);c.root.visible=d<145;c.detail.visible=d<64;if(c.root.visible)this.active++;}
-  let count=0;for(const s of URBAN.scenes.filter(s=>s.kind==='crash'||s.kind==='delivery')){if(Math.hypot(s.x-sim.player.x,s.z-sim.player.z)>145)continue;for(let i=0;i<9;i++){const t=(time*.13+i/9)%1;this.dummy.position.set(s.x+t*2,1+t*12,s.z+t);this.dummy.scale.setScalar(.35+t*1.6);this.dummy.rotation.set(t,0,t);this.dummy.updateMatrix();this.smoke.setMatrixAt(count++,this.dummy.matrix);}}this.smoke.count=count;this.smoke.instanceMatrix.needsUpdate=true;
+  this.active=0;for(const c of this.chunks.values()){const d=(c.x-sim.player.x)**2+(c.z-sim.player.z)**2;c.root.visible=d<145*145;c.detail.visible=d<64*64;if(c.root.visible)this.active++;}
+  let count=0;for(const s of this.smokeScenes){if((s.x-sim.player.x)**2+(s.z-sim.player.z)**2>145*145)continue;for(let i=0;i<9;i++){const t=(time*.13+i/9)%1;this.dummy.position.set(s.x+t*2,1+t*12,s.z+t);this.dummy.scale.setScalar(.35+t*1.6);this.dummy.rotation.set(t,0,t);this.dummy.updateMatrix();this.smoke.setMatrixAt(count++,this.dummy.matrix);}}this.smoke.count=count;this.smoke.instanceMatrix.needsUpdate=true;
  }
 }

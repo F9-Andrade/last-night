@@ -6,23 +6,27 @@ export interface Focus {kind:'portal'|'loot'|'defense'|'weapon'|'facility'|'alar
 /** Central gaze query uses gameplay volumes, independent of any renderer or UI. */
 export function interactionFocus(sim:Simulation):Focus|null {
  const p=sim.player,origin={x:p.x,y:p.eyeY,z:p.z},dir=lookDirection(p.angle,p.pitch+p.aimKick);
- const candidates:{kind:Focus['kind'];id:string;x:number;z:number;w:number;d:number;h:number;bottom?:number}[]=[];
- for(const v of sim.portals)candidates.push({...v,kind:'portal',h:2.8});
- for(const v of sim.loot)if(!v.searched||itemKeys.some(k=>v.contents[k]))candidates.push({...v,kind:'loot',w:1.15,d:1,h:1.15});
- for(const v of sim.barricades.filter(v=>v.hp>0))candidates.push({...v,kind:'defense',h:v.hp>0?1.5:.3});
- for(const v of sim.groundWeapons)candidates.push({...v,kind:'weapon',id:String(v.item.uid),w:1.5,d:.9,h:.55});
- for(const v of sim.facilities)if(v.state==='ready')candidates.push({...v,kind:'facility',w:1.5,d:1.3,h:1.7});
- if(sim.alarmTimer>0&&sim.alarmPosition)candidates.push({...sim.alarmPosition,kind:'alarm',id:'alarm',w:1.9,d:3.7,h:1.8});
- if(sim.worldEvent?.kind==='cache'&&!sim.worldEvent.triggered)candidates.push({...sim.worldEvent,kind:'event',id:String(sim.worldEvent.id),w:1.2,d:1.2,h:1.1});
- candidates.push({kind:'base',id:'base',x:1,z:2,w:1.5,d:2.2,h:.9});
- const solids=sim.solidDefenses.map(v=>({...v,h:'kind' in v?v.kind==='window'?2.4:2.8:v.h??1.4}));
- let selected:Focus|null=null;
- for(const box of candidates){
-  if(Math.hypot(box.x-p.x,box.z-p.z)>FPS.interactionRange+Math.max(box.w,box.d)/2)continue;
+ let selected:Focus|null=null,solids:ReturnType<typeof collisionVolumes>|undefined;
+ const collisionVolumes=()=>sim.solidDefenses.map(v=>({...v,h:'kind' in v?v.kind==='window'?2.4:2.8:v.h??1.4}));
+ // Most of Santa Luz is outside interaction range. Test distance before creating
+ // candidate boxes, and assemble occluders only when the gaze actually hits one.
+ const consider=(v:{x:number;z:number;bottom?:number},kind:Focus['kind'],id:string,w:number,d:number,h:number)=>{
+  if(Math.hypot(v.x-p.x,v.z-p.z)>FPS.interactionRange+Math.max(w,d)/2)return;
+  const box={x:v.x,z:v.z,bottom:v.bottom,w,d,h};
   const distance=rayBox(origin,dir,box,FPS.interactionRange);
-  if(!Number.isFinite(distance)||distance>(selected?.distance??FPS.interactionRange))continue;
-  if(rayWorld(origin,dir,distance,solids.filter(v=>v.id!==box.id))<distance-.08)continue;
-  selected={kind:box.kind,id:box.id,x:box.x,z:box.z,y:box.h/2,distance};
- }
+  if(!Number.isFinite(distance)||distance>(selected?.distance??FPS.interactionRange))return;
+  solids??=collisionVolumes();
+  if(rayWorld(origin,dir,distance,solids.filter(v=>v.id!==id))<distance-.08)return;
+  selected={kind,id,x:v.x,z:v.z,y:h/2,distance};
+ };
+ // Preserve priority and equal-distance tie order from the original candidate list.
+ for(const v of sim.portals)consider(v,'portal',v.id,v.w,v.d,2.8);
+ for(const v of sim.loot)if(!v.searched||itemKeys.some(k=>v.contents[k]))consider(v,'loot',v.id,1.15,1,1.15);
+ for(const v of sim.barricades)if(v.hp>0)consider(v,'defense',v.id,v.w,v.d,1.5);
+ for(const v of sim.groundWeapons)consider(v,'weapon',String(v.item.uid),1.5,.9,.55);
+ for(const v of sim.facilities)if(v.state==='ready')consider(v,'facility',v.id,1.5,1.3,1.7);
+ if(sim.alarmTimer>0&&sim.alarmPosition)consider(sim.alarmPosition,'alarm','alarm',1.9,3.7,1.8);
+ if(sim.worldEvent?.kind==='cache'&&!sim.worldEvent.triggered)consider(sim.worldEvent,'event',String(sim.worldEvent.id),1.2,1.2,1.1);
+ consider({x:1,z:2},'base','base',1.5,2.2,.9);
  return selected;
 }

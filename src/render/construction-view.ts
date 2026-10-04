@@ -3,7 +3,7 @@ import type {Simulation} from '../game/simulation.ts';
 import {
  BUILD_GROUND,BUILD_PLOT,LEVEL_HEIGHT,MODULE_SIZE,structurePlacement,
 } from '../game/construction.ts';
-import type {StructureKind} from '../game/construction.ts';
+import type {StructureKind,StructurePlacement} from '../game/construction.ts';
 import {voxelGeometry,voxelMaterial} from './voxel.ts';
 import type {VoxelGrid,VoxelRecipe} from './voxel.ts';
 
@@ -154,7 +154,7 @@ export class ConstructionView {
  private anchors:THREE.InstancedMesh;
  private scene:THREE.Scene;
  private prepared=false;
- private signature='';private animating=false;
+ private snapshot:number[]=[];private snapshotKinds:StructureKind[]=[];private animating=false;
  constructor(scene:THREE.Scene){
   this.scene=scene;
   this.ghost.visible=this.ghostDoor.visible=false;this.ghost.name='construction-preview';this.ghostDoor.name='construction-door-preview';scene.add(this.ghost,this.ghostDoor);
@@ -184,22 +184,34 @@ export class ConstructionView {
   let batch=this.batches.get(key);
   if(!batch){
    const mesh=new THREE.InstancedMesh(voxelGeometry(structureRecipe(kind,tier,leaf)),voxelMaterial,CAPACITY);
-   mesh.name=`construction-${key}`;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.castShadow=true;mesh.receiveShadow=true;mesh.frustumCulled=false;mesh.count=0;this.scene.add(mesh);
+   mesh.name=`construction-${key}`;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.castShadow=true;mesh.receiveShadow=true;mesh.count=0;this.scene.add(mesh);
    batch={mesh,used:0};this.batches.set(key,batch);
   }
   return batch;
  }
  private add(kind:StructureKind,tier:number,matrix:THREE.Matrix4,leaf=false){const b=this.batch(kind,tier,leaf);if(b.used<CAPACITY)b.mesh.setMatrixAt(b.used++,matrix);}
+ private track(index:number,value:number):boolean {const changed=this.snapshot[index]!==value;this.snapshot[index]=value;return changed;}
  metrics(){let batches=0,instances=0;for(const b of this.batches.values())if(b.used){batches++;instances+=b.used;}return {batches,instances,capacity:CAPACITY};}
- update(s:Simulation,preview:BuildPreview|undefined,dt:number){
-  const signature=s.crafting.structures.map(p=>`${p.id}:${p.kind}:${p.tier}:${p.hp>0}:${p.x}:${p.z}:${p.level}:${p.rotation}:${p.open}:${Math.hypot(p.x-s.player.x,p.z-s.player.z)<=105}`).join('|');
-  if(signature!==this.signature||this.animating){
-  this.signature=signature;this.animating=false;
+ update(s:Simulation,preview:BuildPreview|undefined,dt:number,resolved?:StructurePlacement){
+  // Compare presentation values, not object identity: host checkpoints can replace
+  // the array while damage mutates a piece in place. No per-frame strings/arrays.
+  let changed=this.snapshotKinds.length!==s.crafting.structures.length,index=0;
+  for(let i=0;i<s.crafting.structures.length;i++){
+   const p=s.crafting.structures[i],near=(p.x-s.player.x)**2+(p.z-s.player.z)**2<=105*105;
+   if(this.snapshotKinds[i]!==p.kind){this.snapshotKinds[i]=p.kind;changed=true;}
+   changed=this.track(index++,p.id)||changed;changed=this.track(index++,p.tier)||changed;
+   changed=this.track(index++,Number(p.hp>0))||changed;changed=this.track(index++,p.x)||changed;changed=this.track(index++,p.z)||changed;
+   changed=this.track(index++,p.level)||changed;changed=this.track(index++,p.rotation)||changed;
+   changed=this.track(index++,Number(p.open))||changed;changed=this.track(index++,Number(near))||changed;
+  }
+  this.snapshot.length=index;this.snapshotKinds.length=s.crafting.structures.length;
+  if(changed||this.animating){
+  this.animating=false;
   for(const b of this.batches.values())b.used=0;
   const live=new Set<number>();
   for(const piece of s.crafting.structures){
    if(piece.hp<=0)continue;live.add(piece.id);
-   if(Math.hypot(piece.x-s.player.x,piece.z-s.player.z)>105)continue;
+   if((piece.x-s.player.x)**2+(piece.z-s.player.z)**2>105*105)continue;
    this.pose.position.set(piece.x,BUILD_GROUND+piece.level*LEVEL_HEIGHT,piece.z);this.pose.rotation.set(0,piece.rotation*Math.PI/2,0);this.pose.updateMatrix();this.bodyMatrix.copy(this.pose.matrix);
    this.add(piece.kind,piece.tier,this.bodyMatrix);
    if(piece.kind==='door'){
@@ -212,13 +224,13 @@ export class ConstructionView {
   for(const id of this.angles.keys())if(!live.has(id))this.angles.delete(id);
   for(const b of this.batches.values()){
    b.mesh.count=b.used;b.mesh.visible=b.used>0;
-   if(b.used){b.mesh.instanceMatrix.clearUpdateRanges();b.mesh.instanceMatrix.addUpdateRange(0,b.used*16);b.mesh.instanceMatrix.needsUpdate=true;}
+   if(b.used){b.mesh.computeBoundingSphere();b.mesh.instanceMatrix.clearUpdateRanges();b.mesh.instanceMatrix.addUpdateRange(0,b.used*16);b.mesh.instanceMatrix.needsUpdate=true;}
   }
   }
   this.ghost.visible=!!preview&&!s.gameOver;this.ghostDoor.visible=this.ghost.visible&&preview?.kind==='door';
   this.grid.visible=this.border.visible=this.anchors.visible=this.ghost.visible;
   if(!preview||!this.ghost.visible)return;
-  const p=structurePlacement(s,preview.kind,preview.rotation,preview.level);
+  const p=resolved??structurePlacement(s,preview.kind,preview.rotation,preview.level);
   this.ghost.geometry=voxelGeometry(structureRecipe(preview.kind));this.ghost.position.set(p.x,BUILD_GROUND+p.level*LEVEL_HEIGHT,p.z);this.ghost.rotation.y=p.rotation*Math.PI/2;
   this.ghostPaint.color.setHex(p.valid?0x9acdb0:0xdb7058);
   this.grid.position.y=preview.level*LEVEL_HEIGHT;this.anchors.position.y=preview.level*LEVEL_HEIGHT;

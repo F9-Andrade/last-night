@@ -4,7 +4,13 @@ import * as THREE from 'three';
  * Dynamic doors, characters and particles must stay outside these roots. */
 export class StaticChunk extends THREE.Group {
  private frozen=false;
- freeze(){super.updateMatrixWorld(true);this.traverse(o=>{o.matrixAutoUpdate=false;o.matrixWorldAutoUpdate=false;});this.frozen=true;}
+ freeze(){
+  // Batching moved their geometry into shared meshes. Empty staging groups have
+  // no renderable content, but WebGL's colour/AO/shadow walkers still visit them.
+  const prune=(parent:THREE.Object3D)=>{for(let i=parent.children.length-1;i>=0;i--){const child=parent.children[i];prune(child);if(child instanceof THREE.Group&&child.children.length===0)parent.remove(child);}};
+  prune(this);super.updateMatrixWorld(true);
+  this.traverse(o=>{o.matrixAutoUpdate=false;o.matrixWorldAutoUpdate=false;});this.frozen=true;
+ }
  override updateMatrixWorld(force?:boolean){if(!this.frozen)super.updateMatrixWorld(force);}
 }
 /** Mutable scene branches need no GPU transforms while invisible. Recompute the

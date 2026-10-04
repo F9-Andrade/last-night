@@ -1,3 +1,4 @@
+import {StaticChunk} from './static-chunk';
 import {spatialBatch} from './spatial-batch';
 import { TREE_POSITIONS } from '../game/world';
 import { hasInterior, ROOM_PROPS } from '../game/interiors';
@@ -18,7 +19,7 @@ let seed = 85;
 function random(): number { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; }
 
 function building(parent: THREE.Object3D, b: Building): THREE.Group {
-  const g = new THREE.Group(); g.name = `building:${b.kind}:${b.x}:${b.z}`; g.position.set(b.x, 0, b.z); parent.add(g);
+  const g = new StaticChunk(); g.name = `building:${b.kind}:${b.x}:${b.z}`; g.position.set(b.x, 0, b.z); parent.add(g);
   const { w, d, h } = b;
   box(g, 0, hasInterior(b)?.02:.15, 0, w + .6, hasInterior(b)?.08:.3, d + .6, 0x6b766e, 'paving');
   for (const recipe of buildingRecipes(b)) { const kind = recipe.id.includes(':shell:') ? 'plaster' : recipe.id.endsWith(':roof') ? 'roof' : 'voxel'; g.add(voxelMesh(recipe, surfaceBatchMaterial(kind))); }
@@ -41,16 +42,16 @@ function building(parent: THREE.Object3D, b: Building): THREE.Group {
   // FPS keeps walls and roofs opaque, so immutable surface paint can be shared citywide.
   if(roof){(roof as THREE.Mesh).material=surfaceBatchMaterial('roof');g.add(roof);g.userData.interiorRoof=roof;}
   if(hasInterior(b)){
-    const room=new THREE.Group();room.name='furnished-interior';room.position.copy(g.position);parent.add(room);
+    const room=new StaticChunk();room.name='furnished-interior';room.position.copy(g.position);parent.add(room);
     box(room,0,.06,0,w-.6,.08,d-.6,b.kind==='hospital'?0xabb4a0:0x8a9782,'paving');
     for(const p of ROOM_PROPS[b.kind]??[]){
       if(p.kind==='bed'){box(room,p.x,.65,p.z,p.w,.24,p.d,0x6b8275);box(room,p.x,.83,p.z,p.w-.15,.18,p.d-.2,0xc1c5a8);box(room,p.x,.96,p.z-1,.9,.1,.5,0xe0d6b6);for(const x of [-.55,.55])for(const z of [-1.2,1.2])box(room,p.x+x,.4,p.z+z,.1,.5,.1,0x5f776b);}
       else if(p.kind==='shelf'){for(const y of [.3,.85,1.4]){box(room,p.x,y,p.z,p.w,.1,p.d,0x6a7b61);for(let i=0;i<4;i++)box(room,p.x,y+.17,p.z-p.d*.35+i*p.d*.23,p.w*.7,.23,.35,i%2?0xb0996a:0x8b9371);}for(const z of [-p.d/2,p.d/2])box(room,p.x,1,p.z+z,p.w,1.8,.1,0x526954);}
       else{box(room,p.x,.95,p.z,p.w,.14,p.d,0xa29972);box(room,p.x,.5,p.z,p.w-.3,.8,p.d-.3,0x637763);box(room,p.x-.4,1.08,p.z,.5,.12,.3,0xd4c6a2);}
     }
-    batch(room);g.userData.interiorRoom=room;
+    batch(room);room.freeze();g.userData.interiorRoom=room;
   }
-  return g;
+  g.freeze();return g;
 }
 
 export function createTown(scene: THREE.Scene): Town {

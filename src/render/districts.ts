@@ -1,3 +1,4 @@
+import {StaticChunk} from './static-chunk';
 import * as THREE from 'three';
 import {CITY_LIMIT} from '../game/city';
 import { box, batch, textSign } from './models';
@@ -8,7 +9,7 @@ import { WAREHOUSES, REGIONS, OUTER_TREE_OFFSET, OUTER_HOUSES } from '../game/di
 export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Group[] {
   const chunks:THREE.Group[]=[];
   for(const region of REGIONS.slice(2,12)) {
-    const g=new THREE.Group();g.position.set(region.x,0,region.z);g.name=region.name;scene.add(g);chunks.push(g);
+    const g=new StaticChunk();g.position.set(region.x,0,region.z);g.name=region.name;scene.add(g);chunks.push(g);
     const prop=(kind:Parameters<typeof propRecipe>[0],x:number,z:number,angle=0)=>{const m=voxelMesh(propRecipe(kind));m.position.set(x,.15,z);m.rotation.y=angle;g.add(m);};
     for(let i=0;i<6;i++){prop(i%3===0?'rubble':i%3===1?'bag':'pallet',-7+i*2,8+Math.sin(i*2)*2,i*.8);}
     if(region.icon==='I'||region.icon==='S') {
@@ -55,7 +56,7 @@ export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Gr
     batchDistrict(g);
   }
   for(const w of WAREHOUSES){
-    const g=new THREE.Group();g.position.set(w.x,0,w.z);scene.add(g);chunks.push(g);
+    const g=new StaticChunk();g.position.set(w.x,0,w.z);scene.add(g);chunks.push(g);
     const m=voxelMesh({id:`warehouse:${w.w}:${w.d}:${w.h}`,unit:.2,build(v){
       voxelBox(v,0,w.h/2,0,w.w,w.h,w.d,0x718984);voxelBox(v,0,.3,0,w.w+.6,.6,w.d+.6,0x7c8172);
       for(let x=-w.w/2;x<w.w/2;x+=.6){voxelBox(v,x,w.h/2,w.d/2+.1,.15,w.h,.15,0x8c9b8a);voxelBox(v,x,w.h+.1,0,.14,.2,w.d+.5,0xa2a890);}
@@ -68,19 +69,19 @@ export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Gr
     textSign(g,'SANTA LUZ / CARGAS',0,w.h-.8,w.d/2+.4,8,.8,'#536b63');batchDistrict(g);
   }
   for(const [x,z] of OUTER_HOUSES){
-    const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);chunks.push(g);
+    const g=new StaticChunk();g.position.set(x,0,z);scene.add(g);chunks.push(g);
     box(g,0,.02,1,13,.12,12,0x999e87,'paving');box(g,0,.1,1,11.7,.06,10.7,0x75876b,'earth');box(g,0,.14,5.5,2,.05,3,0xa5a38a,'paving');
     for(let i=0;i<8;i++) {box(g,-6+i*1.6,.6,-6,.12,1.2,.12,0x8a8e72);box(g,-6+i*1.6,.75,-6,1.5,.12,.12,0x9a9b7d);}
     for(const kind of ['pallet','bin'] as const){const m=voxelMesh(propRecipe(kind));m.position.set(kind==='bin'?6:-6,.15,3);g.add(m);}
     const tree=voxelMesh(treeRecipe(0));tree.position.set(OUTER_TREE_OFFSET.x,0,OUTER_TREE_OFFSET.z);g.add(tree);batchDistrict(g);
   }
-  const edge=new THREE.Group();scene.add(edge);
+  const edge=new StaticChunk();scene.add(edge);
   for(let i=0;i<40;i++){const tree=voxelMesh(treeRecipe(i%3));const side=i%4,offset=-CITY_LIMIT+Math.floor(i/4)*(CITY_LIMIT*2/9);tree.position.set(side<2?(side===0?-CITY_LIMIT-6:CITY_LIMIT+6):offset,0,side>=2?(side===2?-CITY_LIMIT-6:CITY_LIMIT+6):offset);tree.castShadow=false;edge.add(tree);}
-  return chunks;
+  edge.freeze();return chunks;
 }
 
-function batchDistrict(g:THREE.Group):void {
+function batchDistrict(g:StaticChunk):void {
   // Repeated detailed trees retain shared geometry, instead of being copied into every chunk.
   const trees=g.children.filter(o=>String(o.userData.voxelAsset??'').includes('tree'));
-  trees.forEach(o=>o.removeFromParent());batch(g);trees.forEach(o=>g.add(o));
+  trees.forEach(o=>o.removeFromParent());batch(g);trees.forEach(o=>g.add(o));g.freeze();
 }

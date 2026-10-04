@@ -1,0 +1,90 @@
+{
+  "node": "v26.8.2",
+  "steps": 420,
+  "warmupSteps": 60,
+  "dt": 0.016666666666666666,
+  "results": [
+    {
+      "mode": "solo",
+      "count": 0,
+      "pieces": 0,
+      "players": 1,
+      "actualInfected": 0,
+      "avgMs": 0.1382511583333324,
+      "p50": 0.12489999999999668,
+      "p95": 0.27766399999998725,
+      "hash": "b90e8912f21c881a9cbe797631feb43a760c2fc0b033de2b013e6bba005eeb1c"
+    },
+    {
+      "mode": "solo",
+      "count": 40,
+      "pieces": 0,
+      "players": 1,
+      "actualInfected": 40,
+      "avgMs": 7.863539697222213,
+      "p50": 7.553367999999864,
+      "p95": 8.505961999999727,
+      "hash": "e4ff0828158533a38e3e8b39da185853e02198449fc73fc12b26ba38d5e80c9c"
+    },
+    {
+      "mode": "solo",
+      "count": 40,
+      "pieces": 72,
+      "players": 1,
+      "actualInfected": 40,
+      "avgMs": 18.6916063805556,
+      "p50": 18.34711200000129,
+      "p95": 20.19624400000066,
+      "hash": "be6ca4515b47dfdcfff40fdc1259514dbd57890b44f0760f0a9a04773c923127"
+    },
+    {
+      "mode": "solo",
+      "count": 80,
+      "pieces": 192,
+      "players": 1,
+      "actualInfected": 80,
+      "avgMs": 50.66323529999995,
+      "p50": 49.65991199999917,
+      "p95": 52.60948500000086,
+      "hash": "c71f5004cece1bfc843e087a4a2d67e714e75cbd6f404e4cf613da90590fb5de"
+    },
+    {
+      "mode": "coop",
+      "count": 40,
+      "pieces": 72,
+      "players": 2,
+      "actualInfected": 40,
+      "avgMs": 19.037670366666518,
+      "p50": 18.598902999998245,
+      "p95": 20.51310000000376,
+      "hash": "f7287175fa58b91be1ec59d0c2476fc4a3d49748b9884ddc59db1731c73a3b77"
+    },
+    {
+      "mode": "coop",
+      "count": 40,
+      "pieces": 72,
+      "players": 4,
+      "actualInfected": 40,
+      "avgMs": 19.16162918333347,
+      "p50": 18.7321030000021,
+      "p95": 21.040258000000904,
+      "hash": "3069199713588a4068e66398770140745d02b60ed0308ce61f837524bff24b16"
+    },
+    {
+      "mode": "coop",
+      "count": 80,
+      "pieces": 192,
+      "players": 4,
+      "actualInfected": 80,
+      "avgMs": 52.08183354166682,
+      "p50": 50.75935599999502,
+      "p95": 55.485272999998415,
+      "hash": "0f8ad0aa30c9a0ef1bef32e7f3b675ec0373cc5c9207f248a20c6c779414729c"
+    },
+    {
+      "mode": "10000-interaction-rays",
+      "ms": 1836.121239,
+      "aggregate": 60000
+    }
+  ]
+}

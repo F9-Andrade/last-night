@@ -8,6 +8,7 @@ import {icon} from './icons';
 import './construction.css';
 
 export const BUILD_SLOTS:readonly StructureKind[]=['wall','window','door','floor','roof','stairs','spikes','snare','wire'];
+const constructionItems=itemKeys.filter(k=>BUILD_SLOTS.some(kind=>STRUCTURE_DEFS[kind].cost[k])||structureFortifyCost({tier:0})[k]||structureFortifyCost({tier:1})[k]||structureRepairCost({tier:0})[k]||structureRepairCost({tier:1})[k]||structureRepairCost({tier:2})[k]);
 const slotLabels=['Parede','Janela','Porta','Piso','Teto','Escada','Estacas','Laço','Arame'];
 export const floorLabel=(level:number)=>level===0?'Térreo':`${level}º andar`;
 export type StructureOperation='fortify'|'repair'|'toggle'|'dismantle';
@@ -19,7 +20,10 @@ export class ConstructionHUD {
  onSelect=(_kind:StructureKind)=>{};onHolster=()=>{};
  id:number|undefined;onClose=()=>{};onAction=(_p:Structure,_operation:StructureOperation)=>{};
  private screen:HTMLElement;private panel:HTMLElement;private selection?:Structure;private key='';
- private preview:HTMLElement;private previewKey='';private toolbar:HTMLElement;private toolbarKey='';
+ private preview:HTMLElement;private previewKey='';private previewKind?:StructureKind;private toolbar:HTMLElement;private toolbarKey='';
+ private nodes=new Map<string,HTMLElement>();private htmlCache=new Map<string,string>();
+ private slots:{kind:StructureKind;button:HTMLButtonElement;count:HTMLElement;ingredients:Item[]}[]=[];
+ private tiers:HTMLElement[]=[];
  constructor(private root:HTMLElement){
   root.insertAdjacentHTML('beforeend',`<section id="construction-screen" hidden role="dialog" aria-labelledby="construction-title"><div class="construction-window">
    <header><div><span class="eyebrow">Abrigo / Estrutura instalada</span><h2 id="construction-title"></h2></div><button id="construction-close" aria-label="Fechar estrutura">${icon('close')}<kbd>Esc</kbd></button></header>
@@ -32,36 +36,38 @@ export class ConstructionHUD {
   </div></section><aside id="build-preview-hud" hidden aria-live="polite"><header><span class="eyebrow">Projeto de abrigo</span><span id="build-level"></span></header><div class="build-preview-title"><div id="build-art"></div><div><h3 id="build-name"></h3><p id="build-dimensions"></p></div></div><div id="build-cost"></div><p id="build-status"></p><footer><span><kbd>R</kbd> Girar</span><span><kbd>PgUp/Dn</kbd> Andar</span><span><kbd>Esc</kbd> Sair</span></footer></aside><nav id="build-hotbar" hidden aria-label="Peças de construção"><header><span>${icon('hammer')} Martelo de construção</span><small><kbd>1–9</kbd> / roda · Selecionar</small><button id="hammer-holster" aria-label="Guardar martelo"><kbd>B</kbd> Guardar</button></header><div class="build-slots">${BUILD_SLOTS.map((kind,i)=>`<button data-build-kind="${kind}" aria-label="${i+1}: ${STRUCTURE_DEFS[kind].name}" aria-pressed="false"><kbd>${i+1}</kbd><span class="build-slot-art">${art(kind)}</span><b>${slotLabels[i]}</b><small class="build-slot-count" aria-label="Quantidade disponível">0</small></button>`).join('')}</div></nav>`);
   this.screen=this.el('construction-screen');this.panel=this.screen.querySelector('.construction-window')!;this.preview=this.el('build-preview-hud');this.toolbar=this.el('build-hotbar');
   this.el('hammer-holster').onclick=()=>this.onHolster();
-  for(const node of this.toolbar.querySelectorAll<HTMLButtonElement>('[data-build-kind]'))node.onclick=()=>this.onSelect(node.dataset.buildKind as StructureKind);
+  for(const button of this.toolbar.querySelectorAll<HTMLButtonElement>('[data-build-kind]')){const kind=button.dataset.buildKind as StructureKind,ingredients=itemKeys.filter(k=>STRUCTURE_DEFS[kind].cost[k]);button.onclick=()=>this.onSelect(kind);button.title=`${STRUCTURE_DEFS[kind].name} · ${ingredients.map(k=>`${STRUCTURE_DEFS[kind].cost[k]} ${ITEMS[k].label.toLowerCase()}`).join(' + ')}`;this.slots.push({kind,button,count:button.querySelector('.build-slot-count')!,ingredients});}
+  this.tiers=Array.from(this.panel.querySelectorAll<HTMLElement>('[data-tier]'));
   this.el('construction-close').onclick=()=>this.onClose();
   for(const operation of ['fortify','repair','toggle','dismantle'] as const)this.el(`construction-${operation}`).onclick=()=>{if(this.selection)this.onAction(this.selection,operation);};
   this.screen.addEventListener('keydown',e=>{if(e.key==='Escape'||e.key==='Tab'||e.code==='KeyE'){e.preventDefault();e.stopPropagation();this.onClose();}else e.stopPropagation();});
  }
- private el(id:string){return this.root.querySelector<HTMLElement>(`#${id}`)!;}
+ private el(id:string){let node=this.nodes.get(id);if(!node){node=this.root.querySelector<HTMLElement>(`#${id}`)!;this.nodes.set(id,node);}return node;}
+ private html(id:string,value:string){if(this.htmlCache.get(id)===value)return;this.el(id).innerHTML=value;this.htmlCache.set(id,value);}
  private text(id:string,text:string){const el=this.el(id);if(el.textContent!==text)el.textContent=text;}
  get open(){return this.id!==undefined;}
  show(p:Structure){this.id=p.id;this.selection=p;this.key='';this.screen.hidden=false;this.root.classList.add('construction-open');this.el('construction-close').focus({preventScroll:true});}
  close(){this.id=undefined;this.selection=undefined;this.screen.hidden=true;this.root.classList.remove('construction-open');if(this.panel.contains(document.activeElement))(document.activeElement as HTMLElement).blur();}
  private costs(s:Simulation,cost:Partial<Record<Item,number>>){return itemKeys.filter(k=>cost[k]).map(k=>`<span class="${s.inventory.items[k]<(cost[k]??0)?'missing':''}">${ITEMS[k].label}<b>${s.inventory.items[k]} <small>/ ${cost[k]}</small></b></span>`).join('');}
- update(s:Simulation,p?:StructurePlacement,hidden=false){
-  this.preview.hidden=!p||hidden;this.toolbar.hidden=!p||hidden;this.root.classList.toggle('building-active',!!p&&!hidden);
+ update(s:Simulation,p?:StructurePlacement,hidden=false,focused?:Structure|null){
+  const hide=!p||hidden;if(this.preview.hidden!==hide)this.preview.hidden=hide;if(this.toolbar.hidden!==hide)this.toolbar.hidden=hide;this.root.classList.toggle('building-active',!!p&&!hidden);
+  const stockKey=(p&&!hidden||this.id!==undefined)?constructionItems.map(k=>s.inventory.items[k]).join(','):'';
   if(p&&!hidden){
-   const toolbarKey=JSON.stringify([p.kind,s.inventory.items]);
-   if(toolbarKey!==this.toolbarKey){this.toolbarKey=toolbarKey;for(const node of this.toolbar.querySelectorAll<HTMLButtonElement>('[data-build-kind]')){
-    const kind=node.dataset.buildKind as StructureKind,cost=STRUCTURE_DEFS[kind].cost;
-    const count=Math.min(...itemKeys.filter(k=>cost[k]).map(k=>Math.floor(s.inventory.items[k]/cost[k]!)));
-    node.setAttribute('aria-pressed',String(kind===p.kind));node.classList.toggle('unaffordable',count===0);
-    node.querySelector('.build-slot-count')!.textContent=String(count);node.title=`${STRUCTURE_DEFS[kind].name} · ${itemKeys.filter(k=>cost[k]).map(k=>`${cost[k]} ${ITEMS[k].label.toLowerCase()}`).join(' + ')}`;
+   const toolbarKey=`${p.kind}:${stockKey}`;
+   if(toolbarKey!==this.toolbarKey){this.toolbarKey=toolbarKey;for(const {kind,button,count,ingredients} of this.slots){
+    let available=Infinity;for(const k of ingredients)available=Math.min(available,Math.floor(s.inventory.items[k]/STRUCTURE_DEFS[kind].cost[k]!));
+    const selected=String(kind===p.kind);if(button.getAttribute('aria-pressed')!==selected)button.setAttribute('aria-pressed',selected);button.classList.toggle('unaffordable',available===0);
+    const value=String(available);if(count.textContent!==value)count.textContent=value;
    }}
   }
-  if(p&&!hidden){const key=JSON.stringify([p.kind,p.level,p.valid,p.reason,s.inventory.items]);if(key!==this.previewKey){this.previewKey=key;const def=STRUCTURE_DEFS[p.kind];this.el('build-art').innerHTML=art(p.kind);this.text('build-name',def.name);this.text('build-level',floorLabel(p.level));this.text('build-dimensions',['wall','window','door'].includes(p.kind)?'3 m de largura · 3 m de altura':p.kind==='stairs'?'3 × 3 m · sobe um andar':'Módulo de 3 × 3 m');this.el('build-cost').innerHTML=this.costs(s,def.cost);this.text('build-status',p.valid?'Encaixe livre · clique para construir':p.reason);this.preview.classList.toggle('invalid',!p.valid);}}
+  if(p&&!hidden){const key=`${p.kind}:${p.level}:${p.valid}:${p.reason}:${stockKey}`;if(key!==this.previewKey){this.previewKey=key;const def=STRUCTURE_DEFS[p.kind];if(this.previewKind!==p.kind){this.previewKind=p.kind;this.el('build-art').innerHTML=art(p.kind);}this.text('build-name',def.name);this.text('build-level',floorLabel(p.level));this.text('build-dimensions',['wall','window','door'].includes(p.kind)?'3 m de largura · 3 m de altura':p.kind==='stairs'?'3 × 3 m · sobe um andar':'Módulo de 3 × 3 m');this.html('build-cost',this.costs(s,def.cost));this.text('build-status',p.valid?'Encaixe livre · clique para construir':p.reason);this.preview.classList.toggle('invalid',!p.valid);}}
   if(this.id===undefined)return;
-  const selected=s.crafting.structures.find(v=>v.id===this.id);if(!selected||s.gameOver||s.player.hp<=0||focusedStructure(s)?.id!==selected.id){this.onClose();return;}
-  this.selection=selected;const key=JSON.stringify([selected,s.inventory.items,!!s.action,!!s.reloadTimer]);if(key===this.key)return;this.key=key;
+  const selected=s.crafting.structures.find(v=>v.id===this.id);if(!selected||s.gameOver||s.player.hp<=0||(focused===undefined?focusedStructure(s):focused)?.id!==selected.id){this.onClose();return;}
+  this.selection=selected;const key=`${selected.id}:${selected.kind}:${selected.level}:${selected.rotation}:${selected.hp}:${selected.tier}:${selected.open}:${selected.revision}:${stockKey}:${!!s.action}:${!!s.reloadTimer}`;if(key===this.key)return;this.key=key;
   const maximum=structureMaxHP(selected),cost=structureFortifyCost(selected),repair=structureRepairCost(selected);
-  this.text('construction-title',STRUCTURE_DEFS[selected.kind].name);this.el('construction-art').innerHTML=art(selected.kind);this.text('construction-level',floorLabel(selected.level));this.text('construction-tier',tierLabels[selected.tier]);this.text('construction-hp',`${Math.ceil(selected.hp)} / ${maximum} resistência`);this.el('construction-health').style.width=`${Math.max(0,selected.hp/maximum*100)}%`;
-  for(const node of this.panel.querySelectorAll<HTMLElement>('[data-tier]'))node.classList.toggle('active',Number(node.dataset.tier)<=selected.tier);
-  this.text('construction-next',selected.tier<2?tierLabels[selected.tier+1]:'Fortificação máxima');this.el('construction-materials').innerHTML=selected.tier<2?this.costs(s,cost):'';
+  this.text('construction-title',STRUCTURE_DEFS[selected.kind].name);this.html('construction-art',art(selected.kind));this.text('construction-level',floorLabel(selected.level));this.text('construction-tier',tierLabels[selected.tier]);this.text('construction-hp',`${Math.ceil(selected.hp)} / ${maximum} resistência`);this.el('construction-health').style.width=`${Math.max(0,selected.hp/maximum*100)}%`;
+  for(const node of this.tiers)node.classList.toggle('active',Number(node.dataset.tier)<=selected.tier);
+  this.text('construction-next',selected.tier<2?tierLabels[selected.tier+1]:'Fortificação máxima');this.html('construction-materials',selected.tier<2?this.costs(s,cost):'');
   this.text('construction-repair-cost',itemKeys.filter(k=>repair[k]).map(k=>`${repair[k]} ${ITEMS[k].label.toLowerCase()}`).join(' · '));
   for(const operation of ['fortify','repair','toggle','dismantle'] as const){const reason=structureActionReason(s,selected,operation);const button=this.el(`construction-${operation}`) as HTMLButtonElement;button.disabled=!!reason;button.title=reason;if(operation==='fortify')this.text('construction-fortify-note',reason||'Reforça a peça com os materiais da sua mochila.');if(operation==='repair')this.text('construction-repair-note',reason);if(operation==='dismantle')this.text('construction-remove-note',reason);}
   this.el('construction-toggle').hidden=selected.kind!=='door';this.text('construction-toggle',selected.open?'Fechar porta':'Abrir porta');

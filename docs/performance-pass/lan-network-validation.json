@@ -1,0 +1,19 @@
+{
+  "mode": "lan",
+  "players": 2,
+  "elapsedSeconds": 27.854,
+  "errors": [],
+  "hammerCraftedAtWorkbench": true,
+  "hammerHotbar": true,
+  "remoteHammerEquipped": true,
+  "hammerSurvivesMigration": true,
+  "building": true,
+  "remoteFortification": true,
+  "openWithE": true,
+  "relocateFullChest": true,
+  "hostMigration": true,
+  "websocketHosts": [
+    "127.0.0.1:5174",
+    "0.peerjs.com"
+  ]
+}

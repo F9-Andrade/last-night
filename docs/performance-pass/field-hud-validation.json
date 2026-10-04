@@ -1,0 +1,245 @@
+{
+  "renderer": "ANGLE (AMD, AMD Radeon RX 6650 XT (radeonsi navi23 ACO), OpenGL ES 3.2)",
+  "errors": [],
+  "checkpoints": [
+    {
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "clock": {
+        "background": "rgba(0, 0, 0, 0)",
+        "image": "none",
+        "shadow": "none",
+        "border": "0px",
+        "x": 28,
+        "y": 66,
+        "width": 224,
+        "height": 84,
+        "viewport": 1366
+      },
+      "minimap": {
+        "x": 1110,
+        "y": 76,
+        "width": 228,
+        "height": 278
+      },
+      "health": {
+        "x": 28,
+        "y": 564.3125,
+        "width": 292,
+        "height": 179.6875
+      },
+      "sheet": {
+        "x": 179,
+        "y": 24,
+        "width": 1008,
+        "height": 720
+      },
+      "small": {
+        "width": 480,
+        "height": 480,
+        "displayWidth": 208,
+        "displayHeight": 208,
+        "pixelRatio": 1,
+        "colors": 377,
+        "hueBands": 7,
+        "chromatic": 0.4489236111111111,
+        "opaque": 1
+      },
+      "full": {
+        "width": 1200,
+        "height": 1200,
+        "displayWidth": 541.40625,
+        "displayHeight": 541.40625,
+        "pixelRatio": 1,
+        "colors": 459,
+        "hueBands": 7,
+        "chromatic": 0.7060472222222223,
+        "opaque": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "clock": {
+        "background": "rgba(0, 0, 0, 0)",
+        "image": "none",
+        "shadow": "none",
+        "border": "0px",
+        "x": 28,
+        "y": 66,
+        "width": 224,
+        "height": 84,
+        "viewport": 1600
+      },
+      "minimap": {
+        "x": 1322,
+        "y": 82,
+        "width": 250,
+        "height": 300
+      },
+      "health": {
+        "x": 28,
+        "y": 696.3125,
+        "width": 308,
+        "height": 179.6875
+      },
+      "sheet": {
+        "x": 230,
+        "y": 24,
+        "width": 1140,
+        "height": 852
+      },
+      "small": {
+        "width": 480,
+        "height": 480,
+        "displayWidth": 230,
+        "displayHeight": 230,
+        "pixelRatio": 1,
+        "colors": 377,
+        "hueBands": 7,
+        "chromatic": 0.4489236111111111,
+        "opaque": 1
+      },
+      "full": {
+        "width": 1200,
+        "height": 1200,
+        "displayWidth": 673.40625,
+        "displayHeight": 673.40625,
+        "pixelRatio": 1,
+        "colors": 459,
+        "hueBands": 7,
+        "chromatic": 0.7060472222222223,
+        "opaque": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "clock": {
+        "background": "rgba(0, 0, 0, 0)",
+        "image": "none",
+        "shadow": "none",
+        "border": "0px",
+        "x": 28,
+        "y": 66,
+        "width": 224,
+        "height": 84,
+        "viewport": 1920
+      },
+      "minimap": {
+        "x": 1642,
+        "y": 82,
+        "width": 250,
+        "height": 300
+      },
+      "health": {
+        "x": 28,
+        "y": 876.3125,
+        "width": 308,
+        "height": 179.6875
+      },
+      "sheet": {
+        "x": 390,
+        "y": 90,
+        "width": 1140,
+        "height": 900
+      },
+      "small": {
+        "width": 480,
+        "height": 480,
+        "displayWidth": 230,
+        "displayHeight": 230,
+        "pixelRatio": 1,
+        "colors": 377,
+        "hueBands": 7,
+        "chromatic": 0.4489236111111111,
+        "opaque": 1
+      },
+      "full": {
+        "width": 1200,
+        "height": 1200,
+        "displayWidth": 721.40625,
+        "displayHeight": 721.40625,
+        "pixelRatio": 1,
+        "colors": 459,
+        "hueBands": 7,
+        "chromatic": 0.7060472222222223,
+        "opaque": 1
+      }
+    },
+    {
+      "viewport": {
+        "width": 960,
+        "height": 640
+      },
+      "clock": {
+        "background": "rgba(0, 0, 0, 0)",
+        "image": "none",
+        "shadow": "none",
+        "border": "0px",
+        "x": 20,
+        "y": 56,
+        "width": 210,
+        "height": 80,
+        "viewport": 960
+      },
+      "minimap": {
+        "x": 744,
+        "y": 65,
+        "width": 196,
+        "height": 246
+      },
+      "health": {
+        "x": 20,
+        "y": 455.90625,
+        "width": 260,
+        "height": 164.09375
+      },
+      "sheet": {
+        "x": 40,
+        "y": 24,
+        "width": 880,
+        "height": 592
+      },
+      "small": {
+        "width": 480,
+        "height": 480,
+        "displayWidth": 176,
+        "displayHeight": 176,
+        "pixelRatio": 1,
+        "colors": 419,
+        "hueBands": 7,
+        "chromatic": 0.4492361111111111,
+        "opaque": 1
+      },
+      "full": {
+        "width": 1200,
+        "height": 1200,
+        "displayWidth": 443.40625,
+        "displayHeight": 443.40625,
+        "pixelRatio": 1,
+        "colors": 497,
+        "hueBands": 7,
+        "chromatic": 0.7059722222222222,
+        "opaque": 1
+      }
+    }
+  ],
+  "checks": [
+    "solo health 73 HP, 73% green meter and accessible value",
+    "transparent clock in left margin",
+    "hidden cooperative HUD in solo",
+    "square colored high-resolution canvases",
+    "responsive 1366x768, 1600x900, 1920x1080, 960x640",
+    "960x640 at 120% UI scale",
+    "M/Escape close map and restore pointer lock",
+    "Tab toggles inventory and restores pointer lock",
+    "pause settings and resume"
+  ]
+}

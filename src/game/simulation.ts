@@ -653,6 +653,10 @@ export class Simulation {
   }
   private updateWalkers(dt: number, worldSolids: Barricade[]): void {
     this.updateTraps(dt);
+    // Avoid scanning every portal for every infected/collider. Keep live objects
+    // so a window broken earlier in this same tick is observed immediately.
+    const windowPortals = new Map<string, (typeof this.portals)[number]>();
+    for (const p of this.portals) if (p.kind === 'window') windowPortals.set(p.id,p);
     // Spatial bins avoid all-pairs separation as the horde grows.
     const bins = new Map<string, Walker[]>(); const cell = 2;
     for (const z of this.zombies) if (z.active) { const key = `${Math.floor(z.x / cell)},${Math.floor(z.z / cell)}`; const bucket = bins.get(key) ?? []; bucket.push(z); bins.set(key, bucket); }
@@ -665,7 +669,8 @@ export class Simulation {
       if(!player){z.path=[];continue;}
       const definition=ENEMIES[z.kind];
       if(distance(z,player)>CITY_PACING.sleep&&!z.siege)continue;
-      const solid=worldSolids.filter(b=>Math.abs(b.x-z.x)<=100+b.w/2&&Math.abs(b.z-z.z)<=100+b.d/2&&(b.bottom??0)<floorHeight(z)+1.9&&(b.bottom??0)+(b.h??3)>floorHeight(z)+.28&&(!b.trap||b.trap==='wire'));
+      const ground=floorHeight(z);
+      const solid=worldSolids.filter(b=>Math.abs(b.x-z.x)<=100+b.w/2&&Math.abs(b.z-z.z)<=100+b.d/2&&(b.bottom??0)<ground+1.9&&(b.bottom??0)+(b.h??3)>ground+.28&&(!b.trap||b.trap==='wire'));
       z.screamCooldown=Math.max(0,(z.screamCooldown??0)-dt);
       if(z.screamTimer){z.screamTimer=Math.max(0,z.screamTimer-dt);if(!z.screamTimer){this.noise(z,SCREAM.noise);z.screamCooldown=SCREAM.cooldown;this.events.push({type:'scream',position:{x:z.x,z:z.z},enemy:z.kind});}continue;}
       z.staggerCooldown=Math.max(0,(z.staggerCooldown??0)-dt);z.memory=Math.max(0,(z.memory??0)-dt);z.reaction=Math.max(0,z.reaction-dt); z.slow=Math.max(0,z.slow-dt); z.hearing=Math.max(0,z.hearing-dt);
@@ -679,7 +684,7 @@ export class Simulation {
       const pd=distance(z,player),vision={x:(player.x-z.x)/(pd||1),z:(player.z-z.z)/(pd||1)};
       // Glass allows sight, but closed doors and solid walls do not. Attacks still
       // use all barriers below, so seeing a target never permits hitting through it.
-      const sightBarriers=solid.filter(b=>!this.portals.some(p=>p.id===b.id&&p.kind==='window'&&p.state==='closed'));
+      const sightBarriers=solid.filter(b=>windowPortals.get(b.id)?.state!=='closed');
       const sees=pd<chaseRange&&wallDistance(z,vision,pd,sightBarriers)>=pd-.05;
       const chasing=sees;
       if(sees){z.lastSeen={x:player.x,z:player.z};z.memory=7;z.awareness='chase';}

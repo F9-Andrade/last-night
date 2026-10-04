@@ -61,3 +61,42 @@ test('door visual interpolates across frames instead of teleporting to its open 
  for(let i=0;i<100;i++)view.update(sim,undefined,1/60);
  mesh.getMatrixAt(0,matrix);assert.ok(Math.abs(matrix.elements[0])<.001);
 });
+
+
+test('construction reuses unchanged uploads and its frustum bounds follow edits and checkpoint replacement',()=>{
+ const scene=new THREE.Scene(),view=new ConstructionView(scene);
+ const wall:Structure={id:1,kind:'wall',x:0,z:0,level:0,rotation:0,hp:300,tier:0,open:false,revision:0};
+ const sim={crafting:{structures:[wall]},player:{x:0,z:0},gameOver:false} as unknown as Simulation;
+ view.update(sim,undefined,1/60);
+ const mesh=scene.getObjectByName('construction-wall:0:false') as THREE.InstancedMesh;
+ const version=mesh.instanceMatrix.version,center=mesh.boundingSphere!.center.clone();
+ assert.equal(mesh.frustumCulled,true);
+ for(let i=0;i<60;i++)view.update(sim,undefined,1/60);
+ assert.equal(mesh.instanceMatrix.version,version);
+ // A same-content coop snapshot and nonlethal HP loss do not change geometry.
+ sim.crafting.structures=[{...wall,hp:280}];view.update(sim,undefined,1/60);assert.equal(mesh.instanceMatrix.version,version);
+ sim.crafting.structures[0].x=6;view.update(sim,undefined,1/60);
+ assert.equal(mesh.instanceMatrix.version,version+1);assert.ok(Math.abs(mesh.boundingSphere!.center.x-center.x-6)<1e-6);
+ const camera=new THREE.PerspectiveCamera(60,1,.1,50);camera.position.set(6,1.5,-8);camera.lookAt(6,1.5,0);camera.updateMatrixWorld();
+ const frustum=new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));
+ mesh.updateMatrixWorld();assert.equal(frustum.intersectsObject(mesh),true);
+ camera.lookAt(6,1.5,-20);camera.updateMatrixWorld();frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse));assert.equal(frustum.intersectsObject(mesh),false);
+ sim.player.z=110;view.update(sim,undefined,1/60);assert.equal(mesh.visible,false);
+ sim.player.z=0;view.update(sim,undefined,1/60);assert.equal(mesh.visible,true);
+ sim.crafting.structures[0].kind='window';view.update(sim,undefined,1/60);assert.equal(mesh.visible,false);
+ assert.equal((scene.getObjectByName('construction-window:0:false') as THREE.InstancedMesh).count,1);
+});
+
+test('animated door bounds contain the entire leaf throughout opening and closing',()=>{
+ const scene=new THREE.Scene(),view=new ConstructionView(scene);
+ const door:Structure={id:1,kind:'door',x:0,z:0,level:1,rotation:1,hp:280,tier:0,open:false,revision:0};
+ const sim={crafting:{structures:[door]},player:{x:0,z:0},gameOver:false} as unknown as Simulation;
+ const matrix=new THREE.Matrix4(),sphere=new THREE.Sphere();
+ for(let frame=0;frame<120;frame++){
+  if(frame===1)door.open=true;if(frame===65)door.open=false;
+  view.update(sim,undefined,1/60);
+  const mesh=scene.getObjectByName('construction-door:0:true') as THREE.InstancedMesh;
+  mesh.getMatrixAt(0,matrix);sphere.copy(mesh.geometry.boundingSphere!).applyMatrix4(matrix);
+  assert.ok(mesh.boundingSphere!.center.distanceTo(sphere.center)+sphere.radius<=mesh.boundingSphere!.radius+1e-6);
+ }
+});

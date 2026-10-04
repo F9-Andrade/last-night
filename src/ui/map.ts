@@ -20,12 +20,25 @@ const locationLabel=(index:number)=>mapLabels[index]??titleCase(REGIONS[index].n
 export class FieldMap {
  visited=new Set<number>();
  private atlas=new CityMapAtlas();
+ private frames=new WeakMap<HTMLCanvasElement,string>();
  private paths=regionIcons.map(k=>new Path2D(icon(k).match(/<path d="([^"]+)"/)![1]));
 
- reset():void {this.visited.clear();}
+ constructor(){
+  // Canvas keeps rasterized text: a newly loaded font must invalidate the cached
+  // frame even when the survivor and every map marker are stationary.
+  document.fonts?.addEventListener('loadingdone',()=>{this.frames=new WeakMap();});
+ }
+
+ reset():void {this.visited.clear();this.frames=new WeakMap();}
 
  draw(canvas:HTMLCanvasElement,sim:Simulation,full=false,peers:readonly MapPeer[]=sim.coopTargets):void {
   const c=canvas.getContext('2d');if(!c||!canvas.width||!canvas.height)return;
+  for(let index=0;index<REGIONS.length;index++){const r=REGIONS[index];if(index===0||Math.hypot(r.x-sim.player.x,r.z-sim.player.z)<18||index>=12&&sim.discoveredSites.has(CITY_SITES[index-12].id))this.visited.add(index);}
+  const event=sim.worldEvent;
+  // Do not repaint an identical atlas/marker image. Inputs remain exact (no
+  // quantization or reduced cadence), so movement still updates on every call.
+  const key=`${canvas.width}:${canvas.height}:${full}:${sim.player.x}:${sim.player.z}:${sim.player.angle}:${[...this.visited].join(',')}:${event&&!event.triggered?`${event.kind},${event.name},${event.x},${event.z}`:''}:${peers.filter(p=>p!==sim.player&&p.hp>0).map(p=>`${p.x},${p.z},${p.angle}`).join(';')}`;
+  if(this.frames.get(canvas)===key)return;
   const w=canvas.width,h=canvas.height,unit=Math.min(w,h)/(full?600:240);
   // Preserve metres and directions if a layout supplies a rectangular canvas.
   const metersPerPixel=(full?MAP_EXTENT*2:LOCAL_SPAN)/Math.min(w,h);
@@ -42,8 +55,6 @@ export class FieldMap {
   const markers:Marker[]=[];
   for(const [index,r] of REGIONS.entries()){
    const distance=Math.hypot(r.x-sim.player.x,r.z-sim.player.z);
-   // Retain the previous discovery rules: nearby landmarks and replicated sites.
-   if(index===0||distance<18||index>=12&&sim.discoveredSites.has(CITY_SITES[index-12].id))this.visited.add(index);
    const x=sx(r.x),y=sy(r.z);
    if(x<-14*unit||y<-14*unit||x>w+14*unit||y>h+14*unit)continue;
    markers.push({index,x,y,known:this.visited.has(index),distance});
@@ -68,7 +79,6 @@ export class FieldMap {
    this.player(c,x,y,target.angle,unit*.75,TEAM,false);
    occupied.push({x:x-9*unit,y:y-9*unit,w:18*unit,h:18*unit});
   }
-  const event=sim.worldEvent;
   if(event&&!event.triggered){
    const x=sx(event.x),y=sy(event.z);
    if(x>-12*unit&&y>-12*unit&&x<w+12*unit&&y<h+12*unit){
@@ -97,7 +107,7 @@ export class FieldMap {
   }
   this.player(c,px,py,sim.player.angle,unit,SELF,true);
   this.scale(c,w,h,unit,metersPerPixel,full);
-  c.restore();
+  c.restore();this.frames.set(canvas,key);
  }
 
  private marker(c:CanvasRenderingContext2D,x:number,y:number,index:number,unit:number,full:boolean):void {

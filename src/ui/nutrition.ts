@@ -38,19 +38,19 @@ export class NutritionHUD {
   reset():void{this.filter('all');this.previousFood='';this.el('consumption-progress').hidden=true;}
   update(sim:Simulation):void{
     for(const key of ['hunger','thirst'] as const){const value=Math.max(0,Math.min(100,sim.nutrition[key])),meter=this.el(`nutrition-${key}`);
-      this.text(`nutrition-${key}-value`,String(Math.ceil(value)));meter.setAttribute('aria-valuenow',String(Math.round(value)));meter.classList.toggle('low',value<=25);meter.classList.toggle('critical',value<=10);this.el(`nutrition-${key}-bar`).style.width=`${value.toFixed(1)}%`;
+      this.text(`nutrition-${key}-value`,String(Math.ceil(value)));const rounded=String(Math.round(value));if(meter.getAttribute('aria-valuenow')!==rounded)meter.setAttribute('aria-valuenow',rounded);meter.classList.toggle('low',value<=25);meter.classList.toggle('critical',value<=10);const bar=this.el(`nutrition-${key}-bar`),width=`${value.toFixed(1)}%`;if(bar.style.width!==width)bar.style.width=width;
     }
-    const hunger=sim.nutrition.hunger<=25,thirst=sim.nutrition.thirst<=25,warning=this.el('nutrition-warning');warning.hidden=!hunger&&!thirst;
+    const hunger=sim.nutrition.hunger<=25,thirst=sim.nutrition.thirst<=25,warning=this.el('nutrition-warning');if(warning.hidden!==(!hunger&&!thirst))warning.hidden=!hunger&&!thirst;
     this.text('nutrition-warning',hunger&&thirst?'Com fome e sede · abra a mochila':thirst?'Com sede · procure uma bebida':'Com fome · procure alimento');
-    const consumption=sim.consumption,progress=this.el('consumption-progress');progress.hidden=!consumption;this.root.classList.toggle('consuming',!!consumption);
+    const consumption=sim.consumption,progress=this.el('consumption-progress');if(progress.hidden!==!consumption)progress.hidden=!consumption;this.root.classList.toggle('consuming',!!consumption);
     if(consumption){const food=FOODS[consumption.item];if(this.previousFood!==consumption.item){this.el('consumption-art').innerHTML=itemArt(consumption.item);this.previousFood=consumption.item;}
-      this.text('consumption-label',`${food.kind==='drink'?'Bebendo':'Comendo'} · ${food.label}`);this.text('consumption-time',`${Math.max(0,consumption.duration-consumption.elapsed).toFixed(1).replace('.',',')} s`);this.el('consumption-bar').style.width=`${Math.min(100,consumption.elapsed/consumption.duration*100).toFixed(1)}%`;
+      this.text('consumption-label',`${food.kind==='drink'?'Bebendo':'Comendo'} · ${food.label}`);this.text('consumption-time',`${Math.max(0,consumption.duration-consumption.elapsed).toFixed(1).replace('.',',')} s`);const bar=this.el('consumption-bar'),width=`${Math.min(100,consumption.elapsed/consumption.duration*100).toFixed(1)}%`;if(bar.style.width!==width)bar.style.width=width;
     }
     if(this.root.classList.contains('inventory-open')){
       this.text('food-count',String(foods.reduce((total,id)=>total+sim.inventory.items[id],0)));
       for(const id of foods){const food=FOODS[id],button=this.el(`consume-${id}`) as HTMLButtonElement,full=(food.hunger<=0||sim.nutrition.hunger>=99.9)&&(food.thirst<=0||sim.nutrition.thirst>=99.9),busy=!!consumption||!!sim.action||sim.reloadTimer>0||sim.switchTimer>0;
-        button.disabled=!sim.inventory.items[id]||full||busy||sim.gameOver;
-        button.title=!sim.inventory.items[id]?'Encontre este alimento na cidade.':full?'Você já está satisfeito.':busy?'Termine a ação atual.':`Consumir 1 · ${food.duration.toLocaleString('pt-BR')} s`;
+        const disabled=!sim.inventory.items[id]||full||busy||sim.gameOver;if(button.disabled!==disabled)button.disabled=disabled;
+        const title=!sim.inventory.items[id]?'Encontre este alimento na cidade.':full?'Você já está satisfeito.':busy?'Termine a ação atual.':`Consumir 1 · ${food.duration.toLocaleString('pt-BR')} s`;if(button.title!==title)button.title=title;
       }
     }
   }
