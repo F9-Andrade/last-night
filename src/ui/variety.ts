@@ -1,11 +1,13 @@
 import {CraftHUD} from './crafting';
-import {MELEE} from '../game/crafting';
+import {MELEE,RECIPES} from '../game/crafting';
+import type {MeleeId} from '../game/crafting';
 import type { Simulation } from '../game/simulation';
 import { WEAPONS, RARITIES, AFFIXES, weaponStats } from '../game/weapons';
 import type { WeaponId, WeaponItem } from '../game/weapons';
 import { PERKS } from '../game/perks';
 import type { PerkId } from '../game/perks';
 import { icon, emblem } from './icons';
+import {recipeArt} from './recipe-art';
 
 const silhouettes:Record<WeaponId,string>={
   pistol:'M8 17h52v11H34l-4 20H16l5-20H8z M40 28v9h-8',
@@ -18,11 +20,12 @@ const silhouettes:Record<WeaponId,string>={
 export const weaponIcon=(type:WeaponId):string=>`<svg class="weapon-silhouette" viewBox="0 0 80 60" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="bevel" aria-hidden="true"><path d="${silhouettes[type]}"/></svg>`;
 const number=(n:number)=>Number(n.toFixed(1)).toLocaleString('pt-BR');
 const detail=(item:WeaponItem)=>{const s=weaponStats(item);return `${number(s.damage)}${s.pellets>1?' × '+s.pellets:''} dano · ${s.magazine} cargas · ${number(s.reload)} s${s.reloadStyle==='shell'?' / cartucho':''}`;};
+const toolArt=(id:MeleeId)=>{const recipe=RECIPES.find(r=>r.melee===id);return recipe?recipeArt(recipe):icon('hand');};
 export class VarietyHUD {
   craft:CraftHUD;
   private cache=new Map<string,string>();
   private lastOffer=''; equipment=false;
-  onStore:(slot:0|1)=>void=()=>{};onRetrieve:(uid:number)=>void=()=>{};onSlot:(slot:0|1|2|3)=>void=()=>{};onPerk:(id:PerkId)=>void=()=>{};
+  onStore:(slot:0|1)=>void=()=>{};onRetrieve:(uid:number)=>void=()=>{};onSlot:(slot:0|1|2|3)=>void=()=>{};onMelee:(id:MeleeId)=>void=()=>{};onPerk:(id:PerkId)=>void=()=>{};
   constructor(private root:HTMLElement){
     root.insertAdjacentHTML('beforeend',`<section id="perk-screen" class="perk-screen" hidden aria-label="Escolha um perk"><div class="perk-paper"><header>${emblem}<span class="eyebrow">Registro de sobrevivência / amanhecer</span><h2>Você aprendeu a resistir.</h2><p>Escolha uma vantagem para esta expedição.</p></header><div id="perk-options" class="perk-options"></div><footer>Uma escolha. Mais uma noite. <span>Vantagens duram até o fim da expedição.</span></footer></div></section><section id="weapon-compare" class="weapon-compare" hidden aria-label="Comparação de equipamento"></section>`);
     const inventory=root.querySelector('#inventory-panel')!;
@@ -30,7 +33,7 @@ export class VarietyHUD {
     root.querySelector('#equipment-tab')!.addEventListener('click',()=>this.tab(true));root.querySelector('#supplies-tab')!.addEventListener('click',()=>this.tab(false));
     root.querySelector('#perk-options')!.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLButtonElement>('[data-perk]');if(b)this.onPerk(b.dataset.perk as PerkId);});
     for(const slot of [0,1] as const)root.querySelector(`#slot-${slot+1}`)!.addEventListener('click',()=>this.onSlot(slot));
-    root.querySelector('#equipment-details')!.addEventListener('click',e=>{const target=e.target as HTMLElement;const store=target.closest<HTMLButtonElement>('[data-store]'),retrieve=target.closest<HTMLButtonElement>('[data-retrieve]'),b=target.closest<HTMLButtonElement>('[data-slot]');if(store)this.onStore(Number(store.dataset.store) as 0|1);else if(retrieve)this.onRetrieve(Number(retrieve.dataset.retrieve));else if(b)this.onSlot(Number(b.dataset.slot) as 0|1);});
+    root.querySelector('#equipment-details')!.addEventListener('click',e=>{const target=e.target as HTMLElement;const store=target.closest<HTMLButtonElement>('[data-store]'),retrieve=target.closest<HTMLButtonElement>('[data-retrieve]'),tool=target.closest<HTMLButtonElement>('[data-equipment-melee]'),b=target.closest<HTMLButtonElement>('[data-slot]');if(store)this.onStore(Number(store.dataset.store) as 0|1);else if(retrieve)this.onRetrieve(Number(retrieve.dataset.retrieve));else if(tool&&!tool.disabled)this.onMelee(tool.dataset.equipmentMelee as MeleeId);else if(b)this.onSlot(Number(b.dataset.slot) as 0|1|2|3);});
     root.querySelector('#slot-2')!.insertAdjacentHTML('afterend','<button id="slot-3" title="3 · Arma branca"><kbd>3</kbd>Branca</button><button id="slot-4" title="4 · Punhos"><kbd>4</kbd>Punhos</button>');
     root.querySelector('#slot-3')!.addEventListener('click',()=>this.onSlot(2));root.querySelector('#slot-4')!.addEventListener('click',()=>this.onSlot(3));this.craft=new CraftHUD(root);
     const name=root.querySelector('.weapon-name')!;name.id='weapon-name';name.nextElementSibling!.id='weapon-caliber';root.querySelector('.weapon-icon')!.id='weapon-icon';
@@ -41,7 +44,7 @@ export class VarietyHUD {
   update(sim:Simulation):void {
     this.craft.update(sim);this.root.classList.toggle('melee-mode',sim.meleeMode);for(const slot of [2,3] as const)this.root.querySelector(`#slot-${slot+1}`)!.classList.toggle('selected',sim.activeSlot===slot);
     const item=sim.equipped,s=sim.weapon,r=RARITIES[item.rarity];
-    this.html('weapon-name',sim.meleeMode?MELEE[sim.meleeId].name:s.name);this.html('weapon-icon',weaponIcon(item.type));this.html('weapon-caliber',`${s.ammo==='ammo'?'Munição leve':s.ammo==='shells'?'Cartuchos':'Munição de rifle'} · ${s.automatic?'automática':'tiro a tiro'}`);
+    this.html('weapon-name',sim.meleeMode?MELEE[sim.meleeId].name:s.name);this.html('weapon-icon',sim.meleeMode?icon(sim.meleeId==='fists'?'hand':sim.meleeId):weaponIcon(item.type));this.html('weapon-caliber',sim.meleeMode?(sim.meleeId==='hammer'?'Construção livre · peças encaixáveis':`${MELEE[sim.meleeId].damage} dano · alcance ${number(MELEE[sim.meleeId].reach)} m`):`${s.ammo==='ammo'?'Munição leve':s.ammo==='shells'?'Cartuchos':'Munição de rifle'} · ${s.automatic?'automática':'tiro a tiro'}`);
     (this.root.querySelector('.weapon-panel') as HTMLElement).style.setProperty('--rarity',r.color);
     this.html('cartridges',Array.from({length:s.magazine},(_,i)=>`<i${i>=sim.ammo?' class="spent"':''}></i>`).join(''));
     for(const slot of [0,1] as const){const gun=sim.loadout[slot],b=this.root.querySelector<HTMLButtonElement>(`#slot-${slot+1}`)!;b.disabled=!gun;b.classList.toggle('selected',slot===sim.activeSlot);b.setAttribute('aria-label',gun?`${slot+1} · ${WEAPONS[gun.type].name}`:`${slot+1} · Arma longa vazia`);b.title=b.getAttribute('aria-label')!;this.html(`slot-${slot+1}`,`<kbd>${slot+1}</kbd>${gun?weaponIcon(gun.type):'<span>—</span>'}`);}
@@ -53,6 +56,8 @@ export class VarietyHUD {
     if(ground&&!compare.hidden){const next=ground.item,n=weaponStats(next),old=sim.loadout[n.slot],o=old?weaponStats(old):null,rarity=RARITIES[next.rarity];compare.style.setProperty('--rarity',rarity.color);
       this.html('weapon-compare',`<span class="eyebrow">${rarity.name}${next.affix?' · '+AFFIXES[next.affix].name:''}</span><header>${weaponIcon(next.type)}<h3>${n.name}</h3></header><small>${old&&o?'Substitui '+WEAPONS[old.type].name:'Slot de arma longa livre'}</small><footer><kbd>E</kbd> Pegar · slot ${n.slot+1}</footer>`);
     }
-    if(this.equipment&&!this.root.querySelector('#inventory-panel')!.classList.contains('craft-tab')&&this.root.classList.contains('inventory-open'))this.html('equipment-details',`${sim.loadout.map((gun,slot)=>`<button class="equipment-row ${slot===sim.activeSlot?'selected':''}" data-slot="${slot}" ${gun?'':'disabled'}><kbd>${slot+1}</kbd>${gun?weaponIcon(gun.type):icon('gun')}<div><strong>${gun?WEAPONS[gun.type].name:'Arma longa vazia'}</strong><small>${gun?`${RARITIES[gun.rarity].name}${gun.affix?' · '+AFFIXES[gun.affix].name:''}`:'Encontre equipamento na cidade.'}</small>${gun?`<p>${detail(gun)}</p><small>${gun.magazine} carregadas</small>`:''}</div></button>`).join('')}<button class="equipment-row" data-slot="2"><kbd>3</kbd><div><strong>${MELEE[sim.gear.melee].name}</strong><small>Arma branca · selecione na aba Craft. 4 para punhos.</small></div></button><p>Armadura: ${Math.ceil(sim.gear.armor)} de durabilidade</p><p>Guarde suas armas em um baú fabricado e colocado no chão.</p><h3 class="perks-label">O que você aprendeu</h3><div class="owned-perks">${sim.perks.size?[...sim.perks].map(id=>`<p>${icon(PERKS[id].icon)}<span><b>${PERKS[id].name}</b><small>${PERKS[id].hint}</small></span></p>`).join(''):'<p>Sobreviva à noite para escolher sua primeira vantagem.</p>'}</div>`);
+    if(this.equipment&&!this.root.querySelector('#inventory-panel')!.classList.contains('craft-tab')&&this.root.classList.contains('inventory-open'))this.html('equipment-details',`${sim.loadout.map((gun,slot)=>`<button class="equipment-row ${slot===sim.activeSlot?'selected':''}" data-slot="${slot}" ${gun?'':'disabled'}><kbd>${slot+1}</kbd>${gun?weaponIcon(gun.type):icon('gun')}<div><strong>${gun?WEAPONS[gun.type].name:'Arma longa vazia'}</strong><small>${gun?`${RARITIES[gun.rarity].name}${gun.affix?' · '+AFFIXES[gun.affix].name:''}`:'Encontre equipamento na cidade.'}</small>${gun?`<p>${detail(gun)}</p><small>${gun.magazine} carregadas</small>`:''}</div></button>`).join('')}
+      <section class="equipment-tools" aria-labelledby="equipment-tools-title"><header><h3 id="equipment-tools-title">Ferramentas e corpo a corpo</h3><span>Equipar</span></header><div class="owned-tools">${[...sim.gear.owned].sort((a,b)=>a==='hammer'?-1:b==='hammer'?1:0).map(id=>{const selected=sim.meleeMode&&sim.meleeId===id;return `<button class="owned-tool${id==='hammer'?' owned-tool--builder':''}${selected?' selected':''}" data-equipment-melee="${id}" aria-label="Equipar ${MELEE[id].name}" aria-pressed="${selected}"><span class="owned-tool-art">${toolArt(id)}</span><span class="owned-tool-name"><strong>${MELEE[id].name}</strong><small>${id==='hammer'?'Erga paredes, portas e andares':id==='fists'?'Sem arma':`${MELEE[id].damage} dano · ${number(MELEE[id].reach)} m`}</small></span><span class="owned-tool-state">${selected?'Na mão':id==='hammer'?'Construir':'Equipar'}</span></button>`;}).join('')}</div>${!sim.gear.owned.includes('hammer')?'<p class="equipment-tools-note">Fabrique um martelo na mesa inteligente para construir seu abrigo.</p>':'<p class="equipment-tools-note">Martelo na mão: escolha uma peça na barra de construção. Equipe outra arma para voltar ao combate.</p>'}</section>
+      <p class="equipment-armor">${icon('armor')} Armadura <strong>${Math.ceil(sim.gear.armor)}</strong><span>durabilidade</span></p><p class="equipment-storage-note">Guarde suas armas em um baú fabricado e colocado no chão.</p><h3 class="perks-label">O que você aprendeu</h3><div class="owned-perks">${sim.perks.size?[...sim.perks].map(id=>`<p>${icon(PERKS[id].icon)}<span><b>${PERKS[id].name}</b><small>${PERKS[id].hint}</small></span></p>`).join(''):'<p>Sobreviva à noite para escolher sua primeira vantagem.</p>'}</div>`);
   }
 }

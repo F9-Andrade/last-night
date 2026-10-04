@@ -1,7 +1,9 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Simulation} from '../src/game/simulation.ts';
-import {craft,craftReason,RECIPES,placeBench,reclaimBench,harvest,absorb,infectedLoot,updateCraftWorld,benchNearby} from '../src/game/crafting.ts';
+import {craft,craftReason,MELEE,RECIPES,placeBench,reclaimBench,harvest,absorb,infectedLoot,updateCraftWorld,benchNearby} from '../src/game/crafting.ts';
+import type {MeleeId} from '../src/game/crafting.ts';
+import {placeStructure,manageStructure,structureMaxHP,STRUCTURE_DEFS} from '../src/game/construction.ts';
 import {emptyStock} from '../src/game/inventory.ts';
 import {collides,TREE_TRUNKS} from '../src/game/world.ts';
 import {CoopWorld} from '../src/network/coop-world.ts';
@@ -10,7 +12,7 @@ import {parseAction,poseOf,shotSeed} from '../src/network/gameplay-protocol.ts';
 import {createPatch,applyPatch} from '../src/network/world-patch.ts';
 const clean=()=>{const s=new Simulation();s.zombies=[];return s;};
 const fund=(s:Simulation)=>{Object.assign(s.inventory.items,{wood:100,scrap:100,hide:100,cloth:100,cord:100,rare:20});};
-const table=(s:Simulation)=>s.crafting.tables.push({id:1,x:s.player.x-1,z:s.player.z,y:.22,angle:0,hp:200});
+const table=(s:Simulation)=>s.crafting.tables.push({id:s.crafting.next++,x:s.player.x-1,z:s.player.z,y:.22,angle:0,hp:200});
 test('manual craft is atomic, respects weight, carried resources and advanced recipe gating',()=>{
  const s=clean();const before={...s.inventory.items};assert.equal(craft(s,'bench'),false);assert.deepEqual(s.inventory.items,before);Object.assign(s.inventory.items,{wood:10,scrap:10,cord:1});assert.equal(craft(s,'bench'),true);assert.equal(s.inventory.items.bench,1);assert.equal(s.inventory.items.wood,4);assert.equal(craft(s,'axe'),false);table(s);assert.equal(craft(s,'axe'),true);assert.equal(s.gear.melee,'axe');assert.equal(craft(s,'axe'),false);
  s.player.x=10;assert.equal(craft(s,'cord'),false);s.inventory.items.wood=100;assert.match(craftReason(s,RECIPES[0]),/Materiais|espaço/);
@@ -38,8 +40,8 @@ test('infected loot is unique, finite, includes hide and cannot be renewed like 
 test('empty map loot renews only after cooldown and out of view; leftovers persist',()=>{
  const s=clean(),l=s.loot.find(l=>l.id==='market-locker')!;l.searched=true;l.contents=emptyStock();updateCraftWorld(s,1);assert.ok(s.crafting.refills[l.id]>=361);l.contents.scrap=2;updateCraftWorld(s,1000);assert.equal(l.contents.scrap,2);assert.equal(l.searched,true);l.contents=emptyStock();updateCraftWorld(s,1);assert.equal(l.searched,false);assert.equal(l.restocked,true);
 });
-test('bed starts exposed and prefabs require resources, workstation, proximity and a clear footprint',()=>{
- const s=clean();assert.ok(s.barricades.every(b=>b.hp===0));assert.equal(collides({x:1,z:-4}),false);fund(s);table(s);assert.equal(craft(s,'north'),true);const b=s.barricades.find(b=>b.id==='north')!;assert.ok(collides(b,.45,s.solidDefenses));assert.equal(craft(s,'north'),false);s.player.x=-4.5;s.player.z=2;table(s);assert.equal(craft(s,'west-wall'),false);
+test('bed starts exposed and modular plans preserve materials until placement is confirmed',()=>{
+ const s=clean();assert.ok(s.barricades.every(b=>b.hp===0));assert.equal(collides({x:1,z:-4}),false);fund(s);table(s);assert.equal(craft(s,'hammer'),true);const before={...s.inventory.items};assert.equal(craft(s,'build-wall'),false);assert.deepEqual(s.inventory.items,before);Object.assign(s.player,{x:-.5,z:-4,eyeY:1.94});assert.equal(placeStructure(s,{kind:'wall',x:-.5,z:-2,level:0,rotation:0}),true);assert.ok(collides({x:-.5,z:-2},.45,s.solidDefenses));assert.equal(placeStructure(s,{kind:'wall',x:-.5,z:-2,level:0,rotation:0}),false);
 });
 test('coop crafting, melee, armor and world survive patches and host migration without duplication',()=>{
  const w=new CoopWorld(44,[1,2]);w.sim.zombies=[];const a=w.actors.get(1)!;fund(a.sim);table(w.sim); // put shared table by actor explicitly
@@ -68,8 +70,8 @@ test('workstations can be recovered once or destroyed by infected without an inf
 test('an infected between fists and a tree receives the strike before the trunk',()=>{
  const s=clean();s.activeSlot=3;s.firstPerson=true;Object.assign(s.player,{x:8.8,z:2.8,angle:Math.PI,pitch:0,eyeY:1.94});const z=s.spawn({x:8.8,z:2.05})!;const t=s.crafting.trees.find(t=>t.x===8.8&&t.z===1)!;s.shoot();assert.ok(z.hp<90);assert.equal(t.hp,100);
 });
-test('crafting gates cannot intersect a placed workstation or another survivor',()=>{
- const s=clean();fund(s);table(s);s.crafting.tables[0].z=8;s.crafting.tables.push({id:2,x:1,z:6,y:.22,angle:0,hp:200});assert.equal(craft(s,'bed-gate'),false);s.crafting.tables.pop();s.coopTargets=[{...s.player,x:1,z:6}];assert.equal(craft(s,'bed-gate'),false);s.coopTargets=[];assert.equal(craft(s,'bed-gate'),true);
+test('modular doorways cannot intersect a placed workstation or another survivor',()=>{
+ const s=clean();fund(s);Object.assign(s.player,{x:-.5,z:-4,eyeY:1.94});table(s);assert.equal(craft(s,'hammer'),true);s.crafting.tables.push({id:s.crafting.next++,x:-.5,z:-2,y:.22,angle:0,hp:200});const p={kind:'door' as const,x:-.5,z:-2,level:0,rotation:0 as const};assert.equal(placeStructure(s,p),false);s.crafting.tables.pop();s.coopTargets=[{...s.player,x:-.5,z:-2}];assert.equal(placeStructure(s,p),false);s.coopTargets=[];assert.equal(placeStructure(s,p),true);
 });
 test('renewal tracks only authored caches and stays within bounded checkpoint dictionaries',()=>{
  const w=new CoopWorld(18,[1,2,3,4]);for(const l of w.sim.loot){l.searched=true;l.contents=emptyStock();}w.sim.loot.push({id:'reward-1-1',x:1,z:7,area:'outside',label:'Restos',searched:true,lastFound:null,contents:emptyStock()});updateCraftWorld(w.sim,1);assert.ok(Object.keys(w.sim.crafting.refills).length<=64);assert.equal(w.sim.crafting.refills['reward-1-1'],undefined);assert.ok(parseCheckpoint(w.checkpoint()));
@@ -82,13 +84,13 @@ test('workbench focus follows aim, walls block access and placement follows yaw 
  const {focusedBench,placement}=await import('../src/game/crafting.ts');const s=clean();Object.assign(s.player,{x:1,z:12,angle:0,pitch:0,eyeY:1.72});s.inventory.items.bench=1;const a=placement(s);s.player.pitch=-.45;const b=placement(s);assert.ok(b.z>a.z);s.player.pitch=0;assert.equal(placeBench(s),true);assert.equal(focusedBench(s),s.crafting.tables[0].id);s.player.angle=Math.PI;assert.equal(focusedBench(s),undefined);
 });
 test('fortifications have two paid tiers, persist in coop and repair to the correct cap',()=>{
- const w=new CoopWorld(73,[1,2]);const s=w.actors.get(1)!.sim;fund(s);table(s);assert.equal(craft(s,'north'),true);const b=s.barricades.find(b=>b.id==='north')!;assert.equal(craft(s,'fortify-north'),true);assert.equal(b.hp,550);assert.equal(craft(s,'fortify-north'),true);assert.equal(b.hp,900);const costs={...s.inventory.items};assert.equal(craft(s,'fortify-north'),false);assert.deepEqual(s.inventory.items,costs);const restored=CoopWorld.restore(73,w.checkpoint(),[1,2]);assert.equal(restored.sim.barricades.find(b=>b.id==='north')!.tier,2);
+ const w=new CoopWorld(73,[1,2]);const s=w.actors.get(1)!.sim;fund(s);table(s);assert.equal(craft(s,'hammer'),true);Object.assign(s.player,{x:-.5,z:-4,eyeY:1.94});assert.equal(placeStructure(s,{kind:'wall',x:-.5,z:-2,level:0,rotation:0}),true);const b=s.crafting.structures[0];assert.equal(manageStructure(s,b.id,b.revision,'fortify'),true);assert.equal(b.hp,540);assert.equal(manageStructure(s,b.id,b.revision,'fortify'),true);assert.equal(b.hp,900);const costs={...s.inventory.items};assert.equal(manageStructure(s,b.id,b.revision,'fortify'),false);assert.deepEqual(s.inventory.items,costs);const restored=CoopWorld.restore(73,w.checkpoint(),[1,2]);assert.equal(restored.sim.crafting.structures[0].tier,2);assert.equal(structureMaxHP(b),900);
 });
 test('gate presentation rotates continuously and is frame-rate independent',async()=>{
  const {gateStep}=await import('../src/game/defenses.ts');const a=gateStep(0,true,1/60);assert.ok(a>0&&a<Math.PI/2);let x=0,y=0;for(let i=0;i<30;i++)x=gateStep(x,true,1/30);for(let i=0;i<144;i++)y=gateStep(y,true,1/144);assert.ok(Math.abs(x-y)<1e-8);assert.ok(gateStep(x,false,1/60)<x);
 });
-test('traps damage and slow infected, consume durability, create one loot bag and preserve survivors',()=>{
- const s=clean();s.firstPerson=true;fund(s);table(s);assert.equal(craft(s,'spikes-front'),true);const b=s.barricades.find(b=>b.id==='spikes-front')!;const z=s.spawn({x:b.x,z:b.z})!;z.hp=10;const hp=s.player.hp;s.update(1/60,{moveX:0,moveZ:0,aimX:1,aimZ:20,fire:false,run:false,reload:false,interact:false});assert.equal(z.active,false);assert.equal(b.hp,195);assert.equal(s.player.hp,hp);assert.equal(s.loot.filter(l=>l.id===`infected-${z.id}`).length,1);
+test('modular traps damage and slow infected, consume durability, create one loot bag and preserve survivors',()=>{
+ const s=clean();s.firstPerson=true;fund(s);table(s);const victim=s.spawn({x:-.5,z:5.5})!;assert.ok(victim);victim.hp=10;const b={id:s.crafting.next++,kind:'spikes' as const,x:-.5,z:5.5,level:0,rotation:0 as const,hp:STRUCTURE_DEFS.spikes.maxHP,tier:0 as const,open:false,revision:0};s.crafting.structures.push(b);s.crafting.revision++;const hp=s.player.hp;s.update(1/60,{moveX:0,moveZ:0,aimX:1,aimZ:20,fire:false,run:false,reload:false,interact:false});assert.equal(victim.active,false);assert.equal(b.hp,195);assert.equal(s.player.hp,hp);assert.equal(s.loot.filter(l=>l.id===`infected-${victim.id}`).length,1);
 });
 test('table maintenance has an exact cost and cannot grant free repair by repacking',()=>{
  const s=clean();fund(s);table(s);s.crafting.tables[0].hp=80;assert.equal(reclaimBench(s),false);assert.equal(craft(s,'bench-repair'),true);assert.equal(s.crafting.tables[0].hp,160);assert.equal(craft(s,'bench-repair'),true);assert.equal(s.crafting.tables[0].hp,200);assert.equal(craft(s,'bench-repair'),false);
@@ -106,4 +108,34 @@ test('armored infected resist torso fire while bloater death leaves one bounded 
 });
 test('stalker telegraphs a charge and a strong shot interrupts the preparation',()=>{
  const s=clean();Object.assign(s.player,{x:88,z:-30,angle:0});const z=s.spawn({x:88,z:-21},'stalker')!;z.spitCooldown=0;const idle={moveX:0,moveZ:0,aimX:88,aimZ:-21,fire:false,run:false,reload:false,interact:false};s.update(.05,idle);assert.ok(z.chargeTarget);assert.ok(z.windup>0);const position={x:z.x,z:z.z};s.update(.1,idle);assert.deepEqual({x:z.x,z:z.z},position);s.shoot();assert.equal(z.chargeTarget,undefined);assert.ok(z.spitCooldown>0);
+});
+
+
+test('hammer is a single paid workstation tool, equips on craft and replaces construction recipes',()=>{
+ const s=clean();s.inventory.items={...emptyStock(),wood:3,scrap:5,cloth:1};const before={...s.inventory.items};
+ assert.equal(craft(s,'hammer'),false);assert.deepEqual(s.inventory.items,before);table(s);
+ assert.equal(craft(s,'hammer'),true);assert.equal(s.gear.melee,'hammer');assert.equal(s.activeSlot,2);assert.equal(s.buildingHammerEquipped,true);
+ assert.deepEqual(s.inventory.items,emptyStock());assert.equal(craft(s,'hammer'),false);assert.deepEqual(s.gear.owned,['fists','hammer']);
+ assert.equal(RECIPES.filter(r=>r.id==='hammer').length,1);assert.ok(RECIPES.every(r=>!r.construction));
+});
+
+test('hammer cannot damage infected, harvest trees or spend ammunition and stamina',()=>{
+ const s=clean();s.gear.owned.push('hammer');s.gear.melee='hammer';s.activeSlot=2;s.switchTimer=0;s.player.angle=0;
+ const z=s.spawn({x:1,z:8.7})!,hp=z.hp,ammo=s.loadout[1]!.magazine,stamina=s.player.stamina;s.events=[];s.shoot();
+ assert.equal(z.hp,hp);assert.equal(s.player.stamina,stamina);assert.equal(s.loadout[1]!.magazine,ammo);assert.equal(s.shotTimer,0);assert.equal(s.events.length,0);
+ Object.assign(s.player,{x:-7,z:-8.3,angle:Math.PI,pitch:0,eyeY:1.94});const tree=s.crafting.trees.find(t=>t.x===-7&&t.z===-10)!;
+ assert.equal(harvest(s),false);s.shoot();assert.equal(tree.hp,100);assert.equal(s.events.length,0);
+ s.activeSlot=3;assert.equal(harvest(s),true);assert.ok(tree.hp<100,'bare fists remain usable after putting the hammer away');
+});
+
+test('coop crafts hammer once, rejects hammer attacks and preserves all seven tools on migration',()=>{
+ const w=new CoopWorld(44,[1,2]),a=w.actors.get(1)!;w.sim.zombies=[];a.sim.inventory.items={...emptyStock(),wood:3,scrap:5,cloth:1};table(a.sim);
+ const request=(seq:number,details:object)=>parseAction({seq,pose:poseOf(a.sim.player,a.sim.groundY,seq),...details})!;
+ assert.ok(w.request(1,request(1,{kind:'craft',recipe:'hammer'})));assert.equal(a.sim.buildingHammerEquipped,true);assert.deepEqual(a.sim.inventory.items,emptyStock());
+ assert.equal(w.request(1,request(2,{kind:'craft',recipe:'hammer'})),false);assert.equal(a.sim.gear.owned.filter(k=>k==='hammer').length,1);
+ assert.equal(w.request(1,request(3,{kind:'fire',shot:1,weapon:'pistol',seed:shotSeed(1,1),ads:false,bloom:0,kick:0})),false);assert.equal(a.sim.player.stamina,100);
+ a.sim.gear.owned=Object.keys(MELEE) as MeleeId[];const snapshot=w.checkpoint();assert.ok(parseCheckpoint(snapshot));
+ const copy=CoopWorld.restore(44,snapshot,[1,2]);assert.deepEqual(copy.actors.get(1)!.sim.gear,a.sim.gear);assert.equal(copy.actors.get(1)!.sim.buildingHammerEquipped,true);
+ const promoted=CoopWorld.fromSolo(copy.actors.get(1)!.sim,1);assert.equal(promoted.actors.get(1)!.sim.buildingHammerEquipped,true);assert.ok(parseCheckpoint(promoted.checkpoint()));
+ const bad=structuredClone(snapshot);bad.players[0].gear.owned=bad.players[0].gear.owned.filter(k=>k!=='hammer');assert.equal(parseCheckpoint(bad),null);
 });

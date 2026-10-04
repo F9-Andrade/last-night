@@ -7,17 +7,17 @@ import {itemArt} from './item-art';
 import {recipeArt} from './recipe-art';
 import './workbench.css';
 
-const category=(r:Recipe)=>r.module||r.fortify||r.trap?'Defesas':r.weapon||r.melee?'Armas':r.armor||r.upgrade==='armor-repair'||r.upgrade==='pack'?'Equipamento':'Suprimentos';
+const category=(r:Recipe)=>r.melee==='hammer'||r.item==='chest'||r.upgrade==='bench-repair'||r.construction||r.module||r.fortify||r.trap?'Construção':r.weapon||r.melee?'Armas':r.armor||r.upgrade==='armor-repair'||r.upgrade==='pack'?'Equipamento':'Suprimentos';
 const normalize=(value:string)=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim();
 const recipes=RECIPES.filter(r=>r.id!=='bench');
 // Static recipe data and artwork are prepared once, not during the HUD's update loop.
 const catalog=recipes.map(r=>({recipe:r,category:category(r),ingredients:itemKeys.filter(k=>r.cost[k]),search:normalize(`${r.name} ${r.hint} ${category(r)} ${itemKeys.filter(k=>r.cost[k]).map(k=>ITEMS[k].label).join(' ')}`)}));
-const outcome=(r:Recipe)=>r.item?'Adicionado à mochila':r.weapon||r.melee?'Equipado ao fabricar':r.module||r.fortify?'Aplicado no abrigo':r.upgrade==='bench-repair'?'Repara a mesa próxima':r.upgrade==='repair'?'Recupera a cama':'Aplicado ao sobrevivente';
+const outcome=(r:Recipe)=>r.melee==='hammer'?'Equipado ao fabricar. Com o martelo na mão, escolha as peças na barra de construção.':r.construction?'Posicione no terreno. Materiais consumidos só ao confirmar.':r.item?'Adicionado à mochila':r.weapon||r.melee?'Equipado ao fabricar':r.module||r.fortify?'Aplicado no abrigo':r.upgrade==='bench-repair'?'Repara a mesa próxima':r.upgrade==='repair'?'Recupera a cama':'Aplicado ao sobrevivente';
 const shortReason=(reason:string)=>!reason?'Disponível':reason==='Materiais insuficientes.'?'Faltam materiais':reason.includes('já possui')?'No equipamento':reason.includes('já construído')?'Construído':reason.includes('máxima')?'Nível máximo':reason.includes('já reforçada')?'Melhoria concluída':reason.includes('Libere espaço')?'Mochila cheia':reason.includes('Nenhuma')?'Sem reparos':reason.includes('primeiro o módulo')?'Requer estrutura':reason.includes('abrigo')?'Requer abrigo':'Ver requisitos';
 const searchMark='<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg>';
 
 export class CraftHUD {
- onCraft:(id:string)=>void=()=>{};onPlace:()=>void=()=>{};onReclaim:()=>void=()=>{};onMelee:(id:MeleeId)=>void=()=>{};onClose:()=>void=()=>{};
+ onCraft:(id:string)=>void=()=>{};onPlace:()=>void=()=>{};onRelocate:()=>void=()=>{};onReclaim:()=>void=()=>{};onMelee:(id:MeleeId)=>void=()=>{};onClose:()=>void=()=>{};
  private rendered=new Map<string,string>();private nodes=new Map<string,HTMLElement>();private cards=new Map<string,HTMLButtonElement>();private cardStatuses=new Map<string,HTMLElement>();
  private panel:HTMLElement;private station:HTMLElement;private recipe='cord';private detail='';private query='';private filter='Todas';private onlyAvailable=false;private sim?:Simulation;
  private stateKey='';private checkedAt=0;private reasons=new Map<string,string>();tableId:number|undefined;
@@ -32,24 +32,24 @@ export class CraftHUD {
     <div class="bench-project-meta"><span id="recipe-family" class="eyebrow"></span><span id="recipe-status" role="status"></span></div><h3 id="recipe-title"></h3><p id="recipe-description"></p>
     <div class="recipe-assembly"><div class="bench-grid-wrap"><span class="bench-caption">01 / MATERIAIS</span><div id="recipe-grid" class="recipe-grid"></div></div><div class="recipe-arrow">${icon('arrow')}</div><div class="recipe-output"><span class="bench-caption">02 / RESULTADO</span><div id="recipe-preview"></div><span id="recipe-yield"></span></div></div>
     <div class="bench-material-heading"><h4>Materiais necessários</h4><span id="recipe-material-summary"></span></div><div id="bench-materials"></div>
-   </div></div><div class="bench-action"><p id="bench-craft-note" aria-live="polite"></p><button id="bench-craft" class="craft-confirm" data-craft="cord"><span>${icon('bench')} Fabricar</span><span id="craft-quantity"></span>${icon('arrow')}</button><small id="recipe-destination"></small></div></main>
+   </div></div><div class="bench-action"><p id="bench-craft-note" aria-live="polite"></p><button id="bench-craft" class="craft-confirm" data-craft="cord"><span id="craft-action-label">${icon('bench')} Fabricar</span><span id="craft-quantity"></span>${icon('arrow')}</button><small id="recipe-destination"></small></div></main>
    <aside class="bench-catalog"><header><div><span class="eyebrow">Manual de sobrevivência</span><h3>Catálogo de receitas</h3></div><span id="catalog-count"></span></header><label class="bench-search" for="recipe-search">${searchMark}<input id="recipe-search" type="search" placeholder="Buscar item ou material…" aria-label="Buscar receita ou material" maxlength="60" autocomplete="off"><kbd>/</kbd></label>
-    <div class="bench-filters"><label class="bench-category"><span>Categoria</span><select id="recipe-category" aria-label="Categoria">${['Todas','Suprimentos','Armas','Equipamento','Defesas'].map(c=>`<option>${c}</option>`).join('')}</select></label><label class="available-filter"><input id="recipe-available" type="checkbox"><span>Só disponíveis</span></label></div>
+    <div class="bench-filters"><label class="bench-category"><span>Categoria</span><select id="recipe-category" aria-label="Categoria">${['Todas','Suprimentos','Armas','Equipamento','Construção'].map(c=>`<option>${c}</option>`).join('')}</select></label><label class="available-filter"><input id="recipe-available" type="checkbox"><span>Só disponíveis</span></label></div>
     <div id="recipe-catalog" aria-label="Receitas">${catalog.map(({recipe:r})=>`<button data-recipe="${r.id}" class="recipe-card" aria-pressed="false"><span class="catalog-art">${recipeArt(r)}</span><span class="catalog-name">${r.name}</span><small class="catalog-status"></small></button>`).join('')}</div>
     <div id="catalog-empty" hidden>${searchMark}<strong>Nenhuma receita encontrada</strong><p>Tente outro nome, material ou categoria.</p><button id="recipe-reset">Limpar filtros</button></div>
    </aside></div>
-   <footer class="bench-footer"><div id="bench-tools"><span class="bench-caption">SEU EQUIPAMENTO <b id="bench-armor"></b></span><div class="craft-tools">${(Object.keys(MELEE) as MeleeId[]).map(id=>`<button data-melee="${id}" title="Equipar ${MELEE[id].name}">${icon(id==='fists'?'hand':id)}<span>${MELEE[id].name}</span></button>`).join('')}</div></div><div class="bench-packup"><button id="reclaim-bench">${icon('withdraw')} Recolher mesa <small>3 kg</small></button><span id="bench-reclaim-note"></span></div></footer><div class="bench-field-note"><span><i></i> O mundo continua. Fique atento ao redor.</span><span>Materiais da mochila <b>·</b> Alcance de 3 m</span></div>
-  </div></section><div id="placement-help" hidden>POSICIONAR MESA · Ande e mire no chão<br><kbd>Esquerdo</kbd> confirmar · <kbd>Direito / Esc</kbd> cancelar</div><div id="bench-interact" hidden><kbd>Botão direito</kbd> Mesa inteligente</div>`);
+   <footer class="bench-footer"><div id="bench-tools"><span class="bench-caption">SEU EQUIPAMENTO <b id="bench-armor"></b></span><div class="craft-tools">${(Object.keys(MELEE) as MeleeId[]).map(id=>`<button data-melee="${id}" title="Equipar ${MELEE[id].name}">${icon(id==='fists'?'hand':id)}<span>${MELEE[id].name}</span></button>`).join('')}</div></div><div class="bench-packup"><button id="relocate-bench">${icon('arrow')} Reposicionar mesa</button><button id="reclaim-bench">${icon('withdraw')} Recolher mesa <small>3 kg</small></button><span id="bench-reclaim-note"></span></div></footer><div class="bench-field-note"><span><i></i> O mundo continua. Fique atento ao redor.</span><span>Materiais da mochila <b>·</b> Alcance de 3 m</span></div>
+  </div></section><div id="placement-help" hidden>POSICIONAR MESA · Ande e mire no chão<br><kbd>Esquerdo</kbd> confirmar · <kbd>Direito / Esc</kbd> cancelar</div><div id="bench-interact" hidden><kbd>E</kbd> Mesa inteligente</div>`);
   this.station=this.el('workbench-screen');
   for(const b of this.station.querySelectorAll<HTMLButtonElement>('[data-recipe]')){this.cards.set(b.dataset.recipe!,b);this.cardStatuses.set(b.dataset.recipe!,b.querySelector('.catalog-status')!);}
   this.station.addEventListener('keydown',e=>this.keydown(e));
   this.el('craft-tab').addEventListener('click',()=>{this.panel.classList.add('craft-tab');this.panel.classList.remove('equipment-tab');root.querySelectorAll('.inventory-tabs button').forEach(b=>b.classList.toggle('selected',b.id==='craft-tab'));this.el('equipment-details').hidden=true;this.el('craft-details').hidden=false;});
   root.addEventListener('click',e=>{
-   const b=(e.target as HTMLElement).closest<HTMLButtonElement>('[data-craft],[data-recipe],[data-melee],#place-bench,#reclaim-bench,#bench-close');if(!b||b.disabled)return;
+   const b=(e.target as HTMLElement).closest<HTMLButtonElement>('[data-craft],[data-recipe],[data-melee],#place-bench,#reclaim-bench,#relocate-bench,#bench-close');if(!b||b.disabled)return;
    if(b.dataset.recipe){this.recipe=b.dataset.recipe;if(this.sim)this.updateStation(this.sim);}
    else if(b.dataset.craft){this.onCraft(b.dataset.craft);this.stateKey='';if(this.sim&&this.open)this.updateStation(this.sim);}
    else if(b.dataset.melee)this.onMelee(b.dataset.melee as MeleeId);
-   else if(b.id==='reclaim-bench')this.onReclaim();else if(b.id==='bench-close')this.onClose();else this.onPlace();
+   else if(b.id==='relocate-bench')this.onRelocate();else if(b.id==='reclaim-bench')this.onReclaim();else if(b.id==='bench-close')this.onClose();else this.onPlace();
   });
   this.el('recipe-search').addEventListener('input',e=>{this.query=normalize((e.target as HTMLInputElement).value);this.filterCatalog(true);});
   this.el('recipe-category').addEventListener('change',e=>{this.filter=(e.target as HTMLSelectElement).value;this.filterCatalog(true);});
@@ -94,7 +94,7 @@ export class CraftHUD {
   this.put('recipe-preview',recipeArt(r));this.text('recipe-yield',`${r.amount??1} ${r.amount&&r.amount>1?'unidades':'unidade'}`);this.text('recipe-destination',outcome(r));this.text('craft-quantity',`×${r.amount??1}`);
   this.put('recipe-grid',Array.from({length:9},(_,i)=>{const k=ingredients[i];return `<div class="recipe-cell${k?'':' vacant'}" ${k?`data-ingredient="${k}" title="${ITEMS[k].label}"`:'aria-hidden="true"'}>${k?`${itemArt(k)}<strong>${r.cost[k]}</strong><span>${ITEMS[k].label}</span>`:'<i></i>'}</div>`;}).join(''));
   this.put('bench-materials',ingredients.map(k=>`<div class="bench-material" data-material="${k}">${itemArt(k)}<span>${ITEMS[k].label}</span><span class="material-missing"></span><b><span class="material-have"></span><small> / ${r.cost[k]}</small></b></div>`).join(''));
-  const button=this.el('bench-craft') as HTMLButtonElement;button.dataset.craft=r.id;button.setAttribute('aria-label',`Fabricar ${r.name}`);
+  const button=this.el('bench-craft') as HTMLButtonElement;button.dataset.craft=r.id;button.setAttribute('aria-label',`${r.construction?'Posicionar':'Fabricar'} ${r.name}`);this.put('craft-action-label',`${icon(r.construction?'arrow':'bench')} ${r.construction?'Posicionar peça':'Fabricar'}`);
   for(const [id,b] of this.cards){const selected=id===r.id;b.classList.toggle('selected',selected);if(b.getAttribute('aria-pressed')!==String(selected))b.setAttribute('aria-pressed',String(selected));}
  }
  private updateStation(s:Simulation){
@@ -107,7 +107,7 @@ export class CraftHUD {
    this.el('recipe-grid').querySelector(`[data-ingredient="${k}"]`)!.classList.toggle('missing',!!missing);
   }
   this.text('recipe-material-summary',`${complete} / ${ingredients.length} disponíveis`);
-  const reason=this.reasons.get(r.id)??craftReason(s,r);this.text('recipe-status',shortReason(reason));this.el('recipe-status').classList.toggle('ready',!reason);this.text('bench-craft-note',reason||'Tudo pronto. Materiais preenchidos automaticamente.');
+  const reason=this.reasons.get(r.id)??craftReason(s,r);this.text('recipe-status',shortReason(reason));this.el('recipe-status').classList.toggle('ready',!reason);this.text('bench-craft-note',reason||(r.melee==='hammer'?'Ferramenta reutilizável. Materiais das estruturas são consumidos só ao construir.':r.construction?'Escolha o encaixe no terreno. R gira; Page Up / Down muda o andar.':'Tudo pronto. Materiais preenchidos automaticamente.'));
   const button=this.el('bench-craft') as HTMLButtonElement;if(button.disabled!==!!reason)button.disabled=!!reason;
   this.text('bench-armor',`Proteção ${Math.ceil(s.gear.armor)}`);
   for(const b of this.el('bench-tools').querySelectorAll<HTMLButtonElement>('[data-melee]')){const id=b.dataset.melee as MeleeId;const hidden=!s.gear.owned.includes(id);if(b.hidden!==hidden)b.hidden=hidden;const selected=s.meleeMode&&s.meleeId===id;b.classList.toggle('selected',selected);if(b.getAttribute('aria-pressed')!==String(selected))b.setAttribute('aria-pressed',String(selected));}
@@ -119,6 +119,6 @@ export class CraftHUD {
   if(this.open){if(!usableBench(s,this.tableId!)||s.gameOver||s.player.hp<=0){this.onClose();return;}this.updateStation(s);return;}
   if(!this.panel.classList.contains('craft-tab')||!this.panel.closest('.inventory-open'))return;
   const r=RECIPES[0],reason=craftReason(s,r);
-  this.put('craft-details',`<div class="craft-status"><span class="eyebrow">Primeiro passo</span><h3>${icon('bench')} Mesa inteligente</h3><p>Fabrique sua mesa, posicione no chão e interaja com o botão direito para abrir o catálogo completo.</p></div><div class="craft-cost">${itemKeys.filter(k=>r.cost[k]).map(k=>`<span>${ITEMS[k].label}: ${available(s,k)} / ${r.cost[k]}</span>`).join('')}</div><button data-craft="bench" ${reason?'disabled':''}>${reason||'Fabricar mesa'}</button>${s.inventory.items.bench?`<button id="place-bench">Posicionar mesa (${s.inventory.items.bench})</button><p>Ande e mova a mira para escolher o local. Botão esquerdo confirma; direito cancela.</p>`:''}`);
+  this.put('craft-details',`<div class="craft-status"><span class="eyebrow">Primeiro passo</span><h3>${icon('bench')} Mesa inteligente</h3><p>Fabrique sua mesa, posicione no chão e pressione E para abrir o catálogo. Na mesa, fabrique o martelo para construir paredes, portas e andares.</p></div><div class="craft-cost">${itemKeys.filter(k=>r.cost[k]).map(k=>`<span>${ITEMS[k].label}: ${available(s,k)} / ${r.cost[k]}</span>`).join('')}</div><button data-craft="bench" ${reason?'disabled':''}>${reason||'Fabricar mesa'}</button>${s.inventory.items.bench?`<button id="place-bench">Posicionar mesa (${s.inventory.items.bench})</button><p>Ande e mova a mira para escolher o local. Botão esquerdo confirma; direito cancela.</p>`:''}`);
  }
 }

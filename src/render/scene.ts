@@ -1,4 +1,7 @@
 import {CraftingView} from './crafting-view';
+import {ConstructionView} from './construction-view';
+import type {BuildPreview} from './construction-view';
+import {structureFloorHeight,structureSurfaceY} from '../game/construction';
 import {EnvironmentalDressing} from './environmental-dressing';
 import {ImpactDecals} from './impact-decals';
 import {surfaceStats} from './surface-materials';
@@ -18,7 +21,7 @@ import { CityView } from './city-view';
 import { FPS,lookDirection } from '../game/first-person';
 import { Viewmodel } from './viewmodel';
 import type { MouseLook } from '../game/first-person';
-import { rayWorld, floorHeight } from '../game/world';
+import { rayWorld } from '../game/world';
 import { bodyHit } from '../game/combat';
 import { CorpseView } from './corpses';
 import * as THREE from 'three';
@@ -46,7 +49,9 @@ export class GameScene {
   private shadowCenter=new THREE.Vector3();private sunDirection=new THREE.Vector3(...VISUAL.sun.offset).normalize();
   private shadowRight=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),this.sunDirection).normalize();
   private shadowUp=new THREE.Vector3().crossVectors(this.sunDirection,this.shadowRight);
-  private survival: SurvivalView;private craftingView:CraftingView;craftPreview:'bench'|'chest'|undefined;openChest:number|undefined;
+  private survival: SurvivalView;private craftingView:CraftingView;private constructionView:ConstructionView;
+  craftPreview:'bench'|'chest'|undefined;openChest:number|undefined;buildPreview:BuildPreview|undefined;
+  furnitureMove:{kind:'bench'|'chest';id:number}|undefined;furnitureRotation=0;
   readonly remoteView=new RemotePlayers(this.scene);remoteStates:RemotePlayerState[]=[];
   private expedition:ExpeditionView; town: Town; survivor = new Character(); walkers: Character[] = [];
   private city:CityView; private urban:UrbanView;
@@ -74,7 +79,7 @@ export class GameScene {
     this.torch.shadow.mapSize.set(512,512);this.torch.shadow.bias=-.00015;this.torch.shadow.normalBias=.02;this.torch.shadow.camera.near=.15;this.torch.shadow.camera.far=25;
     this.scene.add(this.sun, this.sun.target, this.ambient, this.flashLight,this.torch,this.torch.target);
     this.town = createTown(this.scene);this.expedition=new ExpeditionView(this.scene); this.corpses=new CorpseView(this.scene); this.survival = new SurvivalView(this.scene); this.scene.add(this.survivor.root);
-    this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);this.craftingView=new CraftingView(this.scene);
+    this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);this.craftingView=new CraftingView(this.scene);this.constructionView=new ConstructionView(this.scene);
     for (let i = 0; i < BALANCE.walker.capacity; i++) { const c = new Character(true, i); c.root.visible = false; this.walkers.push(c); this.scene.add(c.root); }
     this.ring = new THREE.Mesh(new THREE.RingGeometry(.69, .74, 40), new THREE.MeshBasicMaterial({ color: 0xe8d7a5, transparent: true, opacity: .65, depthWrite: false }));
     this.ring.rotation.x = -Math.PI / 2; this.scene.add(this.ring);
@@ -112,6 +117,8 @@ export class GameScene {
         }
         this.infectedPrepared=true;
       }
+      progress('Preparando as estruturas do abrigo…',18);
+      await this.constructionView.prepare();
       progress('Preparando a iluminação de Santa Luz…',20);
       this.render(sim,0,0,false,false);
       // Match the render target used during gameplay: compiling against the canvas
@@ -158,12 +165,12 @@ export class GameScene {
       }
     } finally {gl.deleteSync(fence);}
   }
-  metrics(): { meshes: number; materials: number; geometries: number; textures: number; geometryMB: number; cacheMB: number; heapMB: number | null; voxelAssets: number; activeChunks:number; visual:ReturnType<PostProcessing['metrics']>; surfaces:ReturnType<typeof surfaceStats>; dressing:ReturnType<EnvironmentalDressing['stats']>; decals:ReturnType<ImpactDecals['metrics']> } {
+  metrics(): { meshes: number; materials: number; geometries: number; textures: number; geometryMB: number; cacheMB: number; heapMB: number | null; voxelAssets: number; activeChunks:number; visual:ReturnType<PostProcessing['metrics']>; surfaces:ReturnType<typeof surfaceStats>; dressing:ReturnType<EnvironmentalDressing['stats']>; decals:ReturnType<ImpactDecals['metrics']>; construction:ReturnType<ConstructionView['metrics']> } {
     const materials = new Set<THREE.Material>(), geometries = new Set<THREE.BufferGeometry>(); let meshes = 0, bytes = 0;
     [this.scene,this.viewmodel.scene].forEach(scene=>scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Points) { meshes++; geometries.add(o.geometry); for (const m of Array.isArray(o.material) ? o.material : [o.material]) materials.add(m); } }));
     geometries.forEach(g => { for (const a of Object.values(g.attributes)) bytes += a.array.byteLength; bytes += g.index?.array.byteLength ?? 0; });
     const cache = voxelStats(), memory = (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory;
-    return { meshes, materials: materials.size, geometries: this.renderer.info.memory.geometries, textures: this.renderer.info.memory.textures, geometryMB: Math.round(bytes / 104857.6) / 10, cacheMB: Math.round(cache.geometryBytes / 104857.6) / 10, heapMB: memory ? Math.round(memory.usedJSHeapSize / 104857.6) / 10 : null, voxelAssets: cache.assets,visual:this.post.metrics(),surfaces:surfaceStats(),dressing:this.dressing.stats(),decals:this.impactDecals.metrics(),activeChunks:this.urban.active+this.city.active+this.town.chunks.filter(g=>g.visible).length };
+    return { meshes, materials: materials.size, geometries: this.renderer.info.memory.geometries, textures: this.renderer.info.memory.textures, geometryMB: Math.round(bytes / 104857.6) / 10, cacheMB: Math.round(cache.geometryBytes / 104857.6) / 10, heapMB: memory ? Math.round(memory.usedJSHeapSize / 104857.6) / 10 : null, voxelAssets: cache.assets,visual:this.post.metrics(),surfaces:surfaceStats(),dressing:this.dressing.stats(),decals:this.impactDecals.metrics(),construction:this.constructionView.metrics(),activeChunks:this.urban.active+this.city.active+this.town.chunks.filter(g=>g.visible).length };
   }
   setQuality(quality: string): void {
     this.quality = quality;const preset=visualPreset(quality),ratio=Math.min(devicePixelRatio,preset.pixelRatio);if(this.renderer.getPixelRatio()!==ratio)this.renderer.setPixelRatio(ratio);
@@ -201,11 +208,11 @@ export class GameScene {
       const bloodCount=e.hit?8:e.material==='air'?0:4;for(let i=0;i<bloodCount;i++){const p=this.particles[(this.particleIndex-1-i+this.particles.length)%this.particles.length];p.velocity.x+=(e.to.x-e.from.x)/Math.max(1,length)*2;p.velocity.z+=(e.to.z-e.from.z)/Math.max(1,length)*2;}
       const start=new THREE.Vector3(e.from.x,e.fromY??1.3,e.from.z),end=new THREE.Vector3(e.to.x,e.y??1.3,e.to.z);t.mesh.position.copy(start).lerp(end,.5);t.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),end.clone().sub(start).normalize());t.mesh.scale.z=start.distanceTo(end);
       if(!remote&&e.primary!==false&&e.weapon==='shotgun')this.kick=this.shake?FPS.cameraShakeAmount:0; if(e.primary!==false&&e.weapon!=='revolver'){const c=this.casings[this.casingIndex++%this.casings.length],right=new THREE.Vector3(1,0,0).applyQuaternion(this.camera.quaternion);c.mesh.position.copy(start).addScaledVector(right,.12);c.velocity.copy(right).multiplyScalar(1.6);c.velocity.y=1.4;c.life=1.4;c.mesh.visible=true;c.mesh.scale.set(1,1,e.weapon==='shotgun'?1.3:1);}
-      this.flashLight.position.set(e.from.x, 1.7, e.from.z); this.flashLight.intensity = 3+WEAPONS[e.weapon??'pistol'].flash;
+      this.flashLight.position.set(e.from.x, e.fromY??1.7, e.from.z); this.flashLight.intensity = 3+WEAPONS[e.weapon??'pistol'].flash;
     } else if(e.type==='hit'&&!remote)this.burst(e.position.x,e.zone==='HEAD'?1.65:e.zone==='LEGS'?.45:1.05,e.position.z,0x793e33,8);
     else if(e.type==='glass')this.burst(e.position.x,1.3,e.position.z,0xb9d2c3,18);
-    else if (e.type === 'barricade-hit' || e.type === 'barricade-break') this.burst(e.position.x, .9, e.position.z, 0x9f835b, e.type === 'barricade-break' ? 24 : 4);
-    else if (e.type === 'build' || e.type === 'repair') this.burst(e.position.x, .6, e.position.z, 0xbeab75, 6);
+    else if (e.type === 'barricade-hit' || e.type === 'barricade-break') this.burst(e.position.x, e.y??.9, e.position.z, 0x9f835b, e.type === 'barricade-break' ? 24 : 4);
+    else if (e.type === 'build' || e.type === 'repair') this.burst(e.position.x, e.y??.6, e.position.z, 0xbeab75, 6);
     else if(e.type==='heavy-step'){this.burst(e.position.x,.1,e.position.z,0x8b896b,4);}
     else if(e.type==='spit'){this.burst(e.position.x,1.8,e.position.z,0xa5ad6c,4);}
     else if(e.type==='hurt'&&!remote){this.kick=this.shake?FPS.cameraShakeAmount:0;this.post.hurt();}
@@ -213,17 +220,17 @@ export class GameScene {
   }
   render(sim: Simulation, dt: number, elapsed: number, menu: boolean, draw=true): void {
     const yaw=menu?Math.PI*.75:this.look?.yaw??sim.player.angle,pitch=menu?-.03:(this.look?.pitch??sim.player.pitch)+sim.player.aimKick;
-    this.focus.set(sim.player.x,0,sim.player.z);
+    this.focus.set(sim.player.x,menu?0:sim.groundY,sim.player.z);
     const bob=sim.player.moving?Math.sin(elapsed*(sim.player.running?13:9))*FPS.headBobAmount*this.headBob*(sim.player.crouched?.2:sim.player.running?1:.5):0;
     this.camera.position.set(menu?1:sim.player.x,menu?1.85:sim.player.eyeY+bob+this.kick,menu?7:sim.player.z);
     this.camera.rotation.set(pitch,yaw+Math.PI,0,'YXZ');this.kick*=Math.exp(-dt*24);
     const targetFov=sim.player.ads?(sim.equipped.type==='marksman'?FPS.precisionFov:Math.min(this.fov-14,FPS.adsFov)):this.fov+(sim.player.running?2:0);
     this.camera.fov+=(targetFov-this.camera.fov)*(1-Math.exp(-dt*FPS.adsSpeed));this.projection();this.camera.updateMatrixWorld();
     const direction=lookDirection(yaw,pitch),horizontal=Math.hypot(direction.x,direction.z),origin=this.camera.position;
-    const max=rayWorld(origin,direction,sim.weapon.range,sim.solidDefenses.map(b=>({...b,h:1.5})));
+    const max=rayWorld(origin,direction,sim.weapon.range,sim.solidDefenses.map(b=>({...b,h:b.h??('kind' in b?b.kind==='window'?2.4:2.8:1.4)})));
     this.aimTarget=sim.zombies.some(z=>z.active&&bodyHit(origin,{x:direction.x/horizontal,z:direction.z/horizontal},direction.y/horizontal,z,max*horizontal,origin.y));
     this.survivor.root.visible=false;this.ring.visible=false;
-    this.survivor.root.position.set(sim.player.x, .18, sim.player.z);
+    this.survivor.root.position.set(sim.player.x, sim.groundY, sim.player.z);
     const difference = Math.atan2(Math.sin(sim.player.angle - this.survivor.root.rotation.y), Math.cos(sim.player.angle - this.survivor.root.rotation.y));
     this.survivor.root.rotation.y += difference * (1 - Math.exp(-dt * 25));
     this.survivor.setWeapon(sim.equipped.type);this.survivor.animate(elapsed, sim.player.moving && !menu, sim.player.running, sim.recoil, sim.player.invulnerable > .35 ? 1 : 0);
@@ -233,12 +240,13 @@ export class GameScene {
       const c = this.walkers[i], z = sim.zombies[i]; c.root.visible = !!z?.active;
       if (z?.active) {c.setKind(z.kind,z.id%3);c.root.position.set(z.x,.1,z.z);c.root.rotation.y=z.angle;c.animateInfected(z,dt,elapsed,Math.hypot(z.x-sim.player.x,z.z-sim.player.z)<2);}
     }
-    this.craftingView.update(sim,menu?undefined:this.craftPreview,this.openChest,dt);this.survival.update(sim, dt, elapsed, menu);this.expedition.update(sim,elapsed);
+    this.craftingView.update(sim,menu?undefined:this.craftPreview,this.openChest,dt,this.furnitureMove,this.furnitureRotation);
+    this.constructionView.update(sim,menu?undefined:this.buildPreview,dt);this.survival.update(sim, dt, elapsed, menu);this.expedition.update(sim,elapsed);
     if (sim.action) { this.survivor.arms.rotation.x = -.35 + Math.sin(elapsed * 8) * .08; this.survivor.body.rotation.x = .08; }
     else this.survivor.body.rotation.x = sim.player.running?.12:sim.player.exhausted?.05+Math.sin(elapsed*4)*.012:0;
     const smooth = (x: number): number => { x = THREE.MathUtils.clamp(x, 0, 1); return x * x * (3 - 2 * x); };
     const night = menu ? .9 : smooth(sim.cycle.darkness);
-    this.city.update(sim,night,dt);this.urban.update(sim,elapsed);this.dressing.update(sim.player.x,sim.player.z,this.quality);this.impactDecals.update(dt,sim.player.x,sim.player.z,this.quality);
+    this.city.update(sim,night,dt);this.urban.update(sim,elapsed);this.dressing.update(sim.player.x,sim.player.z,this.quality);this.impactDecals.update(dt,sim.player.x,sim.player.z,this.quality,sim.solidDefenses);
     this.sky.copy(this.dayColor).lerp(this.nightColor, night); (this.scene.background as THREE.Color).copy(this.sky);
     const fog = this.scene.fog as THREE.FogExp2; fog.color.copy(this.sky); fog.density = THREE.MathUtils.lerp(VISUAL.fog.density,VISUAL.fog.nightDensity,night);
     this.atmosphere.update(this.camera,night,this.sunDirection,elapsed);
@@ -246,7 +254,8 @@ export class GameScene {
     const sunset = sim.phase === 'night' || sim.phase === 'dawn' ? 0 : Math.sin(sim.cycle.darkness * Math.PI);
     this.sun.color.lerp(this.sunsetColor, sunset * .3);
     this.sun.position.y = VISUAL.sun.offset[1];
-    const inside=CITY_SITES.some(s=>s.kind!=='cemetery'&&Math.abs(sim.player.x-s.x)<s.w/2-.25&&Math.abs(sim.player.z-s.z)<s.d/2-.25)||BUILDINGS.some(b=>hasInterior(b)&&Math.abs(sim.player.x-b.x)<b.w/2&&Math.abs(sim.player.z-b.z)<b.d/2);
+    const shelterRoof=sim.crafting.structures.some(p=>p.hp>0&&(p.kind==='roof'||p.kind==='floor')&&Math.abs(sim.player.x-p.x)<1.5&&Math.abs(sim.player.z-p.z)<1.5&&structureSurfaceY(p)>sim.player.eyeY&&structureSurfaceY(p)-sim.player.eyeY<4);
+    const inside=shelterRoof||CITY_SITES.some(s=>s.kind!=='cemetery'&&Math.abs(sim.player.x-s.x)<s.w/2-.25&&Math.abs(sim.player.z-s.z)<s.d/2-.25)||BUILDINGS.some(b=>hasInterior(b)&&Math.abs(sim.player.x-b.x)<b.w/2&&Math.abs(sim.player.z-b.z)<b.d/2);
     this.interior+=(Number(inside)-this.interior)*(1-Math.exp(-Math.max(dt,.001)*2.5));
     this.ambient.intensity=THREE.MathUtils.lerp(VISUAL.ambient.day,VISUAL.ambient.night,night)*(1-this.interior*.42);this.ambient.color.setHex(VISUAL.ambient.sky).lerp(this.nightAmbient,night);this.ambient.groundColor.setHex(VISUAL.ambient.ground);
     this.renderer.toneMappingExposure=VISUAL.exposure+this.interior*.10;
@@ -272,7 +281,13 @@ export class GameScene {
 
     }
     for (const p of this.particles) if (p.life > 0) { p.life -= dt; p.mesh.visible = p.life > 0; p.mesh.position.addScaledVector(p.velocity, dt); p.velocity.y -= dt * 8; p.mesh.rotation.x += dt * 4; p.mesh.scale.multiplyScalar(Math.exp(-dt * 2)); }
-    for(const c of this.casings)if(c.life>0){c.life-=dt;c.mesh.visible=c.life>0;c.mesh.position.addScaledVector(c.velocity,dt);c.velocity.y-=9*dt;const ground=floorHeight({x:c.mesh.position.x,z:c.mesh.position.z})+.025;if(c.mesh.position.y<ground){c.mesh.position.y=ground;c.velocity.y=Math.abs(c.velocity.y)*.22;c.velocity.x*=.65;c.velocity.z*=.65;}c.mesh.rotation.x+=dt*12;c.mesh.rotation.z+=dt*7;}
+    for(const c of this.casings)if(c.life>0){
+      const previousY=c.mesh.position.y;
+      c.life-=dt;c.mesh.visible=c.life>0;c.mesh.position.addScaledVector(c.velocity,dt);c.velocity.y-=9*dt;
+      const ground=structureFloorHeight(sim,{x:c.mesh.position.x,z:c.mesh.position.z},previousY-.025)+.025;
+      if(c.mesh.position.y<ground){c.mesh.position.y=ground;c.velocity.y=Math.abs(c.velocity.y)*.22;c.velocity.x*=.65;c.velocity.z*=.65;}
+      c.mesh.rotation.x+=dt*12;c.mesh.rotation.z+=dt*7;
+    }
     for (const t of this.tracers) { t.life -= dt; t.mesh.visible = t.life > 0; }
     for (let i = 0; i < this.dustArray.length; i += 3) { this.dustArray[i] += dt * .15; if (this.dustArray[i] > 40) this.dustArray[i] = -40; }
     this.dust.geometry.attributes.position.needsUpdate = true;

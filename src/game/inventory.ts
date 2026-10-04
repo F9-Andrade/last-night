@@ -1,7 +1,7 @@
 import { BALANCE } from './config.ts';
 import { FOODS } from './nutrition.ts';
 export const ITEMS = {
-  chest: { label: 'Baú', weight: 2, step: 1, hint: '27 espaços. Posicione no chão e abra com o botão direito para guardar itens.' },
+  chest: { label: 'Baú', weight: 2, step: 1, hint: '27 espaços. Posicione no chão e abra com o E para guardar itens.' },
   hide: { label: 'Pele recuperada', weight: .3, step: 1, hint: 'Couro bruto dos infectados. Trate na mesa para fabricar proteção.' },
   cloth: { label: 'Tecido', weight: .1, step: 1, hint: 'Retalhos aproveitáveis para bandagens, cordas e equipamento.' },
   cord: { label: 'Corda', weight: .2, step: 1, hint: 'Fibra trançada. Usada em ferramentas e construções.' },

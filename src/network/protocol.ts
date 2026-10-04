@@ -3,7 +3,7 @@ import type {WeaponId} from '../game/weapons';
 import type {LifeState} from './gameplay-protocol';
 /** Shared version/build boundary. Gameplay messages live in gameplay-protocol.ts. */
 export const NETWORK_PROTOCOL_VERSION=2;
-export const NETWORK_BUILD='santa-luz-nutrition-1';
+export const NETWORK_BUILD='santa-luz-hammer-1';
 export const NETWORK_SEND_RATE=20;
 export const INTERPOLATION_DELAY=120;
 export const MAX_PLAYERS=4;

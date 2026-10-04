@@ -3,7 +3,7 @@ import {CITY_LIMIT} from '../game/city.ts';
 import {createPatch,applyPatch} from './world-patch.ts';
 import {Simulation} from '../game/simulation.ts';
 import type {InputCommand} from '../game/simulation.ts';
-import {floorHeight,distance} from '../game/world.ts';
+import {distance} from '../game/world.ts';
 import type {Item} from '../game/inventory.ts';
 import {WEAPONS} from '../game/weapons.ts';
 import {NetworkManager} from './manager';
@@ -34,7 +34,7 @@ export class CoopSession {
  get localRecord(){return this.checkpoint?.players.find(p=>p.actor===this.network.localActor);}
  get incapacitated(){return !!this.localRecord&&this.localRecord.life!=='alive';}
  get ready(){return !!this.checkpoint&&!this.error;}
- private enqueue(details:RequestDetails){const pose=poseOf(this.local.player,floorHeight(this.local.player),performance.now());const request={...details,seq:++this.sequence,pose} as ActionRequest;if(details.kind!=='hold')this.reconciliationSeq=request.seq;this.pending.push(request);}
+ private enqueue(details:RequestDetails){const pose=poseOf(this.local.player,this.local.groundY,performance.now());const request={...details,seq:++this.sequence,pose} as ActionRequest;if(details.kind!=='hold')this.reconciliationSeq=request.seq;this.pending.push(request);}
  action(details:RequestDetails){if(!this.incapacitated&&this.ready)this.enqueue(details);}
  inventory(operation:'deposit'|'withdraw'|'discard',item:Item){this.action({kind:'inventory',operation,item});}
  beforeStep(dt:number,input:InputCommand):InputCommand {
@@ -48,8 +48,8 @@ export class CoopSession {
   if(input.interact&&!target){const f=this.local.focus;if(f&&['loot','portal','weapon','facility','defense','base'].includes(f.kind))this.enqueue({kind:'interact',target:entityId(f.kind==='loot'||f.kind==='facility'||f.kind==='defense'||f.kind==='base'?'container':f.kind==='portal'?'door':'weapon',f.id)});}
   return {...input,interact:false,heldInteract:false,heal:false,dismantle:false};
  }
- afterStep(){for(const request of this.pending.splice(0)){if(this.owner){this.owner.setPose(this.network.localActor,request.pose);this.owner.request(this.network.localActor,request);if(request.kind!=='hold')this.dirty=true;}else this.network.sendGameplay(GameplayEvent.ActionRequest,request,this.network.masterActor);}}
- reviveTarget(){return this.checkpoint?.players.find(p=>p.actor!==this.network.localActor&&p.life==='downed'&&distance(p.player,this.local.player)<=COOP.reviveRange);}
+ afterStep(){for(const request of this.pending.splice(0)){if(this.owner){this.owner.request(this.network.localActor,request);if(request.kind!=='hold')this.dirty=true;}else this.network.sendGameplay(GameplayEvent.ActionRequest,request,this.network.masterActor);}}
+ reviveTarget(){return this.checkpoint?.players.find(p=>p.actor!==this.network.localActor&&p.life==='downed'&&distance(p.player,this.local.player)<=COOP.reviveRange&&Math.abs(p.player.eyeY-this.local.player.eyeY)<=2);}
  private tick(dt:number){
   if(this.network.state!=='playing')return;
   if(this.master!==this.network.masterActor){this.master=this.network.masterActor;this.owner=undefined;this.published=undefined;this.motionFrames.clear();this.motionClockSync.clear();this.lastMotionSent.clear();this.budgets.clear();this.metrics.migrations++;
@@ -84,6 +84,7 @@ export class CoopSession {
  }
  private acceptEffects(effects:SessionEffect[]){this.confirmed.push(...effects);if(this.confirmed.length>128)this.confirmed.splice(0,this.confirmed.length-128);for(const e of effects){if(e.actor===this.network.localActor&&['melee','shot','reload','reload-out','reload-in','reload-slide','reload-done','empty','switch'].includes(e.event.type))continue;this.effects.push(e);}if(this.effects.length>240)this.effects.splice(0,this.effects.length-240);}
  private apply(c:WorldCheckpoint){
+  const wasIncapacitated=this.incapacitated;
   this.corpseAges=new Map(c.corpses.map(v=>[v.id,v.age]));this.acidAges=new Map(c.acids.map(v=>[v.id,v.age]));
   this.checkpoint=c;this.lastSnapshotAt=performance.now();this.metrics.checkpoints++;this.metrics.hash=stateHash(c);
   const sim=this.local;restoreSurvival(sim,c.survival);sim.loot=structuredClone(c.loot);sim.groundWeapons=structuredClone(c.ground);sim.corpses.bodies=structuredClone(c.corpses);sim.acids=structuredClone(c.acids);
@@ -96,9 +97,9 @@ export class CoopSession {
   this.motionClockSync.observe(c.time*1000,this.lastSnapshotAt);
   // Checkpoints also establish poses for newly spawned entities and recovery.
   for(const z of c.infected)this.pushFrame(z.id,c.time,z.x,z.z,z.angle,z.gait);
-  const local=this.localRecord;if(local){if(this.metrics.checkpoints===1)sim.perks=new Set(local.perks);sim.builderUsed=local.builderUsed;sim.openingReady=local.openingReady;sim.player.hp=local.player.hp;sim.player.invulnerable=local.player.invulnerable;sim.action=structuredClone(local.action);sim.nutrition=structuredClone(local.nutrition);
+  const local=this.localRecord;if(local){if(this.metrics.checkpoints===1)sim.perks=new Set(local.perks);if(this.metrics.checkpoints===1||wasIncapacitated&&local.life==='alive')Object.assign(sim.player,{x:local.player.x,z:local.player.z,eyeY:local.player.eyeY,crouched:local.player.crouched});sim.builderUsed=local.builderUsed;sim.openingReady=local.openingReady;sim.player.hp=local.player.hp;sim.player.invulnerable=local.player.invulnerable;sim.action=structuredClone(local.action);sim.nutrition=structuredClone(local.nutrition);
    if(local.lastSeq>=this.reconciliationSeq){const consumption=structuredClone(local.consumption);if(consumption&&sim.consumption?.item===consumption.item)consumption.elapsed=Math.min(consumption.duration,Math.max(consumption.elapsed,Math.min(consumption.elapsed+.35,sim.consumption.elapsed)));sim.consumption=consumption;sim.inventory.items={...local.inventory};sim.storage.items={...local.storage};sim.loadout=structuredClone(local.loadout);sim.activeSlot=local.activeSlot;sim.gear=structuredClone(local.gear);sim.packCrafted=local.packCrafted;sim.inventory.capacity=local.capacity;sim.reloadTimer=local.reloadTimer;sim.reloadDuration=local.reloadDuration;sim.switchTimer=local.switchTimer;sim.weaponStorage=structuredClone(local.weaponStorage);}
-   if(local.life!=='alive'){sim.player.eyeY=floorHeight(sim.player)+.6;sim.player.moving=false;sim.player.running=false;sim.action=null;sim.consumption=null;sim.cancelReload();}
+   if(local.life!=='alive'){sim.player.eyeY=local.player.eyeY;sim.player.moving=false;sim.player.running=false;sim.action=null;sim.consumption=null;sim.cancelReload();}
   }sim.gameOver=c.wipe;
  }
  private pushFrame(id:number,time:number,x:number,z:number,angle:number,gait:number){
@@ -116,9 +117,9 @@ export class CoopSession {
   for(const c of this.local.corpses.bodies){const base=this.corpseAges.get(c.id);if(base!==undefined)c.age=base+age;}
   const time=this.motionClockSync.time(now);
   for(const z of this.local.zombies)this.motionFrames.get(z.id)?.sample(time,z);
-  if(this.incapacitated)this.local.player.eyeY=floorHeight(this.local.player)+.6;
+  if(this.incapacitated)this.local.player.eyeY=this.localRecord!.player.eyeY;
  }
- decorate(states:RemotePlayerState[]){return states.map(s=>{const p=this.checkpoint?.players.find(p=>p.actor===s.identity.actorNumber);return {...s,gameplay:p?{life:p.life,hp:p.player.hp,consumption:p.consumption?{...p.consumption,elapsed:Math.min(p.consumption.duration,p.consumption.elapsed+Math.min(.6,(performance.now()-this.lastSnapshotAt)/1000))}:null,weapon:p.loadout[p.activeSlot as 0|1]?.type??'pistol',melee:p.activeSlot>=2?(p.activeSlot===3?'fists':p.gear.melee):undefined,reload:p.reloadTimer,reloadDuration:p.reloadDuration}:undefined};});}
+ decorate(states:RemotePlayerState[]){return states.map(s=>{const p=this.checkpoint?.players.find(p=>p.actor===s.identity.actorNumber);return {...s,...(p&&p.life!=='alive'&&s.snapshot?{snapshot:{...s.snapshot,x:p.player.x,z:p.player.z,y:p.player.eyeY-.6}}:{}),gameplay:p?{life:p.life,hp:p.player.hp,consumption:p.consumption?{...p.consumption,elapsed:Math.min(p.consumption.duration,p.consumption.elapsed+Math.min(.6,(performance.now()-this.lastSnapshotAt)/1000))}:null,weapon:p.loadout[p.activeSlot as 0|1]?.type??'pistol',melee:p.activeSlot>=2?(p.activeSlot===3?'fists':p.gear.melee):undefined,reload:p.reloadTimer,reloadDuration:p.reloadDuration}:undefined};});}
  dispose(){this.network.onGameplay=()=>{};this.network.onTick=()=>{};this.local.onBeforeShot=undefined;this.effects=[];this.pending=[];this.owner=undefined;this.motionFrames.clear();}
  debug(){return {...this.metrics,gameplay:{...this.network.gameplayMetrics},confirmed:this.confirmed,actor:this.network.localActor,master:this.master,snapshotAge:this.lastSnapshotAt?performance.now()-this.lastSnapshotAt:null,entities:this.owner?.registry.size??(this.checkpoint?this.checkpoint.infected.length+this.checkpoint.loot.length+this.checkpoint.portals.length:0),infected:this.checkpoint?.infected.length??0,revision:this.checkpoint?.revision??0,players:this.checkpoint?.players,error:this.error};}
 }

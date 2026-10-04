@@ -1,3 +1,6 @@
+import {validStructureRequest} from '../game/construction.ts';
+import type {StructureRequest} from '../game/construction.ts';
+import {CITY_LIMIT} from '../game/city.ts';
 import {isFood} from '../game/nutrition.ts';
 import type {FoodId} from '../game/nutrition.ts';
 import {validChestMove} from '../game/chests.ts';
@@ -20,9 +23,19 @@ export type ActionRequest=RequestBase&(
  {kind:'fire';shot:number;weapon:WeaponId;seed:number;ads:boolean;bloom:number;kick:number}|
  {kind:'reload'|'heal'|'cancel'|'cancel-consume'|'dismantle'}|{kind:'consume';item:FoodId}|{kind:'switch';slot:0|1|2|3}|{kind:'craft';recipe:string}|{kind:'place-bench'}|{kind:'reclaim-bench';table?:number}|{kind:'melee-equip';melee:MeleeId}|
  {kind:'chest-move';move:ChestMove}|{kind:'place-chest'}|{kind:'reclaim-chest';chest:number}|
+ {kind:'place-structure';placement:StructureRequest}|
+ {kind:'manage-structure';id:number;revision:number;operation:'fortify'|'repair'|'toggle'|'dismantle'}|
+ {kind:'relocate-furniture';furniture:'bench'|'chest';id:number;revision:number;placement:FurniturePlacementRequest}|
+ {kind:'place-furniture';furniture:'bench'|'chest';placement:FurniturePlacementRequest}|
  {kind:'interact';target:NetworkEntityId}|{kind:'hold';target:number;held:boolean}|
  {kind:'inventory';item:Item;operation:'deposit'|'withdraw'|'discard'}|
  {kind:'store';slot:0|1}|{kind:'retrieve';uid:number});
+export interface FurniturePlacementRequest {x:number;z:number;y:number;angle:number}
+const finite=(n:unknown,min:number,max:number):n is number=>typeof n==='number'&&Number.isFinite(n)&&n>=min&&n<=max;
+function furniturePlacement(value:unknown):FurniturePlacementRequest|null {
+ if(!value||typeof value!=='object'||Array.isArray(value))return null;const p=value as Record<string,unknown>;
+ return finite(p.x,-CITY_LIMIT,CITY_LIMIT)&&finite(p.z,-CITY_LIMIT,CITY_LIMIT)&&finite(p.y,-.5,10)&&finite(p.angle,-Math.PI-.01,Math.PI+.01)?{x:p.x,z:p.z,y:p.y,angle:p.angle}:null;
+}
 const integer=(n:unknown,min=0,max=2147483647):n is number=>typeof n==='number'&&Number.isSafeInteger(n)&&n>=min&&n<=max;
 export function parseAction(value:unknown):ActionRequest|null {
  if(!boundedJSON(value,200)||!value||typeof value!=='object'||Array.isArray(value))return null;const d=value as Record<string,unknown>;
@@ -32,6 +45,13 @@ export function parseAction(value:unknown):ActionRequest|null {
  case 'fire':if(!integer(d.shot,1)||!integer(d.seed,0,4294967295)||typeof d.weapon!=='string'||!Object.hasOwn(WEAPONS,d.weapon)||typeof d.ads!=='boolean'||typeof d.bloom!=='number'||!Number.isFinite(d.bloom)||d.bloom<0||d.bloom>.1||typeof d.kick!=='number'||!Number.isFinite(d.kick)||d.kick<0||d.kick>.13)return null;return {...base,kind:'fire',shot:d.shot,seed:d.seed,weapon:d.weapon as WeaponId,ads:d.ads,bloom:d.bloom,kick:d.kick};
  case 'consume':return isFood(d.item)?{...base,kind:'consume',item:d.item}:null;
  case 'reload':case 'heal':case 'cancel':case 'cancel-consume':case 'dismantle':return {...base,kind:d.kind};
+ case 'place-structure':return validStructureRequest(d.placement)?{...base,kind:'place-structure',placement:{kind:d.placement.kind,x:d.placement.x,z:d.placement.z,level:d.placement.level,rotation:d.placement.rotation}}:null;
+ case 'manage-structure':return integer(d.id,1)&&integer(d.revision)&&['fortify','repair','toggle','dismantle'].includes(String(d.operation))?{...base,kind:'manage-structure',id:d.id,revision:d.revision,operation:d.operation as 'fortify'|'repair'|'toggle'|'dismantle'}:null;
+ case 'relocate-furniture':case 'place-furniture':{
+  const p=furniturePlacement(d.placement);if(!p||d.furniture!=='bench'&&d.furniture!=='chest')return null;
+  if(d.kind==='place-furniture')return {...base,kind:'place-furniture',furniture:d.furniture,placement:p};
+  return integer(d.id,1)&&integer(d.revision)?{...base,kind:'relocate-furniture',furniture:d.furniture,id:d.id,revision:d.revision,placement:p}:null;
+ }
  case 'chest-move':return validChestMove(d.move)?{...base,kind:'chest-move',move:d.move}:null;
  case 'reclaim-chest':return integer(d.chest,1)?{...base,kind:'reclaim-chest',chest:d.chest}:null;
  case 'place-chest':

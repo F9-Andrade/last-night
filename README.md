@@ -33,24 +33,41 @@ O build fica em `dist/`. Não abra `index.html` diretamente pelo sistema de arqu
 | Botão direito | Mirar pelos sights (ADS) |
 | C / Ctrl | Agachar enquanto segura |
 | Clique esquerdo | Disparar; segure para SMG e rifle de assalto |
-| 1 / 2 ou roda | Arma longa / arma curta |
+| 1 / 2 / 3 / 4 | Arma longa / arma curta / ferramenta ou arma branca / punhos |
+| Roda, fora da construção | Alternar arma longa / arma curta |
 | R | Recarregar usando munição da reserva |
-| E | Interagir: vasculhar, equipar arma, abrir cache, ativar gerador, desligar alarme ou construir |
-| Segurar E | Reparar uma barricada danificada |
+| E | Interagir, abrir baú/mesa e abrir/fechar portas |
+| G | Gerenciar a construção na mira: fortificar, reparar ou desmontar |
 | H | Aplicar bandagem |
 | Tab | Mochila, armas e vantagens adquiridas |
 | M / F | Mapa / lanterna |
-| X | Desmontar a barricada próxima e liberar passagem |
+| B | Equipar ou guardar o martelo já fabricado |
+| 1–9 / roda com martelo na mão | Escolher peça na barra de construção |
+| R / botão direito com martelo na mão | Girar a peça 90° |
+| PgUp / PgDn com martelo na mão | Selecionar andar |
+| B / 0 / Esc durante construção | Guardar o martelo e sair do posicionamento |
 | Esc | Liberar mouse e pausar; fecha mapa/mochila antes da pausa |
 
-O inventário permite guardar, retirar e descartar recursos. O depósito só está disponível no pátio do abrigo. **O tempo continua com a mochila aberta.** No solo, o botão de pausa ou sair da janela pausa a simulação; no coop os companheiros e o mundo continuam. A pausa oferece qualidade **LEVE/MÉDIA/ALTA/ULTRA**, FOV 70–105 (padrão 88), sensibilidade, balanço da câmera, impacto visual e volumes separados de efeitos/ambiente. Não há salto: o mapa permanece térreo, com pequenos degraus suavizados. Som pode ser desativado no canto superior direito.
+A mochila permite usar e descartar recursos. Para armazenar itens, fabrique um baú na mesa inteligente, posicione-o e abra com **E**. **O tempo continua com a mochila aberta.** No solo, o botão de pausa ou sair da janela pausa a simulação; no coop os companheiros e o mundo continuam. A pausa oferece qualidade **LEVE/MÉDIA/ALTA/ULTRA**, FOV 70–105 (padrão 88), sensibilidade, balanço da câmera, impacto visual e volumes separados de efeitos/ambiente. Não há salto: escadas construídas permitem circular entre os andares do abrigo. Som pode ser desativado no canto superior direito.
+
+## Construção e reposicionamento
+
+Fabrique o **martelo de construção** na mesa inteligente usando **3 madeiras, 5 sucatas e 1 tecido**. Equipe-o com **B** ou pela aba **Equipamento** da mochila. Segurar o martelo ativa o modo de construção e exibe nove slots na parte inferior da tela: parede, parede com janela, porta, piso, teto, escada, estacas, laço e cerca de arame. Essas peças são selecionadas pelo martelo; a mesa continua fabricando ferramentas e os demais itens.
+
+Paredes de **3 m de altura**, com ou sem janela, portas articuladas, pisos, tetos, escadas e armadilhas encaixam em módulos de **3 × 3 m** no terreno do abrigo. A malha e o contorno aparecem somente durante o posicionamento. Escolha a peça com **1–9** ou a **roda**, gire com **R** ou **botão direito**, selecione o andar com **PgUp/PgDn** e confirme com clique esquerdo. Os materiais são descontados somente na confirmação válida; o modo continua ativo para construir peças consecutivas. **B**, **0** ou **Esc** guardam o martelo. Depois, **1–4** voltam a selecionar o equipamento normalmente e o botão direito volta a mirar. O martelo não é uma arma e não corta árvores.
+
+As peças superiores precisam de apoio; deixe o vão acima da escada aberto. Há térreo, primeiro e segundo andares, com limite de 192 peças. O teto pode servir de piso para o nível seguinte. **E** abre portas; **G** acessa fortificação, reparo e desmontagem no local. Reforços usam tecido, corda e sucata, com alterações visuais. Não é possível desmontar o apoio de peças ou móveis; ataques podem destruir estruturas e seus apoios.
+
+Abra o baú ou a mesa com **E** e escolha **Reposicionar**. O objeto original continua no lugar até a confirmação. O baú conserva todas as pilhas e armas; a mesa conserva sua condição. Materiais e posições são validados pelo anfitrião no Photon e na LAN. Ambos os jogadores precisam usar a mesma versão atualizada.
+
+Detalhes técnicos e capturas: [construção modular](docs/construction/README.md).
 
 ## Uma expedição
 
-1. Comece no pátio com pistola, 12 cartuchos no pente, 60 de reserva, uma bandagem e poucos materiais. As duas caixas do pátio garantem munição e material para a primeira barricada.
+1. Comece no pátio com pistola, 12 cartuchos no pente, 60 de reserva, uma bandagem e poucos materiais. O abrigo começa com uma cama; procure recursos para fabricar a mesa inteligente e suas primeiras paredes.
 2. Explore: hospital favorece medicina; delegacia favorece munição; mercado, posto, casas e áreas externas oferecem materiais e recursos variados. Os marcadores do minimapa indicam os locais principais, sem revelar todo loot.
 3. Vasculhar demora 0,75 s. Itens vão para a mochila; o que não couber permanece no container. Mover, disparar ou sofrer dano interrompe ações. Loot já sorteado não é sorteado novamente.
-4. Volte e construa nos três pontos de defesa. A construção usa madeira e sucata da mochila e do depósito. Barricadas bloqueiam jogador e inimigos; desmonte uma se precisar abrir passagem.
+4. Volte e abra a mesa inteligente com **E**. Fabrique o martelo de construção e equipe-o com **B** ou na mochila. Escolha peças nos slots inferiores com **1–9** ou a roda e posicione-as com encaixe no terreno. Paredes altas, janelas, portas, pisos, tetos e escadas permitem desenhar seu abrigo. Aproxime-se e pressione **G** para fortificar ou reparar com materiais da mochila.
 5. Há avisos a 60 e 30 segundos do anoitecer, com contagem destacada nos últimos 10. Recarregue e prepare as defesas.
 6. Enfrente a horda, distribuída em três grupos com intervalos. Inimigos próximos perseguem você; os demais avançam para o abrigo e atacam barricadas que bloqueiam a rota.
 7. Elimine **os inimigos do cerco e os que permanecem perto do abrigo**, depois da chegada do último grupo. Há três segundos de silêncio, recompensa no depósito e escolha de uma entre três vantagens. A escolha pausa a simulação; depois, seguem dez segundos de amanhecer. A noite não acaba simplesmente por um cronômetro.

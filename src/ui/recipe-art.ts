@@ -53,6 +53,13 @@ const gun = (kind:string) => {
   seams('<path d="M19 72l17-9m-17 16 17-9M45 51h33m-30 6h18M98 61v5m6-5v5m6-5v5m6-5v5"/>')+hardware([[44,61],[80,61],[138,49]]);
 };
 const tool = (kind:string) => {
+ if(kind==='hammer')return material(wood,'<path d="m41 100 11 6 38-73-11-6z"/>')+
+  material('#4e5745','<path d="m41 95 15 8 17-32-15-8z"/>')+
+  material(steel,'<path d="m63 16 32 15 14 2 16 13-5 13-6-1 3-9-16-7-14-2-32-15z"/>')+
+  material('#a5ad9b','<path d="m57 13 10 4-9 19-11-5z"/><path d="m115 47 5 2-3 13-6-3z"/>')+
+  material(dark,'<path d="m79 27 9 4-6 12-9-4z"/><path d="m119 46 4 2-4 12-3-1z"/>')+
+  seams('<path d="m49 86 11 6m-8-12 11 6m-8-12 11 6m-11 22 10 5m26-60 11 5m-40-10 3-6"/>')+
+  hardware([[80,32],[84,34]]);
  if(kind==='club')return material(wood,'<path d="m44 97 12 7 15-30 10-6 26-36-1-10-17-9-10 6-16 44 1 11z"/>')+
   material('#777059','<path d="m62 53 26 13 4-7-27-12zM67 37l30 15 5-8-31-15z"/>')+
   seams('<path d="m56 80 10 6m-13 0 10 6m15-56 15-18m-14 35 13-18"/>')+hardware([[68,53],[75,56],[84,60],[75,36],[85,41],[94,45]]);
@@ -77,15 +84,26 @@ const bed = material(wood,'<path d="M26 54h9v43h-9zM118 39h9v58h-9zM38 64h9v40h-
  material('#676d50','<path d="m27 53 91-23 28 23-101 29z"/><path d="m27 53 18 29 101-29v12L45 92 27 67z"/>')+
  material('#aaa58b','<path d="m94 38 20-5 20 16-25 7z"/>')+seams('<path d="m41 56 61-16m-53 29 59-16m-58 23 14-4m9-3 7-2m-32-9 10-3"/>');
 const repairMark = '<g fill="none" stroke="var(--bench-accent,#c99b67)" stroke-width="2"><path d="M125 81v22m-11-11h22"/><path d="m111 77-6 6v18l6 6h28l6-6V83l-6-6z"/></g>';
+const windowWall=material(wood,'<path d="m29 22 103-8v85L29 108zM57 43v30l48-4V39z" fill-rule="evenodd"/>')+
+ material(dark,'<path d="m53 40 56-5v39l-56 5zM58 44v29l46-4V40z" fill-rule="evenodd"/>')+
+ seams('<path d="m37 24 1 81m8-81 1 79m69-85 1 79m7-81 1 80m-70-6 57-5m-57-4 57-5"/>')+
+ material('#b99b70','<path d="m51 76 60-5v5l-60 5zM77 41l4-1v32h-4z"/>')+hardware([[35,29],[125,22],[36,97],[125,89]]);
+const deck=material(wood,'<path d="m18 65 77-34 51 29-77 37z"/><path d="m18 65 51 32v10L18 75zm51 32 77-37v10l-77 37z"/>')+
+ seams('<path d="m28 62 52 30m-39-36 51 31m-38-37 51 31m-38-37 51 31m-38-37 51 31"/>')+
+ material(dark,'<path d="m29 79 5 3v13l-5-3zM66 102l5 2v11l-5-2zM131 77l5-3v12l-5 3z"/>');
+const stairArt=material(wood,'<path d="m23 99 27 13 90-63-28-13v12l-18 12V48l-18 13v12L58 85V73L40 86v12z"/>')+
+ material('#b7996c','<path d="m23 99 17-13 27 14-17 12zM40 86V74l18-13 27 13-18 13v13zM58 61V49l18-13 28 13-19 13v12zM76 36V24l18-13 28 13-18 13v12z"/>')+
+ material(dark,'<path d="m25 99 3-2 3 12-3 1zM137 46l3 2v54l-3 2z"/>')+
+ seams('<path d="m45 81 25 13m-7-37 25 13m-8-38 26 13m-2-23 10 5"/>');
 const drawings:Record<string,string> = {
- bench:table,chest,cord,club:tool('club'),knife:tool('knife'),axe:tool('axe'),spear:tool('spear'),machete:tool('machete'),
+ bench:table,chest,cord,club:tool('club'),knife:tool('knife'),axe:tool('axe'),spear:tool('spear'),machete:tool('machete'),hammer:tool('hammer'),
  leather:armor(),reinforced:armor(true),pack,'armor-repair':armor()+repairMark,'bench-repair':table+repairMark,repair:bed+repairMark,
- pistol:gun('pistol'),shotgun:gun('shotgun'),rifle:gun('rifle'),spikes,wire,snare,wall:wall(),gate:wall(false,true),fortify:wall(true),
+ pistol:gun('pistol'),shotgun:gun('shotgun'),rifle:gun('rifle'),spikes,wire,snare,wall:wall(),window:windowWall,door:wall(false,true),floor:deck,roof:deck,stairs:stairArt,gate:wall(false,true),fortify:wall(true),
 };
 const cache = new Map<string,string>();
 /** Art depends on recipe output, never inventory state; cached strings avoid work in HUD updates. */
 export function recipeArt(recipe:Recipe):string {
- const key = recipe.fortify?'fortify':recipe.trap??(recipe.module?(recipe.module==='bed-gate'?'gate':'wall'):recipe.id);
+ const key = recipe.construction??(recipe.fortify?'fortify':recipe.trap??(recipe.module?(recipe.module==='bed-gate'?'gate':'wall'):recipe.id));
  const existing=cache.get(key);if(existing)return existing;
  const body=drawings[key];
  const art=body?`<svg class="recipe-art" viewBox="0 0 160 120" fill="none" aria-hidden="true" focusable="false"><g stroke="var(--bench-accent,#c99b67)" stroke-width=".7" opacity=".3"><path d="M8 31V14h17m110 0h17v17M8 89v17h17m110 0h17V89M8 60h7m130 0h7M80 7v7m0 92v7"/><path d="M20 111h120M20 108v6m120-6v6"/></g>${body}</svg>`:

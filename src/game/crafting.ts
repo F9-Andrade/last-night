@@ -8,7 +8,8 @@ import type {Item} from './inventory.ts';
 import {BASE, TREE_TRUNKS, collides, distance, floorHeight, rayWorld} from './world.ts';
 import {lookDirection} from './first-person.ts';
 import type {Vec2} from './world.ts';
-import {DEFENSE_POINTS,defenseMaxHP,obstacleDistance} from './defenses.ts';
+import {defenseMaxHP,obstacleDistance} from './defenses.ts';
+import type {Structure,StructureKind} from './construction.ts';
 const renewableLoot=new Set(LOOT_POINTS.filter(l=>l.area!=='base'&&l.id!=='base-wood').map(l=>l.id));
 export const MELEE = {
  fists: {name:'Punhos',damage:14,reach:1.85,cooldown:.58,stamina:8,wood:12},
@@ -17,16 +18,18 @@ export const MELEE = {
  axe: {name:'Machado',damage:43,reach:2.2,cooldown:.95,stamina:17,wood:42},
  spear: {name:'Lança',damage:32,reach:3,cooldown:.85,stamina:14,wood:12},
  machete: {name:'Facão',damage:39,reach:2.2,cooldown:.64,stamina:14,wood:25},
+ hammer: {name:'Martelo de construção',damage:0,reach:2.1,cooldown:.75,stamina:0,wood:0},
 } as const;
 export type MeleeId=keyof typeof MELEE;
 export interface CraftGear {melee:MeleeId;owned:MeleeId[];armor:number;armorTier:0|1|2}
 export interface TreeState {id:number;x:number;z:number;hp:number;ready:number}
-export interface CraftWorld {revision:number;clock:number;next:number;chests:Chest[];tables:{id:number;x:number;z:number;y:number;angle:number;hp:number}[];trees:TreeState[];refills:Record<string,number>}
-export const createCraftWorld=():CraftWorld=>({revision:0,clock:0,next:1,chests:[],tables:[],trees:TREE_TRUNKS.map((t,id)=>({id,x:t.x,z:t.z,hp:100,ready:0})),refills:{}});
-export interface Recipe {id:string;name:string;hint:string;bench?:boolean;cost:Partial<Record<Item,number>>;item?:Item;amount?:number;melee?:MeleeId;armor?:1|2;module?:string;fortify?:string;trap?:string;weapon?:WeaponId;upgrade?:'pack'|'repair'|'armor-repair'|'bench-repair'}
+export interface CraftWorld {revision:number;clock:number;next:number;structures:Structure[];chests:Chest[];tables:{id:number;x:number;z:number;y:number;angle:number;hp:number}[];trees:TreeState[];refills:Record<string,number>}
+export const createCraftWorld=():CraftWorld=>({revision:0,clock:0,next:1,structures:[],chests:[],tables:[],trees:TREE_TRUNKS.map((t,id)=>({id,x:t.x,z:t.z,hp:100,ready:0})),refills:{}});
+export interface Recipe {id:string;name:string;hint:string;bench?:boolean;cost:Partial<Record<Item,number>>;construction?:StructureKind;item?:Item;amount?:number;melee?:MeleeId;armor?:1|2;module?:string;fortify?:string;trap?:string;weapon?:WeaponId;upgrade?:'pack'|'repair'|'armor-repair'|'bench-repair'}
 export const RECIPES:Recipe[]=[
  {id:'bench',name:'Mesa inteligente',hint:'Kit de 3 kg. Posicione no chão para trabalhar.',cost:{wood:6,scrap:3},item:'bench'},
- {id:'chest',name:'Baú de madeira',hint:'27 espaços. Posicione no chão; botão direito para abrir.',bench:true,cost:{wood:8,scrap:2},item:'chest'},
+ {id:'hammer',name:'Martelo de construção',hint:'Equipe para construir no terreno do abrigo. Escolha paredes, portas, pisos e escadas nos slots.',bench:true,cost:{wood:3,scrap:5,cloth:1},melee:'hammer'},
+ {id:'chest',name:'Baú de madeira',hint:'27 espaços. Posicione no chão; E para abrir.',bench:true,cost:{wood:8,scrap:2},item:'chest'},
  {id:'bench-repair',name:'Manutenção da mesa',hint:'Recupera 80 HP da mesa mais próxima. Requer sucata e madeira.',bench:true,cost:{wood:2,scrap:3},upgrade:'bench-repair'},
  {id:'cord',name:'Corda',hint:'Trance 3 retalhos de tecido.',cost:{cloth:3},item:'cord'},
  {id:'club',name:'Porrete',hint:'28 dano · lento · baixo custo.',cost:{wood:3,cloth:1},melee:'club'},
@@ -46,16 +49,12 @@ export const RECIPES:Recipe[]=[
  {id:'shotgun',name:'Escopeta artesanal',hint:'Arma pesada comum. Fabricada descarregada.',bench:true,cost:{scrap:20,wood:6,rare:3},weapon:'shotgun'},
  {id:'rifle',name:'Rifle artesanal',hint:'Arma pesada comum. Fabricado descarregado.',bench:true,cost:{scrap:28,wood:8,rare:5},weapon:'rifle'},
  {id:'repair',name:'Reparar cama',hint:'No abrigo: recupera 120 HP da base.',cost:{scrap:4},upgrade:'repair'},
- {id:'bed-gate',name:'Portão do abrigo',hint:'Fecha o perímetro. E abre/fecha · segure E para reparar.',bench:true,cost:{wood:6,scrap:4},module:'bed-gate'},
- ...['north','west-wall','east-wall','south-left','south-right'].map(module=>({id:module,name:module==='north'?'Parede norte':module==='west-wall'?'Parede oeste':module==='east-wall'?'Parede leste':module==='south-left'?'Frente esquerda':'Frente direita',hint:'Módulo pré-pronto ao redor da cama · 300 HP.',bench:true,cost:{wood:6,scrap:2},module})),
- ...DEFENSE_POINTS.filter(d=>!d.trap&&d.id!=='gate'&&d.id!=='west'&&d.id!=='east').map(d=>({id:`fortify-${d.id}`,name:`Fortificar: ${d.label}`,hint:'Madeira → tecido reforçado (550 HP) → blindagem de sucata (900 HP). Requer módulo intacto.',bench:true,cost:{wood:4,cloth:6,scrap:8,cord:2},fortify:d.id})),
- ...DEFENSE_POINTS.filter(d=>d.trap).map(d=>({id:d.id,name:d.label,hint:d.trap==='spikes'?'Estacas: 24 dano por segundo; desgastam ao atingir.':d.trap==='snare'?'Laço reutilizável: retarda infectados; 8 dano por segundo.':'Cerca de arame: bloqueia e fere infectados próximos. 200 HP.',bench:true,cost:d.trap==='spikes'?{wood:8,scrap:4}:d.trap==='snare'?{wood:3,cord:4,scrap:3}:{wood:4,scrap:12,cloth:2},module:d.id,trap:d.trap})),
 ];
 export function benchNearby(s:Simulation):boolean{return s.crafting.tables.some(t=>distance(t,s.player)<=3&&clear(s,t));}
 /** Aimed workstation interaction, blocked by opaque walls and other tables. */
 export function focusedBench(s:Simulation):number|undefined {
  const dir=lookDirection(s.player.angle,s.player.pitch),p=s.player;
- return s.crafting.tables.filter(t=>distance(t,p)<=3).sort((a,b)=>distance(a,p)-distance(b,p)).find(t=>{
+ return s.crafting.tables.filter(t=>distance(t,p)<=3&&Math.abs(t.y-s.groundY)<.7).sort((a,b)=>distance(a,p)-distance(b,p)).find(t=>{
   const along=(t.x-p.x)*dir.x+(t.z-p.z)*dir.z;
   if(along<=0||Math.abs((t.x-p.x)*dir.z-(t.z-p.z)*dir.x)>.9)return false;
   const y=p.eyeY+dir.y*along;if(y<t.y-.2||y>t.y+1.9)return false;
@@ -63,7 +62,11 @@ export function focusedBench(s:Simulation):number|undefined {
  })?.id;
 }
 export function usableBench(s:Simulation,id:number):boolean {const t=s.crafting.tables.find(t=>t.id===id);return !!t&&distance(t,s.player)<=3&&clear(s,t);}
-function clear(s:Simulation,p:Vec2):boolean {const d=distance(s.player,p);return d<.1||rayWorld({x:s.player.x,y:s.player.eyeY,z:s.player.z},{x:(p.x-s.player.x)/d,y:0,z:(p.z-s.player.z)/d},d,s.solidDefenses.filter(b=>!b.id.startsWith('table-')||b.x!==p.x||b.z!==p.z))>=d-.1;}
+function clear(s:Simulation,p:Vec2&{y?:number}):boolean {
+ if(p.y!==undefined&&Math.abs(p.y-s.groundY)>.7)return false;
+ const origin={x:s.player.x,y:s.player.eyeY,z:s.player.z},targetY=p.y===undefined?origin.y:p.y+.95,dx=p.x-origin.x,dz=p.z-origin.z,dy=targetY-origin.y,d=Math.hypot(dx,dy,dz);
+ return d<.1||rayWorld(origin,{x:dx/d,y:dy/d,z:dz/d},d,s.solidDefenses.filter(b=>!b.id.startsWith('table-')||b.x!==p.x||b.z!==p.z))>=d-.1;
+}
 export function available(s:Simulation,k:Item){return s.inventory.items[k];}
 export function craftReason(s:Simulation,r:Recipe):string {
  if(s.gameOver||s.player.hp<=0||s.action||s.reloadTimer||s.player.running)return 'Aguarde terminar a ação.';
@@ -83,6 +86,7 @@ export function craftReason(s:Simulation,r:Recipe):string {
 }
 export function craft(s:Simulation,id:string):boolean {
  const r=RECIPES.find(r=>r.id===id);if(!r)return false;const reason=craftReason(s,r);if(reason){s.notice('CRAFT INDISPONÍVEL',reason);return false;}
+ if(r.construction){s.notice('POSICIONE A ESTRUTURA','Escolha um encaixe livre no terreno do abrigo.');return false;}
  for(const k of itemKeys){const cost=r.cost[k]??0,take=Math.min(s.inventory.items[k],cost);s.inventory.take(k,take);}
  if(r.weapon){const g=s.dropWeapon(r.weapon,s.player,'common','Fabricada na mesa');if(g){g.item.magazine=0;s.equipGround(g.item.uid);}}
  if(r.item)s.inventory.add(r.item,r.amount??1);
@@ -97,7 +101,7 @@ export function craft(s:Simulation,id:string):boolean {
  s.events.push({type:'build',position:{...s.player}});s.notice('FABRICADO',r.name);return true;
 }
 export function placement(s:Simulation){const reach=Math.max(1.9,Math.min(4.5,s.player.pitch<-.05?(s.player.eyeY-floorHeight(s.player))/Math.tan(-s.player.pitch):1.9));const p={x:s.player.x+Math.sin(s.player.angle)*reach,z:s.player.z+Math.cos(s.player.angle)*reach};const y=floorHeight(p);const occupied=collides(p,.9,s.solidDefenses)||distance(p,BASE)<2||[...s.crafting.tables,...s.crafting.chests].some(t=>distance(t,p)<2)||s.loot.some(l=>distance(l,p)<1.25)||s.zombies.some(z=>z.active&&distance(z,p)<1.2)||s.coopTargets.some(q=>distance(q,p)<1.1)||Math.abs(y-floorHeight(s.player))>.3||!clear(s,p);return {...p,y,angle:s.player.angle,valid:!occupied};}
-export function placeBench(s:Simulation):boolean {const p=placement(s);if(s.gameOver||s.player.hp<=0||s.action||!p.valid||s.crafting.tables.length>=12||!s.inventory.take('bench',1)){s.notice('NÃO FOI POSSÍVEL POSICIONAR','Use um chão livre à sua frente. Máximo de 12 mesas.');return false;}s.crafting.tables.push({id:s.crafting.next++,x:p.x,z:p.z,y:p.y,angle:p.angle,hp:200});s.crafting.revision++;s.notice('MESA POSICIONADA','Mire na mesa e clique com o botão direito para trabalhar.');return true;}
+export function placeBench(s:Simulation):boolean {const p=placement(s);if(s.gameOver||s.player.hp<=0||s.action||!p.valid||s.crafting.tables.length>=12||!s.inventory.take('bench',1)){s.notice('NÃO FOI POSSÍVEL POSICIONAR','Use um chão livre à sua frente. Máximo de 12 mesas.');return false;}s.crafting.tables.push({id:s.crafting.next++,x:p.x,z:p.z,y:p.y,angle:p.angle,hp:200});s.crafting.revision++;s.notice('MESA POSICIONADA','Mire na mesa e pressione E para trabalhar.');return true;}
 export function absorb(s:Simulation,damage:number){const blocked=Math.min(s.gear.armor,damage*(s.gear.armorTier===2?.32:.2));s.gear.armor=Math.max(0,s.gear.armor-blocked);return damage-blocked;}
 export function infectedLoot(s:Simulation,z:Walker){const id=`infected-${z.id}`;if(s.loot.some(l=>l.id===id))return;
  // Bags outlive the cosmetic ragdoll; evict the oldest only when the bounded pool fills.
@@ -105,6 +109,7 @@ export function infectedLoot(s:Simulation,z:Walker){const id=`infected-${z.id}`;
  s.loot.push({id,x:z.x,z:z.z,area:'outside',label:'Restos do infectado',searched:true,lastFound:null,contents:{...emptyStock(),hide:1+(z.kind==='tank'?1:0),cloth:z.id%3===0?1:0,scrap:z.id%2===0?1:0,ammo:z.id%5===0?3:0}});
 }
 export function harvest(s:Simulation):boolean {
+ if(s.meleeId==='hammer')return false;
  const stats=MELEE[s.meleeId],dir=lookDirection(s.player.angle,s.player.pitch),origin={x:s.player.x,y:s.player.eyeY,z:s.player.z};
  const t=s.crafting.trees.filter(t=>t.hp>0&&distance(t,s.player)<=stats.reach+.4).sort((a,b)=>distance(a,s.player)-distance(b,s.player)).find(t=>{const dx=t.x-s.player.x,dz=t.z-s.player.z,along=dx*dir.x+dz*dir.z;return along>0&&Math.abs(dx*dir.z-dz*dir.x)<.65&&origin.y+dir.y*along<4&&origin.y+dir.y*along>floorHeight(t)&&rayWorld(origin,dir,Math.max(0,along-.5),s.solidDefenses)>=along-.55;});
  if(!t)return false;const horizontal={x:Math.sin(s.player.angle),z:Math.cos(s.player.angle)};if(s.zombies.some(z=>z.active&&bodyHit(s.player,horizontal,Math.tan(s.player.pitch),z,Math.max(0,distance(s.player,t)-.3),s.player.eyeY)))return false;t.hp=Math.max(0,t.hp-stats.wood);s.events.push({type:'barricade-hit',position:t});if(!t.hp){s.crafting.revision++;t.ready=s.crafting.clock+240+s.contentRandom()*240;const wood=4+Math.floor(s.contentRandom()*3);const accepted=s.inventory.add('wood',wood);if(accepted<wood)s.loot.push({id:`timber-${t.id}-${s.crafting.next++}`,x:t.x,z:t.z,area:'outside',label:'Madeira cortada',searched:true,lastFound:null,contents:{...emptyStock(),wood:wood-accepted}});s.notice('ÁRVORE CORTADA',`${wood} madeiras. O que não coube ficou no chão.`);}return true;

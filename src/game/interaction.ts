@@ -9,7 +9,7 @@ export function interactionFocus(sim:Simulation):Focus|null {
  const candidates:{kind:Focus['kind'];id:string;x:number;z:number;w:number;d:number;h:number;bottom?:number}[]=[];
  for(const v of sim.portals)candidates.push({...v,kind:'portal',h:2.8});
  for(const v of sim.loot)if(!v.searched||itemKeys.some(k=>v.contents[k]))candidates.push({...v,kind:'loot',w:1.15,d:1,h:1.15});
- for(const v of sim.barricades)candidates.push({...v,kind:'defense',h:v.hp>0?1.5:.3});
+ for(const v of sim.barricades.filter(v=>v.hp>0))candidates.push({...v,kind:'defense',h:v.hp>0?1.5:.3});
  for(const v of sim.groundWeapons)candidates.push({...v,kind:'weapon',id:String(v.item.uid),w:1.5,d:.9,h:.55});
  for(const v of sim.facilities)if(v.state==='ready')candidates.push({...v,kind:'facility',w:1.5,d:1.3,h:1.7});
  if(sim.alarmTimer>0&&sim.alarmPosition)candidates.push({...sim.alarmPosition,kind:'alarm',id:'alarm',w:1.9,d:3.7,h:1.8});

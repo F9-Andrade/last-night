@@ -8,7 +8,7 @@
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "test": "node --experimental-strip-types tests/simulation.test.ts && node --experimental-strip-types tests/voxel.test.ts && node --experimental-strip-types tests/survival.test.ts && node --experimental-strip-types tests/combat.test.ts && node --experimental-strip-types tests/variety.test.ts && node --experimental-strip-types tests/stamina.test.ts && node --experimental-strip-types tests/city.test.ts && node --experimental-strip-types tests/fps.test.ts && node --experimental-strip-types tests/phase9.test.ts && node --experimental-strip-types tests/network.test.ts && node --experimental-strip-types tests/coop.test.ts && node --experimental-strip-types tests/crafting.test.ts && node --experimental-strip-types tests/render-optimization.test.ts && node --experimental-strip-types tests/melee-motion.test.ts && node --experimental-strip-types tests/chests.test.ts && node --experimental-strip-types tests/lan-promotion.test.ts && node --experimental-strip-types tests/nutrition.test.ts && node --experimental-strip-types tests/nutrition-coop.test.ts && node --experimental-strip-types tests/nutrition-motion.test.ts",
+    "test": "node --experimental-strip-types tests/simulation.test.ts && node --experimental-strip-types tests/voxel.test.ts && node --experimental-strip-types tests/survival.test.ts && node --experimental-strip-types tests/combat.test.ts && node --experimental-strip-types tests/variety.test.ts && node --experimental-strip-types tests/stamina.test.ts && node --experimental-strip-types tests/city.test.ts && node --experimental-strip-types tests/fps.test.ts && node --experimental-strip-types tests/phase9.test.ts && node --experimental-strip-types tests/network.test.ts && node --experimental-strip-types tests/coop.test.ts && node --experimental-strip-types tests/crafting.test.ts && node --experimental-strip-types tests/render-optimization.test.ts && node --experimental-strip-types tests/melee-motion.test.ts && node --experimental-strip-types tests/chests.test.ts && node --experimental-strip-types tests/lan-promotion.test.ts && node --experimental-strip-types tests/nutrition.test.ts && node --experimental-strip-types tests/nutrition-coop.test.ts && node --experimental-strip-types tests/nutrition-motion.test.ts && node --experimental-strip-types tests/construction.test.ts && node --experimental-strip-types tests/construction-coop.test.ts && node --experimental-strip-types tests/relocation.test.ts && node --experimental-strip-types tests/construction-visual.test.ts",
     "test:e2e": "playwright test",
     "test:fps": "playwright test tests/fps.spec.ts tests/fps-playthrough.spec.ts",
     "test:phase9": "playwright test tests/phase9.spec.ts",
@@ -21,7 +21,8 @@
     "test:browser-lan": "playwright test --config playwright.browser-lan.config.ts",
     "test:nutrition": "playwright test --config playwright.nutrition.config.ts",
     "test:workbench": "playwright test --config playwright.workbench-ui.config.ts",
-    "test:field-hud": "playwright test --config playwright.field-hud.config.ts"
+    "test:field-hud": "playwright test --config playwright.field-hud.config.ts",
+    "test:construction": "playwright test --config playwright.construction.config.ts"
   },
   "dependencies": {
     "peerjs": "^1.5.5",

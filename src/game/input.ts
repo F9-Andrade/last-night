@@ -2,6 +2,8 @@ import type { InputCommand } from './simulation';
 import { MouseLook, relativeMovement, lookDirection } from './first-person';
 export class Input {
   onPrimary:()=>boolean=()=>false; onSecondary:()=>boolean=()=>false; onCancel:()=>boolean=()=>false;
+  onBuildSlot:(slot:number)=>boolean=()=>false;onBuildWheel:(delta:number)=>boolean=()=>false;onHammer:()=>boolean=()=>false;
+  onInteract:()=>boolean=()=>false;onManage:()=>boolean=()=>false;onRotate:()=>boolean=()=>false;onLevel:(delta:number)=>boolean=()=>false;
   look=new MouseLook(); keys=new Set<string>(); mouse={x:innerWidth/2,y:innerHeight/2}; fire=false; ads=false;
   enabled=false; blocked=true; loading=false; private shotRequested=false;private reload=false;private interact=false;private heal=false;private dismantle=false;private slot?:0|1|2|3;
   private expectedUnlock=false; private lockPending=false;private captureAfterUnlock=false;private wasCaptured=false;
@@ -9,11 +11,17 @@ export class Input {
   constructor(private canvas:HTMLCanvasElement,pause:()=>void,inventory:()=>void,private lostLock:()=>void){
     window.addEventListener('keydown',e=>{
       if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement||e.target instanceof HTMLTextAreaElement)return;
-      if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','KeyR','KeyE','Escape','Digit1','Digit2','Digit3','Digit4','Tab','KeyH','KeyX','KeyC','ControlLeft','Space'].includes(e.code))e.preventDefault();
+      if(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight','KeyR','KeyE','Escape','Digit1','Digit2','Digit3','Digit4','Digit5','Digit6','Digit7','Digit8','Digit9','Digit0','KeyB','PageUp','PageDown','Tab','KeyH','KeyX','KeyC','ControlLeft','Space'].includes(e.code))e.preventDefault();
       if(e.code==='Escape'&&!e.repeat){if(this.onCancel())return;this.release();pause();return;}
       if(!this.enabled)return;
       if(e.code==='Tab'&&!e.repeat){inventory();return;}
       if(this.blocked||!this.captured)return;
+      if((e.code==='KeyB'||e.code==='Digit0')&&!e.repeat&&this.onHammer()){e.preventDefault();return;}
+      if(/^Digit[1-9]$/.test(e.code)&&this.onBuildSlot(Number(e.code.slice(-1))-1)){e.preventDefault();return;}
+      if(e.code==='KeyE'&&!e.repeat&&this.onInteract()){e.preventDefault();return;}
+      if(e.code==='KeyG'&&!e.repeat&&this.onManage()){e.preventDefault();return;}
+      if(e.code==='KeyR'&&!e.repeat&&this.onRotate()){e.preventDefault();return;}
+      if((e.code==='PageUp'||e.code==='PageDown')&&this.onLevel(e.code==='PageUp'?1:-1)){e.preventDefault();return;}
       if(e.code==='KeyH'&&!e.repeat)this.heal=true;
       if(e.code==='KeyX'&&!e.repeat)this.dismantle=true;
       if(e.code==='KeyR'&&!e.repeat)this.reload=true;
@@ -34,7 +42,7 @@ export class Input {
     // handling a native mouse press twice.
     canvas.addEventListener('pointerdown',e=>{if(!e.isTrusted)down(e);});
     window.addEventListener('pointerup',e=>{if(!e.isTrusted)up(e);});
-    canvas.addEventListener('wheel',e=>{if(this.captured&&!this.blocked){e.preventDefault();this.slot=e.deltaY>0?1:0;}},{passive:false});
+    canvas.addEventListener('wheel',e=>{if(this.captured&&!this.blocked){e.preventDefault();if(!this.onBuildWheel(e.deltaY>0?1:-1)&&!this.onLevel(e.deltaY<0?1:-1))this.slot=e.deltaY>0?1:0;}},{passive:false});
     window.addEventListener('blur',()=>this.clear());canvas.addEventListener('contextmenu',e=>e.preventDefault());
     document.addEventListener('pointerlockchange',()=>{
       this.lockPending=false;const locked=this.captured,changed=locked!==this.wasCaptured;this.wasCaptured=locked;

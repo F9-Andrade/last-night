@@ -36,7 +36,7 @@ export class Viewmodel {
  }},new THREE.MeshBasicMaterial({color:new THREE.Color(4.5,2.5,.75),vertexColors:true,transparent:true,opacity:.9,depthWrite:false}));
  private shoulders=[new THREE.Vector3(.31,-.43,.13),new THREE.Vector3(-.31,-.43,.13)];
  private upperArms:THREE.Mesh[]=[];private elbow=new THREE.Vector3();private armDirection=new THREE.Vector3();private armAxis=new THREE.Vector3(0,0,1);
- private meleeMeshes=new Map<MeleeId,THREE.Mesh>();private swing=0;
+ private meleeMeshes=new Map<MeleeId,THREE.Mesh>();private heldMelee?:MeleeId;private swing=0;
  private flashTime=0;private recoil=0;ads=0; private cycle=0;private actionTime=0;private movement=0;private shotSide=1;
  private sunVector=new THREE.Vector3();
  private provisions=new Map<FoodId,FoodVisual>();private food?:FoodVisual;private foodId?:FoodId;private spoon=createEatingSpoon();
@@ -91,16 +91,17 @@ export class Viewmodel {
   this.ambient.color.copy(ambient.color);this.ambient.groundColor.copy(ambient.groundColor);
   this.ambient.intensity=ambient.intensity*(1-indoors*.12)+(flashlight?.25:0);
  }
- event(e:GameEvent):void {if(e.type==='hurt'){this.hurt=1;this.hurtSide*=-1;}if(e.type==='melee'){this.swing=1;this.shotSide*=-1;}if(e.type==='shot'&&e.primary!==false){this.recoil=Math.min(2.5,this.recoil+WEAPONS[e.weapon??'pistol'].recoil*.32);this.flashTime=.048;this.actionTime=.38;this.shotSide*=-1;}}
- reset():void {this.consumeBlend=0;this.sprint=0;this.hurt=0;this.foodId=undefined;if(this.food)this.food.root.visible=false;this.food=undefined;this.spoon.visible=false;this.swing=0;this.ads=0;this.recoil=0;this.flashTime=0;this.actionTime=0;this.movement=0;this.flash.visible=false;this.flashLight.intensity=0;}
+ event(e:GameEvent):void {if(e.type==='hurt'){this.hurt=1;this.hurtSide*=-1;}if(e.type==='melee'){this.swing=1;this.shotSide*=-1;}if((e.type==='build'||e.type==='repair')&&this.heldMelee==='hammer')this.swing=1;if(e.type==='shot'&&e.primary!==false){this.recoil=Math.min(2.5,this.recoil+WEAPONS[e.weapon??'pistol'].recoil*.32);this.flashTime=.048;this.actionTime=.38;this.shotSide*=-1;}}
+ reset():void {this.consumeBlend=0;this.sprint=0;this.hurt=0;this.foodId=undefined;if(this.food)this.food.root.visible=false;this.food=undefined;this.spoon.visible=false;this.heldMelee=undefined;this.swing=0;this.ads=0;this.recoil=0;this.flashTime=0;this.actionTime=0;this.movement=0;this.flash.visible=false;this.flashLight.intensity=0;}
  update(sim:Simulation,camera:THREE.PerspectiveCamera,dt:number,time:number,visible:boolean):void {
+  const held=sim.meleeMode?sim.meleeId:undefined;if(this.heldMelee!==held){this.swing=0;this.heldMelee=held;}
   this.anchor.visible=visible;this.anchor.position.copy(camera.position);this.anchor.quaternion.copy(camera.quaternion);if(!visible){this.flashLight.intensity=0;this.flashTime=0;return;}
   const id=sim.equipped.type,weapon=sim.weapon,feel=handling[id],consuming=!!sim.consumption;
   this.sprint+=(Number(sim.player.running&&!consuming)-this.sprint)*(1-Math.exp(-dt*9));this.hurt=Math.max(0,this.hurt-dt*2.7);
   if(this.id!==id){this.current?.root.removeFromParent();let visual=this.cache.get(id);if(!visual){visual=createWeaponVisual(id,true);this.cache.set(id,visual);}this.current=visual;this.id=id;this.gun.add(visual.root);visual.root.rotation.y=Math.PI;visual.root.scale.setScalar(weapon.slot===0?.48:.65);}
   this.gun.visible=!sim.meleeMode;this.swing=Math.max(0,this.swing-dt/Math.max(.3,weapon.cooldown));
   for(const [key,m] of this.meleeMeshes)m.visible=sim.meleeMode&&key===sim.meleeId;
-  if(sim.meleeMode){let m=this.meleeMeshes.get(sim.meleeId);if(!m&&sim.meleeId!=='fists'){m=voxelMesh(meleeRecipe(sim.meleeId));this.meleeMeshes.set(sim.meleeId,m);this.right.add(m);}if(m){m.visible=true;m.position.set(0,.17,-.13);m.rotation.x=-.25;}}
+  if(sim.meleeMode){let m=this.meleeMeshes.get(sim.meleeId);if(!m&&sim.meleeId!=='fists'){m=voxelMesh(meleeRecipe(sim.meleeId));this.meleeMeshes.set(sim.meleeId,m);(sim.meleeId==='hammer'?this.rig:this.right).add(m);}if(m){const hammer=sim.meleeId==='hammer';m.visible=true;m.scale.setScalar(hammer?.65:1);m.position.set(0,hammer?.13:.17,hammer?-.12:-.13);m.rotation.set(hammer?-.16:-.25,hammer?.18:0,hammer?-.13:0);}}
   this.ads+=(Number(sim.player.ads&&!sim.reloadTimer&&!sim.player.running&&!consuming)-this.ads)*(1-Math.exp(-dt*FPS.adsSpeed));
   this.recoil*=Math.exp(-dt*feel.returnSpeed);this.actionTime=Math.max(0,this.actionTime-dt);this.cycle+=dt*(8+this.sprint*5);
   this.movement+=(Number(sim.player.moving)-this.movement)*(1-Math.exp(-dt*9));
@@ -126,16 +127,19 @@ export class Viewmodel {
   for(const sleeve of this.upperArms)sleeve.visible=sim.meleeMode;
   this.spoon.visible=false;
   if(sim.meleeMode){
-   const strike=strikeEnvelope(this.swing),fists=sim.meleeId==='fists',thrust=fists||sim.meleeId==='knife'||sim.meleeId==='spear';
+   const strike=strikeEnvelope(this.swing),fists=sim.meleeId==='fists',hammer=sim.meleeId==='hammer',thrust=fists||sim.meleeId==='knife'||sim.meleeId==='spear';
+   const windup=hammer&&this.swing>.72?Math.sin((1-this.swing)/.28*Math.PI):0;
    for(const [i,hand] of this.hands.entries()){
     const side=i===0?1:-1,active=fists?side===this.shotSide:i===0,punch=active?strike:0;
     // Only the striking hand advances. The other hand stays in guard.
     hand.position.set(side*(.23-punch*(thrust?.14:.27)),-.29+punch*(thrust?.055:.13),-.31-punch*(thrust?.29:.14));
+    // Construction uses a restrained wrist tap; the free hand rests below the work area.
+    if(hammer)hand.position.set(i===0?.23-strike*.07:-.24,i===0?-.32+windup*.075-strike*.025:-.4,i===0?-.46-strike*.07:-.24);
     solveArm(this.shoulders[i],hand.position,this.elbow,side);
     this.armDirection.subVectors(this.elbow,hand.position).normalize();hand.quaternion.setFromUnitVectors(this.armAxis,this.armDirection);
     const sleeve=this.upperArms[i];sleeve.position.copy(this.elbow);this.armDirection.subVectors(this.shoulders[i],this.elbow).normalize();sleeve.quaternion.setFromUnitVectors(this.armAxis,this.armDirection);
    }
-   const tool=this.meleeMeshes.get(sim.meleeId);if(tool)tool.rotation.x=-.25-strike*(thrust?.55:1.05);
+   const tool=this.meleeMeshes.get(sim.meleeId);if(tool)tool.rotation.x=hammer?-.16+windup*.28-strike*.8:-.25-strike*(thrust?.55:1.05);
    this.ads=0;this.flashTime=0;
   }
   // Sprint lowers the held object and lets the supporting hand counter-swing.
@@ -144,6 +148,11 @@ export class Viewmodel {
    this.left.position.x-=this.sprint*.12;this.left.position.y-=this.sprint*(.05+Math.sin(this.cycle)*.035);this.left.position.z+=this.sprint*.07;
    if(sim.meleeMode){this.right.position.y-=this.sprint*(.055-Math.sin(this.cycle)*.035);this.right.position.z+=this.sprint*.075;}
    this.anchorArm(1);if(sim.meleeMode)this.anchorArm(0);
+  }
+  // The hammer follows the solved wrist, but keeps a stable grip orientation instead
+  // of inheriting the forearm's large twist (which could point the head into the camera).
+  if(sim.meleeMode&&sim.meleeId==='hammer'){
+   const tool=this.meleeMeshes.get('hammer')!;tool.position.copy(this.right.position);tool.position.y+=.13;tool.position.z-=.09;tool.rotation.y=-.3;tool.rotation.z=-.12;
   }
   this.animateConsumption(sim,dt);
   this.flash.visible=this.flashTime>0&&!consuming;this.flash.position.copy(v.muzzle).multiplyScalar(weapon.slot===0?.48:.65);this.flash.position.z*=-1;

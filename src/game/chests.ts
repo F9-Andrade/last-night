@@ -16,8 +16,8 @@ export function validChestMove(v:unknown):v is ChestMove {
  return Number.isSafeInteger(d.chest)&&d.chest>0&&Number.isSafeInteger(d.revision)&&d.revision>=0&&Number.isInteger(d.amount)&&d.amount>0&&d.amount<=64&&(d.target==='bag'||d.target==='auto'||index(d.target))&&!!s&&typeof s==='object'&&Object.keys(s).length===1&&('bag' in s?itemKeys.includes(s.bag):'weapon' in s?s.weapon===0||s.weapon===1:'slot' in s&&index(s.slot));
 }
 export function usableChest(s:Simulation,id:number):boolean {
- const c=s.crafting.chests.find(c=>c.id===id);if(!c||s.gameOver||s.player.hp<=0||distance(c,s.player)>3)return false;
- const d=distance(c,s.player),origin={x:s.player.x,y:s.player.eyeY,z:s.player.z},dy=c.y+.65-origin.y;
+ const c=s.crafting.chests.find(c=>c.id===id);if(!c||s.gameOver||s.player.hp<=0||distance(c,s.player)>3||Math.abs(s.groundY-c.y)>.65)return false;
+ const origin={x:s.player.x,y:s.player.eyeY,z:s.player.z},dy=c.y+.65-origin.y,d=Math.hypot(c.x-origin.x,c.z-origin.z,dy);
  return d<.01||rayWorld(origin,{x:(c.x-origin.x)/d,y:dy/d,z:(c.z-origin.z)/d},d,s.solidDefenses.filter(b=>b.id!==`chest-${id}`))>=d-.05;
 }
 export function focusedChest(s:Simulation):number|undefined {
@@ -26,7 +26,7 @@ export function focusedChest(s:Simulation):number|undefined {
 }
 export function placeChest(s:Simulation):boolean {
  const p=placement(s);if(s.gameOver||s.player.hp<=0||s.action||!p.valid||s.crafting.chests.length>=CHEST_LIMIT||!s.inventory.take('chest',1)){s.notice('LOCAL INDISPONÍVEL','Escolha um chão livre. Limite de 24 baús.');return false;}
- s.crafting.chests.push({id:s.crafting.next++,x:p.x,y:p.y,z:p.z,angle:p.angle,revision:0,slots:Array.from({length:CHEST_SLOTS},()=>null)});s.crafting.revision++;s.notice('BAÚ POSICIONADO','Mire no baú e use o botão direito para abrir.');return true;
+ s.crafting.chests.push({id:s.crafting.next++,x:p.x,y:p.y,z:p.z,angle:p.angle,revision:0,slots:Array.from({length:CHEST_SLOTS},()=>null)});s.crafting.revision++;s.notice('BAÚ POSICIONADO','Mire no baú e pressione E para abrir.');return true;
 }
 /** Atomic coordinator transaction. Stale selections never act on a replacement stack. */
 export function moveChest(s:Simulation,m:ChestMove):boolean {

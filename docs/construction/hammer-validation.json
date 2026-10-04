@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-04",
+  "unitTests": {
+    "passed": 286,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "buildWarnings": [
+    "Existing Vite chunks over 500 kB"
+  ],
+  "browserSolo": {
+    "passed": 4,
+    "failed": 0,
+    "note": "Passed before final hammer render pose/scale adjustment; final pose still needs recapture"
+  },
+  "viewports": [
+    [
+      1366,
+      768
+    ],
+    [
+      1920,
+      1080
+    ],
+    [
+      960,
+      640
+    ]
+  ],
+  "browserNetwork": {
+    "modes": [
+      "photon",
+      "lan"
+    ],
+    "passedSteps": [
+      "craft hammer at workbench",
+      "nine build slots",
+      "remote equipped hammer",
+      "build snapped wall",
+      "remote fortification",
+      "E opens chest",
+      "relocate full chest",
+      "host migration",
+      "withdraw chest contents after migration",
+      "equip owned hammer after migration"
+    ],
+    "failedStep": "Immediate Digit0 holster while the equipment switch timer was still active",
+    "testFix": "Wait for switchTimer=0 before Digit0",
+    "rerun": "blocked: automatic approval review rejected browser execution due to account usage limit"
+  },
+  "pending": [
+    "Rerun construction network suites with corrected switch timing",
+    "Capture final smaller hammer pose"
+  ],
+  "gitWrites": false
+}

@@ -25,6 +25,8 @@ export class RemotePlayers {
  }
  private remove(actor:number){const avatar=this.avatars.get(actor);if(!avatar)return;avatar.tag.material.map?.dispose();avatar.tag.material.dispose();avatar.character.dispose();this.avatars.delete(actor);}
  shot(actor:number){const a=this.avatars.get(actor);if(a){a.shot=1;a.side*=-1;}}
+ /** Existing authoritative build/repair events drive this local cosmetic gesture. */
+ build(actor:number){const a=this.avatars.get(actor);if(a?.meleeId==='hammer')a.shot=1;}
  clear(){for(const actor of this.avatars.keys())this.remove(actor);}
  update(states:RemotePlayerState[],time:number,dt:number,camera:THREE.Camera){
   const present=new Set(states.map(s=>s.identity.actorNumber));for(const actor of this.avatars.keys())if(!present.has(actor))this.remove(actor);
@@ -39,13 +41,17 @@ export class RemotePlayers {
    if(gameplay)c.reloadPose(gameplay.reload,gameplay.reloadDuration);
    avatar.crouch+=((s.locomotion===3?1:0)-avatar.crouch)*(1-Math.exp(-dt*16));c.body.position.y-=avatar.crouch*.52;c.body.rotation.x+=avatar.crouch*.2;c.leftLeg.rotation.x+=avatar.crouch*.45;c.rightLeg.rotation.x+=avatar.crouch*.45;c.head.rotation.x=-s.pitch;c.arms.rotation.x=-s.pitch*.65;
    const incapacitated=!!gameplay&&gameplay.life!=='alive';if(c.weapon)c.weapon.visible=!incapacitated&&!gameplay?.melee;
-   if(avatar.meleeId!==gameplay?.melee){avatar.melee?.removeFromParent();avatar.melee=undefined;avatar.meleeId=gameplay?.melee;if(gameplay?.melee&&gameplay.melee!=='fists'){avatar.melee=voxelMesh(meleeRecipe(gameplay.melee));avatar.melee.position.set(0,-.15,.5);avatar.melee.rotation.x=1;c.rightArm.add(avatar.melee);}}if(avatar.melee)avatar.melee.visible=!incapacitated;
+   if(avatar.meleeId!==gameplay?.melee){avatar.melee?.removeFromParent();avatar.melee=undefined;avatar.meleeId=gameplay?.melee;if(gameplay?.melee&&gameplay.melee!=='fists'){const hammer=gameplay.melee==='hammer';avatar.melee=voxelMesh(meleeRecipe(gameplay.melee));avatar.melee.position.set(0,-.15,hammer?.47:.5);avatar.melee.rotation.x=hammer?.25:1;avatar.melee.scale.setScalar(hammer?.8:1);c.rightArm.add(avatar.melee);}}if(avatar.melee)avatar.melee.visible=!incapacitated;
    c.rightArm.rotation.y=0;
    if(gameplay?.melee){
     const strike=strikeEnvelope(avatar.shot),fists=gameplay.melee==='fists';
     // Rotate around each shoulder, never around the group at the body's origin.
     c.arms.position.set(0,0,0);c.arms.rotation.set(0,0,0);
     for(const [side,arm] of [[1,c.rightArm],[-1,c.leftArm]] as const){const hit=(fists?side===avatar.side:side===1)?strike:0;arm.rotation.set(-s.pitch*.65-.22-hit*.5,side*(.12-hit*.18),side*(.12-hit*.1));}
+    if(gameplay.melee==='hammer'){
+     c.rightArm.rotation.set(-s.pitch*.45-.14-strike*.28,.04,.05+Math.sin(time*1.4)*.015);c.leftArm.rotation.set(.12,-.1,-.1);
+     if(avatar.melee)avatar.melee.rotation.x=.25-strike*.65;
+    }
    }
    const consumption=gameplay?.consumption;
    if(consumption&&!incapacitated){

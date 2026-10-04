@@ -1,3 +1,4 @@
+import {placeStructure} from '../src/game/construction.ts';
 import {emptyStock} from '../src/game/inventory.ts';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -46,12 +47,11 @@ test('medicine is consumed only on completion and movement or attack interrupts 
   s.inventory.add('med', 1); s.player.hp = 60; s.spawn({ x: s.player.x, z: s.player.z + .8 }); s.update(.1, { ...idle, heal: true }); step(s, 1);
   assert.ok(s.player.hp < 60); assert.equal(s.inventory.items.med, 1); assert.equal(s.action, null);
 });
-test('starting nearby supplies fund a defense; build blocks movement and debits exact cost', () => {
-  const s = clean(); s.inventory.add('wood',6);s.inventory.add('scrap',2); s.player.x = 1; s.player.z = 7;
-  s.update(.1, { ...idle, interact: true }); step(s, 1.3);
-  const b = s.barricades[0]; assert.equal(b.hp, 300); assert.equal(s.inventory.items.wood, 2); assert.equal(s.inventory.items.scrap, 1);
-  step(s, 1, { ...idle, moveZ: 1 }); assert.ok(s.player.z < 8.3);
-  assert.ok(collides({ x: 1, z: 9 }, .45, s.solidDefenses));
+test('modular construction blocks movement and debits its exact cost after confirmation', () => {
+  const s=clean();s.inventory.add('wood',6);s.inventory.add('scrap',2);s.player.x=-.5;s.player.z=-4;s.player.eyeY=1.94;
+  s.gear.owned.push('hammer');s.gear.melee='hammer';s.activeSlot=2;s.crafting.tables.push({id:s.crafting.next++,x:4.5,z:8.5,y:.22,angle:0,hp:200});assert.equal(placeStructure(s,{kind:'wall',x:-.5,z:-2,level:0,rotation:0}),true);
+  const b=s.crafting.structures[0];assert.equal(b.hp,300);assert.equal(s.inventory.items.wood,2);assert.equal(s.inventory.items.scrap,1);
+  step(s,1,{...idle,moveZ:1});assert.ok(s.player.z<-2.3);assert.ok(collides({x:-.5,z:-2},.45,s.solidDefenses));
 });
 test('build rejects occupied points and insufficient resources without loss', () => {
   const s = clean(); s.player.x = 1; s.player.z = 9;

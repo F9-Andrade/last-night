@@ -1,3 +1,4 @@
+import {structureBoxes,structureFloorHeight,structureMovementBoxes,damageStructure,BUILD_PLOT} from './construction.ts';
 import {defenseMaxHP} from './defenses.ts';
 import {createCraftWorld, MELEE, RECIPES, benchNearby, craft, absorb, harvest, infectedLoot, updateCraftWorld} from './crafting.ts';
 import type {CraftGear, MeleeId} from './crafting.ts';
@@ -37,7 +38,7 @@ export type { Phase } from './cycle.ts';
 export const PISTOL = BALANCE.pistol;
 export interface InputCommand { moveX: number; moveZ: number; yaw?:number; pitch?:number; ads?:boolean; crouch?:boolean; aimX: number; aimZ: number; aimY?: number; fire: boolean; trigger?:boolean; slot?:0|1|2|3; run: boolean; reload: boolean; interact: boolean; heldInteract?: boolean; heal?: boolean; dismantle?: boolean }
 export interface Walker extends Vec2 { id: number; kind:EnemyKind; hp: number; angle: number; attack: number; flash: number; gait: number; path: Vec2[]; replan: number; active: boolean; defense?: string; wounds: Wound[]; reaction: number; zone: HitZone; side: number; slow: number; heard?: Vec2; hearing: number; windup:number; winding:boolean; spitCooldown:number; spitTarget?:Vec2; screamTimer?:number; screamCooldown?:number; siege?:boolean; patrol?:Vec2; speedFactor?:number; hearingFactor?:number; lastSeen?:Vec2; memory?:number; awareness?:'idle'|'investigate'|'search'|'chase'; staggerCooldown?:number; searchStep?:number; chargeTarget?:Vec2;chargeTime?:number }
-export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: number; fromY?:number; zone?: HitZone; material?: string; last?: boolean; weapon?:WeaponId; primary?:boolean; suppressed?:boolean } | { type: 'melee' | 'death' | 'hit' | 'barricade-hit' | 'barricade-break' | 'build' | 'repair' | 'spit-ready' | 'spit' | 'heavy-step' | 'enemy-call' | 'enemy-attack' | 'door' | 'glass' | 'scream-ready' | 'scream' | 'suspense'; position: Vec2; zone?: HitZone; enemy?:EnemyKind; entity?:number;damage?:number;remainingHP?:number } | { type: 'reload-out' | 'reload-in' | 'reload-slide' | 'reload-done' | 'alarm' | 'switch' | 'rare-pickup'; position?: Vec2; weapon?:WeaponId } | { type:'reload' | 'empty'; weapon?:WeaponId; duration?:number } | {type:'hurt';position?:Vec2} | { type: 'pickup' | 'search' | 'heal' | 'healed' | 'warning' | 'night' | 'dawn' | 'countdown' } | { type: 'notice'; text: string; sub: string } | { type: 'consume-start' | 'consume-done' | 'consume-cancel'; item: FoodId };
+export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: number; fromY?:number; zone?: HitZone; material?: string; last?: boolean; weapon?:WeaponId; primary?:boolean; suppressed?:boolean } | { type: 'melee' | 'death' | 'hit' | 'barricade-hit' | 'barricade-break' | 'build' | 'repair' | 'spit-ready' | 'spit' | 'heavy-step' | 'enemy-call' | 'enemy-attack' | 'door' | 'glass' | 'scream-ready' | 'scream' | 'suspense'; position: Vec2; y?:number; zone?: HitZone; enemy?:EnemyKind; entity?:number;damage?:number;remainingHP?:number } | { type: 'reload-out' | 'reload-in' | 'reload-slide' | 'reload-done' | 'alarm' | 'switch' | 'rare-pickup'; position?: Vec2; weapon?:WeaponId } | { type:'reload' | 'empty'; weapon?:WeaponId; duration?:number } | {type:'hurt';position?:Vec2} | { type: 'pickup' | 'search' | 'heal' | 'healed' | 'warning' | 'night' | 'dawn' | 'countdown' } | { type: 'notice'; text: string; sub: string } | { type: 'consume-start' | 'consume-done' | 'consume-cancel'; item: FoodId };
 export interface Action { kind: 'search' | 'heal' | 'build' | 'repair' | 'dismantle' | 'base' | 'facility' | 'silence' | 'event' | 'portal' | 'board'; target: string; elapsed: number; duration: number; origin: Vec2 }
 export interface Acid extends Vec2 {id:number;from:Vec2;age:number;tick:number}
 export class Simulation {
@@ -93,6 +94,7 @@ export class Simulation {
   random(): number { this.seed = (Math.imul(1664525, this.seed) + 1013904223) >>> 0; return this.seed / 4294967296; }
   contentRandom=():number=>{this.contentSeed=(Math.imul(1664525,this.contentSeed)+1013904223)>>>0;return this.contentSeed/4294967296;};
   get meleeMode(){return this.activeSlot>=2;}
+  get buildingHammerEquipped(){return this.activeSlot===2&&this.gear.melee==='hammer'&&this.gear.owned.includes('hammer');}
   get meleeId():MeleeId{return this.activeSlot===3?'fists':this.gear.melee;}
   get equipped():WeaponItem {return (this.activeSlot<2?this.loadout[this.activeSlot as 0|1]:null)??this.emptyHands;}
   get weapon(){const gun=weaponStats(this.equipped);if(!this.meleeMode)return gun;const m=MELEE[this.meleeId];return {...gun,name:m.name,damage:m.damage,range:m.reach,falloff:m.reach,cooldown:m.cooldown,recoil:.15,kick:.12,pellets:1,spread:0,noise:7,move:1,magazine:0,automatic:false};}
@@ -113,18 +115,24 @@ export class Simulation {
   set reserve(value: number) { this.inventory.items[this.weapon.ammo] = Math.max(0, Math.floor(value)); }
   get activeWalkers(): number { return this.zombies.filter(z => z.active).length; }
   get threat(): number { return this.activeWalkers + (this.phase === 'night' ? Math.max(0, this.horde.budget - this.horde.spawned) : 0); }
-  get atBase(): boolean { return this.player.x > -5 && this.player.x < 7 && this.player.z > .35 && this.player.z < 12; }
+  get atBase(): boolean { return this.player.x > BUILD_PLOT.minX && this.player.x < BUILD_PLOT.maxX && this.player.z > BUILD_PLOT.minZ && this.player.z < BUILD_PLOT.maxZ; }
+  private groundCache?:{x:number;z:number;y:number};
+  get groundY():number{
+    const guess=this.player.eyeY-(this.player.crouched?FPS.crouchEye:FPS.eyeHeight),cached=this.groundCache;
+    const previous=cached&&Math.abs(cached.x-this.player.x)<.001&&Math.abs(cached.z-this.player.z)<.001&&Math.abs(guess-cached.y)<1?cached.y:guess;
+    const y=structureFloorHeight(this,this.player,previous);this.groundCache={x:this.player.x,z:this.player.z,y};return y;
+  }
   private craftCollisionSource?:typeof this.crafting;private craftCollisionRevision=-1;private craftCollisionTables=-1;private craftCollisions:Barricade[]=[];
   get solidDefenses():Barricade[] {
     if(this.craftCollisionSource!==this.crafting||this.craftCollisionRevision!==this.crafting.revision||this.craftCollisionTables!==this.crafting.tables.length){
       this.craftCollisionSource=this.crafting;this.craftCollisionRevision=this.crafting.revision;this.craftCollisionTables=this.crafting.tables.length;
-      this.craftCollisions=[...this.crafting.trees.filter(t=>t.hp>0).map(t=>({id:`tree-${t.id}`,label:'Árvore',x:t.x,z:t.z,w:.58,d:.58,h:3.8,hp:1e6,built:true,flash:0})),...this.crafting.chests.map(t=>({id:`chest-${t.id}`,label:'Baú',x:t.x,z:t.z,w:1.3,d:1.3,h:.95,hp:1e6,built:true,flash:0})),...this.crafting.tables.map(t=>({id:`table-${t.id}`,label:'Mesa inteligente',x:t.x,z:t.z,w:1.5,d:1.5,h:1.1,hp:t.hp,built:true,flash:0}))];
+      this.craftCollisions=[...this.crafting.trees.filter(t=>t.hp>0).map(t=>({id:`tree-${t.id}`,label:'Árvore',x:t.x,z:t.z,w:.58,d:.58,h:3.8,hp:1e6,built:true,flash:0})),...this.crafting.chests.map(t=>({id:`chest-${t.id}`,label:'Baú',x:t.x,z:t.z,w:1.3,d:1.3,h:.95,bottom:t.y,hp:1e6,built:true,flash:0})),...this.crafting.tables.map(t=>({id:`table-${t.id}`,label:'Mesa inteligente',x:t.x,z:t.z,w:1.5,d:1.5,h:1.1,bottom:t.y,hp:t.hp,built:true,flash:0})),...this.crafting.structures.flatMap(structureBoxes)];
     }
     return [...this.barricades.filter(b=>b.hp>0&&!b.open&&(!b.trap||b.trap==='wire')),...this.portals.filter(p=>p.state!=='open'&&p.hp>0),...this.craftCollisions];
   }
   get nearbyPortal(){if(this.firstPerson)return this.focus?.kind==='portal'?this.portals.find(v=>v.id===this.focus!.id):undefined;return this.portals.find(p=>distance(p,this.player)<2.5&&this.canReach(p,p.id));}
   get nearbyLoot() {if(this.firstPerson)return this.focus?.kind==='loot'?this.loot.find(v=>v.id===this.focus!.id):undefined; return this.loot.find(s => (!s.searched || itemKeys.some(k => s.contents[k] > 0)) && distance(s, this.player) < BALANCE.interaction.range && this.canReach(s)); }
-  get nearbyDefense() {if(this.firstPerson)return this.focus?.kind==='defense'?this.barricades.find(v=>v.id===this.focus!.id):undefined; return this.barricades.find(b => obstacleDistance(this.player, b) < 2.1 && this.canReach({ x: Math.max(b.x - b.w / 2, Math.min(b.x + b.w / 2, this.player.x)), z: b.z })); }
+  get nearbyDefense() {if(this.firstPerson)return this.focus?.kind==='defense'?this.barricades.find(v=>v.id===this.focus!.id):undefined; return this.barricades.find(b => b.hp>0 && obstacleDistance(this.player, b) < 2.1 && this.canReach({ x: Math.max(b.x - b.w / 2, Math.min(b.x + b.w / 2, this.player.x)), z: b.z })); }
   get nearbyWeapon(){if(this.firstPerson)return this.focus?.kind==='weapon'?this.groundWeapons.find(v=>String(v.item.uid)===this.focus!.id):undefined;return this.groundWeapons.filter(g=>distance(g,this.player)<2.4&&this.canReach(g)).sort((a,b)=>distance(a,this.player)-distance(b,this.player))[0];}
   get nearbyFacility(){if(this.firstPerson)return this.focus?.kind==='facility'?this.facilities.find(v=>v.id===this.focus!.id):undefined;return this.facilities.find(f=>f.state==='ready'&&distance(f,this.player)<2.4&&this.canReach(f));}
   get nearbyAlarm():boolean{if(this.firstPerson)return this.focus?.kind==='alarm';return this.alarmTimer>0&&!!this.alarmPosition&&distance(this.player,this.alarmPosition)<2.5&&this.canReach(this.alarmPosition);}
@@ -191,6 +199,7 @@ export class Simulation {
     this.notice(PERKS[id].name.toUpperCase(),PERKS[id].hint);this.events.push({type:'rare-pickup'});return true;
   }
   shoot(): void {
+    if(this.meleeMode&&this.meleeId==='hammer')return;
     this.cancelConsumption();
     if (this.firstPerson&&this.player.running)return;
     if (this.gameOver || this.shotTimer > 1e-8 || this.switchTimer > 0) return;
@@ -240,6 +249,7 @@ export class Simulation {
       const first=hits[0]?.hit,last=hits.at(-1)?.hit,nearest=last?.distance??limit;
       if(this.coopMode!=='replica'&&glass&&glass.state==='closed'&&!hits.length){glass.state='open';glass.hp=0;this.noise(glass,35);this.events.push({type:'glass',position:glass});}
       const end=blockedPoint??{x:this.player.x+dir.x*nearest,z:this.player.z+dir.z*nearest};
+      if(fps&&this.coopMode!=='replica'&&!first){const y=blockedPoint?.y??originY+shotSlope*nearest;const barrier=barriers.find(b=>b.id.startsWith('structure-')&&obstacleDistance(end,b)<.08&&y>=(b.bottom??0)-.08&&y<=(b.bottom??0)+(b.h??3)+.08);if(barrier)this.damageBarricade(barrier,weapon.damage*(this.meleeMode?.8:.35));}
       if(this.coopMode==='solo'&&pellet===0&&!first){const car=URBAN.vehicles.find(v=>['police','hatch'].includes(v.kind)&&Math.abs(v.x-end.x)<=v.w/2+.12&&Math.abs(v.z-end.z)<=v.d/2+.12);if(car&&!this.vehicleAlarms.has(car.id)){this.vehicleAlarms.add(car.id);this.startAlarm(car,16);}}
       if(!this.meleeMode)this.events.push({type:'shot',from:fps?{x:muzzle.x,z:muzzle.z}:{x:this.player.x+dir.x*.75,z:this.player.z+dir.z*.75},fromY:fps?muzzle.y:1.3,to:end,hit:!!first,y:blockedPoint?.y??last?.y??originY+shotSlope*nearest,zone:first?.zone,material:nearest>=weapon.range*cos-.01?'air':impactMaterial(end,this.solidDefenses),last:this.ammo===0,weapon:this.equipped.type,primary:pellet===0,suppressed:this.equipped.affix==='quiet'});
     }
@@ -475,6 +485,7 @@ export class Simulation {
     }
   }
   damageBarricade(b: Barricade, amount: number): void {
+    const structure=/^structure-(\d+)-/.exec(b.id);if(structure){damageStructure(this,Number(structure[1]),amount);return;}
     if(b.id.startsWith('table-')){const t=this.crafting.tables.find(t=>`table-${t.id}`===b.id);if(!t||amount<=0)return;t.hp=Math.max(0,t.hp-amount);b.hp=t.hp;this.crafting.revision++;if(!t.hp){this.crafting.tables.splice(this.crafting.tables.indexOf(t),1);this.zombies.forEach(z=>z.replan=0);}this.events.push({type:t.hp?'barricade-hit':'barricade-break',position:t});return;}
 
     if (b.hp <= 0 || amount <= 0) return;
@@ -498,6 +509,18 @@ export class Simulation {
       this.spawnTimer = 2; this.notice('MAIS UM DIA', 'Alguns locais têm novos recursos. A próxima noite será mais forte.');
     }
   }
+  private movePlayer(dx:number,dz:number,solids:readonly Barricade[]):void {
+    const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.1)),height=this.player.crouched?FPS.crouchEye+.15:FPS.bodyHeight;
+    let ground=this.groundY;
+    for(let i=0;i<steps;i++)for(const axis of ['x','z'] as const){
+      const candidate={x:this.player.x,z:this.player.z};candidate[axis]+=(axis==='x'?dx:dz)/steps;
+      const next=structureFloorHeight(this,candidate,ground),boxes=structureMovementBoxes(this,candidate,next,height,solids);
+      if(next-ground>.3||collides(candidate,FPS.radius,boxes)||ceilingHeight(candidate,FPS.radius)-next<height||Math.abs(candidate.x)>WORLD_LIMIT||Math.abs(candidate.z)>WORLD_LIMIT)continue;
+      this.player[axis]=candidate[axis];ground=next;this.groundCache={x:this.player.x,z:this.player.z,y:ground};
+    }
+    // Eye interpolation is preserved while ascending, but cannot make a high-side entry into a stair teleport the body.
+    if(this.player.eyeY<ground+(this.player.crouched?FPS.crouchEye:FPS.eyeHeight)-.45)this.player.eyeY=ground+(this.player.crouched?FPS.crouchEye:FPS.eyeHeight)-.45;
+  }
   update(dt: number, input: InputCommand): void {
     if (this.gameOver) return;
     if(this.foundationMode)input={...input,fire:false,trigger:false,interact:false,heldInteract:false,reload:false,heal:false,dismantle:false,slot:undefined};
@@ -511,7 +534,8 @@ export class Simulation {
     const length = Math.hypot(input.moveX, input.moveZ); this.player.moving = this.coopMode==='actor'?this.player.moving:length > .01;
     if(input.yaw!==undefined){this.firstPerson=true;this.player.angle=input.yaw;this.player.pitch=input.pitch??0;}
     this.player.aimKick*=Math.exp(-dt*7);this.player.bloom=Math.max(0,this.player.bloom-dt*.07);
-    this.player.crouched=!!input.crouch||(this.player.crouched&&ceilingHeight(this.player,FPS.radius)-floorHeight(this.player)<FPS.bodyHeight);
+    this.groundY;
+    this.player.crouched=!!input.crouch||(this.player.crouched&&ceilingHeight(this.player,FPS.radius)-this.groundY<FPS.bodyHeight);
     this.player.ads=!!input.ads&&!input.run&&!this.reloadTimer&&!this.consumption;
     const staminaBefore = this.player.stamina, wasExhausted = this.player.exhausted;
     updateStamina(this.player,dt,input.run&&this.player.moving&&!this.player.crouched&&!this.player.ads);
@@ -525,9 +549,9 @@ export class Simulation {
       this.reloadTimer = Math.max(0, this.reloadTimer - dt); if (!this.reloadTimer) {const shell=this.weapon.reloadStyle==='shell'; const amount = Math.min(shell?1:this.weapon.magazine-this.ammo, this.reserve);this.ammo+=amount;this.reserve-=amount;this.openingReady=true;this.events.push({type:'reload-done',weapon:this.equipped.type});if(shell&&this.ammo<this.weapon.magazine&&this.reserve)this.reload();} }
     if (input.reload&&!this.player.running) this.reload();
     const speed = this.player.crouched?FPS.crouchSpeed:(this.player.ads?FPS.adsMove:1)*(this.player.running ? BALANCE.player.sprint*(this.perks.has('runner')?1.1:1) : BALANCE.player.walk)*this.weapon.move;
-    if (length) move(this.player, input.moveX / Math.max(1,length) * speed * dt, input.moveZ / Math.max(1,length) * speed * dt, FPS.radius, solid,this.firstPerson?(this.player.crouched?FPS.crouchEye+.15:FPS.bodyHeight):0);
+    if (length) this.movePlayer(input.moveX / Math.max(1,length) * speed * dt,input.moveZ / Math.max(1,length) * speed * dt,solid);
     if(!this.firstPerson)this.player.angle = Math.atan2(input.aimX - this.player.x, input.aimZ - this.player.z);
-    this.player.eyeY+=((this.player.crouched?FPS.crouchEye:FPS.eyeHeight)+floorHeight(this.player)-this.player.eyeY)*(1-Math.exp(-dt*FPS.stepSpeed));
+    this.player.eyeY+=((this.player.crouched?FPS.crouchEye:FPS.eyeHeight)+this.groundY-this.player.eyeY)*(1-Math.exp(-dt*FPS.stepSpeed));
     if(this.foundationMode){this.focus=null;this.events.length=0;return;}
     this.updateNutrition(dt);
     if(this.player.hp<=0){this.cancelConsumption();this.action=null;if(this.coopMode==='solo')this.gameOver=true;return;}
@@ -608,7 +632,16 @@ export class Simulation {
     this.acids=this.acids.filter(a=>a.age<ACID.flight+ACID.lifetime);
     this.corpses.update(dt,this.player);
   }
+  private structureTrapTimers=new Map<number,number>();
   private updateTraps(dt:number):void {
+    for(const p of this.crafting.structures){
+      if(p.hp<=0||p.level!==0||!['spikes','snare','wire'].includes(p.kind))continue;
+      const cooldown=Math.max(0,(this.structureTrapTimers.get(p.id)??0)-dt);this.structureTrapTimers.set(p.id,cooldown);if(cooldown)continue;
+      const footprint={...p,w:p.kind==='wire'?(p.rotation%2?.24:3):2.5,d:p.kind==='wire'?(p.rotation%2?3:.24):2.5};
+      const targets=this.zombies.filter(z=>z.active&&obstacleDistance(z,footprint)<(p.kind==='wire'?1:.45));if(!targets.length)continue;this.structureTrapTimers.set(p.id,1);
+      for(const z of targets.slice(0,4)){const damage=p.kind==='spikes'?24:p.kind==='wire'?12:8;z.hp-=damage;z.flash=.12;z.slow=Math.max(z.slow,p.kind==='snare'?3:1.2);damageStructure(this,p.id,5);this.events.push({type:'hit',position:{x:z.x,z:z.z},zone:'LEGS',enemy:z.kind,entity:z.id,damage,remainingHP:Math.max(0,z.hp)});if(z.hp<=0)this.killInfected(z,{x:0,z:1},'LEGS');}
+    }
+    for(const id of this.structureTrapTimers.keys())if(!this.crafting.structures.some(p=>p.id===id))this.structureTrapTimers.delete(id);
     for(const b of this.barricades){if(!b.trap||b.hp<=0)continue;b.trapTimer=Math.max(0,(b.trapTimer??0)-dt);if(b.trapTimer>0)continue;
       const targets=this.zombies.filter(z=>z.active&&obstacleDistance(z,b)<(b.trap==='wire'?1:.45));if(!targets.length)continue;b.trapTimer=1;
       for(const z of targets.slice(0,4)){const damage=b.trap==='spikes'?24:b.trap==='wire'?12:8;z.hp-=damage;z.flash=.12;z.slow=Math.max(z.slow,b.trap==='snare'?3:1.2);b.hp=Math.max(0,b.hp-5);
@@ -632,7 +665,7 @@ export class Simulation {
       if(!player){z.path=[];continue;}
       const definition=ENEMIES[z.kind];
       if(distance(z,player)>CITY_PACING.sleep&&!z.siege)continue;
-      const solid=worldSolids.filter(b=>Math.abs(b.x-z.x)<=100+b.w/2&&Math.abs(b.z-z.z)<=100+b.d/2);
+      const solid=worldSolids.filter(b=>Math.abs(b.x-z.x)<=100+b.w/2&&Math.abs(b.z-z.z)<=100+b.d/2&&(b.bottom??0)<floorHeight(z)+1.9&&(b.bottom??0)+(b.h??3)>floorHeight(z)+.28&&(!b.trap||b.trap==='wire'));
       z.screamCooldown=Math.max(0,(z.screamCooldown??0)-dt);
       if(z.screamTimer){z.screamTimer=Math.max(0,z.screamTimer-dt);if(!z.screamTimer){this.noise(z,SCREAM.noise);z.screamCooldown=SCREAM.cooldown;this.events.push({type:'scream',position:{x:z.x,z:z.z},enemy:z.kind});}continue;}
       z.staggerCooldown=Math.max(0,(z.staggerCooldown??0)-dt);z.memory=Math.max(0,(z.memory??0)-dt);z.reaction=Math.max(0,z.reaction-dt); z.slow=Math.max(0,z.slow-dt); z.hearing=Math.max(0,z.hearing-dt);
@@ -688,12 +721,12 @@ export class Simulation {
         if(z.windup>0){z.windup=Math.max(0,z.windup-dt);continue;}
         z.chargeTime=Math.max(0,(z.chargeTime??0)-dt);const before={x:z.x,z:z.z};
         move(z,cx*7.2*dt,cz*7.2*dt,definition.radius,solid);z.gait+=dt*9;
-        const hit=distance(z,player)<1.35&&clearTarget;if(hit){if(this.onCoopDamage)this.onCoopDamage(player,18,z);else this.hurt(18,z);z.attack=1.5;this.events.push({type:'enemy-attack',position:{x:z.x,z:z.z},enemy:z.kind});}
+        const hit=distance(z,player)<1.35&&clearTarget&&Math.abs(player.eyeY-FPS.eyeHeight-floorHeight(z))<1.5;if(hit){if(this.onCoopDamage)this.onCoopDamage(player,18,z);else this.hurt(18,z);z.attack=1.5;this.events.push({type:'enemy-attack',position:{x:z.x,z:z.z},enemy:z.kind});}
         if(hit||cd<.6||!z.chargeTime||distance(before,z)<dt){z.chargeTarget=undefined;z.chargeTime=0;z.replan=0;}continue;
       }
       if(z.kind==='spitter'&&chasing&&clearTarget&&td>2.7&&td<ACID.range&&z.spitCooldown<=0&&z.reaction<=0){z.spitTarget={x:player.x,z:player.z};z.windup=ACID.windup;this.events.push({type:'spit-ready',position:z,enemy:z.kind});continue;}
       if(z.kind==='screamer'&&chasing&&clearTarget&&!z.screamCooldown&&z.reaction<=0){z.screamTimer=SCREAM.windup;this.events.push({type:'scream-ready',position:{x:z.x,z:z.z},enemy:z.kind});continue;}
-      const canHitPlayer = chasing && td < BALANCE.walker.playerRange && clearTarget;
+      const canHitPlayer = chasing && td < BALANCE.walker.playerRange && clearTarget && Math.abs(player.eyeY-FPS.eyeHeight-floorHeight(z))<1.5;
       const canHitDefense = defense && defense.hp > 0 && obstacleDistance(z, defense) < 1.15;
       const canHitBase = this.phase === 'night' && !!z.siege && target===BASE && !chasing && td < 1.9 && clearTarget;
       if (canHitPlayer || canHitDefense || canHitBase) {

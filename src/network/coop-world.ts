@@ -1,9 +1,11 @@
+import {placeStructure,manageStructure,structureFloorHeight,structureMovementBoxes} from '../game/construction.ts';
+import {placeFurniture,relocateFurniture} from '../game/relocation.ts';
 import {moveChest,placeChest,reclaimChest} from '../game/chests.ts';
 import {craft,placeBench,reclaimBench,absorb,infectedLoot} from '../game/crafting.ts';
 import {Simulation} from '../game/simulation.ts';
 import type {InputCommand,GameEvent,Walker} from '../game/simulation.ts';
 import {Inventory,itemKeys} from '../game/inventory.ts';
-import {distance,floorHeight,wallDistance,collides} from '../game/world.ts';
+import {distance,floorHeight,rayWorld,collides} from '../game/world.ts';
 import {interactionFocus} from '../game/interaction.ts';
 import {CITY_SITES} from '../game/city.ts';
 import {cityEncounter} from '../game/city-director.ts';
@@ -44,18 +46,39 @@ export class CoopWorld {
   if(!source){s.loadout[1]!.uid=actor*1000000;Object.assign(s.player,spawnFor(members,actor));s.player.eyeY=floorHeight(s.player)+1.72;}
   s.zombies=[];s.onCoopDamage=(_player,damage,origin,cause)=>this.damage(actor,damage,origin,cause);
   this.actors.set(actor,{actor,sim:s,life:'alive',bleed:0,lastSeq:0,shotSeq:0,lastFire:-100,holdAt:-100,reviveTarget:0,reviveProgress:0,intentAt:-100,lastDamage:-100});this.bind(s);
+  if(!source&&this.sim.crafting.structures.length){
+   const origin=spawnFor(members,actor),candidates:{x:number;z:number}[]=[origin];
+   for(let radius=1;radius<=12;radius++)for(let step=0;step<16;step++){const angle=step*Math.PI/8;candidates.push({x:origin.x+Math.sin(angle)*radius,z:origin.z+Math.cos(angle)*radius});}
+   const spawn=candidates.find(p=>{const y=structureFloorHeight(s,p,0);return !collides(p,.45,structureMovementBoxes(s,p,y,1.9))&&[...this.actors.values()].every(a=>a.actor===actor||distance(a.sim.player,p)>1);});
+   if(spawn){Object.assign(s.player,spawn);s.player.eyeY=structureFloorHeight(s,spawn,0)+1.72;}
+  }
  }
  static fromSolo(source:Simulation,actor:number){return new CoopWorld(source.runSeed,[actor],source);}
  private bind(s:Simulation){s.crafting=this.sim.crafting;s.baseHP=this.sim.baseHP;s.cycle=this.sim.cycle;s.horde=this.sim.horde;s.coopTargets=[...this.actors.values()].filter(a=>a.life!=='dead').map(a=>a.sim.player);s.zombies=this.sim.zombies;s.loot=this.sim.loot;s.facilities=this.sim.facilities;s.portals=this.sim.portals;s.barricades=this.sim.barricades;s.groundWeapons=this.sim.groundWeapons;s.corpses=this.sim.corpses;s.acids=this.sim.acids;s.nextWeaponId=this.sim.nextWeaponId;s.contentSeed=this.sim.contentSeed;}
  private compact(event:GameEvent):GameEvent{return 'position' in event&&event.position?{...event,position:{x:event.position.x,z:event.position.z}}:event;}
  private collect(a:ActorRecord){this.sim.baseHP=a.sim.baseHP;this.sim.nextWeaponId=a.sim.nextWeaponId;this.sim.contentSeed=a.sim.contentSeed;for(const event of a.sim.events)this.effects.push({actor:a.actor,shot:a.shotSeq,event:this.compact(event)});a.sim.events=[];}
  setMembers(members:number[]){let changed=false;for(const actor of this.actors.keys())if(!members.includes(actor)){this.actors.delete(actor);changed=true;}for(const actor of members)if(!this.actors.has(actor)){this.addActor(actor,members);changed=true;}if(changed)this.refreshRegistry();return changed;}
- setPose(actor:number,pose:PlayerSnapshot&{moving?:boolean}){const a=this.actors.get(actor);if(!a||a.life!=='alive')return;Object.assign(a.sim.player,{x:pose.x,z:pose.z,angle:pose.yaw,pitch:pose.pitch,crouched:pose.locomotion===3,running:pose.locomotion===2,moving:pose.moving??(pose.locomotion===1||pose.locomotion===2||pose.locomotion===3&&Math.hypot(pose.vx,pose.vz)>.1)});a.sim.player.eyeY=floorHeight(a.sim.player)+(a.sim.player.crouched?1.08:1.72);}
+ setPose(actor:number,pose:PlayerSnapshot&{moving?:boolean}):boolean {
+  const a=this.actors.get(actor);if(!a||a.life!=='alive')return false;
+  const s=a.sim;let ground=structureFloorHeight(s,pose,s.groundY);
+  // A delayed presence packet can span several stair treads. Trace its short path
+  // at footstep resolution rather than permanently rejecting the following packets.
+  const span=distance(s.player,pose);
+  if(pose.y>ground+.35&&span>0&&span<=2.5){
+   const steps=Math.ceil(span/.1);let height=s.groundY;
+   for(let i=1;i<=steps;i++){const point={x:s.player.x+(pose.x-s.player.x)*i/steps,z:s.player.z+(pose.z-s.player.z)*i/steps},next=structureFloorHeight(s,point,height);if(next-height>.3)break;height=next;if(i===steps)ground=height;}
+  }
+  // Presence owns horizontal movement. Vertical movement must stay on a reachable
+  // floor/ramp; accepting the submitted Y would allow building, shooting or looting from the air.
+  if(!Number.isFinite(pose.y)||Math.abs(pose.y-ground)>.35)return false;
+  Object.assign(s.player,{x:pose.x,z:pose.z,angle:pose.yaw,pitch:pose.pitch,crouched:pose.locomotion===3,running:pose.locomotion===2,moving:pose.moving??(pose.locomotion===1||pose.locomotion===2||pose.locomotion===3&&Math.hypot(pose.vx,pose.vz)>.1)});
+  s.player.eyeY=ground+(s.player.crouched?1.08:1.72);return true;
+ }
  request(actor:number,r:ActionRequest):boolean {
   const a=this.actors.get(actor);if(!a||r.seq<=a.lastSeq||this.wipe)return false;a.lastSeq=r.seq;
   if(a.life!=='alive')return false;const s=a.sim;
   // Presence remains client-owned, but actions cannot originate far from its latest position.
-  if(distance(s.player,r.pose)>2.5)return false;this.setPose(actor,r.pose);this.bind(s);s.focus=interactionFocus(s);
+  if(distance(s.player,r.pose)>2.5||!this.setPose(actor,r.pose))return false;this.bind(s);s.focus=interactionFocus(s);
   if(r.kind==='consume'){const ok=s.beginConsume(r.item);if(ok){a.reviveTarget=0;a.reviveProgress=0;a.worldHeld=false;}this.collect(a);return ok;}
   if(r.kind==='cancel-consume'){s.cancelConsumption();this.collect(a);return true;}
   if(s.consumption&&!(r.kind==='hold'&&!r.held)){s.cancelConsumption();this.collect(a);}
@@ -64,6 +87,10 @@ export class CoopWorld {
    if(s.equipped.type!==r.weapon||r.seed!==shotSeed(actor,r.shot)||s.player.running||s.shotTimer>1e-8||s.switchTimer>0||(!s.meleeMode&&s.ammo<=0)||s.reloadTimer>0&&s.weapon.reloadStyle!=='shell'||this.time-a.lastFire<s.weapon.cooldown*.85)return false;
    a.reviveTarget=0;a.reviveProgress=0;s.player.ads=r.ads;s.player.bloom=r.bloom;s.player.aimKick=r.kick;s.seed=r.seed;const timer=s.shotTimer;s.shoot();if(s.shotTimer===timer)return false;a.lastFire=this.time;this.sim.noise(s.player,s.weapon.noise);this.collect(a);this.makeDrops();return true;
   }
+  if(r.kind==='place-structure'){const ok=placeStructure(s,r.placement);this.collect(a);return ok;}
+  if(r.kind==='manage-structure'){const ok=manageStructure(s,r.id,r.revision,r.operation);this.collect(a);return ok;}
+  if(r.kind==='place-furniture'){const ok=placeFurniture(s,r.furniture,r.placement);this.collect(a);return ok;}
+  if(r.kind==='relocate-furniture'){const ok=relocateFurniture(s,r.furniture,r.id,r.revision,r.placement);this.collect(a);return ok;}
   if(r.kind==='chest-move')return moveChest(s,r.move);
   if(r.kind==='reclaim-chest')return reclaimChest(s,r.chest);
   if(r.kind==='place-chest'){const ok=placeChest(s);this.collect(a);return ok;}
@@ -93,7 +120,7 @@ export class CoopWorld {
   const a=this.actors.get(actor);if(!a||a.life!=='alive'||!Number.isFinite(amount)||amount<=0||cause!=='deprivation'&&a.sim.player.invulnerable>0)return;
   a.sim.player.hp=Math.max(0,a.sim.player.hp-(cause==='deprivation'?amount:absorb(a.sim,amount)));if(cause!=='deprivation')a.sim.player.invulnerable=.55;a.sim.cancelConsumption();a.sim.action=null;a.sim.cancelReload();a.reviveProgress=0;a.reviveTarget=0;a.lastDamage=this.time;
   this.effects.push({actor,shot:0,event:{type:'hurt',position:source}});
-  if(!a.sim.player.hp){a.life='downed';a.bleed=COOP.bleedout;this.effects.push({actor,shot:0,event:{type:'notice',text:'Sobrevivente incapacitado',sub:'Aproxime-se e segure E para reviver.'}});}
+  if(!a.sim.player.hp){a.sim.player.eyeY=a.sim.groundY+.6;a.sim.player.crouched=false;a.sim.player.running=false;a.sim.player.moving=false;a.life='downed';a.bleed=COOP.bleedout;this.effects.push({actor,shot:0,event:{type:'notice',text:'Sobrevivente incapacitado',sub:'Aproxime-se e segure E para reviver.'}});}
  }
  private makeDrops(){for(const z of this.sim.zombies)if(!z.active&&!this.drops.has(z.id)){this.drops.add(z.id);infectedLoot(this.sim,z);}}
  step(dt:number){
@@ -107,11 +134,11 @@ export class CoopWorld {
     if(a.sim.action?.kind==='portal'){const door=this.sim.portals.find(p=>p.id===a.sim.action!.target);if(door?.state==='open')a.sim.action=null;}
     // Authoritative survivor timers run once; movement is supplied by validated presence.
     a.sim.update(dt,{...idle,heldInteract:!!a.worldHeld&&this.time-a.holdAt<COOP.holdTimeout,run:a.sim.player.running,crouch:a.sim.player.crouched,ads:a.sim.player.ads});this.collect(a);
-   }else if(a.life==='downed'){a.bleed=Math.max(0,a.bleed-dt);if(!a.bleed)a.life='dead';}
+   }else if(a.life==='downed'){a.sim.player.eyeY=structureFloorHeight(a.sim,a.sim.player,a.sim.player.eyeY-.6)+.6;a.bleed=Math.max(0,a.bleed-dt);if(!a.bleed)a.life='dead';}
    const target=this.actors.get(a.reviveTarget);
    const reachable=target&&distance(a.sim.player,target.sim.player)<=COOP.reviveRange&&this.clearLine(a.sim.player,target.sim.player);
    if(a.life!=='alive'||!target||target.life!=='downed'||!reachable||this.time-a.holdAt>COOP.holdTimeout){a.reviveTarget=0;a.reviveProgress=0;}
-   else {a.reviveProgress+=dt;if(a.reviveProgress>=COOP.reviveTime){target.life='alive';target.bleed=0;target.sim.player.hp=COOP.reviveHP;target.sim.player.invulnerable=2;a.reviveProgress=0;a.reviveTarget=0;this.effects.push({actor:target.actor,shot:0,event:{type:'healed'}});}}
+   else {a.reviveProgress+=dt;if(a.reviveProgress>=COOP.reviveTime){target.sim.player.eyeY+=1.12;target.life='alive';target.bleed=0;target.sim.player.hp=COOP.reviveHP;target.sim.player.invulnerable=2;a.reviveProgress=0;a.reviveTarget=0;this.effects.push({actor:target.actor,shot:0,event:{type:'healed'}});}}
   }
   const alive=[...this.actors.values()].filter(a=>a.life==='alive');
   if(!alive.length||this.sim.baseHP<=0){this.wipe=true;return;}
@@ -119,7 +146,11 @@ export class CoopWorld {
   this.cityClock-=dt;if(this.cityClock<=0){this.cityClock=1;this.spawnCity(alive);}
   this.makeDrops();this.sim.loot=this.sim.loot.filter(l=>!l.id.startsWith('infected-')||itemKeys.some(k=>l.contents[k]));this.refreshRegistry();
  }
- private clearLine(a:{x:number;z:number},b:{x:number;z:number}){const d=distance(a,b);return d<.01||wallDistance(a,{x:(b.x-a.x)/d,z:(b.z-a.z)/d},d,this.sim.solidDefenses)>=d-.1;}
+ private clearLine(a:Simulation['player'],b:Simulation['player']){
+  if(Math.abs(a.eyeY-b.eyeY)>2)return false;
+  const y=b.eyeY-a.eyeY,d=Math.hypot(b.x-a.x,b.z-a.z,y);if(d<.01)return true;
+  return rayWorld({x:a.x,z:a.z,y:a.eyeY},{x:(b.x-a.x)/d,z:(b.z-a.z)/d,y:y/d},d,this.sim.solidDefenses)>=d-.1;
+ }
  private spawnCity(alive:ActorRecord[]){for(const site of CITY_SITES){if(this.sim.activatedSites.has(site.id)||!alive.some(a=>distance(a.sim.player,site)<45)||this.sim.activeWalkers>28)continue;
   const kinds=cityEncounter(site,1,100);const candidates=[];for(const z of [-.3,0,.3])for(const x of [-2,2])candidates.push({x:site.x+x,z:site.z+site.d*z});
   const positions=candidates.filter(p=>!collides(p,.7,this.sim.solidDefenses)&&alive.every(a=>distance(p,a.sim.player)>14));if(positions.length<kinds.length)continue;

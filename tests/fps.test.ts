@@ -48,10 +48,10 @@ test('low shelter blocks standing entry but allows crouched passage and blocks u
  assert.ok(rayWorld({x:106,y:1.3,z:125},{x:0,y:1,z:0},10)<.6);
 });
 
-test('FPS gaze builds, repairs and dismantles shelter defense using existing resources',()=>{
+test('FPS gaze ignores empty anchors but repairs and dismantles existing legacy shelter defenses',()=>{
  const s=sim();s.player.x=1;s.player.z=7.2;s.player.eyeY=1.94;s.inventory.items.wood=12;s.inventory.items.scrap=8;
- const pitch=Math.atan2(.2-1.94,1.8);step(s,.1,{yaw:0,pitch});assert.equal(s.focus?.id,'gate');step(s,.02,{yaw:0,pitch,interact:true});step(s,1.4,{yaw:0,pitch});
- const gate=s.barricades.find(b=>b.id==='gate')!;assert.equal(gate.hp,300);assert.equal(s.inventory.items.wood,6);
+ const pitch=Math.atan2(.2-1.94,1.8);step(s,.1,{yaw:0,pitch});assert.notEqual(s.focus?.id,'gate');step(s,.02,{yaw:0,pitch,interact:true});step(s,1.4,{yaw:0,pitch});
+ const gate=s.barricades.find(b=>b.id==='gate')!;assert.equal(gate.hp,0);assert.equal(s.inventory.items.wood,12);gate.hp=300;gate.built=true;
  s.damageBarricade(gate,100);step(s,.02,{yaw:0,pitch:-.4,interact:true,heldInteract:true});step(s,2.2,{yaw:0,pitch:-.4,heldInteract:true});assert.equal(gate.hp,290);
  step(s,.02,{yaw:0,pitch:-.4,dismantle:true});step(s,2,{yaw:0,pitch:-.4});assert.equal(gate.hp,0);
 });

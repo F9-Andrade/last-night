@@ -12,6 +12,7 @@ const paths = {
   soda: '<path d="m7 2-2 4v14l2 2h10l2-2V6l-2-4zM5 6h14M5 19h14m-6-12-4 7h5l-3 5"/>',
   chest: '<path d="M3 5h18v16H3zM3 11h18M10 9h4v5h-4zM6 5v6m12-6v6"/>',
   axe: '<path d="m7 22 5-17m-3 0 10-2 3 8-10 2M11 5l-5-2-3 7 7 3"/>',
+  hammer: '<path d="m5 21 4 1 6-14-4-2zM10 3l7 3 3 4 2-1-2-5-8-3zM10 3 7 2 5 7l4 2 2-3m-3 9 4 2m-5 1 4 2"/>',
   knife: '<path d="m4 21 6-7m-3-2 6 6m-3-3 10-12c2 8-4 12-7 14z"/>',
   spear: '<path d="M3 22 16 8m-3 0 8-6-2 10z"/>',
   machete: '<path d="m3 22 5-6m-2-2 5 4M8 15l9-13 5 3-12 12z"/>',

@@ -2,7 +2,7 @@ import {itemArt} from './item-art';
 import { icon, emblem } from './icons';
 import { ITEMS, itemKeys } from '../game/inventory';
 const button=(id:string,label:string,kind='menu-link')=>`<button id="${id}" class="${kind}">${label}${icon('arrow')}</button>`;
-const controls=[['WASD','Mover'],['Shift','Correr'],['Mouse','Olhar'],['Botão direito','Mirar / ADS'],['C / Ctrl','Agachar'],['Clique','Disparar'],['R','Recarregar'],['1 / 2','Arma longa / curta'],['E','Interagir / reparar'],['H','Usar bandagem'],['Tab','Mochila'],['M','Mapa'],['F','Lanterna'],['X','Desmontar defesa'],['Esc','Pausar']];
+const controls=[['WASD','Mover'],['Shift','Correr'],['Mouse','Olhar'],['Botão direito','Mirar / ADS'],['C / Ctrl','Agachar'],['Clique','Disparar'],['R','Recarregar'],['1 / 2','Arma longa / curta'],['E','Interagir / abrir baú e mesa'],['G','Gerenciar construção'],['H','Usar bandagem'],['Tab','Mochila'],['M','Mapa'],['F','Lanterna'],['B / 0','Martelo / guardar ferramenta'],['1–9 / Roda','Escolher peça com martelo'],['R / Direito','Girar peça ao construir'],['PgUp / PgDn','Selecionar andar'],['Esc','Pausar']];
 export const layout=():string=>`
 <canvas id="game" tabindex="-1" aria-label="LAST NIGHT — cenário 3D do jogo"></canvas>
 <div class="vignette"></div><div id="damage-vignette"></div><div id="damage-direction"><i></i></div><div id="low-health-edge"></div>

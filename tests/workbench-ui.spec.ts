@@ -14,7 +14,7 @@ async function openBench(p:Page){
  await p.keyboard.press('Tab');await p.locator('#craft-tab').click();await p.locator('#place-bench').click();await expect.poll(async()=>(await state(p)).camera.pointerLocked).toBe(true);await mouse(p);
  await expect.poll(async()=>(await state(p)).crafting.tables.length).toBe(1);
  await p.evaluate(()=>{const g=(window as any).__LAST_NIGHT__,s=g.state(),t=s.crafting.tables[0];g.setLook(Math.atan2(t.x-s.player.x,t.z-s.player.z),Math.atan2(t.y+1.2-s.player.eyeY,Math.hypot(t.x-s.player.x,t.z-s.player.z)));});
- await mouse(p,'right');await expect(p.locator('#workbench-screen')).toBeVisible();await p.locator('[data-recipe="axe"]').click();await expect(p.locator('#bench-recipe h3')).toHaveText('Machado');
+ await p.keyboard.press('KeyE');await expect(p.locator('#workbench-screen')).toBeVisible();await p.locator('[data-recipe="axe"]').click();await expect(p.locator('#bench-recipe h3')).toHaveText('Machado');
 }
 
 test('workbench catalog keeps controls stable, filters recipes and crafts through the existing gameplay',async({page:p})=>{
@@ -99,7 +99,7 @@ test('workbench catalog keeps controls stable, filters recipes and crafts throug
  await expect(p.locator('[data-craft="axe"]')).toBeDisabled();expect(after.gear.owned.filter((id:string)=>id==='axe')).toHaveLength(1);
  // Reopen and reclaim remain reachable; the recipe browser does not capture gameplay forever.
  await p.locator('#bench-close').click();await expect(p.locator('#workbench-screen')).toBeHidden();
- if(!(await state(p)).camera.pointerLocked)await p.locator('#capture-mouse').click();await mouse(p,'right');await expect(p.locator('#workbench-screen')).toBeVisible();
+ if(!(await state(p)).camera.pointerLocked)await p.locator('#capture-mouse').click();await p.keyboard.press('KeyE');await expect(p.locator('#workbench-screen')).toBeVisible();
  // Decimal item weights must use the inventory's capacity tolerance when reclaiming.
  await p.evaluate(()=>{const g=(window as any).__LAST_NIGHT__;g.setInventory({...Object.fromEntries(Object.keys(g.state().inventory).map(k=>[k,0])),hide:2,ammo:2,shells:4,med:1,wood:17,cannedBeans:1,cannedFish:4,crackers:4,ration:1,water:1});});
  await expect(p.locator('#reclaim-bench')).toBeDisabled();
