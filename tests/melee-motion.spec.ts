@@ -31,6 +31,9 @@ test('remote melee stays anchored at shoulders and restores firearm pose',async(
    }
   }
   state.gameplay.melee=undefined;remotes.update([state],0,1/60,camera);const c=remotes.avatars.get(2).character;
-  const restored=c.weapon.visible&&c.rightArm.rotation.y===0&&c.leftArm.rotation.y===.8;remotes.clear();return {error,attached,restored};
+  c.root.updateMatrixWorld(true);
+  const palm=new THREE.Vector3(0,-.018,-.065).applyMatrix4(c.survivorArms[1].hand.root.matrixWorld);
+  const contact=c.heldVisual.supportGrip.clone().applyMatrix4(c.weapon.matrixWorld);
+  const restored=c.weapon.visible&&palm.distanceTo(contact)<.00001;remotes.clear();return {error,attached,restored};
  });expect(result.error).toBeLessThan(.00001);expect(result.attached).toBe(true);expect(result.restored).toBe(true);
 });

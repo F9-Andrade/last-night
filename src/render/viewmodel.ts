@@ -2,7 +2,8 @@ import {FOODS,type FoodId} from '../game/nutrition';
 import {createFoodVisual,createEatingSpoon,type FoodVisual} from './food-assets';
 import {consumptionMotion,smoothStage,type ConsumptionMotion} from './nutrition-motion';
 import {solveArm,strikeEnvelope} from './melee-motion';
-import {meleeRecipe} from './crafting-view';
+import {createMeleeVisual,MELEE_VISUALS} from './melee-assets';
+import {createSurvivorHand,createSleeve,HAND_GRIP,type SurvivorHand} from './hand-assets';
 import type {MeleeId} from '../game/crafting';
 import * as THREE from 'three';
 import { createWeaponVisual } from './weapon-assets';
@@ -34,11 +35,12 @@ export class Viewmodel {
   g.fill(-1,-1,-7,2,2,9,0xffe2a2).fill(-2,-2,-4,4,4,3,0xffbd61);
   g.fill(-4,-1,-3,8,2,1,0xffd68a).fill(-1,-4,-3,2,8,1,0xffd68a);
  }},new THREE.MeshBasicMaterial({color:new THREE.Color(4.5,2.5,.75),vertexColors:true,transparent:true,opacity:.9,depthWrite:false}));
- private shoulders=[new THREE.Vector3(.31,-.43,.13),new THREE.Vector3(-.31,-.43,.13)];
+ private shoulders=[new THREE.Vector3(.26,-.43,-.055),new THREE.Vector3(-.26,-.43,-.055)];
  private upperArms:THREE.Mesh[]=[];private elbow=new THREE.Vector3();private armDirection=new THREE.Vector3();private armAxis=new THREE.Vector3(0,0,1);
  private meleeMeshes=new Map<MeleeId,THREE.Mesh>();private heldMelee?:MeleeId;private swing=0;
  private flashTime=0;private recoil=0;ads=0; private cycle=0;private actionTime=0;private movement=0;private shotSide=1;
  private sunVector=new THREE.Vector3();
+ private gloves:SurvivorHand[]=[];private contact=new THREE.Vector3();private contactOther=new THREE.Vector3();private handOffset=new THREE.Vector3();private handRotation=new THREE.Quaternion();private gripRotation=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),-Math.PI/2);private poseRotation=new THREE.Euler();private flashStrength=1;private cylinderIndex=0;
  private provisions=new Map<FoodId,FoodVisual>();private food?:FoodVisual;private foodId?:FoodId;private spoon=createEatingSpoon();
  private consumptionPose:ConsumptionMotion={show:0,open:0,lift:0,scoop:0,bite:0,settle:0};
  private consumeBlend=0;private consumeProgress=0;private sprint=0;private hurt=0;private hurtSide=1;
@@ -46,25 +48,10 @@ export class Viewmodel {
  constructor(){
   this.sun.position.set(-2,3,1);this.scene.add(this.anchor,this.ambient,this.sun,this.sun.target);
   this.anchor.add(this.rig);this.rig.add(this.gun,this.right,this.left);
-  for(const [side,root] of [['right',this.right],['left',this.left]] as const){
-   root.add(voxelMesh({id:`fps:arm:${side}:v11`,unit:.0125,build(g){
-    // Squared folds and a stepped forearm keep the shape voxel, with broad calm cloth fields.
-    g.fill(-6,-6,3,12,12,31,0x4b5745).fill(-5,-5,-1,10,10,8,0x596049);
-    g.fill(-6,-6,5,12,2,26,0x354336).fill(-6,4,9,12,2,20,0x687059);
-    g.fill(-6,-5,17,1,10,2,0x72765c).fill(-6,-3,18,1,5,2,0x474f3f);
-    g.fill(-5,4,12,10,1,2,0x525d46).fill(-5,4,24,10,1,2,0x525d46);
-    g.fill(-6,-6,-3,12,12,4,0x696b50).fill(-6,-6,-3,12,2,4,0x3c4637);
-    // Fingerless work gloves, exposed knuckles and a narrow wrist. No smooth cylinders.
-    g.fill(-5,-4,-13,10,9,11,0x927657).fill(-5,-4,-11,10,5,10,0x354235);
-    g.fill(-5,1,-13,10,3,8,0x56604b).fill(-5,2,-13,10,2,3,0x756147);
-    for(let i=0;i<4;i++)g.fill(-5+i*3,3,-13,2,2,5,0xb19572);
-    g.fill(5,-2,-9,3,4,7,0x9b8060).fill(5,-2,-6,3,2,4,0x525943);
-    g.set(-5,4,-7,0x6e5b46).fill(-4,-4,-11,2,1,5,0x26362d);
-   }}));
+  for(const [i,root] of [this.right,this.left].entries()){
+   const glove=createSurvivorHand(i===0?1:-1);this.gloves.push(glove);root.add(createSleeve(),glove.root);
+   const upper=createSleeve(true);this.upperArms.push(upper);this.rig.add(upper);
   }
-  // The existing forearm ends 0.425 m behind its wrist. A second sleeve joins
-  // that elbow to a fixed shoulder below/behind the camera throughout a strike.
-  for(let i=0;i<2;i++){const sleeve=voxelMesh({id:'fps:upper-sleeve:1',unit:.0125,build(g){g.fill(-6,-6,-1,12,12,32,0x4b5745).fill(-6,-6,0,12,2,30,0x354336).fill(-6,4,1,12,2,28,0x687059);}});sleeve.visible=false;this.upperArms.push(sleeve);this.rig.add(sleeve);}
   this.flash.visible=false;this.flash.castShadow=false;this.flash.receiveShadow=false;
   this.gun.add(this.flash,this.flashLight);this.spoon.visible=false;this.rig.add(this.spoon);this.hands.push(this.right,this.left);
  }
@@ -91,17 +78,17 @@ export class Viewmodel {
   this.ambient.color.copy(ambient.color);this.ambient.groundColor.copy(ambient.groundColor);
   this.ambient.intensity=ambient.intensity*(1-indoors*.12)+(flashlight?.25:0);
  }
- event(e:GameEvent):void {if(e.type==='hurt'){this.hurt=1;this.hurtSide*=-1;}if(e.type==='melee'){this.swing=1;this.shotSide*=-1;}if((e.type==='build'||e.type==='repair')&&this.heldMelee==='hammer')this.swing=1;if(e.type==='shot'&&e.primary!==false){this.recoil=Math.min(2.5,this.recoil+WEAPONS[e.weapon??'pistol'].recoil*.32);this.flashTime=.048;this.actionTime=.38;this.shotSide*=-1;}}
+ event(e:GameEvent):void {if(e.type==='hurt'){this.hurt=1;this.hurtSide*=-1;}if(e.type==='melee'){this.swing=1;this.shotSide*=-1;}if((e.type==='build'||e.type==='repair')&&this.heldMelee==='hammer')this.swing=1;if(e.type==='shot'&&e.primary!==false){this.recoil=Math.min(2.5,this.recoil+WEAPONS[e.weapon??'pistol'].recoil*.32);this.flashTime=.048;this.actionTime=.38;this.shotSide*=-1;this.flashStrength=e.suppressed?.25:1;if(e.weapon==='revolver')this.cylinderIndex++;}}
  reset():void {this.consumeBlend=0;this.sprint=0;this.hurt=0;this.foodId=undefined;if(this.food)this.food.root.visible=false;this.food=undefined;this.spoon.visible=false;this.heldMelee=undefined;this.swing=0;this.ads=0;this.recoil=0;this.flashTime=0;this.actionTime=0;this.movement=0;this.flash.visible=false;this.flashLight.intensity=0;}
  update(sim:Simulation,camera:THREE.PerspectiveCamera,dt:number,time:number,visible:boolean):void {
   const held=sim.meleeMode?sim.meleeId:undefined;if(this.heldMelee!==held){this.swing=0;this.heldMelee=held;}
   this.anchor.visible=visible;this.anchor.position.copy(camera.position);this.anchor.quaternion.copy(camera.quaternion);if(!visible){this.flashLight.intensity=0;this.flashTime=0;return;}
   const id=sim.equipped.type,weapon=sim.weapon,feel=handling[id],consuming=!!sim.consumption;
   this.sprint+=(Number(sim.player.running&&!consuming)-this.sprint)*(1-Math.exp(-dt*9));this.hurt=Math.max(0,this.hurt-dt*2.7);
-  if(this.id!==id){this.current?.root.removeFromParent();let visual=this.cache.get(id);if(!visual){visual=createWeaponVisual(id,true);this.cache.set(id,visual);}this.current=visual;this.id=id;this.gun.add(visual.root);visual.root.rotation.y=Math.PI;visual.root.scale.setScalar(weapon.slot===0?.48:.65);}
+  if(this.id!==id){this.current?.root.removeFromParent();let visual=this.cache.get(id);if(!visual){visual=createWeaponVisual(id,true);this.cache.set(id,visual);}this.current=visual;this.id=id;this.gun.add(visual.root);visual.root.rotation.y=Math.PI;visual.root.scale.setScalar(visual.scale);}
   this.gun.visible=!sim.meleeMode;this.swing=Math.max(0,this.swing-dt/Math.max(.3,weapon.cooldown));
   for(const [key,m] of this.meleeMeshes)m.visible=sim.meleeMode&&key===sim.meleeId;
-  if(sim.meleeMode){let m=this.meleeMeshes.get(sim.meleeId);if(!m&&sim.meleeId!=='fists'){m=voxelMesh(meleeRecipe(sim.meleeId));this.meleeMeshes.set(sim.meleeId,m);(sim.meleeId==='hammer'?this.rig:this.right).add(m);}if(m){const hammer=sim.meleeId==='hammer';m.visible=true;m.scale.setScalar(hammer?.65:1);m.position.set(0,hammer?.13:.17,hammer?-.12:-.13);m.rotation.set(hammer?-.16:-.25,hammer?.18:0,hammer?-.13:0);}}
+  if(sim.meleeMode&&sim.meleeId!=='fists'&&!this.meleeMeshes.has(sim.meleeId)){const tool=createMeleeVisual(sim.meleeId);this.meleeMeshes.set(sim.meleeId,tool);this.rig.add(tool);}
   this.ads+=(Number(sim.player.ads&&!sim.reloadTimer&&!sim.player.running&&!consuming)-this.ads)*(1-Math.exp(-dt*FPS.adsSpeed));
   this.recoil*=Math.exp(-dt*feel.returnSpeed);this.actionTime=Math.max(0,this.actionTime-dt);this.cycle+=dt*(8+this.sprint*5);
   this.movement+=(Number(sim.player.moving)-this.movement)*(1-Math.exp(-dt*9));
@@ -113,52 +100,67 @@ export class Viewmodel {
   const flinch=Math.sin((1-this.hurt)*Math.PI)*this.hurt;
   this.rig.position.y-=flinch*.036;this.rig.position.z+=flinch*.028;
   this.rig.rotation.set(-flinch*.055,Math.sin(this.cycle)*bob*.4,Math.sin(this.cycle*.5)*bob*.6+flinch*.065*this.hurtSide);
-  this.gun.position.set(.23*(1-this.ads),THREE.MathUtils.lerp(-.25,id==='marksman'?-.154:weapon.slot===0?-.13:-.143,this.ads)-tilt*.14-swapping*.4-this.sprint*.13,weapon.slot===0?-.55:-.48);
-  this.gun.position.z+=this.recoil*feel.back;this.gun.rotation.set(this.recoil*feel.pitch-tilt*.3-this.sprint*.43,tilt*.35,tilt*.28-this.sprint*.23+this.recoil*feel.roll*this.shotSide);
-  const v=this.current!,style=weapon.reloadStyle;
+  const v=this.current!,long=weapon.slot===0;
+  this.gun.position.set(.21*(1-this.ads),THREE.MathUtils.lerp(long?-.205:-.235,-v.aimHeight*v.scale,this.ads)-tilt*.1-swapping*.4-this.sprint*.1,long?-.46:-.43);
+  this.gun.position.z+=this.recoil*feel.back;this.gun.rotation.set(this.recoil*feel.pitch-tilt*.25-this.sprint*.32,tilt*.25,tilt*.24-this.sprint*.18+this.recoil*feel.roll*this.shotSide);
+  const style=weapon.reloadStyle;
   v.magazine.visible=style!=='shell'||!!sim.reloadTimer;
-  v.magazine.position.set(style==='cylinder'?-tilt*.22:0,sim.reloadTimer?-Math.sin(Math.min(1,reload/.72)*Math.PI)*.5:0,0);
-  v.magazine.rotation.z=style==='cylinder'?tilt*2:tilt*.15;
+  v.magazine.position.copy(v.magazineHome);
+  if(sim.reloadTimer){v.magazine.position.y-=Math.sin(Math.min(1,reload/.72)*Math.PI)*.44;if(style==='cylinder')v.magazine.position.x-=tilt*.23;}
+  v.magazine.rotation.set(0,0,style==='cylinder'?this.cylinderIndex*Math.PI/3+tilt*.3:tilt*.1);
   const cycling=id==='shotgun'?Math.sin(Math.min(1,(.38-this.actionTime)/.38)*Math.PI):Math.max(0,this.actionTime-.25)/.13;
   const charging=sim.reloadTimer&&reload>.78?Math.sin((reload-.78)/.22*Math.PI):0;
-  v.action.position.z=-Math.max(this.actionTime>0?cycling:0,charging)*(id==='shotgun'?.2:.08);
-  this.right.position.set(this.gun.position.x+.005,this.gun.position.y-.13,this.gun.position.z+.04);this.right.rotation.set(-.18,0,.05+tilt*.15);
-  this.left.position.set(THREE.MathUtils.lerp(.1,-.06,this.ads)-tilt*.18,this.gun.position.y-.12-tilt*.17,this.gun.position.z-(weapon.slot===0?.18:0)+tilt*.12);this.left.rotation.set(-.15,-.4,-.35);
-  for(const sleeve of this.upperArms)sleeve.visible=sim.meleeMode;
+  const action=Math.max(this.actionTime>0?cycling:0,charging);
+  v.action.position.copy(v.actionHome);v.action.rotation.set(0,0,0);
+  if(v.actionKind==='hammer')v.action.rotation.x=-action*.55;else v.action.position.z-=action*(v.actionKind==='pump'?.19:.075);
+  this.gun.updateMatrix();v.root.updateMatrix();
+  // Anatomical hands are independent of the forearm direction. Each contact point
+  // is transformed with the actual weapon, including recoil, ADS and reload tilt.
+  this.weaponPoint(v.grip,this.contact);this.handRotation.copy(this.gun.quaternion).multiply(this.gripRotation);this.placeHand(0,this.contact,this.handRotation,.87,this.actionTime>0?.5:0);
+  this.contact.copy(v.supportGrip);if(v.actionKind==='pump')this.contact.z+=v.action.position.z-v.actionHome.z;this.weaponPoint(this.contact,this.contact);
+  if(sim.reloadTimer){this.contactOther.copy(v.magazine.position);this.contactOther.y-=style==='shell'?.05:.11;this.weaponPoint(this.contactOther,this.contactOther);this.contact.lerp(this.contactOther,Math.min(1,tilt*3));}
+  this.poseRotation.set(long?-.2:-.05,long?-.25:0,long?.18:Math.PI/2);
+  this.handRotation.setFromEuler(this.poseRotation).premultiply(this.gun.quaternion);this.placeHand(1,this.contact,this.handRotation,long?.5:.9);
   this.spoon.visible=false;
   if(sim.meleeMode){
-   const strike=strikeEnvelope(this.swing),fists=sim.meleeId==='fists',hammer=sim.meleeId==='hammer',thrust=fists||sim.meleeId==='knife'||sim.meleeId==='spear';
-   const windup=hammer&&this.swing>.72?Math.sin((1-this.swing)/.28*Math.PI):0;
-   for(const [i,hand] of this.hands.entries()){
-    const side=i===0?1:-1,active=fists?side===this.shotSide:i===0,punch=active?strike:0;
-    // Only the striking hand advances. The other hand stays in guard.
-    hand.position.set(side*(.23-punch*(thrust?.14:.27)),-.29+punch*(thrust?.055:.13),-.31-punch*(thrust?.29:.14));
-    // Construction uses a restrained wrist tap; the free hand rests below the work area.
-    if(hammer)hand.position.set(i===0?.23-strike*.07:-.24,i===0?-.32+windup*.075-strike*.025:-.4,i===0?-.46-strike*.07:-.24);
-    solveArm(this.shoulders[i],hand.position,this.elbow,side);
-    this.armDirection.subVectors(this.elbow,hand.position).normalize();hand.quaternion.setFromUnitVectors(this.armAxis,this.armDirection);
-    const sleeve=this.upperArms[i];sleeve.position.copy(this.elbow);this.armDirection.subVectors(this.shoulders[i],this.elbow).normalize();sleeve.quaternion.setFromUnitVectors(this.armAxis,this.armDirection);
+   const strike=strikeEnvelope(this.swing),fists=sim.meleeId==='fists',hammer=sim.meleeId==='hammer',spear=sim.meleeId==='spear',knife=sim.meleeId==='knife';
+   const windup=this.swing>.75?Math.sin((1-this.swing)/.25*Math.PI):0;
+   if(fists){
+    for(let i=0;i<2;i++){const side=i===0?1:-1,hit=side===this.shotSide?strike:0;
+     this.contact.set(side*(.22-hit*.115),-.255+hit*.05-this.sprint*.07,-.36-hit*.27+this.sprint*.04);
+     this.poseRotation.set(-.08-hit*.1,side*(.16-hit*.12),-side*(.28+hit*.75));this.handRotation.setFromEuler(this.poseRotation);this.placeHand(i,this.contact,this.handRotation,1);
+    }
+   }else{
+    const tool=this.meleeMeshes.get(sim.meleeId)!;
+    tool.position.set(.27-strike*(spear?.09:knife?.12:.31),-.28+windup*.045+strike*(hammer?-.035:.075)-this.sprint*.075,-.53-strike*(spear?.25:knife?.2:.045)+this.sprint*.07);
+    if(spear)tool.position.set(.14-strike*.08,-.3-this.sprint*.06,-.31-strike*.12);
+    tool.rotation.set(spear?-1.1-strike*.1:knife?-.3-strike*.8:hammer?-.18+windup*.28-strike*.85:-.22+windup*.22-strike*1.15,spear?-.18:-.38,spear?.32:hammer?-.12:knife?.23:-.2+strike*.55);
+    tool.scale.setScalar(knife?.74:sim.meleeId==='machete'?.8:sim.meleeId==='axe'?.8:spear?.78:.9);tool.updateMatrix();
+    this.contact.set(...MELEE_VISUALS[sim.meleeId].grip).applyMatrix4(tool.matrix);this.handRotation.copy(tool.quaternion).multiply(this.gripRotation);this.placeHand(0,this.contact,this.handRotation,.86);
+    const support=MELEE_VISUALS[sim.meleeId].supportGrip;
+    if(support){this.contact.set(...support).applyMatrix4(tool.matrix);this.poseRotation.set(0,0,Math.PI/2);this.handRotation.setFromEuler(this.poseRotation).premultiply(tool.quaternion);this.placeHand(1,this.contact,this.handRotation,.85);}
+    else{this.contact.set(-.23,-.29-this.sprint*.07,-.38+this.sprint*.05);this.poseRotation.set(.05,-.22,.38);this.handRotation.setFromEuler(this.poseRotation);this.placeHand(1,this.contact,this.handRotation,.88);}
    }
-   const tool=this.meleeMeshes.get(sim.meleeId);if(tool)tool.rotation.x=hammer?-.16+windup*.28-strike*.8:-.25-strike*(thrust?.55:1.05);
    this.ads=0;this.flashTime=0;
   }
-  // Sprint lowers the held object and lets the supporting hand counter-swing.
-  // It remains a wrist target solved from a fixed shoulder, including unarmed sprint.
-  if(this.sprint>.001&&!consuming){
-   this.left.position.x-=this.sprint*.12;this.left.position.y-=this.sprint*(.05+Math.sin(this.cycle)*.035);this.left.position.z+=this.sprint*.07;
-   if(sim.meleeMode){this.right.position.y-=this.sprint*(.055-Math.sin(this.cycle)*.035);this.right.position.z+=this.sprint*.075;}
-   this.anchorArm(1);if(sim.meleeMode)this.anchorArm(0);
-  }
-  // The hammer follows the solved wrist, but keeps a stable grip orientation instead
-  // of inheriting the forearm's large twist (which could point the head into the camera).
-  if(sim.meleeMode&&sim.meleeId==='hammer'){
-   const tool=this.meleeMeshes.get('hammer')!;tool.position.copy(this.right.position);tool.position.y+=.13;tool.position.z-=.09;tool.rotation.y=-.3;tool.rotation.z=-.12;
-  }
   this.animateConsumption(sim,dt);
-  this.flash.visible=this.flashTime>0&&!consuming;this.flash.position.copy(v.muzzle).multiplyScalar(weapon.slot===0?.48:.65);this.flash.position.z*=-1;
-  this.flash.scale.setScalar(weapon.flash*.75);this.flash.rotation.z=this.shotSide*.31;
-  this.flashLight.position.copy(this.flash.position);this.flashLight.intensity=this.flash.visible?weapon.flash*.32:0;
+  this.flash.visible=this.flashTime>0&&!consuming;this.flash.position.copy(v.muzzle).applyMatrix4(v.root.matrix);
+  this.flash.scale.set(.6*weapon.flash,.6*weapon.flash,.75*weapon.flash).multiplyScalar(this.flashStrength);this.flash.rotation.z=this.shotSide*.31;
+  this.flashLight.position.copy(this.flash.position);this.flashLight.intensity=this.flash.visible?weapon.flash*.55*this.flashStrength:0;
   this.flashTime=Math.max(0,this.flashTime-dt);
+ }
+ private weaponPoint(point:THREE.Vector3,out:THREE.Vector3):THREE.Vector3 {return out.copy(point).applyMatrix4(this.current!.root.matrix).applyMatrix4(this.gun.matrix);}
+ private placeHand(index:number,contact:THREE.Vector3,orientation:THREE.Quaternion,curl:number,trigger=0):void {
+  const wrist=this.hands[index];this.handOffset.copy(HAND_GRIP).applyQuaternion(orientation);wrist.position.copy(contact).sub(this.handOffset);
+  this.anchorArm(index);this.gloves[index].root.quaternion.copy(wrist.quaternion).invert().multiply(orientation);this.gloves[index].pose(curl,trigger);
+ }
+ getMuzzleWorldPosition(out:THREE.Vector3):boolean {
+  if(!this.current||!this.anchor.visible||!this.gun.visible)return false;
+  this.current.root.updateWorldMatrix(true,false);out.copy(this.current.muzzle).applyMatrix4(this.current.root.matrixWorld);return true;
+ }
+ getEjectionWorldPosition(out:THREE.Vector3):boolean {
+  if(!this.current||!this.anchor.visible||!this.gun.visible)return false;
+  this.current.root.updateWorldMatrix(true,false);out.copy(this.current.ejection).applyMatrix4(this.current.root.matrixWorld);return true;
  }
  private anchorArm(index:number):void {
   const hand=this.hands[index],side=index===0?1:-1;
@@ -192,7 +194,7 @@ export class Viewmodel {
   this.right.position.x=THREE.MathUtils.lerp(this.right.position.x,.23-opening*.27-m.scoop*.28-m.bite*.11,blend);
   this.right.position.y=THREE.MathUtils.lerp(this.right.position.y,-.33-(1-raise)*.34+opening*.18+m.scoop*.13+m.bite*.035,blend);
   this.right.position.z=THREE.MathUtils.lerp(this.right.position.z,-.38-opening*.02-m.scoop*.005+m.bite*.035,blend);
-  this.anchorArm(0);this.anchorArm(1);
+  this.anchorArm(0);this.anchorArm(1);for(let i=0;i<2;i++){this.gloves[i].root.quaternion.identity();this.gloves[i].pose(i===0?.35:.65);}
   this.spoon.visible=spooning&&blend>.25;this.spoon.position.copy(this.right.position);this.spoon.position.z-=.04;this.spoon.rotation.set(m.bite*1.8,0,-.25+m.scoop*.3);
   this.flashTime=0;
  }

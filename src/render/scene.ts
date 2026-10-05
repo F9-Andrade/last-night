@@ -35,7 +35,8 @@ import { createTown } from './town';
 import type { Town } from './town';
 import type { Simulation, GameEvent } from '../game/simulation';
 
-interface Particle { mesh: THREE.Mesh; velocity: THREE.Vector3; life: number; maxLife: number }
+type ParticleKind='debris'|'blood'|'spark'|'glass'|'wood';
+interface Particle { mesh: THREE.Mesh; velocity: THREE.Vector3; spin:THREE.Vector3; life: number; maxLife: number; drag:number; gravity:number; shrink:number }
 export class GameScene {
   shake=true; fov=FPS.fov; headBob=.5; look?:MouseLook; readonly viewmodel=new Viewmodel(); aimTarget=false; flashlightOn=false; private torch=new THREE.SpotLight(0xe2d5b1,0,24,.52,.8,1.5);
   private corpses: CorpseView; private kick=0;private infectedPrepared=false;
@@ -61,9 +62,11 @@ export class GameScene {
   private focus = new THREE.Vector3(1, 0, 7);
 
   private particles: Particle[] = []; private particleIndex = 0;
-  private particlePaint = new Map<number, THREE.MeshBasicMaterial>();
-  private casings:{mesh:THREE.Mesh;velocity:THREE.Vector3;life:number}[]=[];private casingIndex=0;
-  private tracers: { mesh: THREE.Mesh; life: number }[] = []; private tracerIndex = 0;
+  private particlePaint = new Map<number, THREE.MeshBasicMaterial|THREE.MeshStandardMaterial>();
+  private casings:{mesh:THREE.Mesh;velocity:THREE.Vector3;spin:THREE.Vector3;life:number}[]=[];private casingIndex=0;
+  private casingGeometry=new Map<string,THREE.BufferGeometry>();
+  private tracers: { mesh: THREE.Mesh<THREE.BoxGeometry,THREE.MeshBasicMaterial>; start:THREE.Vector3; direction:THREE.Vector3; distance:number; life: number; duration:number; opacity:number }[] = []; private tracerIndex = 0;
+  private shotStart=new THREE.Vector3();private shotEnd=new THREE.Vector3();private shotDirection=new THREE.Vector3();private shotRight=new THREE.Vector3();private shotEjection=new THREE.Vector3();private shotAxis=new THREE.Vector3(0,0,1);
   private ring: THREE.Mesh; private destination = new THREE.Vector3(); private flashLight = new THREE.PointLight(0xffd392, 0, 6, 1.5);
   private interior=0;
   private dayColor = new THREE.Color(VISUAL.fog.day); private nightColor = new THREE.Color(VISUAL.fog.night); private sky = new THREE.Color();
@@ -85,13 +88,25 @@ export class GameScene {
     this.ring = new THREE.Mesh(new THREE.RingGeometry(.69, .74, 40), new THREE.MeshBasicMaterial({ color: 0xe8d7a5, transparent: true, opacity: .65, depthWrite: false }));
     this.ring.rotation.x = -Math.PI / 2; this.scene.add(this.ring);
     const particleGeo = new THREE.BoxGeometry(.09, .09, .09);
-    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xe0b56f }); this.particlePaint.set(0xe0b56f, particleMaterial);
-    for (let i = 0; i < BALANCE.combat.particles; i++) { const mesh = new THREE.Mesh(particleGeo, particleMaterial); mesh.visible = false; this.scene.add(mesh); this.particles.push({ mesh, velocity: new THREE.Vector3(), life: 0, maxLife: 1 }); }
-    const casingGeo=new THREE.BoxGeometry(.022,.022,.065),casingPaint=new THREE.MeshStandardMaterial({color:0xb49b60,roughness:.45});
-    for(let i=0;i<24;i++){const mesh=new THREE.Mesh(casingGeo,casingPaint);mesh.visible=false;this.scene.add(mesh);this.casings.push({mesh,velocity:new THREE.Vector3(),life:0});}
-    const tracerGeo = new THREE.BoxGeometry(.035, .035, 1);
-    const tracerMaterial = new THREE.MeshBasicMaterial({ color: 0xffd794, transparent: true, opacity: .8 });
-    for (let i = 0; i < 10; i++) { const mesh = new THREE.Mesh(tracerGeo, tracerMaterial); mesh.visible = false; this.scene.add(mesh); this.tracers.push({ mesh, life: 0 }); }
+    // The entire palette and every casing are prepared under the loader. A shot
+    // only reuses pool entries; it never creates geometry or a material.
+    for(const color of [0xe0b56f,0x793e33,0xb9d2c3,0x9f835b,0xbeab75,0x8b896b,0xa5ad6c,0x64372f,0xa8865d,0xa4a496,0x6c706e])this.particlePaint.set(color,new THREE.MeshStandardMaterial({color,roughness:color===0xb9d2c3?.3:.88,metalness:color===0x6c706e?.55:0}));
+    const sparkPaint=new THREE.MeshBasicMaterial({color:0xffd699,toneMapped:false});sparkPaint.color.multiplyScalar(2.1);this.particlePaint.set(0xffd699,sparkPaint);
+    const particleMaterials=[...this.particlePaint.values()];
+    for (let i = 0; i < BALANCE.combat.particles; i++) { const mesh = new THREE.Mesh(particleGeo, particleMaterials[i%particleMaterials.length]); mesh.visible = false;mesh.userData.skipAO=true; this.scene.add(mesh); this.particles.push({ mesh, velocity: new THREE.Vector3(),spin:new THREE.Vector3(), life: 0, maxLife: 1,drag:1,gravity:8,shrink:2 }); }
+    for(const [ammo,length,unit] of [['ammo',7,.004],['rifleAmmo',12,.004],['shells',10,.006]] as const){
+      const geometry=voxelGeometry({id:`spent-${ammo}:v2`,unit,build(g){
+        const z=-Math.floor(length/2),body=ammo==='shells'?0x9a3826:0xad8543;
+        g.fill(-2,-1,z,4,2,length,body).fill(-1,-2,z,2,4,length,body);
+        g.fill(-2,-2,z,4,4,1,0xc4a25b).fill(-1,-1,z-1,2,2,1,0x625443);
+        if(ammo==='shells')g.fill(-2,-1,z+1,4,2,2,0xb48c4b).fill(-1,-2,z+1,2,4,2,0xb48c4b);
+        g.carve(-1,-1,z+length-1,2,2,1).fill(-1,-1,z+length-2,2,2,1,0x3d352a);
+      }});this.casingGeometry.set(ammo,geometry);
+    }
+    const casingPaint=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.43,metalness:.5});
+    for(let i=0;i<24;i++){const mesh=new THREE.Mesh(this.casingGeometry.get('ammo')!,casingPaint);mesh.visible=false;mesh.userData.skipAO=true;this.scene.add(mesh);this.casings.push({mesh,velocity:new THREE.Vector3(),spin:new THREE.Vector3(),life:0});}
+    const tracerGeo = new THREE.BoxGeometry(.009, .009, 1);
+    for (let i = 0; i < 10; i++) {const paint=new THREE.MeshBasicMaterial({color:0xffd8a0,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});paint.color.multiplyScalar(1.7); const mesh = new THREE.Mesh(tracerGeo,paint); mesh.visible = false;mesh.userData.skipAO=true; this.scene.add(mesh); this.tracers.push({ mesh,start:new THREE.Vector3(),direction:new THREE.Vector3(),distance:0,life:0,duration:.065,opacity:.65 }); }
     this.dustArray = new Float32Array(160 * 3);
     for (let i = 0; i < this.dustArray.length; i += 3) { this.dustArray[i] = Math.random() * 80 - 40; this.dustArray[i + 1] = .5 + Math.random() * 8; this.dustArray[i + 2] = Math.random() * 80 - 40; }
     const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(this.dustArray, 3));
@@ -197,30 +212,52 @@ export class GameScene {
   }
   inSpawnView(x: number, z: number): boolean { const p = this.projectionScratch.set(x, 1.5, z).project(this.camera); return p.z>-1&&p.z<1&&Math.abs(p.x)<1.18&&Math.abs(p.y)<1.18; }
   project(x: number, z: number, y=1.1): { x: number; y: number } { const p = this.projectionScratch.set(x, y, z).project(this.camera); return { x: (p.x + 1) / 2 * innerWidth, y: (1 - p.y) / 2 * innerHeight }; }
-  private burst(x: number, y: number, z: number, color: number, count: number): void {
-    let paint = this.particlePaint.get(color); if (!paint) { paint = new THREE.MeshBasicMaterial({ color }); this.particlePaint.set(color, paint); }
+  private burst(x: number, y: number, z: number, color: number, count: number,kind:ParticleKind='debris',direction?:THREE.Vector3): void {
+    const paint=this.particlePaint.get(color)??this.particlePaint.get(0xe0b56f)!;
     for (let i = 0; i < count; i++) {
-      const p = this.particles[this.particleIndex++ % this.particles.length]; p.life = p.maxLife = .25 + Math.random() * .35; p.mesh.position.set(x, y, z); p.mesh.visible = true;
-      p.mesh.material = paint; p.velocity.set((Math.random() - .5) * 5, Math.random() * 3, (Math.random() - .5) * 5); p.mesh.scale.setScalar(1 + Math.random() * 1.8);
+      const p = this.particles[this.particleIndex++ % this.particles.length],spark=kind==='spark',glass=kind==='glass',blood=kind==='blood',wood=kind==='wood';
+      p.life=p.maxLife=spark?.12+Math.random()*.13:glass?.3+Math.random()*.32:.25+Math.random()*.28;p.mesh.position.set(x,y,z);p.mesh.visible=true;p.mesh.material=paint;
+      const spread=spark?3.2:blood?1.2:2;p.velocity.set((Math.random()-.5)*spread,Math.random()*(spark?1.9:1.2),(Math.random()-.5)*spread);
+      // Chips rebound off the struck surface; blood carries a little momentum
+      // into the target. Both use the authoritative three-dimensional shot.
+      if(direction)p.velocity.addScaledVector(direction,blood?.8:spark?-1.4:-.65);
+      p.drag=spark?.25:glass?.45:blood?1.4:1.1;p.gravity=spark?5:8;p.shrink=spark?.4:glass?.5:1.4;
+      const size=.35+Math.random()*.65;
+      if(spark){p.mesh.scale.set(.14,.14,.8+Math.random()*.8);this.shotRight.copy(p.velocity).normalize();p.mesh.quaternion.setFromUnitVectors(this.shotAxis,this.shotRight);}
+      else {p.mesh.scale.set(size*(wood?.38:1),size*(glass?.16:wood?.5:1),size*(wood?1.5:1));p.mesh.rotation.set(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI);}
+      p.spin.set(spark?0:(Math.random()-.5)*14,spark?0:(Math.random()-.5)*12,spark?0:(Math.random()-.5)*9);
     }
   }
   event(e: GameEvent,remote=false): void {this.impactDecals.event(e);if(!remote)this.viewmodel.event(e);
     if (e.type === 'shot') {
-      const t = this.tracers[this.tracerIndex++ % this.tracers.length], length = Math.hypot(e.to.x - e.from.x, e.to.z - e.from.z);
-      t.life = .065; t.mesh.visible = true; t.mesh.position.set((e.to.x + e.from.x) / 2, 1.29, (e.to.z + e.from.z) / 2); t.mesh.rotation.y = Math.atan2(e.to.x - e.from.x, e.to.z - e.from.z); t.mesh.scale.z = length;
-      if(e.material!=='air')this.burst(e.to.x, e.y??1.1, e.to.z, e.hit ? 0x793e33 : e.material==='metal'?0xf1c886:e.material==='wood'?0xa8865d:0xa4a496, e.hit ? 8 : 4);
-      const bloodCount=e.hit?8:e.material==='air'?0:4;for(let i=0;i<bloodCount;i++){const p=this.particles[(this.particleIndex-1-i+this.particles.length)%this.particles.length];p.velocity.x+=(e.to.x-e.from.x)/Math.max(1,length)*2;p.velocity.z+=(e.to.z-e.from.z)/Math.max(1,length)*2;}
-      const start=new THREE.Vector3(e.from.x,e.fromY??1.3,e.from.z),end=new THREE.Vector3(e.to.x,e.y??1.3,e.to.z);t.mesh.position.copy(start).lerp(end,.5);t.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),end.clone().sub(start).normalize());t.mesh.scale.z=start.distanceTo(end);
-      if(!remote&&e.primary!==false&&e.weapon==='shotgun')this.kick=this.shake?FPS.cameraShakeAmount:0; if(e.primary!==false&&e.weapon!=='revolver'){const c=this.casings[this.casingIndex++%this.casings.length],right=new THREE.Vector3(1,0,0).applyQuaternion(this.camera.quaternion);c.mesh.position.copy(start).addScaledVector(right,.12);c.velocity.copy(right).multiplyScalar(1.6);c.velocity.y=1.4;c.life=1.4;c.mesh.visible=true;c.mesh.scale.set(1,1,e.weapon==='shotgun'?1.3:1);}
-      this.flashLight.position.set(e.from.x, e.fromY??1.7, e.from.z); this.flashLight.intensity = 3+WEAPONS[e.weapon??'pistol'].flash;
-    } else if(e.type==='hit'&&!remote)this.burst(e.position.x,e.zone==='HEAD'?1.65:e.zone==='LEGS'?.45:1.05,e.position.z,0x793e33,8);
-    else if(e.type==='glass')this.burst(e.position.x,1.3,e.position.z,0xb9d2c3,18);
-    else if (e.type === 'barricade-hit' || e.type === 'barricade-break') this.burst(e.position.x, e.y??.9, e.position.z, 0x9f835b, e.type === 'barricade-break' ? 24 : 4);
+      const weapon=e.weapon??'pistol',start=this.shotStart.set(e.from.x,e.fromY??1.3,e.from.z),end=this.shotEnd.set(e.to.x,e.y??1.3,e.to.z),direction=this.shotDirection.subVectors(end,start).normalize();
+      // Only the presentation origin moves to the model's barrel. Hit points,
+      // collision, damage and the existing network event remain untouched.
+      if(!remote&&this.viewmodel.getMuzzleWorldPosition(this.shotEjection)&&this.shotRight.subVectors(end,this.shotEjection).dot(direction)>.02)start.copy(this.shotEjection);
+      const distance=start.distanceTo(end);direction.subVectors(end,start).normalize();
+      const t=this.tracers[this.tracerIndex++%this.tracers.length];t.duration=weapon==='shotgun'?.045:.065;t.life=distance>.04?t.duration:0;t.distance=distance;t.start.copy(start);t.direction.copy(direction);t.opacity=e.primary===false?.24:e.suppressed?.3:.65;
+      t.mesh.visible=t.life>0;t.mesh.position.copy(start);t.mesh.scale.setScalar(weapon==='shotgun'?.65:1);t.mesh.scale.z=0;t.mesh.quaternion.setFromUnitVectors(this.shotAxis,direction);t.mesh.material.opacity=t.opacity;
+      if(e.hit)this.burst(end.x,end.y,end.z,0x793e33,6,'blood',direction);
+      else if(e.material==='metal'){this.burst(end.x,end.y,end.z,0x6c706e,2,'debris',direction);this.burst(end.x,end.y,end.z,0xffd699,4,'spark',direction);}
+      else if(e.material==='glass')this.burst(end.x,end.y,end.z,0xb9d2c3,7,'glass',direction);
+      else if(e.material==='wood')this.burst(end.x,end.y,end.z,0xa8865d,5,'wood',direction);
+      else if(e.material!=='air')this.burst(end.x,end.y,end.z,0xa4a496,5,'debris',direction);
+      if(!remote&&e.primary!==false&&weapon==='shotgun')this.kick=this.shake?FPS.cameraShakeAmount:0;
+      if(e.primary!==false&&weapon!=='revolver'){
+        const c=this.casings[this.casingIndex++%this.casings.length],right=this.shotRight.set(-direction.z,0,direction.x);if(right.lengthSq()<.00001)right.set(1,0,0);else right.normalize();
+        if(!remote&&this.viewmodel.getEjectionWorldPosition(this.shotEjection))c.mesh.position.copy(this.shotEjection);else c.mesh.position.copy(start).addScaledVector(direction,-.19).addScaledVector(right,.07);
+        c.velocity.copy(right).multiplyScalar(1.2+Math.random()*.55).addScaledVector(direction,-.25);c.velocity.y=1.25+Math.random()*.35;c.spin.set(10+Math.random()*9,5+Math.random()*8,7+Math.random()*8);
+        c.life=1.8;c.mesh.visible=true;c.mesh.scale.setScalar(1);c.mesh.geometry=this.casingGeometry.get(WEAPONS[weapon].ammo)!;c.mesh.quaternion.copy(t.mesh.quaternion);
+      }
+      this.flashLight.position.copy(start);this.flashLight.intensity=(3+WEAPONS[weapon].flash)*(e.suppressed?.22:1);
+    } else if(e.type==='hit'&&!remote)this.burst(e.position.x,e.zone==='HEAD'?1.65:e.zone==='LEGS'?.45:1.05,e.position.z,0x793e33,6,'blood');
+    else if(e.type==='glass')this.burst(e.position.x,1.3,e.position.z,0xb9d2c3,18,'glass');
+    else if (e.type === 'barricade-hit' || e.type === 'barricade-break') this.burst(e.position.x, e.y??.9, e.position.z, 0x9f835b, e.type === 'barricade-break' ? 24 : 4,'wood');
     else if (e.type === 'build' || e.type === 'repair') this.burst(e.position.x, e.y??.6, e.position.z, 0xbeab75, 6);
     else if(e.type==='heavy-step'){this.burst(e.position.x,.1,e.position.z,0x8b896b,4);}
     else if(e.type==='spit'){this.burst(e.position.x,1.8,e.position.z,0xa5ad6c,4);}
     else if(e.type==='hurt'&&!remote){this.kick=this.shake?FPS.cameraShakeAmount:0;this.post.hurt();}
-    else if (e.type === 'death') this.burst(e.position.x, .7, e.position.z, 0x64372f, 12);
+    else if (e.type === 'death') this.burst(e.position.x, .7, e.position.z, 0x64372f, 12,'blood');
   }
   render(sim: Simulation, dt: number, elapsed: number, menu: boolean, draw=true): void {
     const yaw=menu?Math.PI*.75:this.look?.yaw??sim.player.angle,pitch=menu?-.03:(this.look?.pitch??sim.player.pitch)+sim.player.aimKick;
@@ -284,15 +321,27 @@ export class GameScene {
 
 
     }
-    for (const p of this.particles) if (p.life > 0) { p.life -= dt; p.mesh.visible = p.life > 0; p.mesh.position.addScaledVector(p.velocity, dt); p.velocity.y -= dt * 8; p.mesh.rotation.x += dt * 4; p.mesh.scale.multiplyScalar(Math.exp(-dt * 2)); }
+    for (const p of this.particles) if (p.life > 0) {
+      p.life-=dt;p.mesh.visible=p.life>0;if(!p.mesh.visible)continue;
+      p.mesh.position.addScaledVector(p.velocity,dt);p.velocity.multiplyScalar(Math.exp(-dt*p.drag));p.velocity.y-=dt*p.gravity;
+      p.mesh.rotation.x+=dt*p.spin.x;p.mesh.rotation.y+=dt*p.spin.y;p.mesh.rotation.z+=dt*p.spin.z;p.mesh.scale.multiplyScalar(Math.exp(-dt*p.shrink));
+    }
     for(const c of this.casings)if(c.life>0){
       const previousY=c.mesh.position.y;
-      c.life-=dt;c.mesh.visible=c.life>0;c.mesh.position.addScaledVector(c.velocity,dt);c.velocity.y-=9*dt;
+      c.life-=dt;c.mesh.visible=c.life>0;if(!c.mesh.visible)continue;
+      c.mesh.position.addScaledVector(c.velocity,dt);c.velocity.y-=9*dt;
       const ground=structureFloorHeight(sim,{x:c.mesh.position.x,z:c.mesh.position.z},previousY-.025)+.025;
-      if(c.mesh.position.y<ground){c.mesh.position.y=ground;c.velocity.y=Math.abs(c.velocity.y)*.22;c.velocity.x*=.65;c.velocity.z*=.65;}
-      c.mesh.rotation.x+=dt*12;c.mesh.rotation.z+=dt*7;
+      if(c.mesh.position.y<ground){c.mesh.position.y=ground;c.velocity.y=Math.abs(c.velocity.y)>.6?Math.abs(c.velocity.y)*.22:0;c.velocity.x*=.65;c.velocity.z*=.65;c.spin.multiplyScalar(.42);}
+      c.mesh.rotation.x+=dt*c.spin.x;c.mesh.rotation.y+=dt*c.spin.y;c.mesh.rotation.z+=dt*c.spin.z;c.mesh.scale.setScalar(Math.min(1,c.life/.22));
     }
-    for (const t of this.tracers) { t.life -= dt; t.mesh.visible = t.life > 0; }
+    for (const t of this.tracers) if(t.life>0){
+      t.life-=dt;t.mesh.visible=t.life>0;if(!t.mesh.visible)continue;
+      // A fast, short streak travels along the shot instead of a solid beam
+      // joining shooter and target. Each pooled shot owns its fading material.
+      const progress=1-t.life/t.duration,length=Math.min(t.distance,1.6),head=Math.min(t.distance,Math.max(length,t.distance*progress)),tail=Math.max(0,head-length);
+      t.mesh.position.copy(t.start).addScaledVector(t.direction,(head+tail)*.5);t.mesh.scale.z=head-tail;
+      t.mesh.material.opacity=t.opacity*Math.min(1,t.life/(t.duration*.55));
+    }
     for (let i = 0; i < this.dustArray.length; i += 3) { this.dustArray[i] += dt * .15; if (this.dustArray[i] > 40) this.dustArray[i] = -40; }
     this.dust.geometry.attributes.position.needsUpdate = true;
     this.viewmodel.syncLighting(this.sun,this.ambient,this.camera,this.interior,this.flashlightOn&&!menu);

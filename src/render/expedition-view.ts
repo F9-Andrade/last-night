@@ -1,23 +1,52 @@
 import * as THREE from 'three';
 import type { Simulation } from '../game/simulation';
-import { FACILITIES } from '../game/expedition';
-import { ACID } from '../game/enemies';
-import { RARITIES } from '../game/weapons';
-import type { WeaponId } from '../game/weapons';
-import { createWeaponVisual } from './weapon-assets';
-import { voxelMesh, voxelMaterial } from './voxel';
-import { batch } from './models';
+import { FACILITIES } from '../game/expedition.ts';
+import { ACID } from '../game/enemies.ts';
+import { RARITIES } from '../game/weapons.ts';
+import type { WeaponId } from '../game/weapons.ts';
+import { createWeaponVisual } from './weapon-assets.ts';
+import { voxelMesh } from './voxel.ts';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // The courtyard path/sign reaches y=.25; hazards must clear raised walking surfaces.
 const HAZARD_FLOOR = .28;
 
 /** Bounded presentation pools. Item geometry is shared by family, even after repeated swaps. */
+const worldWeapons=new Map<WeaponId,{geometry:THREE.BufferGeometry;materials:THREE.Material[]}>();
+/** Merge every visible part at its real Home transform; preserve steel/wood/polymer finishes. */
+export function createWorldWeaponMesh(type:WeaponId):THREE.Mesh {
+  let cached=worldWeapons.get(type);
+  if(!cached){
+    const visual=createWeaponVisual(type),parts:THREE.BufferGeometry[]=[],materials:THREE.Material[]=[];
+    const groups:{start:number;count:number;materialIndex:number}[]=[];let offset=0;
+    visual.root.scale.setScalar(visual.scale);visual.root.updateMatrixWorld(true);
+    visual.root.traverseVisible(part=>{
+      if(!(part instanceof THREE.Mesh))return;
+      const geometry=part.geometry.clone().applyMatrix4(part.matrixWorld);
+      const palette=Array.isArray(part.material)?part.material:[part.material];
+      const sourceGroups=geometry.groups.length?geometry.groups:[{start:0,count:geometry.index!.count,materialIndex:0}];
+      for(const group of sourceGroups){
+        const material=palette[group.materialIndex??0];let index=materials.indexOf(material);
+        if(index<0){index=materials.length;materials.push(material);}
+        groups.push({start:offset+group.start,count:group.count,materialIndex:index});
+      }
+      offset+=geometry.index!.count;geometry.clearGroups();parts.push(geometry);
+    });
+    const geometry=mergeGeometries(parts)!;for(const group of groups)geometry.addGroup(group.start,group.count,group.materialIndex);
+    parts.forEach(part=>part.dispose());geometry.computeBoundingBox();geometry.computeBoundingSphere();
+    cached={geometry,materials};worldWeapons.set(type,cached);
+  }
+  const mesh=new THREE.Mesh(cached.geometry,cached.materials);mesh.castShadow=true;mesh.receiveShadow=true;return mesh;
+}
+
 export class ExpeditionView {
-  private guns:{root:THREE.Mesh;uid:number}[]=[];private gunGeometry=new Map<WeaponId,THREE.BufferGeometry>();
+  private guns:{root:THREE.Mesh;uid:number}[]=[];
   private bands:THREE.InstancedMesh;private acid:THREE.InstancedMesh;private splash:THREE.InstancedMesh;private warning:THREE.InstancedMesh;
   private facilities:{root:THREE.Group;lid:THREE.Mesh}[]=[];private eventRoot:THREE.Group;private eventBody:THREE.Mesh;
   private generatorLight=new THREE.PointLight(0xd6dba1,0,12,2);private dummy=new THREE.Object3D();
-  constructor(private scene:THREE.Scene){
+  private scene:THREE.Scene;
+  constructor(scene:THREE.Scene){
+    this.scene=scene;
     this.bands=new THREE.InstancedMesh(new THREE.BoxGeometry(.55,.025,.06),new THREE.MeshBasicMaterial({color:0xffffff}),48);this.bands.count=0;this.bands.frustumCulled=false;scene.add(this.bands);
     this.acid=new THREE.InstancedMesh(new THREE.CylinderGeometry(ACID.radius,ACID.radius,.025,14),new THREE.MeshStandardMaterial({color:0x869249,emissive:0x45511d,emissiveIntensity:.3,transparent:true,opacity:.72,depthWrite:false}),ACID.capacity);
     this.splash=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(.17,0),new THREE.MeshStandardMaterial({color:0xc3cd87,emissive:0x657c2f,emissiveIntensity:.35}),ACID.capacity);
@@ -49,16 +78,11 @@ export class ExpeditionView {
     const lid=voxelMesh({id:`expedition:${kind}:lid`,unit:.08,build(g){g.fill(kind==='trunk'?-10:-6,0,0,kind==='trunk'?20:12,2,kind==='trunk'?12:8,kind==='trunk'?0x74826b:0x899071);g.fill(-1,0,7,2,2,1,0xc0b28a);}});
     lid.position.set(0,kind==='trunk'?.78:.83,kind==='trunk'?-.48:-.32);root.add(lid);if(kind==='generator'||kind==='radio')lid.visible=false;return {root,lid};
   }
-  private geometry(type:WeaponId):THREE.BufferGeometry{
-    let geo=this.gunGeometry.get(type);if(geo)return geo;
-    const visual=createWeaponVisual(type);if(type==='shotgun')visual.magazine.visible=false;
-    if(type==='shotgun')visual.magazine.removeFromParent();batch(visual.root);geo=(visual.root.children[0] as THREE.Mesh).geometry;this.gunGeometry.set(type,geo);return geo;
-  }
   update(sim:Simulation,time:number):void{
     let band=0;const visible=sim.groundWeapons.filter(g=>Math.hypot(g.x-sim.player.x,g.z-sim.player.z)<40);
     for(let i=0;i<Math.max(this.guns.length,visible.length);i++){
-      const g=visible[i];let slot=this.guns[i];if(!slot&&g){const root=new THREE.Mesh(this.geometry(g.item.type),voxelMaterial);root.castShadow=true;root.receiveShadow=true;this.scene.add(root);slot={root,uid:-1};this.guns.push(slot);}if(!slot)continue;
-      slot.root.visible=!!g;if(!g)continue;if(slot.uid!==g.item.uid){slot.uid=g.item.uid;slot.root.geometry=this.geometry(g.item.type);}
+      const g=visible[i];let slot=this.guns[i];if(!slot&&g){const root=createWorldWeaponMesh(g.item.type);this.scene.add(root);slot={root,uid:-1};this.guns.push(slot);}if(!slot)continue;
+      slot.root.visible=!!g;if(!g)continue;if(slot.uid!==g.item.uid){slot.uid=g.item.uid;const model=createWorldWeaponMesh(g.item.type);slot.root.geometry=model.geometry;slot.root.material=model.material;}
       slot.root.position.set(g.x,.18,g.z);slot.root.rotation.set(0,.65,Math.PI/2);slot.root.scale.setScalar(1);
       this.dummy.position.set(g.x,.09,g.z+.55);this.dummy.rotation.set(0,.65,0);this.dummy.scale.setScalar(1);this.dummy.updateMatrix();this.bands.setMatrixAt(band,this.dummy.matrix);this.bands.setColorAt(band++,new THREE.Color(RARITIES[g.item.rarity].color));
     }

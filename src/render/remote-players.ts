@@ -3,8 +3,7 @@ import {createFoodVisual,type FoodVisual} from './food-assets';
 import {consumptionMotion,type ConsumptionMotion} from './nutrition-motion';
 import {strikeEnvelope} from './melee-motion';
 import {MELEE} from '../game/crafting';
-import {meleeRecipe} from './crafting-view';
-import {voxelMesh} from './voxel';
+import {createMeleeVisual} from './melee-assets';
 import type {MeleeId} from '../game/crafting';
 import * as THREE from 'three';
 import { Character } from './models';
@@ -41,7 +40,7 @@ export class RemotePlayers {
    if(gameplay)c.reloadPose(gameplay.reload,gameplay.reloadDuration);
    avatar.crouch+=((s.locomotion===3?1:0)-avatar.crouch)*(1-Math.exp(-dt*16));c.body.position.y-=avatar.crouch*.52;c.body.rotation.x+=avatar.crouch*.2;c.leftLeg.rotation.x+=avatar.crouch*.45;c.rightLeg.rotation.x+=avatar.crouch*.45;c.head.rotation.x=-s.pitch;c.arms.rotation.x=-s.pitch*.65;
    const incapacitated=!!gameplay&&gameplay.life!=='alive';if(c.weapon)c.weapon.visible=!incapacitated&&!gameplay?.melee;
-   if(avatar.meleeId!==gameplay?.melee){avatar.melee?.removeFromParent();avatar.melee=undefined;avatar.meleeId=gameplay?.melee;if(gameplay?.melee&&gameplay.melee!=='fists'){const hammer=gameplay.melee==='hammer';avatar.melee=voxelMesh(meleeRecipe(gameplay.melee));avatar.melee.position.set(0,-.15,hammer?.47:.5);avatar.melee.rotation.x=hammer?.25:1;avatar.melee.scale.setScalar(hammer?.8:1);c.rightArm.add(avatar.melee);}}if(avatar.melee)avatar.melee.visible=!incapacitated;
+   if(avatar.meleeId!==gameplay?.melee){avatar.melee?.removeFromParent();avatar.melee=undefined;avatar.meleeId=gameplay?.melee;if(gameplay?.melee&&gameplay.melee!=='fists'){const hammer=gameplay.melee==='hammer';avatar.melee=createMeleeVisual(gameplay.melee);avatar.melee.rotation.x=gameplay.melee==='spear'?Math.PI/2:hammer?.12:.22;avatar.melee.scale.setScalar(1);c.rightArm.add(avatar.melee);}}if(avatar.melee)avatar.melee.visible=!incapacitated;
    c.rightArm.rotation.y=0;
    if(gameplay?.melee){
     const strike=strikeEnvelope(avatar.shot),fists=gameplay.melee==='fists';
@@ -53,6 +52,7 @@ export class RemotePlayers {
      if(avatar.melee)avatar.melee.rotation.x=.25-strike*.65;
     }
    }
+   c.updateHands(avatar.melee,gameplay?.melee);
    const consumption=gameplay?.consumption;
    if(consumption&&!incapacitated){
     if(avatar.foodId!==consumption.item){if(avatar.food)avatar.food.root.visible=false;let food=avatar.provisions.get(consumption.item);if(!food){food=createFoodVisual(consumption.item);avatar.provisions.set(consumption.item,food);c.rightArm.add(food.root);}avatar.food=food;avatar.foodId=consumption.item;}

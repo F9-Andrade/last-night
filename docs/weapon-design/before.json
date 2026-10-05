@@ -1,0 +1,88 @@
+{
+  "viewport": [
+    1600,
+    900
+  ],
+  "quality": "high",
+  "metrics": [
+    {
+      "id": "pistol",
+      "calls": 719,
+      "triangles": 820858,
+      "fps": 0
+    },
+    {
+      "id": "revolver",
+      "calls": 717,
+      "triangles": 820576,
+      "fps": 58
+    },
+    {
+      "id": "smg",
+      "calls": 719,
+      "triangles": 820794,
+      "fps": 58
+    },
+    {
+      "id": "shotgun",
+      "calls": 717,
+      "triangles": 820716,
+      "fps": 57
+    },
+    {
+      "id": "rifle",
+      "calls": 718,
+      "triangles": 820780,
+      "fps": 57
+    },
+    {
+      "id": "marksman",
+      "calls": 719,
+      "triangles": 820876,
+      "fps": 56
+    },
+    {
+      "id": "fists",
+      "calls": 713,
+      "triangles": 820402,
+      "fps": 58
+    },
+    {
+      "id": "knife",
+      "calls": 714,
+      "triangles": 820478,
+      "fps": 58
+    },
+    {
+      "id": "hammer",
+      "calls": 720,
+      "triangles": 823520,
+      "fps": 58
+    },
+    {
+      "id": "axe",
+      "calls": 714,
+      "triangles": 820460,
+      "fps": 58
+    },
+    {
+      "id": "machete",
+      "calls": 714,
+      "triangles": 820484,
+      "fps": 56
+    },
+    {
+      "id": "club",
+      "calls": 714,
+      "triangles": 820474,
+      "fps": 58
+    },
+    {
+      "id": "spear",
+      "calls": 714,
+      "triangles": 820458,
+      "fps": 58
+    }
+  ],
+  "errors": []
+}

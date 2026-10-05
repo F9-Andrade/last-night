@@ -5,29 +5,8 @@ import {TREE_TRUNKS,BASE,floorHeight} from '../game/world.ts';
 import {furniturePlacement} from '../game/relocation.ts';
 import {voxelMesh,voxelGeometry} from './voxel.ts';
 import type {VoxelRecipe} from './voxel.ts';
-import type {MeleeId} from '../game/crafting.ts';
-export function meleeRecipe(id:MeleeId):VoxelRecipe{return {id:`craft:melee:${id}:1`,unit:.025,build(g){
- if(id==='fists')return;
- if(id==='hammer'){
-  // A forged claw head, timber shaft and wrapped grip remain one shared greedy-meshed asset.
-  g.fill(-2,-13,-2,4,28,4,0x806044).fill(-2,-12,-2,1,24,1,0xb18a58);
-  g.fill(-3,-12,-3,6,12,6,0x414b3e).fill(-3,-12,-3,6,2,6,0x2b342e);
-  for(const y of [-9,-6,-3])g.fill(-3,y,-3,6,1,1,0x86836a).fill(2,y,-2,1,1,5,0x646c55);
-  g.fill(-4,8,-3,8,6,6,0x414b47).fill(-3,9,-4,6,3,1,0x77817a);
-  g.fill(-6,12,-4,13,6,8,0x58615c).fill(-5,17,-3,11,1,6,0x8b9489);
-  g.fill(-9,13,-3,4,4,6,0x707c72).fill(-11,12,-4,3,6,8,0xa5ac9c);
-  g.fill(-11,12,-4,1,1,8,0x59645d).fill(-11,13,-4,1,4,1,0x899083);
-  for(const z of [-4,2])g.fill(6,13,z,5,4,2,0x68716a).fill(10,11,z,3,4,2,0x858e81).fill(12,9,z,2,3,2,0xacb1a0);
-  g.fill(-2,18,-2,4,1,4,0x6b5239).fill(-1,18,-2,1,1,4,0xb2b39b);
-  g.fill(-4,12,-4,2,2,1,0x73513c).set(4,14,-4,0x9b7760).set(-11,15,0,0x717c70);
-  return;
- }
- const long=id==='spear';g.fill(-2,-(long?26:12),-2,4,long?45:22,4,0x795b3f).fill(-2,-10,-3,4,7,1,0xaca084);
- if(id==='club'){g.fill(-3,3,-3,6,16,6,0x69543d);g.fill(-4,15,-1,8,1,2,0x8d877b);}
- else if(id==='axe'){g.fill(-3,8,-1,11,8,3,0x646e6c).fill(7,7,-1,2,10,3,0xb0b5a9);}
- else if(id==='spear'){g.fill(-2,18,-1,4,9,2,0x838e88).fill(-1,27,-1,2,5,2,0xb8bdb0);}
- else {g.fill(-2,2,-1,id==='knife'?4:6,id==='knife'?12:23,2,0x7c8780).fill(-2,3,-2,1,id==='knife'?10:20,1,0xd2cfc0).fill(-4,0,-2,8,2,4,0x414c47);}
-}};}
+import {meleeRecipe} from './melee-assets.ts';
+export {meleeRecipe} from './melee-assets.ts';
 export const benchRecipe:VoxelRecipe={id:'craft:smart-bench:1',unit:.05,build(g){
  g.fill(-15,19,-10,30,3,20,0x7f674c).fill(-15,21,-10,30,1,2,0xa29371);
  for(const x of [-13,10])for(const z of [-8,5])g.fill(x,0,z,3,20,3,0x464e49);
