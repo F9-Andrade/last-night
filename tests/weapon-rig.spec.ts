@@ -120,3 +120,37 @@ test('hidden presentation cannot leave a floating muzzle light or expose firearm
   });
   expect(result).toEqual({lit:true,unchanged:true,light:0,visible:false,muzzle:false,ejection:false});
 });
+
+test('axe cutting edge leads away from the survivor in first person and remote swings',async({page})=>{
+  const result=await page.evaluate(async()=>{
+    const {Viewmodel,Simulation,THREE,camera,sample}=(window as any).__weaponRig;
+    const [{RemotePlayers},{MELEE_VISUALS},{HAND_GRIP}]=await Promise.all([
+      import('/src/render/remote-players.ts'),import('/src/render/melee-assets.ts'),import('/src/render/hand-assets.ts'),
+    ]);
+    const sim=new Simulation(),view:any=new Viewmodel(),forward=new THREE.Vector3();
+    sim.gear.owned.push('axe');sim.gear.melee='axe';sim.activeSlot=2;
+    view.update(sim,camera,0,0,true);view.event({type:'melee',position:sim.player});camera.getWorldDirection(forward);
+    let fpsFacing=1,remoteFacing=1,gripError=0,armError=0;
+    for(let frame=0;frame<90;frame++){
+      view.update(sim,camera,1/60,frame/60,true);view.scene.updateMatrixWorld(true);
+      const mesh=view.meleeMeshes.get('axe');
+      fpsFacing=Math.min(fpsFacing,new THREE.Vector3(...MELEE_VISUALS.axe.edge).transformDirection(mesh.matrixWorld).dot(forward));
+      const measured=sample(view,sim);gripError=Math.max(gripError,measured.gripError);armError=Math.max(armError,measured.armError);
+    }
+    const scene=new THREE.Scene(),remotes:any=new RemotePlayers(scene);
+    const state:any={identity:{actorNumber:2,displayName:'Sobrevivente',isLocal:false},snapshot:{x:0,y:0,z:0,yaw:0,pitch:0,vx:0,vz:0,locomotion:0},gameplay:{life:'alive',hp:100,weapon:'pistol',reload:0,reloadDuration:1,melee:'axe'}};
+    for(const yaw of [0,1.7])for(const pitch of [-.6,0,.6]){
+      state.snapshot.yaw=yaw;state.snapshot.pitch=pitch;remotes.update([state],0,0,camera);remotes.shot(2);
+      for(let frame=0;frame<75;frame++){
+        remotes.update([state],frame/60,1/60,camera);scene.updateMatrixWorld(true);
+        const avatar=remotes.avatars.get(2),c=avatar.character;c.root.getWorldDirection(forward);
+        remoteFacing=Math.min(remoteFacing,new THREE.Vector3(...MELEE_VISUALS.axe.edge).transformDirection(avatar.melee.matrixWorld).dot(forward));
+        const palm=HAND_GRIP.clone().applyMatrix4(c.survivorArms[0].hand.root.matrixWorld),haft=new THREE.Vector3(...MELEE_VISUALS.axe.grip).applyMatrix4(avatar.melee.matrixWorld);
+        gripError=Math.max(gripError,palm.distanceTo(haft));
+      }
+    }
+    remotes.clear();return {fpsFacing,remoteFacing,gripError,armError};
+  });
+  expect(result.fpsFacing).toBeGreaterThan(.1);expect(result.remoteFacing).toBeGreaterThan(.1);
+  expect(result.gripError).toBeLessThan(2e-6);expect(result.armError).toBeLessThan(2e-6);
+});

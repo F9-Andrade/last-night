@@ -5,7 +5,7 @@ import type { Item, Stock } from './inventory.ts';
 import { emptyStock } from './inventory.ts';
 import type { FoodId } from './nutrition.ts';
 export type LootArea = 'base' | 'hospital' | 'police' | 'market' | 'house' | 'gas' | 'outside';
-export interface LootPoint extends Vec2 { id: string; area: LootArea; label: string; searched: boolean; contents: Stock; lastFound: Item | null; guaranteed?: Partial<Stock>;site?:string;valuable?:boolean;restocked?:boolean }
+export interface LootPoint extends Vec2 { id: string; area: LootArea; label: string; searched: boolean; coins?:number; contents: Stock; lastFound: Item | null; guaranteed?: Partial<Stock>;site?:string;valuable?:boolean;restocked?:boolean }
 export const LOOT_TABLES: Record<LootArea, { item: Item; weight: number; min: number; max: number }[]> = {
   base: [{ item: 'ammo', weight: 1, min: 24, max: 36 }],
   hospital: [{ item: 'med', weight: 8, min: 1, max: 2 }, { item: 'scrap', weight: 2, min: 2, max: 4 }, { item: 'ammo', weight: 1, min: 12, max: 18 }, { item: 'rare', weight: 1, min: 1, max: 1 }],

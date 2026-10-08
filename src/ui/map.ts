@@ -37,7 +37,7 @@ export class FieldMap {
   const event=sim.worldEvent;
   // Do not repaint an identical atlas/marker image. Inputs remain exact (no
   // quantization or reduced cadence), so movement still updates on every call.
-  const key=`${canvas.width}:${canvas.height}:${full}:${sim.player.x}:${sim.player.z}:${sim.player.angle}:${[...this.visited].join(',')}:${event&&!event.triggered?`${event.kind},${event.name},${event.x},${event.z}`:''}:${peers.filter(p=>p!==sim.player&&p.hp>0).map(p=>`${p.x},${p.z},${p.angle}`).join(';')}`;
+  const key=`${sim.runSeed}:${canvas.width}:${canvas.height}:${full}:${sim.player.x}:${sim.player.z}:${sim.player.angle}:${[...this.visited].join(',')}:${event&&!event.triggered?`${event.kind},${event.name},${event.x},${event.z}`:''}:${peers.filter(p=>p!==sim.player&&p.hp>0).map(p=>`${p.x},${p.z},${p.angle}`).join(';')}`;
   if(this.frames.get(canvas)===key)return;
   const w=canvas.width,h=canvas.height,unit=Math.min(w,h)/(full?600:240);
   // Preserve metres and directions if a layout supplies a rectangular canvas.
@@ -70,6 +70,13 @@ export class FieldMap {
    if(full&&m.index!==0&&occupied.some(r=>intersects(box,r)))continue;
    this.marker(c,m.x,m.y,m.index,unit,full);
    occupied.push({...box,x:box.x-2*unit,y:box.y-2*unit,w:box.w+4*unit,h:box.h+4*unit});drawn.push(m);
+  }
+
+  for(const merchant of sim.economy.merchants){
+   const x=sx(merchant.x),y=sy(merchant.z);if(x<9*unit||y<9*unit||x>w-9*unit||y>h-24*unit)continue;
+   c.save();c.translate(x,y);c.beginPath();c.arc(0,0,8*unit,0,Math.PI*2);c.fillStyle='#302c20';c.fill();c.strokeStyle='#e8bf72';c.lineWidth=1.5*unit;c.stroke();
+   c.fillStyle='#efcd8b';c.font=`bold ${11*unit}px "Field Sans", sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('$',0,.5*unit);c.restore();
+   if(full)this.label(c,`${merchant.name} · ${merchant.title}`,x,y-18*unit,unit,w,h,occupied,'#efd199',true);
   }
 
   for(const target of peers){

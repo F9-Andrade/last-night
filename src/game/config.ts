@@ -1,6 +1,6 @@
 /** Gameplay tuning for the local vertical slice. Durations are simulation seconds. */
 export const BALANCE = {
-  cycle: { day: 210, dusk: 30, preparation: 30, dawn: 10, silence: 3 },
+  cycle: { day: 540, dusk: 30, preparation: 30, night: 600, dawn: 10, silence: 3 },
   player: { hp: 100, walk: 4.6, sprint: 7.5, stamina: 100, drain: 22, recover: 18, recoveryDelay:.75, sprintRecovery:25 },
   pistol: { name: 'Pistola improvisada', magazine: 12, damage: 34, cooldown: .23, reload: 1.35, range: 26, spread: .021 },
   inventory: { capacity: 16, ammo: 60, med: 1, wood: 2, scrap: 1 },

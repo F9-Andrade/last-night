@@ -81,19 +81,20 @@ test('invisible storage is disabled; base repair and rare supply consume carried
   s.update(.1, { ...idle, interact: true }); step(s, 3.1); assert.equal(s.baseHP, 820); assert.equal(s.resource('scrap'), 1);
   s.inventory.add('rare', 1); s.manage('rare', 'rare'); assert.equal(s.baseHP, 1000); assert.equal(s.resource('rare'), 0);
 });
-test('cycle emits one phase transition, final countdown and silence before dawn', () => {
-  const c = new MatchCycle({ day: .1, dusk: .1, preparation: 10, dawn: .2, silence: .3 });
+test('cycle emits phase transitions and the final countdown; dawn obeys the timer', () => {
+  const c = new MatchCycle({ day: .1, dusk: .1, preparation: 10, night: 2, dawn: .2, silence: .3 });
   assert.deepEqual(c.update(.11, false), ['dusk']); assert.deepEqual(c.update(.11, false), ['preparation', 'countdown']);
   let countdown = 1; for (let i = 0; i < 100; i++) countdown += c.update(.1, false).filter(e => e === 'countdown').length;
   assert.ok(countdown >= 9); c.update(.11, false); assert.equal(c.phase, 'night');
-  c.update(1000, false); assert.equal(c.phase, 'night'); assert.deepEqual(c.update(.1, true), ['survived']);
-  c.update(.21, true); assert.equal(c.phase, 'dawn'); c.update(.21, true); assert.equal(c.day, 2);
+  c.update(.4, true); assert.equal(c.phase, 'night');assert.equal(c.silence,0);
+  c.seek('night',1.9);assert.deepEqual(c.update(.1,false),['survived','dawn']);
+  c.update(.21, true); assert.equal(c.day, 2);
 });
 test('horde has internal pauses, bounded scaling and never consumes a failed spawn', () => {
   const h = new Horde(); h.start(1); h.update(.1, 1, () => false); assert.equal(h.spawned, 0);
   let time = 0; const times: number[] = [];
   for (let i = 0; i < 1000; i++) { time += .1; h.update(.1, 1, () => { times.push(time); return true; }); }
-  assert.equal(times.length, 22); assert.equal(times.filter((t, i) => i && t - times[i - 1] > 10).length, 2);
+  assert.ok(times.length>22); assert.ok(times.filter((t, i) => i && t - times[i - 1] > 10).length>=3);assert.ok(h.spawned<=h.budget);
   h.start(2); assert.equal(h.budget, 31); h.start(999); assert.equal(h.budget, 76);
 });
 test('edge spawns are distant, collision-free and do not exceed the active pool', () => {
@@ -103,18 +104,18 @@ test('edge spawns are distant, collision-free and do not exceed the active pool'
 });
 test('prefab walls interrupt routes and can be breached without stranding infected', () => {
   for (const [id, x, z] of [['bed-gate',1,8],['west-wall',-6,2],['east-wall',8,2],['north',1,-4]] as const) {
-    const s=clean();s.setPhase('night');s.horde.spawned=s.horde.budget;s.player.x=-25;s.player.z=15;
+    const s=clean();s.setPhase('night');s.horde.active=false;s.player.x=-25;s.player.z=15;
     const b=s.barricades.find(b=>b.id===id)!;b.hp=300;b.built=true;const walker=s.spawn({x,z})!;assert.ok(walker);
     step(s,12);assert.ok(b.hp<300,id);s.damageBarricade(b,999);step(s,12);assert.ok(distance(walker,BASE)<2.5,id);
   }
   const s=clean();s.barricades.filter(b=>!b.trap).forEach(b=>{b.hp=300;b.built=true;});assert.equal(findPath({x:1,z:13},BASE,s.solidDefenses).length,0);
 });
-test('night completion rewards once, partially restocks and reaches Night 2', () => {
-  const s = new Simulation({ day: .1, dusk: .1, preparation: .1, dawn: .2, silence: .2 }); s.zombies = []; s.spawnTimer = 999;
+test('timed night completion rewards once, partially restocks and reaches Night 2', () => {
+  const s = new Simulation({ day: .4, dusk: .1, preparation: .1, night: .5, dawn: .2, silence: .2 }); s.zombies = []; s.spawnTimer = 999;
   for (const l of s.loot) l.searched = true;
-  step(s, .4); assert.equal(s.phase, 'night'); s.horde.spawned = s.horde.budget; s.zombies.forEach(z => { z.active = false; });
-  step(s, .25); assert.equal(s.phase, 'dawn'); assert.equal(s.inventory.items.rare, 1);
-  step(s, .25); assert.equal(s.day, 2); const restocked = s.loot.filter(l => !l.searched).length;
+  step(s, .6); assert.equal(s.phase, 'night'); s.horde.active=false;s.zombies.forEach(z => { z.active = false; });
+  step(s, .5); assert.equal(s.phase, 'dawn'); assert.equal(s.inventory.items.rare, 1);
+  step(s, .2); assert.equal(s.day, 2); const restocked = s.loot.filter(l => !l.searched).length;
   assert.ok(restocked > 0 && restocked < s.loot.length); assert.equal(s.loot[0].searched, true);
   step(s, .4); assert.equal(s.phase, 'night'); assert.equal(s.horde.budget, 31); assert.equal(s.inventory.items.rare, 1);
 });
@@ -128,6 +129,6 @@ test('a complete siege from all edge zones breaches the shelter without stranded
   const s = clean(); s.setPhase('night'); s.player.x = -25; s.player.z = 15;
   // Large HP keeps the fixture alive long enough to observe navigation, not game balance.
   s.baseHP = 100000; s.player.hp = 100000; s.barricades.filter(b=>!b.trap).forEach(b => { b.hp = 300; b.built = true; });
-  step(s, 180); assert.equal(s.horde.spawned, 22); assert.ok(s.barricades.some(b => b.hp === 0));
-  assert.ok(s.zombies.filter(z => z.active).every(z => distance(z, BASE) < 12)); assert.ok(s.baseHP < 100000);
+  step(s, 180); assert.ok(s.nextId>22);assert.ok(s.activeWalkers<=40); assert.ok(s.barricades.some(b => b.hp === 0));
+  assert.ok(s.zombies.some(z => z.active&&distance(z, BASE) < 12)); assert.ok(s.baseHP < 100000);
 });

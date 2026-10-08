@@ -21,7 +21,7 @@ export function interactionFocus(sim:Simulation):Focus|null {
  };
  // Preserve priority and equal-distance tie order from the original candidate list.
  for(const v of sim.portals)consider(v,'portal',v.id,v.w,v.d,2.8);
- for(const v of sim.loot)if(!v.searched||itemKeys.some(k=>v.contents[k]))consider(v,'loot',v.id,1.15,1,1.15);
+ for(const v of sim.loot)if(!v.searched||(v.coins??0)>0||itemKeys.some(k=>v.contents[k]))consider(v,'loot',v.id,1.15,1,1.15);
  for(const v of sim.barricades)if(v.hp>0)consider(v,'defense',v.id,v.w,v.d,1.5);
  for(const v of sim.groundWeapons)consider(v,'weapon',String(v.item.uid),1.5,.9,.55);
  for(const v of sim.facilities)if(v.state==='ready')consider(v,'facility',v.id,1.5,1.3,1.7);

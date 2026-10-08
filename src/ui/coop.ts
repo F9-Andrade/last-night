@@ -7,6 +7,7 @@ export class CoopUI {
  readonly panel=document.createElement('section');
  readonly team=document.createElement('aside');
  onCreateLocal:()=>void=()=>{};
+ onCreateRoom:(create:()=>void)=>void=create=>create();
  private opened=false;
  private unsubscribe:()=>void;
  private copyTimer?:ReturnType<typeof setTimeout>;
@@ -30,7 +31,7 @@ export class CoopUI {
   if(new URLSearchParams(location.search).get('coop')==='lan'){network.mode='lan';transport.value='lan';}
   transport.onchange=()=>{network.leave();network.mode=transport.value==='lan'?'lan':'photon';void network.connect(this.name());};
   this.el('coop-close').onclick=()=>this.close();this.el('coop-leave').onclick=()=>{network.leave();void network.connect(this.name());this.cue();};
-  this.el('coop-create').onclick=()=>{if(!this.commitName())return;if(network.mode==='lan'&&new URLSearchParams(location.search).get('lan')!=='server'){this.close();this.onCreateLocal();}else network.create();this.cue();};
+  this.el('coop-create').onclick=()=>{if(!this.commitName())return;this.onCreateRoom(()=>{if(network.mode==='lan'&&new URLSearchParams(location.search).get('lan')!=='server'){this.close();this.onCreateLocal();}else network.create();this.cue();});};
   this.el('coop-join-form').onsubmit=e=>{e.preventDefault();if(this.commitName())network.join(this.field('coop-code-input').value);this.cue();};
   this.el('coop-retry').onclick=()=>{void network.connect(this.name());this.cue();};
   this.el('coop-ready').onclick=()=>{network.ready();this.cue();};this.el('coop-start').onclick=()=>{network.start();this.cue();};
@@ -59,6 +60,8 @@ export class CoopUI {
  private field(id:string){return this.el(id) as HTMLInputElement;}
  private name(){return sanitizeName(this.field('coop-name').value);}
  private commitName(){const name=this.name();this.field('coop-name').value=name;this.network.setName(name);if(validName(name))return true;this.el('coop-status').textContent='Use um nome de 2 a 20 caracteres.';this.field('coop-name').focus();return false;}
+ setAccountName(name:string){this.field('coop-name').value=sanitizeName(name);this.field('coop-name').readOnly=true;this.network.setName(name);}
+ clearAccountName(){this.field('coop-name').readOnly=false;}
  open(code=''){this.opened=true;this.field('coop-code-input').value=normalizeCode(code);this.panel.hidden=false;this.cue();void this.network.connect(this.name());this.field('coop-name').focus();}
  close(){this.opened=false;this.network.leave();this.panel.hidden=true;this.cue();document.getElementById('coop-online')?.focus();}
  showError(){this.opened=true;this.render();}
@@ -77,7 +80,7 @@ export class CoopUI {
   this.el('coop-create').textContent=n.mode==='lan'&&new URLSearchParams(location.search).get('lan')!=='server'?'Criar expedição LAN':'Criar sala';
   this.field('coop-code-input').placeholder=n.mode==='lan'?'EX: L-A1B2C3D4E5':'EX: N7PK4X';
   this.el('coop-lan-help').hidden=n.mode!=='lan'||inRoom;(this.el('coop-transport') as HTMLSelectElement).disabled=inRoom;
-  document.getElementById('menu')!.inert=this.opened;
+  document.getElementById('menu')!.inert=this.opened||document.getElementById('account-panel')?.hidden===false;
   this.panel.hidden=!this.opened||n.state==='playing';this.el('coop-connect').hidden=inRoom;this.el('coop-lobby').hidden=!inRoom;
   this.el('coop-status').textContent=n.message||(n.state==='connected'?'Conectado. Crie uma sala ou use um convite.':'');
   this.el('coop-status').classList.toggle('coop-error',n.state==='error');

@@ -52,8 +52,10 @@ test('placed chest preserves weapon IDs and loaded rounds without remote access'
 test('microevent anchors are navigable; no reward duplication or reset of visited house',()=>{
  for(const p of CACHE_STORIES){assert.equal(collides(p,.45),false,p.name);assert.ok(findPath(BASE,p).length,p.name);}const s=clean(),p=CACHE_STORIES[0];s.worldEvent={...p,id:1,kind:'cache',life:100,triggered:false};Object.assign(s.player,p);use(s);assert.ok(s.worldEvent.triggered);const next=s.nextWeaponId;use(s);assert.equal(s.nextWeaponId,next);
 });
-test('dawn ignores distant town guards but still requires clearing siege actors',()=>{
- const s=clean();s.setPhase('night');s.horde.spawned=s.horde.budget;const city=s.spawn({x:112,z:-109})!;assert.equal(city.siege,false);step(s,3.2);assert.equal(s.phase,'dawn');const other=clean();other.setPhase('night');other.horde.spawned=other.horde.budget;other.spawn({x:1,z:20});step(other,3.2);assert.equal(other.phase,'night');
+test('dawn respects ten minutes even when the town is clear or siege actors remain',()=>{
+ const s=clean();s.setPhase('night');s.horde.spawned=s.horde.budget;step(s,3.2);assert.equal(s.phase,'night');
+ const city=s.spawn({x:112,z:-109})!;assert.equal(city.siege,false);s.cycle.seek('night',s.cycle.durations.night-.1);step(s,.2);assert.equal(s.phase,'dawn');
+ const other=clean();other.setPhase('night');other.spawn({x:1,z:20});other.cycle.seek('night',other.cycle.durations.night-.1);step(other,.2);assert.equal(other.phase,'dawn');assert.ok(other.zombies.some(z=>z.active&&z.siege));
 });
 
 test('wide open portals cannot close or consume boarding wood while an actor overlaps the edge',()=>{

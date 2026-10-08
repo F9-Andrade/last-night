@@ -43,11 +43,11 @@ export class SurvivalView {
       const progress = searching ? sim.action!.elapsed / sim.action!.duration : 0;
       view.lid.rotation.x += ((loot.searched ? -1.9 : -progress * .4) - view.lid.rotation.x) * (1 - Math.exp(-dt * 12));
       view.root.rotation.z = searching ? Math.sin(elapsed * 25) * .015 : 0;
-      view.marker.visible = !menu && (!loot.searched || itemKeys.some(k => loot.contents[k])) && distance(sim.player, loot) < 9;
+      view.marker.visible = !menu && (!loot.searched || (loot.coins??0)>0 || itemKeys.some(k => loot.contents[k])) && distance(sim.player, loot) < 9;
       view.marker.position.y = 1.45 + Math.sin(elapsed * 2 + i) * .08;
       view.found.visible = view.reveal > 0; view.found.position.y = 1.1 + (2 - view.reveal) * .25;
     });
-    let dropCount=0;for(const loot of sim.loot.slice(LOOT_POINTS.length)){if(dropCount>=512||!itemKeys.some(k=>loot.contents[k])||distance(sim.player,loot)>55)continue;this.dropPose.position.set(loot.x,.18,loot.z);this.dropPose.scale.setScalar(.8);this.dropPose.updateMatrix();this.drops.setMatrixAt(dropCount++,this.dropPose.matrix);}this.drops.count=dropCount;this.drops.instanceMatrix.needsUpdate=true;
+    let dropCount=0;for(const loot of sim.loot.slice(LOOT_POINTS.length)){if(dropCount>=512||!(loot.coins??0)&&!itemKeys.some(k=>loot.contents[k])||distance(sim.player,loot)>55)continue;this.dropPose.position.set(loot.x,.18,loot.z);this.dropPose.scale.setScalar(.8);this.dropPose.updateMatrix();this.drops.setMatrixAt(dropCount++,this.dropPose.matrix);}this.drops.count=dropCount;this.drops.instanceMatrix.needsUpdate=true;
     this.defenses.forEach((view, i) => {
       const b = sim.barricades[i], stage = damageStage(b.hp,defenseMaxHP(b));
       const key=`${stage}:${b.tier??0}`;

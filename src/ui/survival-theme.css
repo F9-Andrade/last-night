@@ -39,3 +39,5 @@ button,input,select{border-radius:0}button:focus-visible,input:focus-visible,sel
 #inventory-panel #craft-details>button:hover:not(:disabled),#inventory-panel #place-chest:hover:not(:disabled){background:#493323;border-color:#dbab74;color:#fff0da}
 #inventory-panel #craft-details>button:focus-visible,#inventory-panel #place-chest:focus-visible{outline:2px solid #e4b77e;outline-offset:2px}
 #inventory-panel #craft-details>button:disabled,#inventory-panel #place-chest:disabled{background:#24231f;color:#bcb5a7;border-color:#635c4f;opacity:1;cursor:not-allowed}
+
+.wallet-balance{display:flex;justify-content:space-between;align-items:center;margin:0 1.25rem .7rem;padding:.6rem 0;border-bottom:1px solid #b3a78b35;color:#d1bf94;font-size:.9rem}.wallet-balance small{font-size:.7rem;font-weight:400;color:#a79f8e}.wallet-balance>span small{margin-left:.5rem}.wallet-balance strong{font-variant-numeric:tabular-nums;color:#e9c17b}

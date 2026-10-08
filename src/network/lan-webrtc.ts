@@ -11,7 +11,7 @@ const validMembers=(v:unknown):v is Member[]=>Array.isArray(v)&&v.length>0&&v.le
 export class BrowserLanTransport {
  actor=0;master=0;seed=0;ping=0;
  private peer:Peer;private stopped=false;private members:Member[]=[];private links=new Map<string,Link>();
- private token='';private roomCode='';private joining='';private nextActor=2;private loaded=false;
+ private layoutVersion:0|1=0;private worldId?:string;private token='';private roomCode='';private joining='';private nextActor=2;private loaded=false;
  private heartbeat:ReturnType<typeof setInterval>;private reconnect?:ReturnType<typeof setTimeout>;
  constructor(private name:string,private receive:(message:any)=>void,private fail:(message:string)=>void){
   const options={debug:0 as const,config:{iceServers:[]}};
@@ -63,12 +63,13 @@ export class BrowserLanTransport {
   if(m.type==='room'){
    const host=this.members.find(p=>p.actorNumber===this.master)?.playerId;
    if(c.peer!==(host||this.joining)||!validMembers(m.players)||!Number.isInteger(m.seed)||m.seed<0||m.seed>4294967295||typeof m.token!=='string'||! /^[a-zA-Z0-9-]{8,40}$/.test(m.token))return;
+   if(m.layoutVersion!==undefined&&m.layoutVersion!==0&&m.layoutVersion!==1)return;
    const own=m.players.find(p=>p.playerId===this.peer.id);if(!own)return;
    const leader=m.players.reduce((a,b)=>a.actorNumber<b.actorNumber?a:b);if(leader.playerId!==c.peer)return;
-   const first=!this.actor;this.actor=own.actorNumber;this.master=leader.actorNumber;this.seed=m.seed;this.token=m.token;this.members=m.players;this.nextActor=Math.max(this.nextActor,Number.isSafeInteger(m.nextActor)&&m.nextActor>0?m.nextActor:1,...this.members.map(p=>p.actorNumber+1));this.roomCode=leader.playerId.slice(PREFIX.length);
+   const first=!this.actor;this.actor=own.actorNumber;this.master=leader.actorNumber;this.seed=m.seed;this.layoutVersion=m.layoutVersion??0;this.token=m.token;this.worldId=typeof m.worldId==='string'?m.worldId:undefined;this.members=m.players;this.nextActor=Math.max(this.nextActor,Number.isSafeInteger(m.nextActor)&&m.nextActor>0?m.nextActor:1,...this.members.map(p=>p.actorNumber+1));this.roomCode=leader.playerId.slice(PREFIX.length);
    clearTimeout(this.links.get(c.peer)?.timer);this.emitRoom();
    for(const p of this.members)if(p.actorNumber<this.actor)this.connectPeer(p.playerId);
-   if(first)this.receive({type:'start',data:{seed:this.seed,actors:this.members.map(p=>p.actorNumber),token:this.token}});
+   if(first)this.receive({type:'start',data:{layoutVersion:this.layoutVersion,seed:this.seed,actors:this.members.map(p=>p.actorNumber),token:this.token,...(this.worldId?{worldId:this.worldId}:{})}});
    return;
   }
   if(!member)return;
@@ -78,10 +79,10 @@ export class BrowserLanTransport {
   if(m.type==='pong'){if(member.actorNumber===this.master&&Number.isFinite(m.at))this.ping=Math.max(0,performance.now()-m.at);return;}
   if(m.type==='leave'){this.drop(member.playerId);return;}
   if(m.type==='loaded'&&this.actor===this.master){member.ready=true;this.publishRoom();return;}
-  if(m.type==='event'&&[1,10,11,12,13,14,15,16].includes(m.code))this.receive({type:'event',code:m.code,data:m.data,actor:member.actorNumber});
+  if(m.type==='event'&&[1,10,11,12,13,14,15,16,17].includes(m.code))this.receive({type:'event',code:m.code,data:m.data,actor:member.actorNumber});
  }
  private emitRoom(){this.receive({type:'room',code:this.roomCode,seed:this.seed,master:this.master,players:this.members});}
- private publishRoom(){this.emitRoom();const packet={type:'room',players:this.members,seed:this.seed,token:this.token,nextActor:this.nextActor};for(const p of this.members){const c=this.links.get(p.playerId)?.connection;if(c)this.write(c,packet);}}
+ private publishRoom(){this.emitRoom();const packet={type:'room',players:this.members,layoutVersion:this.layoutVersion,seed:this.seed,token:this.token,...(this.worldId?{worldId:this.worldId}:{}),nextActor:this.nextActor};for(const p of this.members){const c=this.links.get(p.playerId)?.connection;if(c)this.write(c,packet);}}
  private drop(id:string){
   const member=this.members.find(p=>p.playerId===id);if(!member)return;
   this.members=this.members.filter(p=>p.playerId!==id);const link=this.links.get(id);if(link){clearTimeout(link.timer);this.links.delete(id);link.connection.close();}
@@ -93,9 +94,9 @@ export class BrowserLanTransport {
   if(!this.actor&&c.peer===this.joining){this.fail('Não foi possível estabelecer a conexão local. Confirme a mesma rede e verifique o isolamento de dispositivos no Wi-Fi.');return;}
   this.drop(c.peer);
  }
- host(seed:number){
-  if(this.stopped||this.actor)return;this.actor=1;this.master=1;this.seed=seed;this.token=sessionToken();this.roomCode=this.peer.id.slice(PREFIX.length);this.members=[{actorNumber:1,playerId:this.peer.id,displayName:this.name,ready:true}];this.publishRoom();
-  this.receive({type:'start',data:{seed,actors:[1],token:this.token}});
+ host(seed:number,worldId?:string,layoutVersion:0|1=1){
+  if(this.stopped||this.actor)return;this.actor=1;this.master=1;this.seed=seed;this.layoutVersion=layoutVersion;this.worldId=worldId;this.token=sessionToken();this.roomCode=this.peer.id.slice(PREFIX.length);this.members=[{actorNumber:1,playerId:this.peer.id,displayName:this.name,ready:true}];this.publishRoom();
+  this.receive({type:'start',data:{layoutVersion:this.layoutVersion,seed,actors:[1],token:this.token,...(this.worldId?{worldId:this.worldId}:{})}});
  }
  send(m:any){
   if(m.type==='name'){this.name=sanitizeName(m.name);return;}

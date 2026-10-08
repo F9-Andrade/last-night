@@ -37,6 +37,8 @@ export function material(color: number, surface?: SurfaceKind): THREE.MeshStanda
   return m;
 }
 const cube = new THREE.BoxGeometry(1, 1, 1);
+/** Cached primitives/paints can be used by a future model even when absent from the current scene. */
+export function sharedModelResource(value:THREE.BufferGeometry|THREE.Material):boolean {if(value===cube)return true;for(const paint of materials.values())if(paint===value)return true;return false;}
 export function box(parent: THREE.Object3D, x: number, y: number, z: number, w: number, h: number, d: number, color: number, surface?: SurfaceKind): THREE.Mesh {
   const m = new THREE.Mesh(cube, material(color, surface)); m.position.set(x, y, z); m.scale.set(w, h, d); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
 }

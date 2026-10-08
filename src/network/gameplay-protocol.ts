@@ -1,3 +1,5 @@
+import {validTradeRequest} from '../game/economy.ts';
+import type {TradeRequest} from '../game/economy.ts';
 import {validStructureRequest} from '../game/construction.ts';
 import type {StructureRequest} from '../game/construction.ts';
 import {CITY_LIMIT} from '../game/city.ts';
@@ -20,6 +22,7 @@ export const GameplayEvent={ActionRequest:10,WorldCheckpoint:11,InfectedMotion:1
 export type LifeState='alive'|'downed'|'dead';
 interface RequestBase {seq:number;pose:PlayerSnapshot&{moving?:boolean}}
 export type ActionRequest=RequestBase&(
+ {kind:'trade';trade:TradeRequest}|
  {kind:'fire';shot:number;weapon:WeaponId;seed:number;ads:boolean;bloom:number;kick:number}|
  {kind:'reload'|'heal'|'cancel'|'cancel-consume'|'dismantle'}|{kind:'consume';item:FoodId}|{kind:'switch';slot:0|1|2|3}|{kind:'craft';recipe:string}|{kind:'place-bench'}|{kind:'reclaim-bench';table?:number}|{kind:'melee-equip';melee:MeleeId}|
  {kind:'chest-move';move:ChestMove}|{kind:'place-chest'}|{kind:'reclaim-chest';chest:number}|
@@ -43,6 +46,7 @@ export function parseAction(value:unknown):ActionRequest|null {
  const raw=d.pose as PlayerSnapshot&{moving?:boolean};const p=parseSnapshot([2,raw.sequence,raw.time,raw.x,raw.y,raw.z,raw.yaw,raw.pitch,raw.vx,raw.vz,raw.locomotion]);if(!p||raw.moving!==undefined&&typeof raw.moving!=='boolean')return null;
  const base={seq:d.seq,pose:{...p,...(raw.moving===undefined?{}:{moving:raw.moving})}};switch(d.kind){
  case 'fire':if(!integer(d.shot,1)||!integer(d.seed,0,4294967295)||typeof d.weapon!=='string'||!Object.hasOwn(WEAPONS,d.weapon)||typeof d.ads!=='boolean'||typeof d.bloom!=='number'||!Number.isFinite(d.bloom)||d.bloom<0||d.bloom>.1||typeof d.kick!=='number'||!Number.isFinite(d.kick)||d.kick<0||d.kick>.13)return null;return {...base,kind:'fire',shot:d.shot,seed:d.seed,weapon:d.weapon as WeaponId,ads:d.ads,bloom:d.bloom,kick:d.kick};
+ case 'trade':return validTradeRequest(d.trade)?{...base,kind:'trade',trade:{...d.trade}}:null;
  case 'consume':return isFood(d.item)?{...base,kind:'consume',item:d.item}:null;
  case 'reload':case 'heal':case 'cancel':case 'cancel-consume':case 'dismantle':return {...base,kind:d.kind};
  case 'place-structure':return validStructureRequest(d.placement)?{...base,kind:'place-structure',placement:{kind:d.placement.kind,x:d.placement.x,z:d.placement.z,level:d.placement.level,rotation:d.placement.rotation}}:null;

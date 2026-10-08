@@ -19,6 +19,7 @@ const idle:InputCommand={moveX:0,moveZ:0,aimX:0,aimZ:1,fire:false,run:false,relo
 export interface ActorRecord {actor:number;sim:Simulation;life:LifeState;bleed:number;lastSeq:number;shotSeq:number;lastFire:number;holdAt:number;reviveTarget:number;reviveProgress:number;intent?:string;intentAt:number;lastDamage:number;worldHeld?:boolean}
 export interface SessionEffect {actor:number;shot:number;event:GameEvent}
 export interface PlayerRecord {
+ coins?:number;
  actor:number;life:LifeState;bleed:number;lastSeq:number;shotSeq:number;lastFire:number;player:Simulation['player'];
  perks:import('../game/perks.ts').PerkId[];builderUsed:boolean;openingReady:boolean;
  nutrition:Simulation['nutrition'];consumption:Simulation['consumption'];
@@ -26,7 +27,7 @@ export interface PlayerRecord {
  reloadTimer:number;reloadDuration:number;shotTimer:number;switchTimer:number;action:Simulation['action'];weaponStorage:WeaponItem[];reviveTarget:number;reviveProgress:number;
 }
 export interface WorldCheckpoint {
- survival:{crafting:Simulation['crafting'];barricades:Simulation['barricades'];baseHP:number;phase:Simulation['phase'];elapsed:number;day:number;silence:number;horde:{active:boolean;spawned:number;budget:number;wave:number;timer:number}};
+ survival:{layoutVersion?:0|1;economy?:Simulation['economy'];crafting:Simulation['crafting'];barricades:Simulation['barricades'];baseHP:number;phase:Simulation['phase'];elapsed:number;day:number;silence:number;horde:{active:boolean;spawned:number;budget:number;wave:number;timer:number}};
  v:2;revision:number;time:number;seed:number;contentSeed:number;nextId:number;nextWeaponId:number;nextAcidId:number;wipe:boolean;
  players:PlayerRecord[];infected:Omit<Walker,'path'>[];loot:Simulation['loot'];portals:{id:string;state:Simulation['portals'][number]['state'];hp:number}[];
  facilities:{id:string;state:Simulation['facilities'][number]['state']}[];ground:Simulation['groundWeapons'];corpses:Simulation['corpses']['bodies'];acids:Simulation['acids'];activated:string[];
@@ -54,9 +55,9 @@ export class CoopWorld {
   }
  }
  static fromSolo(source:Simulation,actor:number){return new CoopWorld(source.runSeed,[actor],source);}
- private bind(s:Simulation){s.crafting=this.sim.crafting;s.baseHP=this.sim.baseHP;s.cycle=this.sim.cycle;s.horde=this.sim.horde;s.coopTargets=[...this.actors.values()].filter(a=>a.life!=='dead').map(a=>a.sim.player);s.zombies=this.sim.zombies;s.loot=this.sim.loot;s.facilities=this.sim.facilities;s.portals=this.sim.portals;s.barricades=this.sim.barricades;s.groundWeapons=this.sim.groundWeapons;s.corpses=this.sim.corpses;s.acids=this.sim.acids;s.nextWeaponId=this.sim.nextWeaponId;s.contentSeed=this.sim.contentSeed;}
+ private bind(s:Simulation){s.economy=this.sim.economy;s.crafting=this.sim.crafting;s.baseHP=this.sim.baseHP;s.cycle=this.sim.cycle;s.horde=this.sim.horde;s.coopTargets=[...this.actors.values()].filter(a=>a.life!=='dead').map(a=>a.sim.player);s.zombies=this.sim.zombies;s.loot=this.sim.loot;s.facilities=this.sim.facilities;s.portals=this.sim.portals;s.barricades=this.sim.barricades;s.groundWeapons=this.sim.groundWeapons;s.corpses=this.sim.corpses;s.acids=this.sim.acids;s.nextWeaponId=this.sim.nextWeaponId;s.contentSeed=this.sim.contentSeed;}
  private compact(event:GameEvent):GameEvent{return 'position' in event&&event.position?{...event,position:{x:event.position.x,z:event.position.z}}:event;}
- private collect(a:ActorRecord){this.sim.baseHP=a.sim.baseHP;this.sim.nextWeaponId=a.sim.nextWeaponId;this.sim.contentSeed=a.sim.contentSeed;for(const event of a.sim.events)this.effects.push({actor:a.actor,shot:a.shotSeq,event:this.compact(event)});a.sim.events=[];}
+ private collect(a:ActorRecord){this.sim.economy=a.sim.economy;this.sim.baseHP=a.sim.baseHP;this.sim.nextWeaponId=a.sim.nextWeaponId;this.sim.contentSeed=a.sim.contentSeed;for(const event of a.sim.events)this.effects.push({actor:a.actor,shot:a.shotSeq,event:this.compact(event)});a.sim.events=[];}
  setMembers(members:number[]){let changed=false;for(const actor of this.actors.keys())if(!members.includes(actor)){this.actors.delete(actor);changed=true;}for(const actor of members)if(!this.actors.has(actor)){this.addActor(actor,members);changed=true;}if(changed)this.refreshRegistry();return changed;}
  setPose(actor:number,pose:PlayerSnapshot&{moving?:boolean}):boolean {
   const a=this.actors.get(actor);if(!a||a.life!=='alive')return false;
@@ -79,6 +80,7 @@ export class CoopWorld {
   if(a.life!=='alive')return false;const s=a.sim;
   // Presence remains client-owned, but actions cannot originate far from its latest position.
   if(distance(s.player,r.pose)>2.5||!this.setPose(actor,r.pose))return false;this.bind(s);s.focus=interactionFocus(s);
+  if(r.kind==='trade'){const ok=s.trade(r.trade);this.collect(a);return ok;}
   if(r.kind==='consume'){const ok=s.beginConsume(r.item);if(ok){a.reviveTarget=0;a.reviveProgress=0;a.worldHeld=false;}this.collect(a);return ok;}
   if(r.kind==='cancel-consume'){s.cancelConsumption();this.collect(a);return true;}
   if(s.consumption&&!(r.kind==='hold'&&!r.held)){s.cancelConsumption();this.collect(a);}
@@ -129,7 +131,7 @@ export class CoopWorld {
    this.bind(a.sim);
    if(a.life==='alive'){
     // Shared containers may be emptied while another survivor is searching them.
-    if(a.sim.action?.kind==='search'){const l=this.sim.loot.find(l=>l.id===a.sim.action!.target);if(!l||l.searched&&!itemKeys.some(k=>l.contents[k])){a.sim.action=null;this.effects.push({actor:a.actor,shot:0,event:{type:'notice',text:'Já recolhido',sub:'Outro sobrevivente pegou esses itens.'}});}}
+    if(a.sim.action?.kind==='search'){const l=this.sim.loot.find(l=>l.id===a.sim.action!.target);if(!l||l.searched&&!(l.coins??0)&&!itemKeys.some(k=>l.contents[k])){a.sim.action=null;this.effects.push({actor:a.actor,shot:0,event:{type:'notice',text:'Já recolhido',sub:'Outro sobrevivente pegou esses itens.'}});}}
     if(a.sim.action?.kind==='facility'){const f=this.sim.facilities.find(f=>f.id===a.sim.action!.target);if(f?.state!=='ready'){a.sim.action=null;this.effects.push({actor:a.actor,shot:0,event:{type:'notice',text:'Já aberto',sub:'Outro sobrevivente abriu este container.'}});}}
     if(a.sim.action?.kind==='portal'){const door=this.sim.portals.find(p=>p.id===a.sim.action!.target);if(door?.state==='open')a.sim.action=null;}
     // Authoritative survivor timers run once; movement is supplied by validated presence.
@@ -144,7 +146,7 @@ export class CoopWorld {
   if(!alive.length||this.sim.baseHP<=0){this.wipe=true;return;}
   this.sim.updateCoopWorld(dt,alive.map(a=>a.sim.player));for(const event of this.sim.events)this.effects.push({actor:0,shot:0,event:this.compact(event)});this.sim.events=[];
   this.cityClock-=dt;if(this.cityClock<=0){this.cityClock=1;this.spawnCity(alive);}
-  this.makeDrops();this.sim.loot=this.sim.loot.filter(l=>!l.id.startsWith('infected-')||itemKeys.some(k=>l.contents[k]));this.refreshRegistry();
+  this.makeDrops();this.sim.loot=this.sim.loot.filter(l=>!l.id.startsWith('infected-')||(l.coins??0)>0||itemKeys.some(k=>l.contents[k]));this.refreshRegistry();
  }
  private clearLine(a:Simulation['player'],b:Simulation['player']){
   if(Math.abs(a.eyeY-b.eyeY)>2)return false;
@@ -158,10 +160,10 @@ export class CoopWorld {
  }}
  refreshRegistry(){this.registry.clear();for(const z of this.sim.zombies)if(z.active)this.registry.register(entityId('infected',z.id),z);for(const l of this.sim.loot)this.registry.register(entityId('container',l.id),l);for(const f of this.sim.facilities)this.registry.register(entityId('container',f.id),f);for(const d of this.sim.portals)this.registry.register(entityId('door',d.id),d);for(const g of this.sim.groundWeapons)this.registry.register(entityId('weapon',g.item.uid),g);for(const a of this.actors.values())this.registry.register(entityId('player',a.actor),a);}
  checkpoint():WorldCheckpoint {
-  const s=this.sim;const players:PlayerRecord[]=[...this.actors.values()].map(a=>({actor:a.actor,perks:[...a.sim.perks],builderUsed:a.sim.builderUsed,openingReady:a.sim.openingReady,life:a.life,bleed:a.bleed,lastSeq:a.lastSeq,shotSeq:a.shotSeq,lastFire:a.lastFire,player:a.sim.player,nutrition:a.sim.nutrition,consumption:a.sim.consumption,inventory:a.sim.inventory.items,storage:a.sim.storage.items,loadout:a.sim.loadout,activeSlot:a.sim.activeSlot,gear:a.sim.gear,packCrafted:a.sim.packCrafted,capacity:a.sim.inventory.capacity,reloadTimer:a.sim.reloadTimer,reloadDuration:a.sim.reloadDuration,shotTimer:a.sim.shotTimer,switchTimer:a.sim.switchTimer,action:a.sim.action,weaponStorage:a.sim.weaponStorage,reviveTarget:a.reviveTarget,reviveProgress:a.reviveProgress}));
+  const s=this.sim;const players:PlayerRecord[]=[...this.actors.values()].map(a=>({actor:a.actor,coins:a.sim.coins,perks:[...a.sim.perks],builderUsed:a.sim.builderUsed,openingReady:a.sim.openingReady,life:a.life,bleed:a.bleed,lastSeq:a.lastSeq,shotSeq:a.shotSeq,lastFire:a.lastFire,player:a.sim.player,nutrition:a.sim.nutrition,consumption:a.sim.consumption,inventory:a.sim.inventory.items,storage:a.sim.storage.items,loadout:a.sim.loadout,activeSlot:a.sim.activeSlot,gear:a.sim.gear,packCrafted:a.sim.packCrafted,capacity:a.sim.inventory.capacity,reloadTimer:a.sim.reloadTimer,reloadDuration:a.sim.reloadDuration,shotTimer:a.sim.shotTimer,switchTimer:a.sim.switchTimer,action:a.sim.action,weaponStorage:a.sim.weaponStorage,reviveTarget:a.reviveTarget,reviveProgress:a.reviveProgress}));
   const infected=s.zombies.filter(z=>z.active).map(({path:_path,...z})=>z);
   const corpses=s.corpses.bodies.map(c=>({id:c.id,x:c.x,z:c.z,angle:c.angle,fall:c.fall,variant:c.variant,age:c.age,wounds:c.wounds,kind:c.kind}));
-  return JSON.parse(JSON.stringify({survival:{crafting:s.crafting,barricades:s.barricades,baseHP:s.baseHP,phase:s.phase,elapsed:s.cycle.elapsed,day:s.day,silence:s.cycle.silence,horde:{active:s.horde.active,spawned:s.horde.spawned,budget:s.horde.budget,wave:s.horde.wave,timer:s.horde.timer}},v:2,revision:++this.revision,time:this.time,seed:s.seed,contentSeed:s.contentSeed,nextId:s.nextId,nextWeaponId:s.nextWeaponId,nextAcidId:s.nextAcidId,wipe:this.wipe,players,infected,loot:s.loot,facilities:s.facilities.map(f=>({id:f.id,state:f.state})),portals:s.portals.map(p=>({id:p.id,state:p.state,hp:p.hp})),ground:s.groundWeapons,corpses,acids:s.acids,activated:[...s.activatedSites]})) as WorldCheckpoint;
+  return JSON.parse(JSON.stringify({survival:{layoutVersion:s.layoutVersion,economy:s.economy,crafting:s.crafting,barricades:s.barricades,baseHP:s.baseHP,phase:s.phase,elapsed:s.cycle.elapsed,day:s.day,silence:s.cycle.silence,horde:{active:s.horde.active,spawned:s.horde.spawned,budget:s.horde.budget,wave:s.horde.wave,timer:s.horde.timer}},v:2,revision:++this.revision,time:this.time,seed:s.seed,contentSeed:s.contentSeed,nextId:s.nextId,nextWeaponId:s.nextWeaponId,nextAcidId:s.nextAcidId,wipe:this.wipe,players,infected,loot:s.loot,facilities:s.facilities.map(f=>({id:f.id,state:f.state})),portals:s.portals.map(p=>({id:p.id,state:p.state,hp:p.hp})),ground:s.groundWeapons,corpses,acids:s.acids,activated:[...s.activatedSites]})) as WorldCheckpoint;
  }
  static restore(seed:number,c:WorldCheckpoint,members:number[]){
   const world=new CoopWorld(seed,c.players.map(p=>p.actor));world.time=c.time;world.revision=c.revision;world.wipe=c.wipe;const s=world.sim;
@@ -169,9 +171,9 @@ export class CoopWorld {
   restoreSurvival(s,c.survival);
   for(const f of c.facilities){const local=s.facilities.find(v=>v.id===f.id);if(local)local.state=f.state;}
   for(const p of c.portals){const door=s.portals.find(d=>d.id===p.id);if(door)Object.assign(door,p);}
-  for(const p of c.players){const a=world.actors.get(p.actor)!;Object.assign(a,{life:p.life,bleed:p.bleed,lastSeq:p.lastSeq,shotSeq:p.shotSeq,lastFire:p.lastFire});Object.assign(a.sim.player,p.player);a.sim.nutrition=structuredClone(p.nutrition);a.sim.consumption=structuredClone(p.consumption);a.sim.perks=new Set(p.perks);a.sim.builderUsed=p.builderUsed;a.sim.openingReady=p.openingReady;a.sim.inventory.items={...p.inventory};a.sim.storage.items={...p.storage};a.sim.loadout=structuredClone(p.loadout);a.sim.activeSlot=p.activeSlot;a.sim.gear=structuredClone(p.gear);a.sim.packCrafted=p.packCrafted;a.sim.inventory.capacity=p.capacity;a.sim.reloadTimer=p.reloadTimer;a.sim.reloadDuration=p.reloadDuration;a.sim.shotTimer=p.shotTimer;a.sim.switchTimer=p.switchTimer;a.sim.weaponStorage=structuredClone(p.weaponStorage);a.sim.action=null;world.bind(a.sim);}
+  for(const p of c.players){const a=world.actors.get(p.actor)!;Object.assign(a,{life:p.life,bleed:p.bleed,lastSeq:p.lastSeq,shotSeq:p.shotSeq,lastFire:p.lastFire});Object.assign(a.sim.player,p.player);a.sim.coins=p.coins??0;a.sim.nutrition=structuredClone(p.nutrition);a.sim.consumption=structuredClone(p.consumption);a.sim.perks=new Set(p.perks);a.sim.builderUsed=p.builderUsed;a.sim.openingReady=p.openingReady;a.sim.inventory.items={...p.inventory};a.sim.storage.items={...p.storage};a.sim.loadout=structuredClone(p.loadout);a.sim.activeSlot=p.activeSlot;a.sim.gear=structuredClone(p.gear);a.sim.packCrafted=p.packCrafted;a.sim.inventory.capacity=p.capacity;a.sim.reloadTimer=p.reloadTimer;a.sim.reloadDuration=p.reloadDuration;a.sim.shotTimer=p.shotTimer;a.sim.switchTimer=p.switchTimer;a.sim.weaponStorage=structuredClone(p.weaponStorage);a.sim.action=null;world.bind(a.sim);}
   world.setMembers(members);world.refreshRegistry();return world;
  }
 }
 
-export function restoreSurvival(s:Simulation,v:WorldCheckpoint['survival']){s.crafting=structuredClone(v.crafting);s.barricades=structuredClone(v.barricades);s.baseHP=v.baseHP;s.cycle.seek(v.phase,v.elapsed);s.cycle.day=v.day;s.cycle.silence=v.silence;s.horde.start(v.day);Object.assign(s.horde,v.horde);}
+export function restoreSurvival(s:Simulation,v:WorldCheckpoint['survival']){s.layoutVersion=v.layoutVersion??0;if(v.economy)s.economy=structuredClone(v.economy);s.crafting=structuredClone(v.crafting);s.barricades=structuredClone(v.barricades);s.baseHP=v.baseHP;s.cycle.seek(v.phase,v.elapsed);s.cycle.day=v.day;s.cycle.silence=v.silence;s.horde.start(v.day);Object.assign(s.horde,v.horde);}

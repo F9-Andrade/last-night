@@ -123,7 +123,7 @@ export class Viewmodel {
   this.handRotation.setFromEuler(this.poseRotation).premultiply(this.gun.quaternion);this.placeHand(1,this.contact,this.handRotation,long?.5:.9);
   this.spoon.visible=false;
   if(sim.meleeMode){
-   const strike=strikeEnvelope(this.swing),fists=sim.meleeId==='fists',hammer=sim.meleeId==='hammer',spear=sim.meleeId==='spear',knife=sim.meleeId==='knife';
+   const strike=strikeEnvelope(this.swing),fists=sim.meleeId==='fists',hammer=sim.meleeId==='hammer',spear=sim.meleeId==='spear',knife=sim.meleeId==='knife',axe=sim.meleeId==='axe';
    const windup=this.swing>.75?Math.sin((1-this.swing)/.25*Math.PI):0;
    if(fists){
     for(let i=0;i<2;i++){const side=i===0?1:-1,hit=side===this.shotSide?strike:0;
@@ -134,9 +134,13 @@ export class Viewmodel {
     const tool=this.meleeMeshes.get(sim.meleeId)!;
     tool.position.set(.27-strike*(spear?.09:knife?.12:.31),-.28+windup*.045+strike*(hammer?-.035:.075)-this.sprint*.075,-.53-strike*(spear?.25:knife?.2:.045)+this.sprint*.07);
     if(spear)tool.position.set(.14-strike*.08,-.3-this.sprint*.06,-.31-strike*.12);
-    tool.rotation.set(spear?-1.1-strike*.1:knife?-.3-strike*.8:hammer?-.18+windup*.28-strike*.85:-.22+windup*.22-strike*1.15,spear?-.18:-.38,spear?.32:hammer?-.12:knife?.23:-.2+strike*.55);
+    tool.rotation.set(spear?-1.1-strike*.1:knife?-.3-strike*.8:hammer?-.18+windup*.28-strike*.85:-.22+windup*.22-strike*1.15,spear?-.18:axe?.55:-.38,spear?.32:hammer?-.12:knife?.23:-.2+strike*.55);
+    this.handRotation.copy(tool.quaternion).multiply(this.gripRotation);
+    // Turn the axe around its haft, not the wrist: its +X cutting edge must
+    // lead forward through the whole stroke instead of facing the survivor.
+    if(axe)tool.rotateY(Math.PI/2);
     tool.scale.setScalar(knife?.74:sim.meleeId==='machete'?.8:sim.meleeId==='axe'?.8:spear?.78:.9);tool.updateMatrix();
-    this.contact.set(...MELEE_VISUALS[sim.meleeId].grip).applyMatrix4(tool.matrix);this.handRotation.copy(tool.quaternion).multiply(this.gripRotation);this.placeHand(0,this.contact,this.handRotation,.86);
+    this.contact.set(...MELEE_VISUALS[sim.meleeId].grip).applyMatrix4(tool.matrix);this.placeHand(0,this.contact,this.handRotation,.86);
     const support=MELEE_VISUALS[sim.meleeId].supportGrip;
     if(support){this.contact.set(...support).applyMatrix4(tool.matrix);this.poseRotation.set(0,0,Math.PI/2);this.handRotation.setFromEuler(this.poseRotation).premultiply(tool.quaternion);this.placeHand(1,this.contact,this.handRotation,.85);}
     else{this.contact.set(-.23,-.29-this.sprint*.07,-.38+this.sprint*.05);this.poseRotation.set(.05,-.22,.38);this.handRotation.setFromEuler(this.poseRotation);this.placeHand(1,this.contact,this.handRotation,.88);}

@@ -45,6 +45,8 @@ export class ExpeditionView {
   private facilities:{root:THREE.Group;lid:THREE.Mesh}[]=[];private eventRoot:THREE.Group;private eventBody:THREE.Mesh;
   private generatorLight=new THREE.PointLight(0xd6dba1,0,12,2);private dummy=new THREE.Object3D();
   private scene:THREE.Scene;
+  /** Weapon meshes are created lazily after the initial static roots were captured. */
+  detachDroppedWeapons():void {for(const gun of this.guns)gun.root.removeFromParent();this.guns.length=0;}
   constructor(scene:THREE.Scene){
     this.scene=scene;
     this.bands=new THREE.InstancedMesh(new THREE.BoxGeometry(.55,.025,.06),new THREE.MeshBasicMaterial({color:0xffffff}),48);this.bands.count=0;this.bands.frustumCulled=false;scene.add(this.bands);

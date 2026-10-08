@@ -40,7 +40,7 @@ export class RemotePlayers {
    if(gameplay)c.reloadPose(gameplay.reload,gameplay.reloadDuration);
    avatar.crouch+=((s.locomotion===3?1:0)-avatar.crouch)*(1-Math.exp(-dt*16));c.body.position.y-=avatar.crouch*.52;c.body.rotation.x+=avatar.crouch*.2;c.leftLeg.rotation.x+=avatar.crouch*.45;c.rightLeg.rotation.x+=avatar.crouch*.45;c.head.rotation.x=-s.pitch;c.arms.rotation.x=-s.pitch*.65;
    const incapacitated=!!gameplay&&gameplay.life!=='alive';if(c.weapon)c.weapon.visible=!incapacitated&&!gameplay?.melee;
-   if(avatar.meleeId!==gameplay?.melee){avatar.melee?.removeFromParent();avatar.melee=undefined;avatar.meleeId=gameplay?.melee;if(gameplay?.melee&&gameplay.melee!=='fists'){const hammer=gameplay.melee==='hammer';avatar.melee=createMeleeVisual(gameplay.melee);avatar.melee.rotation.x=gameplay.melee==='spear'?Math.PI/2:hammer?.12:.22;avatar.melee.scale.setScalar(1);c.rightArm.add(avatar.melee);}}if(avatar.melee)avatar.melee.visible=!incapacitated;
+   if(avatar.meleeId!==gameplay?.melee){avatar.melee?.removeFromParent();avatar.melee=undefined;avatar.meleeId=gameplay?.melee;if(gameplay?.melee&&gameplay.melee!=='fists'){const hammer=gameplay.melee==='hammer';avatar.melee=createMeleeVisual(gameplay.melee);avatar.melee.rotation.set(gameplay.melee==='spear'?Math.PI/2:hammer?.12:.22,gameplay.melee==='axe'?-Math.PI/2:0,0);avatar.melee.scale.setScalar(1);c.rightArm.add(avatar.melee);}}if(avatar.melee)avatar.melee.visible=!incapacitated;
    c.rightArm.rotation.y=0;
    if(gameplay?.melee){
     const strike=strikeEnvelope(avatar.shot),fists=gameplay.melee==='fists';

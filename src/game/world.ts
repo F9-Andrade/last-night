@@ -9,6 +9,7 @@ export interface Obstacle { x: number; z: number; w: number; d: number; h?:numbe
 export interface Building extends Obstacle { kind: 'base' | 'market' | 'hospital' | 'police' | 'house'; label: string; color: number; h: number }
 export const WORLD_LIMIT = CITY_LIMIT;
 export const BASE = { x: 1, z: 2 };
+export const GAS_STATION = {x:-27,z:29};
 export const BUILDINGS: Building[] = [
   { kind: 'base', label: 'ABRIGO 07', x: 1, z: -4, w: 9, d: 8, h: 3.7, color: 0xc7b99b },
   { kind: 'market', label: 'MERCADO', x: -25, z: -6, w: 12, d: 10, h: 4.5, color: 0xb3c3a0 },
@@ -34,20 +35,22 @@ export const FENCES: Obstacle[] = [
   { x: -3.8, z: 9, w: 3, d: .4 }, { x: 5.8, z: 9, w: 3, d: .4 },
 ];
 export const TREE_POSITIONS = [[-7,-10],[8,-10],[8,-29],[-20,-33],[34,-32],[35,-10],[21,5],[-33,4],[-19,4],[8,24],[-5,35],[35,35],[-34,34],[-33,-18],[20,-34],[34,22],[-6,-22],[-34,-34],[-3,-12],[8.8,1]];
-export const TREE_TRUNKS:Obstacle[]=[...OUTER_HOUSES.map(([x,z])=>({x:x+OUTER_TREE_OFFSET.x,z:z+OUTER_TREE_OFFSET.z,w:.58,d:.58,h:3.8})),...REGIONS.slice(2,12).filter(r=>r.icon==='E'||r.name==='TRIAGEM EXTERNA').flatMap(r=>[[-9,-8],[9,-8],[-9,9],[9,9]].map(([x,z])=>({x:r.x+x,z:r.z+z,w:.58,d:.58,h:3.8}))),...TREE_POSITIONS.map(([x,z])=>({x,z,w:.58,d:.58,h:3.8})),...CITY_SITES.flatMap(s=>Array.from({length:6},(_,i)=>({x:s.x+(i%2?1:-1)*(s.w/2+5),z:s.z-s.d/2+i*s.d/5,w:.6,d:.6,h:3.8})))];
-export const OBSTACLES: Obstacle[] = [
+const createTreeTrunks=():Obstacle[]=>[...OUTER_HOUSES.map(([x,z])=>({x:x+OUTER_TREE_OFFSET.x,z:z+OUTER_TREE_OFFSET.z,w:.58,d:.58,h:3.8})),...REGIONS.slice(2,12).filter(r=>r.icon==='E'||r.name==='TRIAGEM EXTERNA').flatMap(r=>[[-9,-8],[9,-8],[-9,9],[9,9]].map(([x,z])=>({x:r.x+x,z:r.z+z,w:.58,d:.58,h:3.8}))),...TREE_POSITIONS.map(([x,z])=>({x,z,w:.58,d:.58,h:3.8})),...CITY_SITES.flatMap(s=>Array.from({length:6},(_,i)=>({x:s.x+(i%2?1:-1)*(s.w/2+5),z:s.z-s.d/2+i*s.d/5,w:.6,d:.6,h:3.8})))];
+export const TREE_TRUNKS:Obstacle[]=createTreeTrunks();
+const createObstacles=():Obstacle[]=>[
   ...BUILDINGS.filter(b=>b.kind!=='base').flatMap(b=>hasInterior(b)?roomObstacles(b):[b]), ...WAREHOUSES, ...CARGO_OBSTACLES.map(o=>({...o,h:2.4})), {...PLAZA_MONUMENT,h:3},
   ...CARS.map(c => ({ h:1.75, x: c.x, z: c.z, w: Math.abs(Math.sin(c.angle)) * 3.7 + Math.abs(Math.cos(c.angle)) * 1.8, d: Math.abs(Math.cos(c.angle)) * 3.7 + Math.abs(Math.sin(c.angle)) * 1.8 })),
-  { x: -27, z: 29, w: 10, d: 5 },
-  { x: -25, z: 22, w: 1.3, d: 1.3 }, { x: -21, z: 22, w: 1.3, d: 1.3 },
+  { x: GAS_STATION.x, z: GAS_STATION.z, w: 10, d: 5 },
+  { x: GAS_STATION.x+2, z: GAS_STATION.z-7, w: 1.3, d: 1.3 }, { x: GAS_STATION.x+6, z: GAS_STATION.z-7, w: 1.3, d: 1.3 },
   ...CITY_SITES.flatMap(siteObstacles),
 
 ];
+export const OBSTACLES:Obstacle[]=createObstacles();
 const PLANNING_OBSTACLES: Obstacle[] = [
   ...BUILDINGS.flatMap(b=>hasInterior(b)?roomObstacles(b):[b]), ...FENCES.map(o=>({...o,h:1.45})), ...WAREHOUSES, ...CARGO_OBSTACLES.map(o=>({...o,h:2.4})), {...PLAZA_MONUMENT,h:3},
   ...CARS.map(c => ({ h:1.75, x: c.x, z: c.z, w: Math.abs(Math.sin(c.angle)) * 3.7 + Math.abs(Math.cos(c.angle)) * 1.8, d: Math.abs(Math.cos(c.angle)) * 3.7 + Math.abs(Math.sin(c.angle)) * 1.8 })),
-  { x: -27, z: 29, w: 10, d: 5 },
-  { x: -25, z: 22, w: 1.3, d: 1.3 }, { x: -21, z: 22, w: 1.3, d: 1.3 },
+  { x: GAS_STATION.x, z: GAS_STATION.z, w: 10, d: 5 },
+  { x: GAS_STATION.x+2, z: GAS_STATION.z-7, w: 1.3, d: 1.3 }, { x: GAS_STATION.x+6, z: GAS_STATION.z-7, w: 1.3, d: 1.3 },
   ...CITY_SITES.flatMap(siteObstacles),
   ...TREE_TRUNKS,
 ];
@@ -62,13 +65,15 @@ function indexObstacles(obstacles:Obstacle[]):Map<string,Obstacle[]>{
  }
  return bins;
 }
-const obstacleBins=indexObstacles(OBSTACLES),emptyObstacles:Obstacle[]=[];
+let obstacleBins=indexObstacles(OBSTACLES);
+const emptyObstacles:Obstacle[]=[];
 // These authored ceilings do not change during a match. Build their geometry and
 // spatial lookup once, rather than recreating every city roof for each aim ray.
-const roofBins=indexObstacles([
+const createRoofs=():Obstacle[]=>[
  ...[...BUILDINGS.filter(b=>b.kind!=='base'),...CITY_SITES.filter(s=>s.kind!=='cemetery')].map(b=>({x:b.x,z:b.z,w:b.w,d:b.d,bottom:b.h,h:.25})),
  ...CITY_SITES.filter(s=>s.kind==='quarantine').flatMap(site=>[-8,8].map(x=>({x:site.x+x,z:site.z-4,w:6,d:5,bottom:1.85,h:.3}))),
-]);
+];
+let roofBins=indexObstacles(createRoofs());
 function nearbyObstacles(minX:number,minZ:number,maxX:number,maxZ:number,bins=obstacleBins):Obstacle[]{
   const x0=Math.floor(minX/SPATIAL_CELL),x1=Math.floor(maxX/SPATIAL_CELL),z0=Math.floor(minZ/SPATIAL_CELL),z1=Math.floor(maxZ/SPATIAL_CELL);
   // Most movement/interaction queries fit in one cell; its array is read-only to callers.
@@ -76,6 +81,13 @@ function nearbyObstacles(minX:number,minZ:number,maxX:number,maxZ:number,bins=ob
   const found=new Set<Obstacle>();
   for(let x=x0;x<=x1;x++)for(let z=z0;z<=z1;z++)for(const o of bins.get(`${x}:${z}`)??emptyObstacles)found.add(o);
   return [...found];
+}
+/** Called only when opening a world: rebuild every static query from the same layout. */
+export function rebuildWorldCaches():void {
+ TREE_TRUNKS.splice(0,TREE_TRUNKS.length,...createTreeTrunks());
+ OBSTACLES.splice(0,OBSTACLES.length,...createObstacles(),...URBAN.obstacles);
+ obstacleBins=indexObstacles(OBSTACLES);roofBins=indexObstacles(createRoofs());
+ staticLinks.clear();staticWalkable.clear();dynamicMasks.clear();
 }
 export const SUPPLIES = [
   { x: -2, z: 3, kind: 'ammo' as const },

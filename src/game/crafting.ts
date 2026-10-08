@@ -1,3 +1,4 @@
+import {moneyDrop} from './economy.ts';
 import type {Chest} from './chests.ts';
 import {bodyHit} from './combat.ts';
 import {LOOT_POINTS} from './loot.ts';
@@ -106,7 +107,7 @@ export function absorb(s:Simulation,damage:number){const blocked=Math.min(s.gear
 export function infectedLoot(s:Simulation,z:Walker){const id=`infected-${z.id}`;if(s.loot.some(l=>l.id===id))return;
  // Bags outlive the cosmetic ragdoll; evict the oldest only when the bounded pool fills.
  const bags=s.loot.filter(l=>l.id.startsWith('infected-'));if(bags.length>=80){const oldest=bags[0];s.loot.splice(s.loot.indexOf(oldest),1);}
- s.loot.push({id,x:z.x,z:z.z,area:'outside',label:'Restos do infectado',searched:true,lastFound:null,contents:{...emptyStock(),hide:1+(z.kind==='tank'?1:0),cloth:z.id%3===0?1:0,scrap:z.id%2===0?1:0,ammo:z.id%5===0?3:0}});
+ s.loot.push({id,x:z.x,z:z.z,area:'outside',label:'Restos do infectado',coins:moneyDrop(s.runSeed,id,z.kind==='walker'?'infected':'special'),searched:true,lastFound:null,contents:{...emptyStock(),hide:1+(z.kind==='tank'?1:0),cloth:z.id%3===0?1:0,scrap:z.id%2===0?1:0,ammo:z.id%5===0?3:0}});
 }
 export function harvest(s:Simulation):boolean {
  if(s.meleeId==='hammer')return false;
@@ -118,7 +119,7 @@ export function updateCraftWorld(s:Simulation,dt:number,players:Vec2[]=[s.player
  const w=s.crafting;w.clock+=dt;
  const timber=s.loot.filter(l=>l.id.startsWith('timber-'));for(const l of timber.slice(0,Math.max(0,timber.length-80)))s.loot.splice(s.loot.indexOf(l),1);
  for(const t of w.trees)if(!t.hp&&w.clock>=t.ready&&players.every(p=>distance(p,t)>12)&&!s.zombies.some(z=>z.active&&distance(z,t)<1.5)&&![...s.crafting.tables,...s.crafting.chests].some(p=>distance(p,t)<2)){t.hp=100;t.ready=0;w.revision++;}
- for(const l of s.loot){if(!renewableLoot.has(l.id))continue;if(l.searched&&!itemKeys.some(k=>l.contents[k])){if(w.refills[l.id]===undefined&&Object.keys(w.refills).length<64)w.refills[l.id]=w.clock+360+s.contentRandom()*300;if(w.clock>=w.refills[l.id]&&players.every(p=>distance(p,l)>18)){l.searched=false;l.guaranteed=undefined;l.restocked=true;delete w.refills[l.id];}}}
+ for(const l of s.loot){if(!renewableLoot.has(l.id))continue;if(l.searched&&!(l.coins??0)&&!itemKeys.some(k=>l.contents[k])){if(w.refills[l.id]===undefined&&Object.keys(w.refills).length<64)w.refills[l.id]=w.clock+360+s.contentRandom()*300;if(w.clock>=w.refills[l.id]&&players.every(p=>distance(p,l)>18)){l.searched=false;l.guaranteed=undefined;l.restocked=true;delete w.refills[l.id];}}}
 }
 
 export function reclaimBench(s:Simulation,id?:number):boolean{if(s.gameOver||s.action||s.player.hp<=0)return false;const t=s.crafting.tables.find(t=>(id===undefined||t.id===id)&&distance(t,s.player)<=3&&clear(s,t));if(!t)return false;if(t.hp<200){s.notice('MESA DANIFICADA','Não é possível recolher uma mesa danificada.');return false;}if(!s.inventory.add('bench',1)){s.notice('MOCHILA CHEIA','Libere 3 kg para recolher a mesa.');return false;}s.crafting.tables.splice(s.crafting.tables.indexOf(t),1);s.crafting.revision++;return true;}

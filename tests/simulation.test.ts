@@ -47,9 +47,10 @@ test('navigation routes around an intact house instead of walking through it', (
   const path = findPath({ x: -26, z: -34 }, { x: -26, z: -21 }); assert.ok(path.length > 5);
   assert.ok(path.every(p => !collides(p, .45))); assert.ok(path.some(p => Math.abs(p.x + 26) > 4.5));
 });
-test('night budget is bounded and dawn requires clearing every remaining Walker', () => {
+test('night reinforcements stay bounded and only the clock brings dawn', () => {
   const s = clean(); s.setPhase('preparation', 29.99); step(s, .05); assert.equal(s.phase, 'night'); assert.ok(s.zombies.length > 0);
-  s.horde.spawned = s.horde.budget; s.zombies = []; step(s, 3.1); assert.equal(s.phase, 'dawn');
+  s.horde.spawned = s.horde.budget; s.zombies = []; step(s, 3.1); assert.equal(s.phase, 'night');
+  s.cycle.seek('night',s.cycle.durations.night-.05);step(s,.1);assert.equal(s.phase,'dawn');
   assert.equal(s.inventory.items.rare, 1); assert.equal(s.inventory.items.scrap, 4);
   step(s, 10.1); assert.equal(s.day, 2); assert.equal(s.phase, 'day');
   s.setPhase('night'); assert.equal(s.horde.budget, 31);

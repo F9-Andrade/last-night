@@ -14,6 +14,7 @@ import { VarietyHUD } from './variety';
 import { RARITIES } from '../game/weapons';
 import { FieldMap,regionIcons } from './map';
 import type {MapPeer} from './map';
+import {WatchHUD} from './watch';
 const clock=(seconds:number):string=>`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(Math.floor(seconds%60)).padStart(2,'0')}`;
 const natural=(text:string):string=>text.charAt(0).toUpperCase()+text.slice(1).toLocaleLowerCase('pt-BR');
 export class HUD {
@@ -21,12 +22,13 @@ export class HUD {
   mapPeers:()=>readonly MapPeer[]=()=>[];
   private nutrition: NutritionHUD;
   inventoryOpen=false; mapOpen=false; settingsOpen=false; captions=true; mutations=0; updates=0;
-  root:HTMLDivElement;canvas:HTMLCanvasElement; variety:VarietyHUD;
+  root:HTMLDivElement;canvas:HTMLCanvasElement; variety:VarietyHUD;readonly watch:WatchHUD;
   private els=new Map<string,HTMLElement>();private htmlCache=new Map<string,string>();private styleCache=new Map<string,string>();
   private noticeTimer=0;private hitTimer=0;private hurtTimer=0;private tick=0;private mapTick=0;private phase='';private objectiveTime=0;private tutorialTime=0;
   private previous?:Stock;private previousAmmo=12;private lootNotices:{item:Item;amount:number;until:number}[]=[];private age=0;private fieldMap=new FieldMap();
   private closeTimer?:ReturnType<typeof setTimeout>;private seen=new Set<string>();
   constructor(){this.root=document.querySelector('#app')!;this.root.innerHTML=layout();this.root.insertAdjacentHTML('beforeend','<div id="return-base" hidden></div><div id="base-marker" hidden></div>');this.canvas=this.root.querySelector('#game')!;this.variety=new VarietyHUD(this.root);this.nutrition=new NutritionHUD(this.root,k=>this.selectItem(k));this.nutrition.onConsume=k=>this.onConsume(k);
+    this.watch=new WatchHUD(this.root);
     for(const k of itemKeys)this.el(`select-${k}`).onclick=()=>this.selectItem(k);
     this.el('map-legend').innerHTML=[0,1,2,3,4,5,12,18,19].map(i=>`<p>${icon(regionIcons[i])}<span>${natural(REGIONS[i].name)}</span></p>`).join('');
   }
@@ -37,20 +39,21 @@ export class HUD {
   private hidden(id:string,value:boolean):void {const el=this.el(id);if(el.hidden!==value)el.hidden=value;}
   private disabled(id:string,value:boolean):void {const el=this.el(id) as HTMLButtonElement;if(el.disabled!==value)el.disabled=value;}
   selectItem(k:Item):void {for(const item of itemKeys){const selected=k===item;this.el(`detail-${item}`).hidden=!selected;this.el(`select-${item}`).classList.toggle('selected',selected);this.el(`select-${item}`).setAttribute('aria-pressed',String(selected));}this.el(`select-${k}`).dispatchEvent(new CustomEvent('item-select',{bubbles:true}));}
-  reset():void {this.variety.reset();this.nutrition.reset();this.previous=undefined;this.phase='';this.age=0;this.lootNotices=[];this.tutorialTime=0;this.fieldMap.reset();this.seen.clear();this.inventory(false);this.map(false);this.el('loot-feed').innerHTML='';this.htmlCache.delete('loot-feed');}
-  showMenu(show:boolean):void {this.el('menu').hidden=!show;this.root.classList.toggle('playing',!show);if(show){this.inventory(false);this.map(false);this.noticeTimer=0;}}
-  paused(value:boolean):void {this.text('pause-description',this.root.classList.contains('coop-playing')?'Seus controles estão pausados. A cidade e seus companheiros continuam.':'A cidade pode esperar. Você ainda tem uma noite pela frente.');this.el('pause-screen').hidden=!value;this.root.classList.toggle('paused',value);}
+  reset():void {this.watch.close();this.variety.reset();this.nutrition.reset();this.previous=undefined;this.phase='';this.age=0;this.lootNotices=[];this.tutorialTime=0;this.fieldMap.reset();this.seen.clear();this.inventory(false);this.map(false);this.el('loot-feed').innerHTML='';this.htmlCache.delete('loot-feed');}
+  showMenu(show:boolean):void {this.el('menu').hidden=!show;this.root.classList.toggle('playing',!show);if(show){this.watch.close();this.inventory(false);this.map(false);this.noticeTimer=0;}}
+  paused(value:boolean):void {if(value)this.watch.close();this.text('pause-description',this.root.classList.contains('coop-playing')?'Seus controles estão pausados. A cidade e seus companheiros continuam.':'A cidade pode esperar. Você ainda tem uma noite pela frente.');this.el('pause-screen').hidden=!value;this.root.classList.toggle('paused',value);}
   inventory(show:boolean):void {clearTimeout(this.closeTimer);this.inventoryOpen=show;this.root.classList.toggle('inventory-open',show);this.el('inventory-panel').classList.toggle('closing',!show);if(show){this.map(false);this.el('inventory-panel').hidden=false;}else this.closeTimer=setTimeout(()=>{if(!this.inventoryOpen)this.el('inventory-panel').hidden=true;},100);}
   map(show:boolean):void {this.mapOpen=show;if(show)this.inventory(false);this.el('map-screen').hidden=!show;this.root.classList.toggle('map-open',show);this.mapTick=.5;}
   notice(title:string,sub:string):void {
     // Item receipts live beside the resource HUD, not in the middle of combat.
-    if(/\+\d/.test(title)||/MOCHILA CHEIA/.test(title)){if(/CHEIA/.test(title)){this.html('tutorial',`${icon('bag')} Mochila cheia. <kbd>Tab</kbd> Organizar`);this.tutorialTime=4;}return;}
+    if(/\+\d/.test(title)&&!title.includes('moedas')||/MOCHILA CHEIA/.test(title)){if(/CHEIA/.test(title)){this.html('tutorial',`${icon('bag')} Mochila cheia. <kbd>Tab</kbd> Organizar`);this.tutorialTime=4;}return;}
     this.text('notice-title',natural(title).replace(/walkers/gi,'errantes'));this.text('notice-sub',sub.replace(/Walkers/g,'errantes').replace(/TAB/g,'Tab'));this.noticeTimer=/NOITE|AMANHECER|SOBREVIVEU/.test(title)?4:2.4;
   }
   hit(head=false):void {this.hitTimer=head?.24:.14;this.el('crosshair').classList.toggle('headshot',head);}
   hurt(direction?:number):void{this.hurtTimer=.45;this.el('damage-direction').hidden=direction===undefined;if(direction!==undefined)this.style('damage-direction','--angle',`${-direction}rad`);this.el('health').animate([{transform:'translateX(-3px)'},{transform:'translateX(0)'}],{duration:180});}
   end(sim:Simulation):void {this.tick=.1;this.el('game-over').hidden=false;this.root.classList.add('paused');this.text('end-title',sim.baseHP<=0?'O ABRIGO CAIU':'Sua última noite.');this.text('end-reason',sim.baseHP<=0?'Sem um lugar para voltar, a expedição termina aqui.':'A cidade fica para trás. Você pode tentar de novo.');this.text('end-days',String(sim.day).padStart(2,'0'));this.text('end-kills',String(sim.kills).padStart(2,'0'));this.text('end-time',clock(sim.stats.seconds));this.html('end-details',`<span>${sim.stats.headshots} tiros na cabeça</span><span>${sim.stats.loot} itens coletados</span><span>${sim.stats.nights} noites sobrevividas</span><span>${Math.round(sim.stats.damage)} de dano sofrido</span><span>${sim.stats.specials} especiais eliminados</span><span>${sim.stats.weapons} armas encontradas · ${RARITIES[sim.stats.bestRarity].name}</span><span>${sim.stats.repairs} reparos de barricada</span>`);}
   update(sim:Simulation,dt:number,mouse:{x:number;y:number},project?:(x:number,z:number,y?:number)=>{x:number;y:number},aimTarget=false):void {
+    if(this.inventoryOpen||this.mapOpen||this.variety.craft.open)this.watch.close();else this.watch.update(sim);
     const returning=(sim.phase==='preparation'&&sim.untilNight<=30)||sim.phase==='night';
     const showing=returning&&this.root.classList.contains('playing')&&!sim.gameOver;
     this.hidden('return-base',!showing||sim.phase==='night');this.hidden('base-marker',!showing);
@@ -65,6 +68,7 @@ export class HUD {
     this.style('crosshair','transform',`translate(${Math.round(mouse.x)}px,${Math.round(mouse.y)}px)`);this.style('crosshair','--bloom',`${((sim.recoil*3+(sim.player.moving?2:0)+sim.player.bloom*24)*(sim.player.ads?.2:sim.player.crouched?.7:1)).toFixed(1)}px`);
     this.root.classList.toggle('ads',sim.player.ads);this.root.classList.toggle('crouched',sim.player.crouched);this.style('damage-direction','opacity',String(Math.max(0,this.hurtTimer)*2));this.el('crosshair').classList.toggle('hit',this.hitTimer>0);this.el('crosshair').classList.toggle('on-target',aimTarget);this.style('damage-vignette','opacity',String(Math.max(0,this.hurtTimer).toFixed(2)));
     this.tick+=dt;this.mapTick+=dt;if(this.tick<.1&&this.updates)return;this.tick=0;this.updates++;this.variety.update(sim);this.nutrition.update(sim);
+    this.text('wallet-coins',sim.coins.toLocaleString('pt-BR'));
     this.text('health',String(Math.ceil(sim.player.hp)));
     const healthMeter=this.el('health-meter'),hp=String(Math.max(0,Math.ceil(sim.player.hp)));if(healthMeter.getAttribute('aria-valuenow')!==hp)healthMeter.setAttribute('aria-valuenow',hp);if(healthMeter.getAttribute('aria-valuemax')!==String(sim.maxHP))healthMeter.setAttribute('aria-valuemax',String(sim.maxHP));this.style('health-bar','width',`${Math.min(100,sim.player.hp/sim.maxHP*100).toFixed(0)}%`);this.text('health-state',sim.player.hp<30?'Precisa de cuidados':sim.player.hp<70?'Ferido':'Sem ferimentos');this.root.classList.toggle('low-health',sim.player.hp<30);
     this.style('stamina-bar','width',`${sim.player.stamina.toFixed(0)}%`);this.el('stamina').classList.toggle('relevant',sim.player.running||sim.player.stamina<96);
@@ -75,9 +79,9 @@ export class HUD {
     this.style('reload-bar','width',sim.reloadTimer?`${((1-sim.reloadTimer/sim.reloadDuration)*100).toFixed(0)}%`:'0%');this.html('reload-label',sim.switchTimer?'TROCANDO…':sim.reloadTimer?(sim.weapon.reloadStyle==='shell'?'CARREGANDO CARTUCHO…':'RECARREGANDO…'):sim.ammo?'<kbd>R</kbd> Recarregar':'<kbd>R</kbd> Pente vazio');
     const titles={day:'Luz do dia',dusk:'Anoitecer',preparation:'Preparação',night:'Horda noturna',dawn:'Amanhecer'};
     this.text('day',`DIA ${String(sim.day+(sim.phase==='dawn'?1:0)).padStart(2,'0')}`);this.text('phase',titles[sim.phase].toUpperCase());this.html('phase-icon',icon(sim.phase==='night'?'night':'sun'));
-    const seconds=Math.max(0,Math.ceil(sim.phase==='dawn'?sim.cycle.durations.dawn-sim.cycle.elapsed:sim.untilNight));this.text('timer-label',sim.phase==='night'?'Resista':sim.phase==='dawn'?'Novo dia em':'Anoitecer em');this.text('timer',sim.phase==='night'?'':clock(seconds));
+    const seconds=Math.max(0,Math.ceil(sim.phase==='night'?sim.cycle.untilDay:sim.untilNight));this.text('timer-label',sim.phase==='night'?'Amanhecer em':'Anoitecer em');this.text('timer',clock(seconds));
     this.el('cycle').classList.toggle('is-night',sim.phase==='night');this.el('cycle').classList.toggle('urgent',sim.phase!=='night'&&sim.phase!=='dawn'&&seconds<=60);
-    const progress=sim.phase==='night'?1-sim.threat/Math.max(1,sim.horde.budget+5):1-sim.untilNight/sim.cycle.daylight;this.style('cycle-line','stroke-dasharray',`${Math.max(0,progress)*100} 100`);
+    const progress=sim.phase==='night'?1-sim.cycle.untilDay/sim.cycle.durations.night:1-sim.untilNight/sim.cycle.daylight;this.style('cycle-line','stroke-dasharray',`${Math.min(1,Math.max(0,progress))*100} 100`);
     if(this.phase!==`${sim.day}${sim.phase}`){this.phase=`${sim.day}${sim.phase}`;this.objectiveTime=12;}
     this.text('objective-title',sim.phase==='dawn'?'Você sobreviveu.':sim.phase==='night'?'Proteja seu abrigo':sim.phase==='day'?'Antes que escureça':'Hora de voltar');const returnDistance=Math.round(Math.hypot(sim.player.x-1,sim.player.z-3));this.text('objective-sub',returnDistance>55?`Abrigo a ${returnDistance} m · reserve ~${Math.ceil(returnDistance/4.6*1.3)} s para voltar.`:sim.phase==='dawn'?'A recompensa está no depósito.':sim.phase==='night'?'Cuide das três entradas.':sim.phase==='day'?(sim.escapeClues.has('frequency')?'Opcional: verifique o checkpoint no Setor Zero.':sim.escapeClues.has('church')?'Opcional: procure o rádio no terminal.':'Encontre suprimentos na cidade.'):'Prepare as defesas e a munição.');this.el('objective').classList.toggle('quiet',this.objectiveTime<=0);
     const loot=sim.nearbyLoot,defense=sim.nearbyDefense,action=sim.action;
@@ -90,7 +94,7 @@ export class HUD {
     if(prompt){this.style('interaction','left','50%');this.style('interaction','top','58%');}
     this.root.classList.toggle('at-base',sim.atBase);this.root.classList.toggle('night-active',sim.phase==='night');
     for(const k of ['wood','scrap','med'] as const)this.text(`resource-${k}`,String(sim.inventory.items[k]));
-    this.hidden('threat',sim.phase!=='night');this.text('threat-label',sim.cycle.silence>0?'Silêncio.':'Pressão da horda');this.style('horde-bar','width',`${Math.min(100,sim.threat/Math.max(1,sim.horde.budget)*100)}%`);
+    this.hidden('threat',sim.phase!=='night');this.text('threat-label','Horda contínua · resista até amanhecer');this.style('horde-bar','width',`${Math.min(100,sim.threat/Math.max(1,sim.horde.budget)*100)}%`);
     if(this.previous){for(const k of itemKeys){const amount=sim.inventory.items[k]-this.previous[k];if(amount&&(k!=='ammo'||amount>0||this.inventoryOpen)){const old=this.lootNotices.find(n=>n.item===k&&this.age<n.until);if(old){old.amount+=amount;old.until=this.age+3;}else this.lootNotices.push({item:k,amount,until:this.age+3});}}}this.previous={...sim.inventory.items};this.lootNotices=this.lootNotices.filter(n=>n.until>this.age&&n.amount).slice(-4);this.html('loot-feed',this.lootNotices.map(n=>`<div class="loot-receipt ${n.amount<0?'spent':''}">${itemArt(n.item)}<b>${n.amount>0?'+':''}${n.amount}</b><span>${ITEMS[n.item].label}</span></div>`).join(''));
     if(this.inventoryOpen){this.hidden('place-chest',!sim.inventory.items.chest);this.text('capacity-label',`${sim.inventory.weight.toFixed(1)} / ${sim.inventory.capacity} kg`);this.style('capacity-bar','width',`${sim.inventory.weight/sim.inventory.capacity*100}%`);this.el('inventory-panel').classList.toggle('full',sim.inventory.weight>sim.inventory.capacity*.9);this.text('inventory-context','Guarde itens em um baú fabricado na mesa inteligente.');for(const k of itemKeys){this.text(`item-${k}`,String(sim.inventory.items[k]));this.disabled(`discard-${k}`,!sim.inventory.items[k]||!!action||!!sim.consumption);this.el(`select-${k}`).classList.toggle('empty',!sim.inventory.items[k]);}this.disabled('use-med',!sim.inventory.items.med||sim.player.hp>=sim.maxHP||!!action||!!sim.consumption);this.disabled('use-rare',!sim.atBase||!sim.resource('rare')||sim.baseHP>=BALANCE.base.hp||!!action||!!sim.consumption);}
     const hint=!this.seen.has('move')&&this.age<8?'<kbd>W A S D</kbd> Mova-se. O abrigo é seu ponto de retorno.':sim.player.hp<70&&sim.inventory.items.med&&!this.seen.has('heal')?'<kbd>H</kbd> Uma bandagem pode ajudar.':'';

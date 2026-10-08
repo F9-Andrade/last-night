@@ -1,3 +1,4 @@
+import {validCoins,validEconomyWorld} from '../game/economy.ts';
 import type {Structure} from '../game/construction.ts';
 import {MAX_STRUCTURES,validStructureRequest,structureMaxHP} from '../game/construction.ts';
 import {isFood,FOODS} from '../game/nutrition.ts';
@@ -8,7 +9,7 @@ import {MELEE} from '../game/crafting.ts';
 import {TREE_TRUNKS} from '../game/world.ts';
 import {DEFENSE_POINTS} from '../game/defenses.ts';
 import {COOP,boundedJSON} from './gameplay-protocol.ts';
-import type {WorldCheckpoint} from './coop-world.ts';
+import type {WorldCheckpoint,PlayerRecord} from './coop-world.ts';
 import {WEAPONS,RARITIES,AFFIXES} from '../game/weapons.ts';
 import {ENEMIES} from '../game/enemies.ts';
 import {itemKeys} from '../game/inventory.ts';
@@ -31,11 +32,11 @@ const action=(v:unknown)=>v===null||obj(v)&&['search','portal','heal','facility'
 const gear=(v:unknown)=>obj(v)&&typeof v.melee==='string'&&Object.hasOwn(MELEE,v.melee)&&array(v.owned,Object.keys(MELEE).length,k=>typeof k==='string'&&Object.hasOwn(MELEE,k))&&v.owned.includes(v.melee)&&num(v.armor,0,140)&&int(v.armorTier,0,2);
 const nutrition=(v:unknown)=>obj(v)&&num(v.hunger,0,100)&&num(v.thirst,0,100)&&num(v.starvationTimer,0,5);
 const consumption=(v:unknown)=>v===null||obj(v)&&isFood(v.item)&&num(v.elapsed,0,FOODS[v.item].duration)&&v.duration===FOODS[v.item].duration;
-const player=(v:unknown)=>obj(v)&&nutrition(v.nutrition)&&consumption(v.consumption)&&array(v.perks,12,k=>typeof k==='string'&&Object.hasOwn(PERKS,k))&&typeof v.builderUsed==='boolean'&&typeof v.openingReady==='boolean'&&int(v.actor,1)&&['alive','downed','dead'].includes(String(v.life))&&num(v.bleed,0,60)&&int(v.lastSeq)&&int(v.shotSeq)&&num(v.lastFire,-100,1e9)&&pos(v.player)&&num(v.player.hp,0,115)&&num(v.player.eyeY,-.5,14)&&num(v.player.angle,-Math.PI-.01,Math.PI+.01)&&num(v.player.pitch,-1.5,1.5)&&['stamina','staminaDelay','invulnerable','aimKick','bloom'].every(k=>num((v.player as Obj)[k],0,100))&&['running','moving','crouched','ads','exhausted'].every(k=>typeof (v.player as Obj)[k]==='boolean')&&stock(v.inventory)&&stock(v.storage)&&array(v.loadout,2,w=>w===null||weapon(w))&&v.loadout.length===2&&int(v.activeSlot,0,3)&&((v.activeSlot as number)>=2||!!v.loadout[v.activeSlot as number])&&gear(v.gear)&&typeof v.packCrafted==='boolean'&&num(v.capacity,16,23)&&['reloadTimer','reloadDuration','switchTimer','shotTimer','reviveProgress'].every(k=>num(v[k],-.1,60))&&int(v.reviveTarget)&&action(v.action)&&array(v.weaponStorage,48,weapon);
-const loot=(v:unknown)=>pos(v)&&str(v.id,80)&&str(v.label)&&['base','hospital','police','market','house','gas','outside'].includes(String(v.area))&&typeof v.searched==='boolean'&&stock(v.contents)&&(v.lastFound===null||itemKeys.includes(v.lastFound as typeof itemKeys[number]));
+const player=(v:unknown)=>obj(v)&&(v.coins===undefined||validCoins(v.coins))&&nutrition(v.nutrition)&&consumption(v.consumption)&&array(v.perks,12,k=>typeof k==='string'&&Object.hasOwn(PERKS,k))&&typeof v.builderUsed==='boolean'&&typeof v.openingReady==='boolean'&&int(v.actor,1)&&['alive','downed','dead'].includes(String(v.life))&&num(v.bleed,0,60)&&int(v.lastSeq)&&int(v.shotSeq)&&num(v.lastFire,-100,1e9)&&pos(v.player)&&num(v.player.hp,0,115)&&num(v.player.eyeY,-.5,14)&&num(v.player.angle,-Math.PI-.01,Math.PI+.01)&&num(v.player.pitch,-1.5,1.5)&&['stamina','staminaDelay','invulnerable','aimKick','bloom'].every(k=>num((v.player as Obj)[k],0,100))&&['running','moving','crouched','ads','exhausted'].every(k=>typeof (v.player as Obj)[k]==='boolean')&&stock(v.inventory)&&stock(v.storage)&&array(v.loadout,2,w=>w===null||weapon(w))&&v.loadout.length===2&&int(v.activeSlot,0,3)&&((v.activeSlot as number)>=2||!!v.loadout[v.activeSlot as number])&&gear(v.gear)&&typeof v.packCrafted==='boolean'&&num(v.capacity,16,23)&&['reloadTimer','reloadDuration','switchTimer','shotTimer','reviveProgress'].every(k=>num(v[k],-.1,60))&&int(v.reviveTarget)&&action(v.action)&&array(v.weaponStorage,48,weapon);
+const loot=(v:unknown)=>pos(v)&&(v.coins===undefined||validCoins(v.coins))&&str(v.id,80)&&str(v.label)&&['base','hospital','police','market','house','gas','outside'].includes(String(v.area))&&typeof v.searched==='boolean'&&stock(v.contents)&&(v.lastFound===null||itemKeys.includes(v.lastFound as typeof itemKeys[number]));
 const unique=(rows:unknown[],key:string)=>new Set(rows.map(v=>(v as Obj)[key])).size===rows.length;
 const survival=(v:unknown)=>{
- if(!obj(v)||!num(v.baseHP,0,1000)||!['day','dusk','preparation','night','dawn'].includes(String(v.phase))||!num(v.elapsed,0,1e9)||!int(v.day,1)||!num(v.silence,0,10)||!obj(v.horde)||typeof v.horde.active!=='boolean'||!['spawned','budget','wave'].every(k=>int((v.horde as Obj)[k],0,100))||!num(v.horde.timer,-1,60))return false;
+ if(!obj(v)||v.layoutVersion!==undefined&&v.layoutVersion!==0&&v.layoutVersion!==1||v.economy!==undefined&&!validEconomyWorld(v.economy)||!num(v.baseHP,0,1000)||!['day','dusk','preparation','night','dawn'].includes(String(v.phase))||!num(v.elapsed,0,1e9)||!int(v.day,1)||!num(v.silence,0,10)||!obj(v.horde)||typeof v.horde.active!=='boolean'||!['spawned','budget','wave'].every(k=>int((v.horde as Obj)[k],0,100))||!num(v.horde.timer,-1,60))return false;
  if(!array(v.barricades,DEFENSE_POINTS.length,b=>obj(b)&&DEFENSE_POINTS.some(d=>d.id===b.id&&d.x===b.x&&d.z===b.z&&d.w===b.w&&d.d===b.d)&&num(b.hp,0,900)&&(b.tier===undefined||int(b.tier,0,2))&&(b.trapTimer===undefined||num(b.trapTimer,0,1))&&DEFENSE_POINTS.some(d=>d.id===b.id&&d.trap===b.trap)&&typeof b.built==='boolean'&&(b.open===undefined||typeof b.open==='boolean')&&num(b.flash,0,1))||v.barricades.length!==DEFENSE_POINTS.length||!unique(v.barricades,'id'))return false;
  const w=v.crafting;if(!obj(w)||!int(w.revision)||!num(w.clock,0,1e9)||!int(w.next,1)||!obj(w.refills)||Object.keys(w.refills).length>700||!Object.entries(w.refills).every(([id,n])=>LOOT_POINTS.some(l=>l.id===id)&&num(n,0,1e9)))return false;
  if(!array(w.structures,MAX_STRUCTURES,p=>obj(p)&&validStructureRequest(p)&&int(p.id,1)&&int(p.revision)&&int(p.tier,0,2)&&typeof p.open==='boolean'&&num(p.hp,.001,structureMaxHP(p as unknown as Structure))&&(p.kind==='door'||p.open===false))||!unique(w.structures,'id'))return false;
@@ -43,10 +44,12 @@ const survival=(v:unknown)=>{
  if(!array(w.tables,12,t=>pos(t)&&int(t.id,1)&&num(t.hp,.001,200)&&num(t.y,-.5,10)&&num(t.angle,-Math.PI-.01,Math.PI+.01))||!unique([...w.chests,...w.tables,...w.structures],'id')||[...w.chests,...w.tables,...w.structures].some(p=>((p as Obj).id as number)>=(w.next as number)))return false;
  return array(w.trees,TREE_TRUNKS.length,t=>obj(t)&&int(t.id,0,TREE_TRUNKS.length-1)&&t.x===TREE_TRUNKS[t.id as number].x&&t.z===TREE_TRUNKS[t.id as number].z&&num(t.hp,0,100)&&num(t.ready,0,1e9))&&w.trees.length===TREE_TRUNKS.length&&unique(w.trees,'id');
 };
-export function parseCheckpoint(value:unknown):WorldCheckpoint|null {
+export function validSavedPlayer(value:unknown):value is PlayerRecord{return player(value);}
+export function validSavedEnemy(value:unknown):boolean{return enemy(value);}
+export function parseCheckpoint(value:unknown,allowEmptyPlayers=false):WorldCheckpoint|null {
  if(!boundedJSON(value)||!obj(value)||JSON.stringify(value).length>COOP.maxPayload)return null;const c=value;
  if(!survival(c.survival)||c.v!==2||!int(c.revision,1)||!num(c.time,0)||!int(c.seed,0,4294967295)||!int(c.contentSeed,0,4294967295)||!int(c.nextId)||!int(c.nextWeaponId)||!int(c.nextAcidId)||typeof c.wipe!=='boolean')return null;
- if(!array(c.players,4,player)||!c.players.length||!unique(c.players,'actor')||!array(c.infected,COOP.maxEntities,enemy)||!unique(c.infected,'id'))return null;
+ if(!array(c.players,4,player)||!allowEmptyPlayers&&!c.players.length||!unique(c.players,'actor')||!array(c.infected,COOP.maxEntities,enemy)||!unique(c.infected,'id'))return null;
  if(!array(c.loot,700,loot)||!unique(c.loot,'id')||!LOOT_POINTS.every((p,i)=>(c.loot as Obj[])[i]?.id===p.id))return null;
  if(!array(c.portals,CITY_PORTALS.length,p=>obj(p)&&CITY_PORTALS.some(d=>d.id===p.id)&&['open','closed','barred'].includes(String(p.state))&&num(p.hp,0,1000))||c.portals.length!==CITY_PORTALS.length||!unique(c.portals,'id'))return null;
  if(!array(c.facilities,FACILITIES.length,f=>obj(f)&&FACILITIES.some(v=>v.id===f.id)&&['ready','powered','opened'].includes(String(f.state)))||c.facilities.length!==FACILITIES.length||!unique(c.facilities,'id'))return null;
@@ -57,4 +60,4 @@ export function parseCheckpoint(value:unknown):WorldCheckpoint|null {
  if(checkpoint.infected.some(z=>z.id>=checkpoint.nextId)||checkpoint.players.some(p=>p.life==='alive'&&p.player.hp<=0||p.life!=='alive'&&p.player.hp!==0))return null;
  return checkpoint;
 }
-export function stateHash(c:WorldCheckpoint){const text=JSON.stringify([c.revision,c.players.map(p=>[p.actor,p.player.hp,p.life,p.inventory,p.loadout,p.nutrition,p.consumption]),c.infected.map(z=>[z.id,z.hp]),c.loot.map(l=>[l.id,l.searched,l.contents]),c.portals,c.facilities,c.survival,c.players.map(p=>[p.gear,p.activeSlot,p.capacity]),c.wipe]);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return (h>>>0).toString(16);}
+export function stateHash(c:WorldCheckpoint){const text=JSON.stringify([c.revision,c.players.map(p=>[p.actor,p.player.hp,p.life,p.coins??0,p.inventory,p.loadout,p.nutrition,p.consumption]),c.infected.map(z=>[z.id,z.hp]),c.loot.map(l=>[l.id,l.searched,l.coins??0,l.contents]),c.portals,c.facilities,c.survival,c.players.map(p=>[p.gear,p.activeSlot,p.capacity]),c.wipe]);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return (h>>>0).toString(16);}

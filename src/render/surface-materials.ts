@@ -6,6 +6,7 @@ const paints = new Map<SurfaceKind, THREE.MeshStandardMaterial>();
 export const SURFACE_KINDS: SurfaceKind[] = ['voxel', 'asphalt', 'paving', 'plaster', 'roof', 'metal', 'glass', 'earth'];
 let atlas: THREE.CanvasTexture | undefined;
 let atlasPaint: THREE.MeshStandardMaterial | undefined;
+export function sharedSurfaceMaterial(value:THREE.Material):boolean {if(value===atlasPaint)return true;for(const paint of paints.values())if(paint===value)return true;return false;}
 const description: Record<SurfaceKind, { scale: number; strength: number; roughness: number; metalness: number }> = {
   voxel: { scale: .8, strength: .32, roughness: .94, metalness: 0 },
   asphalt: { scale: .125, strength: .82, roughness: .97, metalness: 0 },

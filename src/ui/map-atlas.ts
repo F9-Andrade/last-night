@@ -1,6 +1,7 @@
 import { CITY_SITES } from '../game/city';
 import { CARGO_OBSTACLES, PLAZA_MONUMENT, REGIONS, ROADS, WAREHOUSES } from '../game/districts';
 import { BUILDINGS, CARS, FENCES, TREE_TRUNKS, URBAN, WORLD_LIMIT } from '../game/world';
+import {worldLayoutEpoch} from '../game/world-layout';
 
 interface Rect { x:number; z:number; w:number; d:number }
 interface Roof extends Rect { color:string; pitched:boolean; front?:number }
@@ -10,7 +11,7 @@ export interface MapBounds { left:number; top:number; width:number; height:numbe
 const TILE_METERS=128, TILE_PIXELS=512, TILE_LIMIT=12, OVERVIEW_PIXELS=1536;
 export const MAP_EXTENT=WORLD_LIMIT+14;
 const hex=(color:number)=>`#${color.toString(16).padStart(6,'0')}`;
-const roofs:Roof[]=[
+const createRoofs=():Roof[]=>[
  ...BUILDINGS.filter(b=>b.kind!=='base').map(b=>({...b,color:b.kind==='house'?'#ae8665':b.kind==='police'?'#779898':'#a5af9b',pitched:b.kind==='house'})),
  ...WAREHOUSES.map(b=>({...b,color:'#78928b',pitched:false})),
  ...CITY_SITES.filter(b=>b.kind!=='cemetery').map(b=>({...b,color:b.kind==='house'||b.kind==='motel'?'#ad8667':'#8d9f8c',pitched:b.kind==='house'||b.kind==='motel'})),
@@ -19,7 +20,7 @@ const roofs:Roof[]=[
  {x:-27,z:29,w:10,d:5,color:'#b1926f',pitched:false},
  {x:-25,z:22,w:13,d:5.6,color:'#c0b694',pitched:false},
 ];
-const vehicles:Vehicle[]=[
+const createVehicles=():Vehicle[]=>[
  ...CARS.map(v=>({...v,w:1.8,d:3.7,color:hex(v.color)})),
  ...URBAN.vehicles.map(v=>({...v,w:v.kind==='truck'||v.kind==='bus'?2.5:1.9,d:v.kind==='bus'?9:v.kind==='truck'?7.2:v.kind==='van'||v.kind==='ambulance'?5.2:4,color:v.kind==='police'?'#627c85':v.kind==='ambulance'?'#d0cab3':hex(v.color)})),
 ];
@@ -37,8 +38,16 @@ const rect=(c:CanvasRenderingContext2D,r:Rect,pad=0)=>c.fillRect(r.x-r.w/2-pad,r
 export class CityMapAtlas {
  private tiles=new Map<string,HTMLCanvasElement>();
  private overview?:HTMLCanvasElement;
+ private epoch=-1;
+ private roofs:Roof[]=[];
+ private vehicles:Vehicle[]=[];
 
  draw(c:CanvasRenderingContext2D,b:MapBounds,w:number,h:number,full:boolean):void {
+  if(this.epoch!==worldLayoutEpoch()){
+   for(const tile of this.tiles.values())tile.width=0;this.tiles.clear();
+   if(this.overview)this.overview.width=0;this.overview=undefined;
+   this.roofs=createRoofs();this.vehicles=createVehicles();this.epoch=worldLayoutEpoch();
+  }
   if(full){
    this.overview??=this.paint({left:-MAP_EXTENT,top:-MAP_EXTENT,width:MAP_EXTENT*2,height:MAP_EXTENT*2},OVERVIEW_PIXELS,false);
    c.drawImage(this.overview,(-MAP_EXTENT-b.left)*w/b.width,(-MAP_EXTENT-b.top)*h/b.height,MAP_EXTENT*2*w/b.width,MAP_EXTENT*2*h/b.height);
@@ -61,6 +70,7 @@ export class CityMapAtlas {
  }
 
  private paint(bounds:MapBounds,pixels:number,detail:boolean):HTMLCanvasElement {
+  const roofs=this.roofs,vehicles=this.vehicles;
   const sheet=document.createElement('canvas');sheet.width=sheet.height=pixels;
   const c=sheet.getContext('2d')!;
   c.fillStyle='#48594c';c.fillRect(0,0,pixels,pixels);

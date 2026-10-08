@@ -5,12 +5,13 @@ import {structureFloorHeight,structureSurfaceY} from '../game/construction';
 import type {StructurePlacement} from '../game/construction';
 import {EnvironmentalDressing} from './environmental-dressing';
 import {ImpactDecals} from './impact-decals';
-import {surfaceStats} from './surface-materials';
+import {surfaceStats,sharedSurfaceMaterial} from './surface-materials';
 import {CinematicSky} from './cinematic-sky';
 import {PostProcessing} from './post-processing';
 import {VISUAL,visualPreset} from './visual-config';
 import {CITY_SITES} from '../game/city';
 import {BUILDINGS} from '../game/world';
+import {worldLayoutEpoch} from '../game/world-layout';
 import {hasInterior} from '../game/interiors';
 import { RemotePlayers } from './remote-players';
 import type { RemotePlayerState } from '../network/protocol';
@@ -26,9 +27,9 @@ import { rayWorld } from '../game/world';
 import { bodyHit } from '../game/combat';
 import { CorpseView } from './corpses';
 import * as THREE from 'three';
-import { Character } from './models';
+import { Character,sharedModelResource } from './models';
 import {characterPart} from './character-assets';
-import { voxelStats,voxelGeometry } from './voxel';
+import { voxelStats,voxelGeometry,voxelMaterial } from './voxel';
 import { SurvivalView } from './survival-view';
 import { BALANCE } from '../game/config';
 import { createTown } from './town';
@@ -57,6 +58,7 @@ export class GameScene {
   readonly remoteView=new RemotePlayers(this.scene);remoteStates:RemotePlayerState[]=[];
   private expedition:ExpeditionView; town: Town; survivor = new Character(); walkers: Character[] = [];
   private city:CityView; private urban:UrbanView;
+  private layoutEpoch=worldLayoutEpoch();private layoutRoots=new Set<THREE.Object3D>();
   private sun = new THREE.DirectionalLight(0xffdeb0, 3.1);
   private ambient = new THREE.HemisphereLight(0xc5ddd3, 0x626e59, 2.3);
   private focus = new THREE.Vector3(1, 0, 7);
@@ -82,8 +84,11 @@ export class GameScene {
     this.sun.shadow.bias = VISUAL.shadow.bias; this.sun.shadow.normalBias = VISUAL.shadow.normalBias;
     this.torch.shadow.mapSize.set(512,512);this.torch.shadow.bias=-.00015;this.torch.shadow.normalBias=.02;this.torch.shadow.camera.near=.15;this.torch.shadow.camera.far=25;
     this.scene.add(this.sun, this.sun.target, this.ambient, this.flashLight,this.torch,this.torch.target);
-    this.town = createTown(this.scene);this.expedition=new ExpeditionView(this.scene); this.corpses=new CorpseView(this.scene); this.survival = new SurvivalView(this.scene); this.scene.add(this.survivor.root);
-    this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);this.craftingView=new CraftingView(this.scene);this.constructionView=new ConstructionView(this.scene);
+    let existingRoots=new Set(this.scene.children);
+    this.town = createTown(this.scene);this.expedition=new ExpeditionView(this.scene);this.survival = new SurvivalView(this.scene);this.rememberLayoutRoots(existingRoots);
+    this.corpses=new CorpseView(this.scene);this.scene.add(this.survivor.root);
+    existingRoots=new Set(this.scene.children);this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);this.rememberLayoutRoots(existingRoots);
+    this.craftingView=new CraftingView(this.scene);this.constructionView=new ConstructionView(this.scene);
     for (let i = 0; i < BALANCE.walker.capacity; i++) { const c = new Character(true, i); c.root.visible = false; this.walkers.push(c); this.scene.add(c.root); }
     this.ring = new THREE.Mesh(new THREE.RingGeometry(.69, .74, 40), new THREE.MeshBasicMaterial({ color: 0xe8d7a5, transparent: true, opacity: .65, depthWrite: false }));
     this.ring.rotation.x = -Math.PI / 2; this.scene.add(this.ring);
@@ -111,7 +116,7 @@ export class GameScene {
     for (let i = 0; i < this.dustArray.length; i += 3) { this.dustArray[i] = Math.random() * 80 - 40; this.dustArray[i + 1] = .5 + Math.random() * 8; this.dustArray[i + 2] = Math.random() * 80 - 40; }
     const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(this.dustArray, 3));
     this.dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0xe5d6ae, size: .05, transparent: true, opacity: .4, depthWrite: false })); this.scene.add(this.dust);
-    this.atmosphere=new CinematicSky(this.scene);this.dressing=new EnvironmentalDressing(this.scene);this.impactDecals=new ImpactDecals(this.scene);
+    this.atmosphere=new CinematicSky(this.scene);existingRoots=new Set(this.scene.children);this.dressing=new EnvironmentalDressing(this.scene);this.rememberLayoutRoots(existingRoots);this.impactDecals=new ImpactDecals(this.scene);
     // The world is rendered for both colour and AO. Transform it once after all
     // presentation updates; both passes must consume that same frame snapshot.
     this.scene.matrixWorldAutoUpdate=false;
@@ -119,9 +124,27 @@ export class GameScene {
     this.renderer.info.autoReset=false;this.resize();
   }
   reset(): void {this.corpses.reset();this.impactDecals.reset();this.viewmodel.reset();this.casings.forEach(c=>{c.life=0;c.mesh.visible=false;}); this.particles.forEach(p => { p.life = 0; p.mesh.visible = false; }); this.tracers.forEach(t => { t.life = 0; t.mesh.visible = false; }); this.flashLight.intensity = 0;this.flashlightOn=false; }
+  private rememberLayoutRoots(before:Set<THREE.Object3D>):void {for(const root of this.scene.children)if(!before.has(root))this.layoutRoots.add(root);}
+  /** Only runs behind the existing load screen. Shared voxel assets and all actor/effect pools survive. */
+  private prepareWorldLayout():void {
+    if(this.layoutEpoch===worldLayoutEpoch())return;
+    this.expedition.detachDroppedWeapons();
+    const retired=[...this.layoutRoots];for(const root of retired)root.removeFromParent();
+    const retainedGeometry=new Set<THREE.BufferGeometry>(),retainedMaterial=new Set<THREE.Material>();
+    for(const scene of [this.scene,this.viewmodel.scene])scene.traverse(o=>{if(o instanceof THREE.Mesh||o instanceof THREE.Points){retainedGeometry.add(o.geometry);for(const material of Array.isArray(o.material)?o.material:[o.material])retainedMaterial.add(material);}});
+    const geometry=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>();
+    for(const root of retired)root.traverse(o=>{if(o instanceof THREE.Mesh||o instanceof THREE.Points){if(!o.geometry.userData.asset&&!retainedGeometry.has(o.geometry)&&!sharedModelResource(o.geometry))geometry.add(o.geometry);for(const material of Array.isArray(o.material)?o.material:[o.material])if(!retainedMaterial.has(material)&&material!==voxelMaterial&&!sharedModelResource(material)&&!sharedSurfaceMaterial(material))materials.add(material);}});
+    for(const g of geometry)g.dispose();for(const m of materials){const map=(m as THREE.MeshStandardMaterial).map;if(map&&!m.userData.surfaceKind)map.dispose();m.dispose();}
+    this.layoutRoots.clear();const before=new Set(this.scene.children);
+    this.town=createTown(this.scene);this.expedition=new ExpeditionView(this.scene);this.survival=new SurvivalView(this.scene);
+    this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);this.dressing=new EnvironmentalDressing(this.scene);this.rememberLayoutRoots(before);
+    this.lightPoints=[{x:-5.4,z:6},{x:9.6,z:8},{x:-15.9,z:-12},...REGIONS.slice(2).map(r=>({x:r.x-8.8,z:r.z}))].map((p,index)=>({...p,index,distance:0}));
+    this.layoutEpoch=worldLayoutEpoch();this.renderer.renderLists.dispose();this.renderer.shadowMap.needsUpdate=true;
+  }
   /** Prepare the actual HDR pipeline and FPS rig before the first playable frame.
    * Rendering the menu alone never visits the gun or all materials seen at spawn. */
   async prepare(sim:Simulation,progress:(message:string,value:number)=>void=()=>{}):Promise<void> {
+    this.prepareWorldLayout();
     const composer=this.post.composer,target=this.renderer.getRenderTarget(),toScreen=composer.renderToScreen;
     const yaw=this.look?.yaw,pitch=this.look?.pitch,flashlight=this.flashlightOn,interior=this.interior;
     composer.renderToScreen=false;

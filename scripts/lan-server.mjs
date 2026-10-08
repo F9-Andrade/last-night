@@ -37,14 +37,14 @@ export function createLanServer({root=resolve('dist'),port=8787,host='0.0.0.0'}=
    if(m.type==='name'){c.name=sanitizeName(m.name);c.ready=false;if(c.room)members(c.room);return;}
    if(m.type==='create'||m.type==='join'){
     if(c.room)return;if(!validName(c.name)){error(c,'Use um nome de 2 a 20 caracteres.');return;}
-    let r;if(m.type==='create'){if(rooms.size>=64){error(c,'Servidor LAN cheio.');return;}let code;do{code='L'+randomBytes(4).toString('hex').slice(0,5).toUpperCase();}while(rooms.has(code));r={code,seed:randomBytes(4).readUInt32LE(),members:[],phase:'lobby',token:''};rooms.set(code,r);}else r=rooms.get(String(m.code).toUpperCase());
+    let r;if(m.type==='create'){if(rooms.size>=64){error(c,'Servidor LAN cheio.');return;}let code;do{code='L'+randomBytes(4).toString('hex').slice(0,5).toUpperCase();}while(rooms.has(code));r={code,layoutVersion:m.layoutVersion===0?0:1,seed:Number.isInteger(m.seed)&&m.seed>=0&&m.seed<=4294967295?m.seed:randomBytes(4).readUInt32LE(),...(typeof m.worldId==='string'&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(m.worldId)?{worldId:m.worldId}:{}),members:[],phase:'lobby',token:''};rooms.set(code,r);}else r=rooms.get(String(m.code).toUpperCase());
     if(!r){error(c,'Sala LAN não encontrada. Confira o código e o endereço.');return;}if(r.phase!=='lobby'||r.members.length>=4){error(c,'Sala cheia ou partida já iniciada.');return;}c.room=r;c.ready=false;r.members.push(c);members(r);return;
    }
    const r=c.room;if(!r)return;
    if(m.type==='ready'&&r.phase==='lobby'){if(c!==r.members[0])c.ready=!c.ready;members(r);return;}
-   if(m.type==='start'&&c===r.members[0]&&r.phase==='lobby'&&r.members.every(v=>v===c||v.ready)){r.phase='loading';r.token=randomUUID();members(r);for(const v of r.members)send(v,{type:'start',data:{seed:r.seed,actors:r.members.map(p=>p.actor),token:r.token}});return;}
+   if(m.type==='start'&&c===r.members[0]&&r.phase==='lobby'&&r.members.every(v=>v===c||v.ready)){r.phase='loading';r.token=randomUUID();members(r);for(const v of r.members)send(v,{type:'start',data:{layoutVersion:r.layoutVersion,seed:r.seed,actors:r.members.map(p=>p.actor),token:r.token,...(r.worldId?{worldId:r.worldId}:{})}});return;}
    if(m.type==='loaded'&&r.phase==='loading'&&m.token===r.token){c.loaded=m.token;playing(r);return;}
-   if(m.type==='event'&&r.phase!=='lobby'&&Number.isInteger(m.code)&&[1,10,11,12,13,14,15,16].includes(m.code)){
+   if(m.type==='event'&&r.phase!=='lobby'&&Number.isInteger(m.code)&&[1,10,11,12,13,14,15,16,17].includes(m.code)){
     if(m.target!==undefined&&(!Number.isInteger(m.target)||!r.members.some(v=>v.actor===m.target)))return;
     for(const v of r.members)if(v!==c&&(m.target===undefined||v.actor===m.target))send(v,{type:'event',code:m.code,data:m.data,actor:c.actor});
    }

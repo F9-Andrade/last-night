@@ -16,8 +16,21 @@ import {entityId} from './entities.ts';
 import type {StartData,RemotePlayerState} from './protocol.ts';
 import {EnemyInterpolation,EnemyClock} from './enemy-interpolation.ts';
 import {SnapshotBudget} from './rate-limit.ts';
+import {applyPlayerRecord} from '../services/save-codec.ts';
+import type {PlayerRecord} from './coop-world.ts';
 type RequestDetails=ActionRequest extends infer T?T extends ActionRequest?Omit<T,'seq'|'pose'>:never:never;
 export class CoopSession {
+ cloudReady=true;private cloudActors?:Set<number>;
+ /** Persistent rooms admit accounts before creating their authoritative actors. */
+ gateAccounts(){this.cloudReady=false;this.cloudActors=new Set(this.network.isHost?[this.network.localActor]:[]);this.owner?.setMembers([...this.cloudActors]);}
+ restoreAccount(actor:number,record:PlayerRecord){
+  if(!this.owner)return false;
+  this.cloudActors?.add(actor);this.owner.setMembers(this.cloudActors?[...this.cloudActors]:this.network.players.map(p=>p.actorNumber));
+  const a=this.owner.actors.get(actor);if(!a)return false;
+  applyPlayerRecord(a.sim,record);a.life=record.life;a.bleed=record.bleed;a.lastSeq=0;a.shotSeq=0;a.lastFire=-100;a.reviveProgress=0;a.reviveTarget=0;
+  this.owner.refreshRegistry();this.published=undefined;this.publish();this.dirty=true;return true;
+ }
+ acceptAccount(){const p=this.localRecord;if(p){Object.assign(this.local.player,p.player,{moving:false,running:false});this.local.perks=new Set(p.perks);}this.cloudReady=true;}
  owner?:CoopWorld;checkpoint?:WorldCheckpoint;effects:SessionEffect[]=[];error='';lastSnapshotAt=0;
  private corpseAges=new Map<number,number>();private acidAges=new Map<number,number>();
  private published?:WorldCheckpoint;private lastRecovery=-10000;
@@ -33,7 +46,7 @@ export class CoopSession {
  }
  get localRecord(){return this.checkpoint?.players.find(p=>p.actor===this.network.localActor);}
  get incapacitated(){return !!this.localRecord&&this.localRecord.life!=='alive';}
- get ready(){return !!this.checkpoint&&!this.error;}
+ get ready(){return this.cloudReady&&!!this.checkpoint&&!this.error;}
  private enqueue(details:RequestDetails){const pose=poseOf(this.local.player,this.local.groundY,performance.now());const request={...details,seq:++this.sequence,pose} as ActionRequest;if(details.kind!=='hold')this.reconciliationSeq=request.seq;this.pending.push(request);}
  action(details:RequestDetails){if(!this.incapacitated&&this.ready)this.enqueue(details);}
  inventory(operation:'deposit'|'withdraw'|'discard',item:Item){this.action({kind:'inventory',operation,item});}
@@ -54,25 +67,26 @@ export class CoopSession {
   if(this.network.state!=='playing')return;
   if(this.master!==this.network.masterActor){this.master=this.network.masterActor;this.owner=undefined;this.published=undefined;this.motionFrames.clear();this.motionClockSync.clear();this.lastMotionSent.clear();this.budgets.clear();this.metrics.migrations++;
    if(!this.checkpoint){this.error='A sessão não possui um estado recuperável. Volte ao menu e crie outra sala.';return;}
-   if(this.network.isHost){this.owner=CoopWorld.restore(this.start.seed,this.checkpoint,this.network.players.map(p=>p.actorNumber));this.dirty=true;this.stateClock=COOP.checkpointInterval;}
+   if(this.network.isHost){if(this.cloudActors)this.cloudActors=new Set(this.checkpoint.players.map(p=>p.actor));this.owner=CoopWorld.restore(this.start.seed,this.checkpoint,this.cloudActors?[...this.cloudActors]:this.network.players.map(p=>p.actorNumber));this.dirty=true;this.stateClock=COOP.checkpointInterval;}
   }
   if(!this.owner)return;
-  if(this.owner.setMembers(this.network.players.map(p=>p.actorNumber))){this.published=undefined;this.dirty=true;}
+  if(this.owner.setMembers(this.network.players.filter(p=>!this.cloudActors||this.cloudActors.has(p.actorNumber)).map(p=>p.actorNumber))){this.published=undefined;this.dirty=true;}
   for(const [actor,pose] of this.network.poses)this.owner.setPose(actor,pose);
   this.clock+=dt;let steps=0;while(this.clock>=1/60&&steps++<15){this.owner.step(1/60);this.clock-=1/60;}
   this.stateClock+=dt;this.motionClock+=dt;
   const effects=this.owner.effects.splice(0);
   if(effects.some(e=>['death','hurt','pickup','healed','door','glass','switch','consume-start','consume-done','consume-cancel'].includes(e.event.type)))this.dirty=true;
   if(this.dirty||this.stateClock>=COOP.checkpointInterval){this.publish();this.dirty=false;this.stateClock=0;}
-  if(effects.length){for(let i=0;i<effects.length;i+=80){const batch=effects.slice(i,i+80);this.acceptEffects(batch);this.network.sendGameplay(GameplayEvent.Effects,batch);}}
+  if(effects.length){for(let i=0;i<effects.length;i+=80){const batch=effects.slice(i,i+80);this.acceptEffects(batch);this.broadcast(GameplayEvent.Effects,batch);}}
   if(this.motionClock>=.1){this.motionClock=0;const rows:number[][]=[];for(const z of this.owner.sim.zombies){if(!z.active)continue;let near=Infinity;for(const actor of this.owner.actors.values())near=Math.min(near,distance(z,actor.sim.player));const rate=near<COOP.nearDistance?COOP.nearRate:near<COOP.midDistance?COOP.midRate:COOP.farRate;
     if(this.owner.time-(this.lastMotionSent.get(z.id)??-10)<1/rate-.01)continue;this.lastMotionSent.set(z.id,this.owner.time);rows.push([z.id,z.x,z.z,z.angle,z.gait,z.attack,z.flash,z.reaction,z.windup,z.winding?1:0,z.screamTimer??0]);}
-   const data={time:this.owner.time,rows};this.motion(data);this.network.sendGameplay(GameplayEvent.InfectedMotion,data);
+   const data={time:this.owner.time,rows};this.motion(data);this.broadcast(GameplayEvent.InfectedMotion,data);
   }
  }
- private publish(){if(!this.owner)return;const c=this.owner.checkpoint();this.metrics.snapshotBytes=JSON.stringify(c).length;const previous=this.published;this.apply(c);this.network.sendGameplay(previous?GameplayEvent.WorldPatch:GameplayEvent.WorldCheckpoint,previous?createPatch(previous,c):c);this.published=c;}
+ private broadcast(code:number,data:unknown){if(!this.cloudActors){this.network.sendGameplay(code,data);return;}for(const actor of this.cloudActors)if(actor!==this.network.localActor)this.network.sendGameplay(code,data,actor);}
+ private publish(){if(!this.owner)return;const c=this.owner.checkpoint();this.metrics.snapshotBytes=JSON.stringify(c).length;const previous=this.published;this.apply(c);this.broadcast(previous?GameplayEvent.WorldPatch:GameplayEvent.WorldCheckpoint,previous?createPatch(previous,c):c);this.published=c;}
  private receive(code:number,data:unknown,actor:number){
-  if(code===GameplayEvent.RecoveryRequest){if(this.owner&&performance.now()-this.lastRecovery>1000){this.lastRecovery=performance.now();this.network.sendGameplay(GameplayEvent.WorldCheckpoint,this.checkpoint,actor);}return;}
+  if(code===GameplayEvent.RecoveryRequest){if(this.owner&&(!this.cloudActors||this.cloudActors.has(actor))&&performance.now()-this.lastRecovery>1000){this.lastRecovery=performance.now();this.network.sendGameplay(GameplayEvent.WorldCheckpoint,this.checkpoint,actor);}return;}
   if(code===GameplayEvent.ActionRequest){if(!this.owner||!this.network.isHost)return;let b=this.budgets.get(actor);if(!b){b=new SnapshotBudget();this.budgets.set(actor,b);}const r=b.take(performance.now())?parseAction(data):null;if(!r){this.metrics.dropped++;return;}this.owner.request(actor,r);if(r.kind!=='hold')this.dirty=true;return;}
   if(actor!==this.network.masterActor){this.metrics.dropped++;return;}
   if(code===GameplayEvent.WorldPatch){const c=this.checkpoint?applyPatch(this.checkpoint,data):null;if(c)this.apply(c);else {this.metrics.dropped++;if(performance.now()-this.lastRecovery>1000){this.lastRecovery=performance.now();this.network.sendGameplay(GameplayEvent.RecoveryRequest,{},this.network.masterActor);}}}
@@ -98,7 +112,7 @@ export class CoopSession {
   // Checkpoints also establish poses for newly spawned entities and recovery.
   for(const z of c.infected)this.pushFrame(z.id,c.time,z.x,z.z,z.angle,z.gait);
   const local=this.localRecord;if(local){if(this.metrics.checkpoints===1)sim.perks=new Set(local.perks);if(this.metrics.checkpoints===1||wasIncapacitated&&local.life==='alive')Object.assign(sim.player,{x:local.player.x,z:local.player.z,eyeY:local.player.eyeY,crouched:local.player.crouched});sim.builderUsed=local.builderUsed;sim.openingReady=local.openingReady;sim.player.hp=local.player.hp;sim.player.invulnerable=local.player.invulnerable;sim.action=structuredClone(local.action);sim.nutrition=structuredClone(local.nutrition);
-   if(local.lastSeq>=this.reconciliationSeq){const consumption=structuredClone(local.consumption);if(consumption&&sim.consumption?.item===consumption.item)consumption.elapsed=Math.min(consumption.duration,Math.max(consumption.elapsed,Math.min(consumption.elapsed+.35,sim.consumption.elapsed)));sim.consumption=consumption;sim.inventory.items={...local.inventory};sim.storage.items={...local.storage};sim.loadout=structuredClone(local.loadout);sim.activeSlot=local.activeSlot;sim.gear=structuredClone(local.gear);sim.packCrafted=local.packCrafted;sim.inventory.capacity=local.capacity;sim.reloadTimer=local.reloadTimer;sim.reloadDuration=local.reloadDuration;sim.switchTimer=local.switchTimer;sim.weaponStorage=structuredClone(local.weaponStorage);}
+   if(local.lastSeq>=this.reconciliationSeq){const consumption=structuredClone(local.consumption);if(consumption&&sim.consumption?.item===consumption.item)consumption.elapsed=Math.min(consumption.duration,Math.max(consumption.elapsed,Math.min(consumption.elapsed+.35,sim.consumption.elapsed)));sim.consumption=consumption;sim.coins=local.coins??0;sim.inventory.items={...local.inventory};sim.storage.items={...local.storage};sim.loadout=structuredClone(local.loadout);sim.activeSlot=local.activeSlot;sim.gear=structuredClone(local.gear);sim.packCrafted=local.packCrafted;sim.inventory.capacity=local.capacity;sim.reloadTimer=local.reloadTimer;sim.reloadDuration=local.reloadDuration;sim.switchTimer=local.switchTimer;sim.weaponStorage=structuredClone(local.weaponStorage);}
    if(local.life!=='alive'){sim.player.eyeY=local.player.eyeY;sim.player.moving=false;sim.player.running=false;sim.action=null;sim.consumption=null;sim.cancelReload();}
   }sim.gameOver=c.wipe;
  }
