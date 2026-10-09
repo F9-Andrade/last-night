@@ -110,3 +110,7 @@ Propriedades opcionais `undefined` de eventos/infectados são normalizadas antes
 ## 29. Banco / migrations
 
 A única migration proposta foi `001-accept-world-invite.proposed.sql`, aprovada e aplicada manualmente pelo proprietário. Nenhuma migration adicional foi executada ou é necessária para usar esta integração. Uma delegação segura de saves a outro host, ou uma operação atômica player+world, exigiria propostas futuras separadas e aprovação explícita; não foi criada policy ampla nem SQL implícito para isso.
+
+## Atualização: fechamento da sala e permissão de hospedagem
+
+As limitações de migração automática descritas acima foram revisadas no cliente: sem autorização, convidados saem quando o anfitrião sair. Continuar **e salvar** exige permissão explícita do dono e a migration aditiva `002-world-host-permissions.proposed.sql`, ainda **não aplicada** pelo agente. Contrato, riscos, testes e instruções estão em [hosting-permissions.md](hosting-permissions.md). A gravação delegada de estado/resumo é atômica nessa nova RPC; o save individual permanece separado.

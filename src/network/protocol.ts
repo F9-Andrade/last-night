@@ -3,7 +3,7 @@ import type {WeaponId} from '../game/weapons';
 import type {LifeState} from './gameplay-protocol';
 /** Shared version/build boundary. Gameplay messages live in gameplay-protocol.ts. */
 export const NETWORK_PROTOCOL_VERSION=2;
-export const NETWORK_BUILD='santa-luz-economy-1';
+export const NETWORK_BUILD='santa-luz-host-permissions-1';
 export const NETWORK_SEND_RATE=20;
 export const INTERPOLATION_DELAY=120;
 export const MAX_PLAYERS=4;
@@ -12,7 +12,7 @@ export const NetworkEventCode={PlayerSnapshot:1,GameStart:2} as const;
 export type ConnectionState='disconnected'|'connecting'|'connected'|'joining'|'lobby'|'loading'|'playing'|'error';
 export type RoomState='lobby'|'loading'|'playing';
 export interface NetworkPlayerIdentity {actorNumber:number;playerId:string;displayName:string;isLocal:boolean;isHost:boolean;ready:boolean}
-export interface StartData {seed:number;actors:number[];token:string;worldId?:string;layoutVersion?:0|1}
+export interface StartData {seed:number;actors:number[];token:string;worldId?:string;layoutVersion?:0|1;ownerActor?:number}
 export interface PlayerSnapshot {sequence:number;time:number;x:number;y:number;z:number;yaw:number;pitch:number;vx:number;vz:number;locomotion:0|1|2|3}
 export interface RemotePlayerState {identity:NetworkPlayerIdentity;snapshot:PlayerSnapshot|null;gameplay?:{life:LifeState;hp:number;consumption?:import('../game/simulation').Simulation['consumption'];weapon:WeaponId;melee?:import('../game/crafting').MeleeId;reload:number;reloadDuration:number}}
 // Region prefix makes a shared code route to the creator's region, even across continents.
@@ -42,6 +42,7 @@ export function parseStart(data:unknown,members:number[]):StartData|null{
  if(!data||typeof data!=='object')return null;const d=data as Partial<StartData>;
  if(!Number.isInteger(d.seed)||d.seed!<0||d.seed!>4294967295||typeof d.token!=='string'||!/^[a-zA-Z0-9-]{8,40}$/.test(d.token)||!Array.isArray(d.actors)||d.actors.length<1||d.actors.length>4||d.actors.some(n=>!Number.isInteger(n)||n<1)||new Set(d.actors).size!==d.actors.length)return null;
  if(d.layoutVersion!==undefined&&d.layoutVersion!==0&&d.layoutVersion!==1)return null;
+ if(d.ownerActor!==undefined&&(!Number.isSafeInteger(d.ownerActor)||d.ownerActor<1))return null;
  if(d.worldId!==undefined&&(typeof d.worldId!=='string'||! /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(d.worldId)))return null;
  if([...d.actors].sort((a,b)=>a-b).join()!==[...members].sort((a,b)=>a-b).join())return null;
  return d as StartData;

@@ -2,6 +2,7 @@ import {configureWorld} from '../game/world-layout';
 import {getSupabaseClient} from './supabase-client';
 import {AuthService} from './auth-service';
 import {WorldService} from './world-service';
+import {HostingService} from './hosting-service';
 import {SaveService} from './save-service';
 import {Autosave} from './autosave';
 import {deserializePlayer,deserializeWorld,serializePlayer,serializeWorld,savedLayoutVersion} from './save-codec';
@@ -16,7 +17,7 @@ import type {CoopSession} from '../network/coop-session';
 import type {StartData} from '../network/protocol';
 import type {SaveSource} from './autosave';
 
-export interface CloudRun {sim:Simulation;service:SaveService;world:WorldRow;userId:string;record?:PlayerRecord}
+export interface CloudRun {sim:Simulation;service:SaveService;world:WorldRow;userId:string;record?:PlayerRecord;mayHost?:boolean}
 interface Hooks {
  launch:(run:CloudRun)=>Promise<void>;lobby:()=>void;exit:()=>void;
  source:()=>Omit<SaveSource,'canSaveWorld'>;running:()=>boolean;pause:()=>void;
@@ -26,9 +27,10 @@ export class CloudController {
  readonly ui:AccountUI;private auth?:AuthService;private worlds?:WorldService;private profile?:ProfileRow;
  private active?:CloudRun;private autosave?:Autosave;private bridge?:CoopAccountBridge;private pending?:WorldRow;
  private accountId?:string;private entering=false;private lastDirty=0;private exiting?:Promise<boolean>;private configError='';
+ private permissionTimer?:ReturnType<typeof setInterval>;private permissionRefresh?:()=>Promise<void>;
  private authWork=Promise.resolve();private acceptingInvite=false;
  constructor(root:HTMLElement,private network:NetworkManager,private hooks:Hooks){
-  this.ui=new AccountUI(root);this.ui.onClose=()=>this.ui.close();this.ui.onAccount=()=>{hooks.pause();this.account();};this.ui.onWorlds=()=>{hooks.pause();void this.ui.busy(()=>this.list());};this.ui.onSave=()=>void this.save();
+  this.ui=new AccountUI(root);this.ui.onClose=()=>this.ui.close();this.ui.onAccount=()=>{hooks.pause();this.account();};this.ui.onWorlds=()=>{hooks.pause();void this.ui.busy(()=>this.list());};this.ui.onSave=()=>void this.save();this.ui.onPermissions=()=>{hooks.pause();if(this.active)void this.ui.busy(()=>this.details(this.active!.world));};
   try{const client=getSupabaseClient();if(client){const url=new URL(location.href);url.search='';url.hash='';this.auth=new AuthService(client,url.href);this.worlds=new WorldService(client);}}
   catch(error){this.configError=error instanceof Error?error.message:'Configuração de nuvem inválida.';}
   this.auth?.subscribe(state=>{
@@ -66,7 +68,7 @@ export class CloudController {
  private password(){this.ui.show('Nova senha');this.ui.form([{key:'password',label:'Nova senha',type:'password',autocomplete:'new-password'},{key:'confirmation',label:'Confirmar senha',type:'password',autocomplete:'new-password'}],'Salvar nova senha',async v=>{await this.auth!.updatePassword(v.password,v.confirmation);this.account();this.ui.feedback('Senha atualizada.');});}
  async list(){
   if(!this.requireAccount())return;const worlds=await this.worlds!.list();this.ui.show('Meus mundos');
-  if(this.active){this.ui.note(`Expedição em andamento: ${this.active.world.name}. Salve e volte ao menu antes de abrir outro mundo.`);this.ui.button('Salvar e voltar ao menu',()=>void this.ui.busy(async()=>{if(await this.end())await this.list();}),true);this.ui.button('Exportar cópia de segurança',()=>this.export());return;}
+  if(this.active){this.ui.note(`Expedição em andamento: ${this.active.world.name}. Salve e volte ao menu antes de abrir outro mundo.`);this.ui.button('Salvar e voltar ao menu',()=>void this.ui.busy(async()=>{if(await this.end())await this.list();}),true);this.ui.button('Exportar cópia de segurança',()=>this.export());if(this.active.world.owner_id===this.active.userId)this.ui.button('Permissões dos amigos',()=>void this.ui.busy(()=>this.details(this.active!.world)));return;}
   this.ui.worldList(worlds,this.auth!.current.user!.id,(w,coop)=>void this.ui.busy(()=>this.open(w,coop)),w=>void this.ui.busy(()=>this.details(w)));
   this.ui.note('Para começar outra história, use Jogar solo ou Criar sala no coop. Ao sair da partida, seu progresso é salvo aqui automaticamente.');this.ui.button('Resgatar convite',()=>this.inviteForm());
  }
@@ -88,9 +90,15 @@ export class CloudController {
  private async details(world:WorldRow){
   const members=await this.worlds!.members(world.id);this.ui.show(world.name);this.ui.note(members.map(m=>`${m.username}${m.role==='owner'?' · proprietário':''}`).join(' / '));
   if(world.owner_id===this.auth!.current.user!.id){
+   const hosting=new HostingService(getSupabaseClient()!),allowed=await hosting.permissions(world.id);
+   this.ui.note('Sem permissão, o amigo sai da partida quando o anfitrião sair. Autorizar permite continuar e salvar as alterações deste mundo.');
+   if(allowed===null)this.ui.note('A autorização para continuar e salvar aguarda a migration do banco. Por enquanto, a partida fecha quando o anfitrião sai.');
+   else for(const member of members.filter(m=>m.user_id!==world.owner_id)){
+    const granted=allowed.includes(member.user_id);this.ui.button(`${granted?'Revogar':'Permitir'} continuar e salvar · ${member.username}`,()=>void this.ui.busy(async()=>{await hosting.set(world.id,member.user_id,!granted);await this.permissionRefresh?.();await this.details(world);this.ui.feedback(granted?'Permissão revogada.':'O amigo pode continuar e salvar sem você.');}));
+   }
    this.ui.button('Gerar convite · 24 horas / 3 usos',()=>void this.ui.busy(async()=>{const code=await this.worlds!.invite(world),url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('worldInvite',code);const p=this.ui.note(url.href);p.style.overflowWrap='anywhere';this.ui.button('Copiar convite',()=>void this.ui.busy(async()=>{await navigator.clipboard.writeText(url.href);this.ui.feedback('Convite copiado.');}));}));
    this.ui.form([{key:'username',label:'Conceder acesso por username',max:24}],'Adicionar membro',async v=>{await this.worlds!.addMember(world,v.username);await this.details(world);this.ui.feedback('Membro adicionado.');});
-   this.ui.button('Excluir mundo…',()=>{this.ui.show('Excluir este mundo?');this.ui.note(`Esta ação apaga o mundo ${world.name} e seus saves. Digite o nome exato para confirmar.`);this.ui.form([{key:'name',label:'Nome do mundo',max:40}],'Excluir permanentemente',async v=>{if(v.name!==world.name)throw new Error('O nome não corresponde.');await this.worlds!.remove(world);await this.list();});this.ui.button('Cancelar',()=>void this.ui.busy(()=>this.list()));});
+   if(!this.active)this.ui.button('Excluir mundo…',()=>{this.ui.show('Excluir este mundo?');this.ui.note(`Esta ação apaga o mundo ${world.name} e seus saves. Digite o nome exato para confirmar.`);this.ui.form([{key:'name',label:'Nome do mundo',max:40}],'Excluir permanentemente',async v=>{if(v.name!==world.name)throw new Error('O nome não corresponde.');await this.worlds!.remove(world);await this.list();});this.ui.button('Cancelar',()=>void this.ui.busy(()=>this.list()));});
   }
   this.ui.button('Voltar aos mundos',()=>void this.ui.busy(()=>this.list()));
  }
@@ -98,7 +106,8 @@ export class CloudController {
   if(!this.auth?.current.user)throw new Error('Entre na sua conta e aceite o convite do mundo antes de entrar nesta sala.');
   const loaded=await this.worlds!.load(id);configureWorld(loaded.world.seed,savedLayoutVersion(loaded.state.state));const sim=new Simulation(undefined,loaded.world.seed);deserializeWorld(loaded.state.state,sim);const record=loaded.player?deserializePlayer(loaded.player,sim):undefined;
   const service=new SaveService(getSupabaseClient()!,loaded.world,loaded.userId,loaded.state.revision,loaded.player?.updated_at??null);
-  return {sim,record,service,world:loaded.world,userId:loaded.userId};
+  const allowed=await new HostingService(getSupabaseClient()!).permissions(id);service.hostingEnabled=allowed!==null;
+  return {sim,record,service,world:loaded.world,userId:loaded.userId,mayHost:loaded.userId===loaded.world.owner_id||!!allowed?.includes(loaded.userId)};
  }
  private async open(world:WorldRow,coop:boolean){
   if(this.entering||this.active)return;this.entering=true;
@@ -111,31 +120,42 @@ export class CloudController {
  }
  private async launch(run:CloudRun,coop:boolean){
   if(coop){if(run.world.owner_id!==run.userId)throw new Error('O proprietário deve hospedar este mundo.');this.pending=run.world;this.network.persistentWorld={id:run.world.id,seed:run.world.seed,layoutVersion:run.sim.layoutVersion};this.ui.close();this.hooks.lobby();}
-  else {this.pending=undefined;this.network.persistentWorld=undefined;this.ui.close();try{await this.hooks.launch(run);}catch(error){this.ui.show('Carregamento interrompido');this.ui.feedback('Não foi possível preparar a partida. O save da nuvem foi preservado.',true);this.ui.button('Voltar ao menu',()=>{this.detach();this.hooks.exit();this.ui.close();});throw error;}}
+  else {if(!run.mayHost)throw new Error('O dono precisa permitir que você continue e salve este mundo sem ele. Entre pelo coop enquanto ele estiver jogando.');this.pending=undefined;this.network.persistentWorld=undefined;this.ui.close();try{await this.hooks.launch(run);}catch(error){this.ui.show('Carregamento interrompido');this.ui.feedback('Não foi possível preparar a partida. O save da nuvem foi preservado.',true);this.ui.button('Voltar ao menu',()=>{this.detach();this.hooks.exit();this.ui.close();});throw error;}}
  }
  async networkRun(data:StartData):Promise<CloudRun|undefined>{
   if(!data.worldId)return undefined;
   let run:CloudRun;try{run=await this.prepare(data.worldId);}catch(error){this.ui.show('Acesso ao mundo');this.ui.feedback(error instanceof Error?error.message:'Não foi possível carregar o mundo.',true);this.ui.button('Conta e convites',()=>this.account());throw error;}if(run.world.seed!==data.seed)throw new Error('A seed da sala não corresponde ao mundo salvo.');if(this.network.isHost&&run.world.owner_id!==run.userId)throw new Error('Somente o proprietário pode iniciar este mundo salvo.');return run;
  }
  async attach(run:CloudRun,session?:CoopSession,data?:StartData){
-  this.detach();this.active=run;this.pending=undefined;
+  this.detach();this.active=run;this.pending=undefined;this.ui.permissionsVisible(run.userId===run.world.owner_id);
   if(session&&data){
    const peer=this.network.players.find(p=>p.isLocal);if(!peer)throw new Error('Identidade de sessão ausente.');
    const binding={userId:run.userId,playerId:peer.playerId,actor:peer.actorNumber,token:data.token,nonce:Array.from(crypto.getRandomValues(new Uint8Array(24)),v=>v.toString(16).padStart(2,'0')).join('')};
    const payload=serializePlayer(run.sim,run.world.id,run.userId,run.record);(payload.extra_data as Record<string,unknown>).accountBinding=binding;await run.service.player(payload);
+   run.service.sessionToken=data.token;
+   const hosting=new HostingService(getSupabaseClient()!);let refreshing:Promise<void>|undefined;
+   const refresh=():Promise<void>=>{
+    if(refreshing)return refreshing;if(this.active!==run)return Promise.resolve();
+    refreshing=(async()=>{try{
+     const allowed=await hosting.permissions(run.world.id);
+     const actors=await hosting.actors(run.world.id,data.token,this.network.players,allowed??[]);
+     if(this.active!==run)return;run.mayHost=run.userId===run.world.owner_id||!!allowed?.includes(run.userId);run.service.hostingEnabled=allowed!==null;this.network.setCloudHosting(actors);
+    }catch(error){if(this.active===run){run.mayHost=run.userId===run.world.owner_id;this.network.setCloudHosting([]);this.ui.saveStatus('Não foi possível confirmar a permissão para continuar sem o dono.','error');}throw error;}})().finally(()=>{refreshing=undefined;});return refreshing;
+   };
+   this.permissionRefresh=refresh;this.network.onHostDeparture=async()=>{await refreshing?.catch(()=>{});await refresh();};await refresh();this.permissionTimer=setInterval(()=>void refresh().catch(()=>{}),3000);
    this.bridge=new CoopAccountBridge(this.network,session,run.service,data,binding,run.record);await this.bridge.connect();
    this.startAutosave(run);this.autosave!.binding=binding;
   }else this.startAutosave(run);
   this.network.persistentWorld={id:run.world.id,seed:run.world.seed,layoutVersion:run.sim.layoutVersion};
  }
- private startAutosave(run:CloudRun){this.autosave=new Autosave(run.service,()=>{const source=this.hooks.source();return {...source,canSaveWorld:run.userId===run.world.owner_id&&this.hooks.authority()};},status=>this.ui.saveStatus(status.message,status.kind));this.ui.saveStatus('Progresso em andamento','dirty');}
+ private startAutosave(run:CloudRun){this.autosave=new Autosave(run.service,()=>{const source=this.hooks.source();return {...source,canSaveWorld:!!run.mayHost&&this.hooks.authority()};},status=>this.ui.saveStatus(status.message,status.kind));this.ui.saveStatus('Progresso em andamento','dirty');}
  touch(important=false){if(!this.active)return;const now=performance.now();if(important||now-this.lastDirty>5000){this.lastDirty=now;this.autosave?.mark(important);}}
  async save(){if(!this.autosave)return true;this.autosave.mark(false);return this.autosave.flush();}
  async end():Promise<boolean>{
   if(this.exiting)return this.exiting;
   return this.exiting=(async()=>{if(!await this.save()){this.hooks.pause();this.ui.show('Progresso ainda não salvo');this.ui.note(this.autosave?.status.message??'A nuvem está indisponível.');this.ui.button('Tentar salvar novamente',()=>void this.ui.busy(async()=>{if(await this.end())this.ui.close();}),true);this.ui.button('Exportar cópia de segurança',()=>this.export());this.ui.button('Voltar à partida',()=>this.ui.close());this.ui.button('Conta',()=>this.account());this.ui.button('Encerrar sem enviar à nuvem…',()=>{this.ui.show('Encerrar com save pendente?');this.ui.note('O progresso não foi confirmado na nuvem. Exporte uma cópia antes de encerrar. A tentativa de save também mantém uma cópia local quando o navegador permite.');this.ui.button('Exportar cópia de segurança',()=>this.export());this.ui.button('Confirmar encerramento',()=>{this.detach();this.hooks.exit();this.ui.close();});this.ui.button('Cancelar',()=>this.ui.close());});return false;}this.detach();this.hooks.exit();return true;})().finally(()=>{this.exiting=undefined;});
  }
- detach(){this.autosave?.stop();this.autosave=undefined;this.bridge?.dispose();this.bridge=undefined;this.active=undefined;this.ui.saveStatus('','idle',false);}
+ detach(){this.network.onHostDeparture=async()=>{};clearInterval(this.permissionTimer);this.permissionTimer=undefined;this.permissionRefresh=undefined;this.ui.permissionsVisible(false);this.autosave?.stop();this.autosave=undefined;this.bridge?.dispose();this.bridge=undefined;this.active=undefined;this.ui.saveStatus('','idle',false);}
  ephemeral(){this.pending=undefined;this.network.persistentWorld=undefined;}
  get selected(){return this.pending;}
  get current(){return this.active;}

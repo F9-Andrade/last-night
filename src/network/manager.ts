@@ -9,8 +9,31 @@ import type {Client,Actor,Peer} from 'photon-realtime';
 import {sessionToken,canStart,generateCode,normalizeCode,validCode,roomRegion,sanitizeName,validName,parseSnapshot,parseStart,encodeSnapshot,REGIONS,MAX_PLAYERS,NETWORK_BUILD,NETWORK_PROTOCOL_VERSION,NETWORK_SEND_RATE,NetworkEventCode} from './protocol.ts';
 import type {ConnectionState,NetworkPlayerIdentity,StartData,PlayerSnapshot,RemotePlayerState} from './protocol.ts';
 import {InterpolationBuffer} from './interpolation.ts';
+import {HostingPolicy} from './hosting-policy.ts';
 const APP_VERSION=`${NETWORK_BUILD}-p${NETWORK_PROTOCOL_VERSION}`;
 export class NetworkManager {
+ onHostDeparture:()=>Promise<void>=async()=>{};private observedMaster=0;private checkingDeparture=false;
+ hosting?:HostingPolicy;private cloudHosting=false;private cloudHostingReady=true;
+ setCloudHosting(allowed:readonly number[]){if(!this.cloudHosting)return;this.hosting?.replaceVerified(allowed);this.cloudHostingReady=true;}
+ get hostingReady(){return !this.checkingDeparture&&this.cloudHostingReady&&(!this.hosting||this.hosting.decision(this.localActor,this.masterActor,this.players.map(p=>p.actorNumber))==='play');}
+ get ownsSession(){return this.inSession&&this.hosting?.owner===this.localActor;}
+ allowContinuation(actor:number,allowed:boolean){
+  if(this.cloudHosting||!this.ownsSession||!this.players.some(p=>p.actorNumber===actor))return false;
+  const packet=this.hosting!.change(this.localActor,actor,allowed);if(!packet)return false;
+  this.sendEvent(18,packet);this.emit();return true;
+ }
+ private checkHosting(){
+  if(!this.inSession||!this.hosting)return true;
+  if(this.cloudHosting&&this.observedMaster!==this.masterActor&&!this.checkingDeparture){
+   this.observedMaster=this.masterActor;this.checkingDeparture=true;const generation=this.generation;
+   void this.onHostDeparture().catch(()=>{if(generation===this.generation)this.setCloudHosting([]);}).finally(()=>{if(generation===this.generation)this.checkingDeparture=false;});return false;
+  }
+  if(this.checkingDeparture||!this.cloudHostingReady)return false;
+  if(this.ownsSession)for(const actor of this.hosting.snapshot().allowed)if(!this.players.some(p=>p.actorNumber===actor))this.hosting.change(this.localActor,actor,false);
+  const decision=this.hosting.decision(this.localActor,this.masterActor,this.players.map(p=>p.actorNumber));
+  if(decision==='close')this.fail('O anfitrião saiu. O dono não autorizou sua permanência; a sessão foi encerrada.');
+  return decision==='play';
+ }
  layoutVersion:0|1=1;
  persistentWorld?:{id:string;seed:number;layoutVersion?:0|1};
  onAccount:(data:unknown,actor:number)=>void=()=>{};
@@ -74,6 +97,7 @@ export class NetworkManager {
  private deadline(message:string,ms=25000){clearTimeout(this.timeout);this.timeout=setTimeout(()=>this.fail(message),ms);}
  private clearDeadline(){clearTimeout(this.timeout);this.timeout=undefined;}
  private clearTransport(){
+  this.hosting=undefined;this.onHostDeparture=async()=>{};this.checkingDeparture=false;this.observedMaster=0;this.cloudHosting=false;this.cloudHostingReady=true;
   this.lanPublishSeed=undefined;this.lanPublishLayout=undefined;this.accountBudget.clear();this.assembler.clear();this.messageId=0;this.generation++;this.locallyLoaded=false;this.clearDeadline();clearInterval(this.ticker);this.ticker=undefined;for(const cancel of [...this.probes])cancel();this.probes.clear();
   this.lan?.close();this.lan=undefined;const c=this.client;this.client=undefined;c?.disconnect();this.players=[];this.remotes.clear();this.poses.clear();this.receiveBudgets.clear();this.lastSample=undefined;this.startedToken='';this.sequence=0;this.intent=undefined;this.code='';this.regionRequest=false;this.sendTime=0;
  }
@@ -152,11 +176,12 @@ export class NetworkManager {
   this.emit();
  }
  ready(){if(this.state!=='lobby'||this.isHost)return;if(this.lan){this.lan.send({type:'ready'});return;}const a=this.client!.myActor();a.setCustomProperty('ready',a.getCustomProperty('ready')!==true);this.refreshPlayers();}
- start(){if(!this.canStart)return;if(this.lan){this.lan.send({type:'start'});return;}const c=this.client!,data:StartData={layoutVersion:c.myRoom().getCustomProperty('layoutVersion')===1?1:0,seed:c.myRoom().getCustomProperty('seed') as number,actors:this.players.map(p=>p.actorNumber),token:sessionToken(),...(c.myRoom().getCustomProperty('worldId')?{worldId:c.myRoom().getCustomProperty('worldId') as string}:{})};
+ start(){if(!this.canStart)return;if(this.lan){this.lan.send({type:'start'});return;}const c=this.client!,data:StartData={ownerActor:this.localActor,layoutVersion:c.myRoom().getCustomProperty('layoutVersion')===1?1:0,seed:c.myRoom().getCustomProperty('seed') as number,actors:this.players.map(p=>p.actorNumber),token:sessionToken(),...(c.myRoom().getCustomProperty('worldId')?{worldId:c.myRoom().getCustomProperty('worldId') as string}:{})};
   c.myRoom().setIsOpen(false);c.myRoom().setCustomProperties({gameState:'loading',token:data.token});
   c.raiseEvent(NetworkEventCode.GameStart,data,{receivers:this.sdk!.LoadBalancing.Constants.ReceiverGroup.Others});this.begin(data);
  }
  private async begin(data:StartData){if(this.startedToken)return;this.startedToken=data.token;this.locallyLoaded=false;const generation=this.generation,client=this.client!;
+  this.hosting=new HostingPolicy(data.ownerActor??this.masterActor,data.token);this.observedMaster=this.masterActor;this.cloudHosting=!!data.worldId;this.cloudHostingReady=!this.cloudHosting;
   this.setState('loading','Preparando a partida…');this.deadline('Um jogador não concluiu o carregamento. Crie uma nova sala.',90000);
   try{
    await this.onStart(data);
@@ -168,6 +193,7 @@ export class NetworkManager {
  private enterPlaying(){if(!this.locallyLoaded||this.state!=='loading')return;this.clearDeadline();this.setState('playing');console.info('[Network] Playing',this.code);}
  private receive(code:number,data:unknown,actor:number){
   if(!Number.isInteger(actor)||actor===this.localActor||!this.players.some(p=>p.actorNumber===actor))return;
+  if(code===18&&this.inSession){if(!this.cloudHosting&&this.hosting?.accept(actor,data))this.emit();return;}
   if(code===17&&this.inSession){const now=performance.now();if(now-(this.accountBudget.get(actor)??-1000)<100||!boundedJSON(data,80)||JSON.stringify(data).length>2048)return;this.accountBudget.set(actor,now);this.onAccount(data,actor);return;}
   if(code===NetworkEventCode.GameStart){if(this.state!=='lobby'||actor!==this.masterActor)return;const start=parseStart(data,this.players.map(p=>p.actorNumber));if(start&&start.seed===(this.lan?.seed??this.client?.myRoom().getCustomProperty('seed')))this.begin(start);return;}
   if(this.inSession&&code===FRAGMENT_EVENT){
@@ -184,8 +210,8 @@ export class NetworkManager {
  remoteStates(now=performance.now()):RemotePlayerState[]{return this.players.filter(p=>!p.isLocal).map(identity=>({identity,snapshot:this.remotes.get(identity.actorNumber)?.sample(now)??null}));}
  private startTicker(){clearInterval(this.ticker);this.metrics={sent:0,received:0,rejected:0,sendRate:0,receiveRate:0,payloadBytes:0,averagePayloadBytes:0,ping:0};this.lastMetric=performance.now();this.sentMark=0;this.receivedMark=0;
   let previousTick=performance.now();
-  this.ticker=setInterval(()=>{const now=performance.now();const tickDt=Math.min(.25,(now-previousTick)/1000);previousTick=now;this.onTick(tickDt);if(this.inSession&&this.lastSample&&now-this.sendTime>=1000/NETWORK_SEND_RATE-1){this.sendTime=now;const payload=encodeSnapshot({...this.lastSample,sequence:this.sequence++,time:Math.round(now)});this.sendEvent(NetworkEventCode.PlayerSnapshot,payload);this.metrics.sent++;this.metrics.payloadBytes+=JSON.stringify(payload).length;}
-   const dt=(now-this.lastMetric)/1000;if(dt>=1){this.metrics.sendRate=(this.metrics.sent-this.sentMark)/dt;this.metrics.receiveRate=(this.metrics.received-this.receivedMark)/dt;this.metrics.averagePayloadBytes=this.metrics.sent?this.metrics.payloadBytes/this.metrics.sent:0;this.metrics.ping=this.lan && 'host' in this.lan?this.lan.ping:this.client?.getRtt()??0;this.client?.updateRtt();this.lastMetric=now;this.sentMark=this.metrics.sent;this.receivedMark=this.metrics.received;this.emit();}
+  this.ticker=setInterval(()=>{const now=performance.now();const tickDt=Math.min(.25,(now-previousTick)/1000);previousTick=now;if(!this.checkHosting())return;this.onTick(tickDt);if(this.inSession&&this.lastSample&&now-this.sendTime>=1000/NETWORK_SEND_RATE-1){this.sendTime=now;const payload=encodeSnapshot({...this.lastSample,sequence:this.sequence++,time:Math.round(now)});this.sendEvent(NetworkEventCode.PlayerSnapshot,payload);this.metrics.sent++;this.metrics.payloadBytes+=JSON.stringify(payload).length;}
+   const dt=(now-this.lastMetric)/1000;if(dt>=1){this.metrics.sendRate=(this.metrics.sent-this.sentMark)/dt;this.metrics.receiveRate=(this.metrics.received-this.receivedMark)/dt;this.metrics.averagePayloadBytes=this.metrics.sent?this.metrics.payloadBytes/this.metrics.sent:0;this.metrics.ping=this.lan && 'host' in this.lan?this.lan.ping:this.client?.getRtt()??0;this.client?.updateRtt();this.lastMetric=now;this.sentMark=this.metrics.sent;this.receivedMark=this.metrics.received;if(this.ownsSession&&!this.cloudHosting)this.sendEvent(18,this.hosting!.snapshot());this.emit();}
   },1000/NETWORK_SEND_RATE);
  }
 }

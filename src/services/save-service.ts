@@ -6,7 +6,7 @@ import {safeSaveJSON,validateWorldPayload} from './save-codec.ts';
 
 export interface AccountBinding {userId:string;playerId:string;actor:number;token:string;nonce:string}
 export class SaveService {
- revision:number;playerStamp:string|null;
+ revision:number;playerStamp:string|null;hostingEnabled=false;sessionToken?:string;
  private client:SupabaseClient;readonly world:WorldRow;readonly userId:string;
  constructor(client:SupabaseClient,world:WorldRow,userId:string,revision:number,playerStamp:string|null){this.client=client;this.world=world;this.userId=userId;this.revision=revision;this.playerStamp=playerStamp;}
  private async identity(){const {data,error}=await this.client.auth.getSession();if(error||data.session?.user.id!==this.userId)throw new CloudError('access','A conta desta expedição não está conectada. Entre novamente antes de salvar.');}
@@ -19,7 +19,13 @@ export class SaveService {
   this.playerStamp=data.updated_at;
  }
  async shared(payload:WorldPayload):Promise<void>{
-  await this.identity();if(this.userId!==this.world.owner_id)throw new CloudError('access','Somente o dono pode salvar o mundo compartilhado.');validateWorldPayload(payload);
+  await this.identity();validateWorldPayload(payload);
+  if(this.hostingEnabled){
+   const {data,error}=await this.client.rpc('save_hosted_world',{p_world_id:this.world.id,p_expected_revision:this.revision,p_state:payload,p_session_token:this.sessionToken??null});
+   if(error?.code==='40001')throw new CloudError('conflict','O mundo mudou em outra sessão. Nenhum estado remoto foi sobrescrito.');
+   if(error)throw cloudError(error);if(!Number.isSafeInteger(data)||data<0)throw new CloudError('invalid','Revisão de save inválida.');this.revision=data;return;
+  }
+  if(this.userId!==this.world.owner_id)throw new CloudError('access','Somente o dono pode salvar o mundo compartilhado.');validateWorldPayload(payload);
   const {data,error}=await this.client.from('world_state').update({state:payload,revision:this.revision+1}).eq('world_id',this.world.id).eq('revision',this.revision).select('revision').maybeSingle();
   if(error)throw cloudError(error);if(!data)throw new CloudError('conflict','O mundo mudou em outra sessão ou seu acesso foi removido. Nenhum estado remoto foi sobrescrito.');
   this.revision=data.revision;

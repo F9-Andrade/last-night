@@ -80,7 +80,20 @@ network.onStart=async data=>{
  }
  return startSession(data,await cloud.networkRun(data));
 };
-network.onEnded=()=>{if(started||loadingSession){if(cloud.current){if(loadingSession){loadingSession=false;loading.hide();}void cloud.end();}else menu(false);}if(network.state==='error')coopUI.showError();};
+network.onEnded=()=>{
+ const reason=network.state==='error'?network.message:'';
+ if(started||loadingSession){
+  paused=true;input.enabled=false;input.clear();input.release();
+  if(coop)coop.error=reason||'Sessão encerrada.';
+  if(cloud.current){
+   if(loadingSession){loadingSession=false;loading.hide();}
+   void cloud.end().then(saved=>{if(saved&&reason){cloud.ui.show('Sessão encerrada');cloud.ui.note(reason);cloud.ui.note('Seu último progresso confirmado foi salvo.');cloud.ui.button('Voltar ao menu',()=>cloud.ui.close(),true);}});
+   return;
+  }
+  menu(false);
+ }
+ if(reason)coopUI.showError();
+};
 network.subscribe(()=>{if(loadingSession&&sessionPrepared&&network.state==='playing')finishSessionLoad();if(network.state==='playing'||network.state==='error')openingLan=false;updateLanPause();});
 hud.el('coop-online').onclick=()=>{cloud.ephemeral();coopUI.open();};
 const settings=loadSettings();

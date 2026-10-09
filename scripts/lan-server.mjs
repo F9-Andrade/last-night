@@ -42,9 +42,9 @@ export function createLanServer({root=resolve('dist'),port=8787,host='0.0.0.0'}=
    }
    const r=c.room;if(!r)return;
    if(m.type==='ready'&&r.phase==='lobby'){if(c!==r.members[0])c.ready=!c.ready;members(r);return;}
-   if(m.type==='start'&&c===r.members[0]&&r.phase==='lobby'&&r.members.every(v=>v===c||v.ready)){r.phase='loading';r.token=randomUUID();members(r);for(const v of r.members)send(v,{type:'start',data:{layoutVersion:r.layoutVersion,seed:r.seed,actors:r.members.map(p=>p.actor),token:r.token,...(r.worldId?{worldId:r.worldId}:{})}});return;}
+   if(m.type==='start'&&c===r.members[0]&&r.phase==='lobby'&&r.members.every(v=>v===c||v.ready)){r.phase='loading';r.token=randomUUID();members(r);for(const v of r.members)send(v,{type:'start',data:{ownerActor:r.members[0].actor,layoutVersion:r.layoutVersion,seed:r.seed,actors:r.members.map(p=>p.actor),token:r.token,...(r.worldId?{worldId:r.worldId}:{})}});return;}
    if(m.type==='loaded'&&r.phase==='loading'&&m.token===r.token){c.loaded=m.token;playing(r);return;}
-   if(m.type==='event'&&r.phase!=='lobby'&&Number.isInteger(m.code)&&[1,10,11,12,13,14,15,16,17].includes(m.code)){
+   if(m.type==='event'&&r.phase!=='lobby'&&Number.isInteger(m.code)&&[1,10,11,12,13,14,15,16,17,18].includes(m.code)){
     if(m.target!==undefined&&(!Number.isInteger(m.target)||!r.members.some(v=>v.actor===m.target)))return;
     for(const v of r.members)if(v!==c&&(m.target===undefined||v.actor===m.target))send(v,{type:'event',code:m.code,data:m.data,actor:c.actor});
    }

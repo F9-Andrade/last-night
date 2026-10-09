@@ -17,6 +17,7 @@ export class CoopUI {
  private pauseInvitation=document.createElement('div');
  private pauseCode=document.createElement('input');
  private pauseCopyStatus=document.createElement('p');
+ private hostingControls=document.createElement('div');private hostingKey='';
  private pauseDebug=document.createElement('small');
  constructor(private network:NetworkManager,root:HTMLElement,private cue:()=>void){
   this.panel.id='coop-panel';this.panel.hidden=true;this.panel.setAttribute('aria-label','Coop online');
@@ -53,7 +54,7 @@ export class CoopUI {
   this.pauseCopyStatus.id='pause-coop-copy-status';this.pauseCopyStatus.setAttribute('role','status');
   this.pauseDebug.id='pause-coop-debug';this.pauseDebug.hidden=true;
   actions.append(copy,invite);this.pauseInvitation.append(label,this.pauseCode,actions,this.pauseCopyStatus);
-  this.pauseRoom.append(this.pauseSummary,this.pausePlayers,this.pauseInvitation,this.pauseDebug);
+  this.pauseRoom.append(this.pauseSummary,this.pausePlayers,this.pauseInvitation,this.hostingControls,this.pauseDebug);
   card.insertBefore(this.pauseRoom,card.querySelector('#pause-lan-info'));
  }
  private el(id:string){return this.panel.querySelector<HTMLElement>(`#${id}`)!;}
@@ -98,6 +99,13 @@ export class CoopUI {
   this.pauseRoom.hidden=!n.inSession;
   this.pauseSummary.textContent=`${n.mode==='lan'?'LAN · Rede local':'Photon · Online'} · ${n.players.length}/4 sobreviventes`;
   this.pausePlayers.textContent=names;
+  this.hostingControls.hidden=!n.ownsSession||!!n.persistentWorld;
+  const hostingKey=JSON.stringify([n.ownsSession,n.persistentWorld?.id,n.players.map(p=>[p.actorNumber,p.displayName,n.hosting?.permits(p.actorNumber)])]);
+  if(hostingKey!==this.hostingKey){this.hostingKey=hostingKey;this.hostingControls.replaceChildren();
+   if(!this.hostingControls.hidden)for(const peer of n.players.filter(p=>!p.isLocal)){
+    const allowed=n.hosting?.permits(peer.actorNumber),button=document.createElement('button');button.type='button';button.textContent=`${allowed?'Revogar':'Permitir'} continuar · ${peer.displayName}`;button.onclick=()=>n.allowContinuation(peer.actorNumber,!allowed);this.hostingControls.append(button);
+   }
+  }
   // LAN invitations keep their existing pause controls and status messages.
   this.pauseInvitation.hidden=n.mode==='lan';this.pauseCode.value=n.code;
   if(import.meta.env.DEV&&import.meta.env.VITE_NETWORK_DEBUG==='true'){this.pauseDebug.hidden=false;this.pauseDebug.textContent=`${n.region} · RTT ${Math.round(n.metrics.ping)} ms · TX ${n.metrics.sendRate.toFixed(1)}/s · RX ${n.metrics.receiveRate.toFixed(1)}/s`;}

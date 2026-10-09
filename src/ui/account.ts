@@ -6,6 +6,7 @@ export class AccountUI {
  readonly panel=document.createElement('section');
  readonly status=document.createElement('p');
  private card=document.createElement('div');private body=document.createElement('div');private message=document.createElement('p');private title=document.createElement('h2');private back=document.createElement('button');
+ onPermissions=()=>{};private permissions=document.createElement('button');
  onClose=()=>{};onAccount=()=>{};onWorlds=()=>{};onSave=()=>{};
  private account=document.createElement('button');private worlds=document.createElement('button');private save=document.createElement('button');
  constructor(root:HTMLElement){
@@ -15,9 +16,11 @@ export class AccountUI {
   this.account.id='account-open';this.account.textContent='Conta';this.account.onclick=()=>this.onAccount();this.worlds.id='worlds-open';this.worlds.textContent='Meus mundos';this.worlds.onclick=()=>this.onWorlds();
   const menu=root.querySelector('#start')!.parentElement!;menu.append(this.worlds,this.account);
   this.save.id='cloud-save';this.save.textContent='Salvar progresso';this.save.hidden=true;this.save.onclick=()=>this.onSave();root.querySelector('#pause-screen .pause-card')?.append(this.save);
+  this.permissions.id='cloud-permissions';this.permissions.textContent='Permissões dos amigos';this.permissions.hidden=true;this.permissions.onclick=()=>this.onPermissions();root.querySelector('#pause-screen .pause-card')?.append(this.permissions);
   this.status.id='cloud-status';this.status.hidden=true;this.status.setAttribute('role','status');root.append(this.status);
   this.panel.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();this.onClose();}if(e.key==='Tab'){const all=[...this.panel.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),a[href]')].filter(el=>!el.hidden);const first=all[0],last=all.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}});
  }
+ permissionsVisible(visible:boolean){this.permissions.hidden=!visible;}
  get opened(){return !this.panel.hidden;}
  close(){this.panel.hidden=true;document.getElementById('menu')!.inert=false;this.account.focus();}
  show(title:string){this.panel.hidden=false;document.getElementById('menu')!.inert=true;this.title.textContent=title;this.body.replaceChildren();this.feedback('');this.back.focus();}

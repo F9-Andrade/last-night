@@ -10,7 +10,8 @@ async function layout(p:Page){return p.evaluate(async()=>{
  return {seed:summary.seed,version:summary.version,runSeed:sim.runSeed,simulationVersion:sim.layoutVersion,sites:CITY_SITES.map(s=>[s.id,s.x,s.z]),buildings:BUILDINGS.map(s=>[s.kind,s.x,s.z]),portals:sim.portals.map((p:any)=>[p.id,p.x,p.z]),merchants:sim.economy.merchants.map((m:any)=>[m.id,m.x,m.z])};
 });}
 async function expectSavedLayout(p:Page,version=1){const current=await layout(p);expect(current.runSeed).toBe(savedWorldSeed);expect(current.version).toBe(version);expect(current.simulationVersion).toBe(version);if(version===1)expect(current.seed).toBe(savedWorldSeed);return current;}
-function backend(){
+function backend(hosting=false){
+ const grants=new Set<string>();
  let createdWorldId=worldId;
  const users=[{id:owner,email:'owner@example.test',username:'Owner_test'},{id:member,email:'member@example.test',username:'Member_test'}];
  let world:any=null,state:any=null;const saves=new Map<string,any>(),members=new Set([owner]),requests:{path:string;method:string;user:string}[]=[];let stamp=0,fail=false,inviteUses=0;const invites=new Map<string,any>();
@@ -31,6 +32,18 @@ function backend(){
    if(path==='/auth/v1/recover')return send({});
    if(path==='/rest/v1/rpc/accept_world_invite'){
     const inv=invites.get(data.code);if(!inv)return send({code:'22023'},400);if(!members.has(who)){members.add(who);inviteUses++;}return send(createdWorldId);
+   }
+   if(path==='/rest/v1/rpc/get_world_host_permissions')return hosting?send([owner,...grants].map(user_id=>({user_id}))):send({code:'PGRST202'},404);
+   if(path==='/rest/v1/rpc/set_world_host_permission'){
+    if(!hosting)return send({code:'PGRST202'},404);if(who!==owner||!members.has(data.p_user_id))return send({code:'42501'},403);
+    if(data.p_allowed)grants.add(data.p_user_id);else grants.delete(data.p_user_id);return send(null);
+   }
+   if(path==='/rest/v1/rpc/save_hosted_world'){
+    if(!hosting)return send({code:'PGRST202'},404);if(!members.has(who)||who!==owner&&!grants.has(who))return send({code:'42501'},403);
+    const same=!!data.p_session_token&&state.state.extra?.hostSession===data.p_session_token;
+    if(data.p_expected_revision!==state.revision&&(!same||data.p_state.checkpoint.revision<=state.state.checkpoint.revision))return send({code:'40001'},409);
+    const payload=structuredClone(data.p_state);delete payload.extra.hostSession;if(data.p_session_token)payload.extra.hostSession=data.p_session_token;
+    state.state=payload;state.revision++;world.current_day=payload.checkpoint.survival.day;world.game_time=payload.checkpoint.survival.elapsed;return send(state.revision);
    }
    if(path==='/rest/v1/profiles'){const id=url.searchParams.get('id');return send(id?.startsWith('eq.')?{...users.find(u=>u.id===id.slice(3)),display_name:null,avatar_url:null,created_at:timestamp(),updated_at:timestamp()}:users);}
    if(path==='/rest/v1/world_members')return send(method==='POST'?(members.add(data.user_id),[]):[...members].filter(id=>!url.searchParams.get('user_id')||url.searchParams.get('user_id')===`eq.${id}`).map(id=>({world_id:createdWorldId,user_id:id,role:id===owner?'owner':'member',joined_at:timestamp(),last_played_at:null})).reduce((v:any,row:any)=>url.searchParams.has('user_id')?row:[...v,row],[]));
@@ -53,7 +66,7 @@ function backend(){
    }
    if(path==='/rest/v1/player_saves'){
     if(!members.has(who))return result([]);const id=(url.searchParams.get('user_id')??`eq.${data?.user_id??who}`).slice(3),old=saves.get(id);
-    if(method==='GET')return result(old?[old]:[]);
+    if(method==='GET'){const filter=url.searchParams.get('user_id');if(filter?.startsWith('in.'))return result([...saves.values()].filter(row=>filter.includes(row.user_id)).map(row=>({user_id:row.user_id,binding:row.extra_data.accountBinding})));return result(old?[old]:[]);}
     if(data.user_id!==who)return send({code:'42501'},403);
     if(method==='POST'&&old)return send({code:'23505'},409);
     if(method==='PATCH'&&url.searchParams.get('updated_at')!==`eq.${old?.updated_at}`)return result([]);
@@ -129,8 +142,8 @@ test('mock Supabase: a legacy world keeps its original parcels when reopened and
  }finally{await context.close();}
 });
 
-test('mock Supabase: persistent solo opens real WebRTC LAN and keeps saves after host migration',async({browser})=>{
- const db=backend();db.members.add(member);const contexts=await Promise.all([browser.newContext({viewport:{width:960,height:640}}),browser.newContext({viewport:{width:960,height:640}})]);
+for(const authorized of [false,true])test(`mock Supabase: LAN host exit ${authorized?'allows only owner-authorized continuation and shared saves':'disconnects guest and saves confirmed inventory'}`,async({browser})=>{
+ const db=backend(authorized);db.members.add(member);const contexts=await Promise.all([browser.newContext({viewport:{width:960,height:640}}),browser.newContext({viewport:{width:960,height:640}})]);
  await db.mount(contexts[0],owner);await db.mount(contexts[1],member);const [a,b]=await Promise.all(contexts.map(c=>c.newPage()));const errors:string[]=[];for(const p of [a,b])p.on('pageerror',e=>errors.push(e.message));
  try{
   await login(a);await create(a);await a.getByRole('button',{name:'Continuar',exact:true}).click();await expect(a.locator('#account-panel')).toBeHidden();await expect(a.locator('#loading-screen')).toBeHidden({timeout:90000});await pause(a);
@@ -139,8 +152,17 @@ test('mock Supabase: persistent solo opens real WebRTC LAN and keeps saves after
   await login(b,'member');await b.getByRole('button',{name:'Voltar',exact:true}).click();await b.locator('#coop-online').click();await b.locator('#coop-transport').selectOption('lan');await expect(b.locator('#coop-join')).toBeEnabled({timeout:60000});await b.locator('#coop-code-input').fill(code);await b.locator('#coop-join').click();await expect.poll(async()=>(await read(b)).network.state,{timeout:90000}).toBe('playing');await expect.poll(async()=>(await read(a)).coop.players.length).toBe(2);
   expect(await expectSavedLayout(a)).toEqual(originalLayout);expect(await expectSavedLayout(b)).toEqual(originalLayout);
   const actor=(await read(b)).coop.actor;await a.evaluate(actor=>{const w=(window as any).__LAST_NIGHT__.coopFixture();w.sim.zombies=[];w.sim.baseHP=733;w.actors.get(actor).sim.inventory.items.scrap=11;},actor);await expect.poll(async()=>(await read(b)).inventory.scrap).toBe(11);
-  await a.locator('#pause-menu').click();await expect(a.locator('#menu')).toBeVisible();await expect.poll(async()=>(await read(b)).coop.migrations).toBe(1);expect((await read(b)).baseHP).toBe(733);const revision=db.state.revision;await pause(b);await b.locator('#cloud-save').click();await expect(b.locator('#cloud-status')).toContainText('Sobrevivente salvo');expect(db.state.revision).toBe(revision);expect(db.saves.get(member).inventory.scrap).toBe(11);expect(errors).toEqual([]);await b.screenshot({path:'test-results/supabase/lan-migration.png'});
-  expect(await expectSavedLayout(b)).toEqual(originalLayout);
+  if(authorized){await a.locator('#cloud-permissions').click();await a.getByRole('button',{name:'Permitir continuar e salvar · Member_test',exact:true}).click();await expect(a.locator('.account-message')).toContainText('continuar e salvar');await a.locator('#account-panel').getByRole('button',{name:'Voltar',exact:true}).click();}
+  await a.locator('#pause-menu').click();await expect(a.locator('#menu')).toBeVisible();
+  if(authorized){
+   await expect.poll(async()=>(await read(b)).coop?.migrations).toBe(1);expect((await read(b)).baseHP).toBe(733);const revision=db.state.revision;
+   await pause(b);await b.locator('#cloud-save').click();await expect(b.locator('#cloud-status')).toContainText('Mundo e sobrevivente salvos');expect(db.state.revision).toBeGreaterThan(revision);expect(db.state.state.checkpoint.survival.baseHP).toBe(733);expect(await expectSavedLayout(b)).toEqual(originalLayout);
+   // The owner can revoke a durable grant even after leaving the room.
+   await a.locator('#worlds-open').click();await a.getByRole('button',{name:'Detalhes',exact:true}).click();await a.getByRole('button',{name:'Revogar continuar e salvar · Member_test'}).click();
+   await expect(b.locator('#account-title')).toHaveText('Sessão encerrada',{timeout:15000});await expect(b.locator('#menu')).toBeVisible();
+  }else {await expect(b.locator('#account-title')).toHaveText('Sessão encerrada',{timeout:15000});await expect(b.locator('#menu')).toBeVisible();await expect(b.locator('#account-panel')).toContainText('não autorizou');}
+  expect(db.saves.get(member).inventory.scrap).toBe(11);expect(errors).toEqual([]);
+
  }finally{for(const c of contexts)await c.close();}
 });
 

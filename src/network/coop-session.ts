@@ -46,7 +46,7 @@ export class CoopSession {
  }
  get localRecord(){return this.checkpoint?.players.find(p=>p.actor===this.network.localActor);}
  get incapacitated(){return !!this.localRecord&&this.localRecord.life!=='alive';}
- get ready(){return this.cloudReady&&!!this.checkpoint&&!this.error;}
+ get ready(){return this.network.hostingReady!==false&&this.cloudReady&&!!this.checkpoint&&!this.error;}
  private enqueue(details:RequestDetails){const pose=poseOf(this.local.player,this.local.groundY,performance.now());const request={...details,seq:++this.sequence,pose} as ActionRequest;if(details.kind!=='hold')this.reconciliationSeq=request.seq;this.pending.push(request);}
  action(details:RequestDetails){if(!this.incapacitated&&this.ready)this.enqueue(details);}
  inventory(operation:'deposit'|'withdraw'|'discard',item:Item){this.action({kind:'inventory',operation,item});}

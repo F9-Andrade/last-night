@@ -23,12 +23,13 @@ test('website LAN: preserve expedition, late join, gameplay, independent Photon 
  await b.keyboard.press('Tab');await expect(b.locator('#inventory-panel')).toBeVisible();await b.keyboard.press('Tab');
  // Let the independent B↔C channel establish before the original host exits.
  await expect.poll(async()=>{await c.bringToFront();return (await state(c)).network.remotes.some((r:any)=>r.identity.displayName==='LAN 2'&&r.snapshot);},{timeout:15000}).toBe(true);
- await a.bringToFront();await a.locator('#pause-menu').click();
+ await a.bringToFront();await a.getByRole('button',{name:'Permitir continuar · LAN 2',exact:true}).click();await a.getByRole('button',{name:'Permitir continuar · LAN 3',exact:true}).click();
+ await a.locator('#pause-menu').click();
  for(const p of [b,c]){await expect.poll(async()=>(await state(p)).network.players.length,{timeout:15000}).toBe(2);await expect.poll(async()=>(await state(p)).coop.migrations,{timeout:15000}).toBe(1);expect((await state(p)).crafting.chests).toEqual(before.crafting.chests);}
  await capture(c);const remaining=(await state(c)).ammo;await c.mouse.click(450,400);await expect.poll(async()=>(await state(c)).ammo).toBe(remaining-1);
  await b.bringToFront();await capture(b);await b.keyboard.press('Escape');await expect(b.locator('#pause-lan-code')).toBeVisible();expect(await b.locator('#pause-lan-code').inputValue()).not.toBe(code);
  expect(errors).toEqual([]);expect(sockets.length).toBeGreaterThan(0);expect(sockets.every(s=>!s.includes('photon'))).toBe(true);
- await mkdir('docs/browser-lan',{recursive:true});await b.screenshot({path:'docs/browser-lan/pause-lan.png'});await writeFile('docs/browser-lan/validation.json',JSON.stringify({errors,websocketHosts:sockets.map(s=>new URL(s).host),players:3,preservedChest:true,lateJoin:true,shooting:true,hostMigration:true,photonUsed:false},null,2));
+ await mkdir('test-results/browser-lan',{recursive:true});await b.screenshot({path:'test-results/browser-lan/pause-lan.png'});await writeFile('test-results/browser-lan/validation.json',JSON.stringify({errors,websocketHosts:sockets.map(s=>new URL(s).host),players:3,preservedChest:true,lateJoin:true,shooting:true,hostMigration:true,photonUsed:false},null,2));
  }finally{for(const context of contexts)await context.close();}
 });
 
@@ -47,4 +48,18 @@ test('LAN protocol: four-player limit, large checkpoints, sender identity and si
  await host.evaluate(()=>(window as any).network.lan.peer.disconnect());await expect.poll(()=>host.evaluate(()=>(window as any).network.message),{timeout:15000}).toContain('reconectada');expect(await host.evaluate(()=>(window as any).network.state)).toBe('playing');
  expect(errors).toEqual([]);
  }finally{await context.close();}
+});
+
+test('LAN departure: unauthorized elected host leaves; explicitly authorized survivor continues after abrupt owner disconnect',async({browser})=>{
+ const contexts=await Promise.all([browser.newContext(),browser.newContext(),browser.newContext()]);const [a,b,c]=await Promise.all(contexts.map(context=>context.newPage()));
+ try{
+  for(const [i,p] of [a,b,c].entries()){await p.goto('/tests/fixtures/lan-network.html');await p.waitForFunction(()=>!!(window as any).network);await p.evaluate(i=>(window as any).network.connect(`Permission ${i}`),i);await expect.poll(()=>p.evaluate(()=>(window as any).network.state),{timeout:45000}).toBe('connected');}
+  await a.evaluate(()=>(window as any).network.create());await expect.poll(()=>a.evaluate(()=>(window as any).network.state)).toBe('playing');const code=await a.evaluate(()=>(window as any).network.code);
+  for(const p of [b,c]){await p.evaluate(code=>(window as any).network.join(code),code);await expect.poll(()=>p.evaluate(()=>(window as any).network.state),{timeout:45000}).toBe('playing');}
+  await expect.poll(()=>c.evaluate(()=>[...(window as any).network.lan.links.values()].filter((l:any)=>l.connection.open).length)).toBe(2);
+  await a.evaluate(()=>(window as any).network.allowContinuation(3,true));await expect.poll(()=>c.evaluate(()=>(window as any).network.hosting.permits(3))).toBe(true);
+  await a.close();
+  await expect.poll(()=>b.evaluate(()=>(window as any).network.state),{timeout:30000}).toBe('error');await expect.poll(()=>c.evaluate(()=>(window as any).network.masterActor),{timeout:30000}).toBe(3);
+  expect(await c.evaluate(()=>(window as any).network.state)).toBe('playing');expect(await c.evaluate(()=>(window as any).network.hostingReady)).toBe(true);expect(await b.evaluate(()=>(window as any).network.message)).toContain('não autorizou');
+ }finally{for(const context of contexts)await context.close();}
 });

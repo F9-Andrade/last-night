@@ -36,7 +36,7 @@ export class Autosave {
    await this.service.player(player);if(world)await this.service.shared(world);
    this.savedGeneration=version;
    try{await clearRecovery(key);}catch{/* Successful cloud requests are authoritative. */}
-   this.statusTo({kind:'saved',message:world?'Mundo e sobrevivente salvos':'Sobrevivente salvo · mundo depende do dono',at:Date.now()});return true;
+   this.statusTo({kind:'saved',message:world?'Mundo e sobrevivente salvos':'Sobrevivente salvo · mundo salvo pelo anfitrião autorizado',at:Date.now()});return true;
   }catch(error){const e=error instanceof CloudError?error:cloudError(error);this.conflicted=e.kind==='conflict';this.statusTo({kind:this.conflicted?'conflict':'error',message:e.message});return false;}
  }
  resume(){if(!this.stopped)return;this.stopped=false;this.interval=setInterval(()=>{this.mark(false);void this.flush();},45000);}

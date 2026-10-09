@@ -4,7 +4,7 @@ import {NETWORK_BUILD,sanitizeName,validName,sessionToken,LAN_CODE} from './prot
 
 const PREFIX=`last-night-${NETWORK_BUILD}-`;
 type Member={actorNumber:number;playerId:string;displayName:string;ready:boolean};
-type Link={connection:DataConnection;timer:ReturnType<typeof setTimeout>;at:number;count:number;bytes:number};
+type Link={connection:DataConnection;timer:ReturnType<typeof setTimeout>;at:number;lastHeard:number;count:number;bytes:number};
 const code=()=>`L-${Array.from(crypto.getRandomValues(new Uint8Array(5)),v=>v.toString(16).padStart(2,'0')).join('').toUpperCase()}`;
 const validMembers=(v:unknown):v is Member[]=>Array.isArray(v)&&v.length>0&&v.length<=4&&v.every(p=>p&&Number.isSafeInteger(p.actorNumber)&&p.actorNumber>0&&typeof p.playerId==='string'&&p.playerId.startsWith(PREFIX)&&LAN_CODE.test(p.playerId.slice(PREFIX.length))&&typeof p.displayName==='string'&&sanitizeName(p.displayName)===p.displayName&&validName(p.displayName)&&typeof p.ready==='boolean')&&new Set(v.map(p=>p.actorNumber)).size===v.length&&new Set(v.map(p=>p.playerId)).size===v.length;
 /** PeerServer only discovers peers. All room control and gameplay use local ICE data channels. */
@@ -24,7 +24,15 @@ export class BrowserLanTransport {
    if(this.members.length){this.receive({type:'notice',message:'Não foi possível conectar um participante pela rede local. Confira se todos estão na mesma rede e sem isolamento Wi-Fi.'});return;}
    this.fail(e.type==='peer-unavailable'?'Sala LAN não encontrada. Confira o código e mantenha o anfitrião no jogo.':'Não foi possível conectar a LAN. Verifique a internet para encontrar a sala e permita a conexão entre dispositivos na rede local.');
   });
-  this.heartbeat=setInterval(()=>{if(this.stopped)return;for(const link of this.links.values())if(link.connection.open)this.write(link.connection,{type:'ping',at:performance.now()});},3000);
+  this.heartbeat=setInterval(()=>{
+   if(this.stopped)return;const now=performance.now();
+   for(const [id,link] of this.links){
+    // A killed browser can leave ICE 'connected' for much longer than the game
+    // can safely wait. Any valid traffic renews presence, including ping/pong.
+    if(this.members.some(p=>p.playerId===id)&&now-link.lastHeard>18000){this.drop(id);continue;}
+    if(link.connection.open)this.write(link.connection,{type:'ping',at:now});
+   }
+  },3000);
  }
  private write(c:DataConnection,m:unknown){
   if(!c.open||this.stopped)return;
@@ -36,7 +44,7 @@ export class BrowserLanTransport {
  }
  private attach(c:DataConnection){
   if(this.stopped||this.links.has(c.peer)||this.links.size>=6){c.close();return;}
-  const link:Link={connection:c,timer:setTimeout(()=>{if(!this.members.some(m=>m.playerId===c.peer)||!c.open)c.close();},30000),at:performance.now(),count:0,bytes:0};this.links.set(c.peer,link);
+  const link:Link={connection:c,timer:setTimeout(()=>{if(!this.members.some(m=>m.playerId===c.peer)||!c.open)c.close();},30000),at:performance.now(),lastHeard:performance.now(),count:0,bytes:0};this.links.set(c.peer,link);
   c.on('open',()=>{
    if(c.peer===this.joining)this.write(c,{type:'hello',build:NETWORK_BUILD,name:this.name});
    else if(this.members.some(m=>m.playerId===c.peer))this.write(c,{type:'mesh'});
@@ -46,7 +54,7 @@ export class BrowserLanTransport {
    const now=performance.now();if(now-link.at>1000){link.at=now;link.count=0;link.bytes=0;}
    let length=0;try{length=JSON.stringify(data).length;}catch{return;}
    link.bytes+=length;if(length>18000||++link.count>300||link.bytes>4000000){c.close();return;}
-   this.message(c,data as Record<string,any>);
+   link.lastHeard=now;this.message(c,data as Record<string,any>);
   });
   c.on('close',()=>this.closed(c));c.on('error',()=>c.close());
  }
@@ -69,7 +77,7 @@ export class BrowserLanTransport {
    const first=!this.actor;this.actor=own.actorNumber;this.master=leader.actorNumber;this.seed=m.seed;this.layoutVersion=m.layoutVersion??0;this.token=m.token;this.worldId=typeof m.worldId==='string'?m.worldId:undefined;this.members=m.players;this.nextActor=Math.max(this.nextActor,Number.isSafeInteger(m.nextActor)&&m.nextActor>0?m.nextActor:1,...this.members.map(p=>p.actorNumber+1));this.roomCode=leader.playerId.slice(PREFIX.length);
    clearTimeout(this.links.get(c.peer)?.timer);this.emitRoom();
    for(const p of this.members)if(p.actorNumber<this.actor)this.connectPeer(p.playerId);
-   if(first)this.receive({type:'start',data:{layoutVersion:this.layoutVersion,seed:this.seed,actors:this.members.map(p=>p.actorNumber),token:this.token,...(this.worldId?{worldId:this.worldId}:{})}});
+   if(first)this.receive({type:'start',data:{ownerActor:1,layoutVersion:this.layoutVersion,seed:this.seed,actors:this.members.map(p=>p.actorNumber),token:this.token,...(this.worldId?{worldId:this.worldId}:{})}});
    return;
   }
   if(!member)return;
@@ -79,7 +87,7 @@ export class BrowserLanTransport {
   if(m.type==='pong'){if(member.actorNumber===this.master&&Number.isFinite(m.at))this.ping=Math.max(0,performance.now()-m.at);return;}
   if(m.type==='leave'){this.drop(member.playerId);return;}
   if(m.type==='loaded'&&this.actor===this.master){member.ready=true;this.publishRoom();return;}
-  if(m.type==='event'&&[1,10,11,12,13,14,15,16,17].includes(m.code))this.receive({type:'event',code:m.code,data:m.data,actor:member.actorNumber});
+  if(m.type==='event'&&[1,10,11,12,13,14,15,16,17,18].includes(m.code))this.receive({type:'event',code:m.code,data:m.data,actor:member.actorNumber});
  }
  private emitRoom(){this.receive({type:'room',code:this.roomCode,seed:this.seed,master:this.master,players:this.members});}
  private publishRoom(){this.emitRoom();const packet={type:'room',players:this.members,layoutVersion:this.layoutVersion,seed:this.seed,token:this.token,...(this.worldId?{worldId:this.worldId}:{}),nextActor:this.nextActor};for(const p of this.members){const c=this.links.get(p.playerId)?.connection;if(c)this.write(c,packet);}}
@@ -96,7 +104,7 @@ export class BrowserLanTransport {
  }
  host(seed:number,worldId?:string,layoutVersion:0|1=1){
   if(this.stopped||this.actor)return;this.actor=1;this.master=1;this.seed=seed;this.layoutVersion=layoutVersion;this.worldId=worldId;this.token=sessionToken();this.roomCode=this.peer.id.slice(PREFIX.length);this.members=[{actorNumber:1,playerId:this.peer.id,displayName:this.name,ready:true}];this.publishRoom();
-  this.receive({type:'start',data:{layoutVersion:this.layoutVersion,seed,actors:[1],token:this.token,...(this.worldId?{worldId:this.worldId}:{})}});
+  this.receive({type:'start',data:{ownerActor:1,layoutVersion:this.layoutVersion,seed,actors:[1],token:this.token,...(this.worldId?{worldId:this.worldId}:{})}});
  }
  send(m:any){
   if(m.type==='name'){this.name=sanitizeName(m.name);return;}

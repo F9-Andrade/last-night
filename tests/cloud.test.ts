@@ -170,3 +170,17 @@ test('account verification rechecks restored identities and leadership after awa
   assert.deepEqual(f.sent,[]);assert.deepEqual(f.restored,[],'former host cannot restore wallets after a delayed proof');
  }finally{f.bridge.dispose();}
 });
+
+test('delegated shared saves use authenticated RPC and never bypass conflicts with a blind retry',async()=>{
+ const delegate='30000000-0000-4000-8000-000000000003',calls:any[]=[],payload=serializeWorld(new Simulation());let error:any=null;
+ const client={auth:{getSession:async()=>({data:{session:{user:{id:delegate}}}})},async rpc(name:string,args:any){calls.push({name,args});return {data:error?null:7,error};},from(){throw new Error('No direct delegate writes allowed');}};
+ const service=new SaveService(client as never,world,delegate,2,null);service.hostingEnabled=true;service.sessionToken='12345678';
+ await service.shared(payload);assert.equal(service.revision,7);assert.equal(calls[0].name,'save_hosted_world');assert.equal(calls[0].args.p_expected_revision,2);assert.equal(calls[0].args.p_session_token,'12345678');assert.equal(calls[0].args.p_world_id,worldId);
+ error={code:'40001'};await assert.rejects(()=>service.shared(payload),e=>e instanceof CloudError&&e.kind==='conflict');assert.equal(service.revision,7);assert.equal(calls.length,2);
+ error={code:'42501'};await assert.rejects(()=>service.shared(payload),e=>e instanceof CloudError&&e.kind==='access');assert.equal(service.revision,7);
+});
+
+test('without hosting migration, delegated saves remain denied and owner writes remain compatible',async()=>{
+ const delegate='30000000-0000-4000-8000-000000000003';const client={auth:{getSession:async()=>({data:{session:{user:{id:delegate}}}})},from(){throw new Error('Unauthorized write');}};
+ const service=new SaveService(client as never,world,delegate,0,null);await assert.rejects(()=>service.shared(serializeWorld(new Simulation())),e=>e instanceof CloudError&&e.kind==='access');
+});
