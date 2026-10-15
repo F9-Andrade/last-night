@@ -34,12 +34,12 @@ export class NetworkManager {
   if(decision==='close')this.fail('O anfitrião saiu. O dono não autorizou sua permanência; a sessão foi encerrada.');
   return decision==='play';
  }
- layoutVersion:0|1=1;
- persistentWorld?:{id:string;seed:number;layoutVersion?:0|1};
+ layoutVersion:0|1|2=2;
+ persistentWorld?:{id:string;seed:number;layoutVersion?:0|1|2};
  onAccount:(data:unknown,actor:number)=>void=()=>{};
  private accountBudget=new Map<number,number>();
  sendAccount(data:unknown,target?:number){if(this.inSession&&boundedJSON(data,80)&&JSON.stringify(data).length<=2048)this.sendEvent(17,data,target);}
- mode:'photon'|'lan'='photon';private lan?:LanTransport|BrowserLanTransport;private lanPublishSeed?:number;private lanPublishLayout?:0|1;
+ mode:'photon'|'lan'='photon';private lan?:LanTransport|BrowserLanTransport;private lanPublishSeed?:number;private lanPublishLayout?:0|1|2;
  state:ConnectionState='disconnected';message='';region='';code='';players:NetworkPlayerIdentity[]=[];
  readonly remotes=new Map<number,InterpolationBuffer>();
  metrics={sent:0,received:0,rejected:0,sendRate:0,receiveRate:0,payloadBytes:0,averagePayloadBytes:0,ping:0};
@@ -159,7 +159,7 @@ export class NetworkManager {
  });}
  setName(value:string){this.name=sanitizeName(value);try{localStorage.setItem('last-night-player-name',this.name);}catch{/* Optional storage. */}if(this.lan)this.lan.send({type:'name',name:this.name});else this.applyName();}
  private applyName(){const actor=this.client?.myActor();if(!actor)return;actor.setName(this.name);actor.setCustomProperties({displayName:this.name,ready:false,playerId:this.client!.getUserId?.()??''});}
- openLan(name:string,seed:number,layoutVersion:0|1=this.layoutVersion){if(this.inSession)return;this.mode='lan';const clean=sanitizeName(name);void this.connect(validName(clean)?clean:'Sobrevivente');this.lanPublishSeed=seed;this.lanPublishLayout=layoutVersion;}
+ openLan(name:string,seed:number,layoutVersion:0|1|2=this.layoutVersion){if(this.inSession)return;this.mode='lan';const clean=sanitizeName(name);void this.connect(validName(clean)?clean:'Sobrevivente');this.lanPublishSeed=seed;this.lanPublishLayout=layoutVersion;}
  create(){if(this.state!=='connected')return;if(this.lan && 'host' in this.lan){this.lan.host(this.persistentWorld?.seed??crypto.getRandomValues(new Uint32Array(1))[0],this.persistentWorld?.id,this.persistentWorld?.layoutVersion??this.layoutVersion);return;}if(this.lan){this.setState('joining','Criando sala LAN…');this.deadline('O servidor LAN não respondeu.');this.lan.send({type:'create',layoutVersion:this.persistentWorld?.layoutVersion??this.layoutVersion,...(this.persistentWorld?{seed:this.persistentWorld.seed,worldId:this.persistentWorld.id}:{})});return;}if(!this.client)return;if(!validName(this.name)){this.setState('connected','Use um nome de 2 a 20 caracteres.');return;}this.intent={kind:'create',retries:0};this.setState('joining','Criando sala…');this.deadline('Não foi possível criar a sala a tempo.');this.createHere();}
  private createHere(){this.code=generateCode(this.region);this.client!.createRoom(this.code,{maxPlayers:MAX_PLAYERS,isVisible:false,isOpen:true,playerTTL:0,roomTTL:0,customGameProperties:{protocol:NETWORK_PROTOCOL_VERSION,build:NETWORK_BUILD,gameState:'lobby',layoutVersion:this.persistentWorld?.layoutVersion??this.layoutVersion,seed:this.persistentWorld?.seed??crypto.getRandomValues(new Uint32Array(1))[0],...(this.persistentWorld?{worldId:this.persistentWorld.id}:{})}});}
  join(value:string){if(this.state!=='connected')return;if(this.lan){if(!(this.lan && 'host' in this.lan?LAN_CODE.test(value.trim().toUpperCase()):/^L[0-9A-F]{5}$/i.test(value.trim()))){this.setState('connected','Código LAN inválido. Use o código mostrado pelo líder.');return;}this.setState('joining','Entrando na sala LAN…');this.deadline('Não foi possível conectar pela LAN. Confira a mesma rede e o isolamento Wi-Fi.',45000);this.lan.send({type:'join',code:value.trim().toUpperCase()});return;}const code=normalizeCode(value);if(!validCode(code)){this.setState('connected','Código inválido. Use os seis caracteres do convite.');return;}if(!validName(this.name)){this.setState('connected','Use um nome de 2 a 20 caracteres.');return;}const target=roomRegion(code)!;
@@ -176,7 +176,7 @@ export class NetworkManager {
   this.emit();
  }
  ready(){if(this.state!=='lobby'||this.isHost)return;if(this.lan){this.lan.send({type:'ready'});return;}const a=this.client!.myActor();a.setCustomProperty('ready',a.getCustomProperty('ready')!==true);this.refreshPlayers();}
- start(){if(!this.canStart)return;if(this.lan){this.lan.send({type:'start'});return;}const c=this.client!,data:StartData={ownerActor:this.localActor,layoutVersion:c.myRoom().getCustomProperty('layoutVersion')===1?1:0,seed:c.myRoom().getCustomProperty('seed') as number,actors:this.players.map(p=>p.actorNumber),token:sessionToken(),...(c.myRoom().getCustomProperty('worldId')?{worldId:c.myRoom().getCustomProperty('worldId') as string}:{})};
+ start(){if(!this.canStart)return;if(this.lan){this.lan.send({type:'start'});return;}const c=this.client!,data:StartData={ownerActor:this.localActor,layoutVersion:c.myRoom().getCustomProperty('layoutVersion')===2?2:c.myRoom().getCustomProperty('layoutVersion')===1?1:0,seed:c.myRoom().getCustomProperty('seed') as number,actors:this.players.map(p=>p.actorNumber),token:sessionToken(),...(c.myRoom().getCustomProperty('worldId')?{worldId:c.myRoom().getCustomProperty('worldId') as string}:{})};
   c.myRoom().setIsOpen(false);c.myRoom().setCustomProperties({gameState:'loading',token:data.token});
   c.raiseEvent(NetworkEventCode.GameStart,data,{receivers:this.sdk!.LoadBalancing.Constants.ReceiverGroup.Others});this.begin(data);
  }

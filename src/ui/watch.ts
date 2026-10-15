@@ -25,7 +25,7 @@ export class WatchHUD {
       <div class="watch-screen"><div class="watch-status"><span class="watch-day"></span><span class="watch-phase"></span></div>
       <span class="watch-label"></span><strong class="watch-time" role="timer" aria-live="off"></strong>
       <span class="watch-detail"></span><div class="watch-progress" aria-hidden="true"><i></i></div></div>
-      <div class="watch-hint"><span>VERIFIQUE. SOBREVIVA.</span><span><kbd>K</kbd> guardar</span></div></div>
+      <div class="watch-hint"><span>VERIFIQUE. SOBREVIVA.</span><span><kbd>O</kbd> guardar</span></div></div>
       <div class="watch-strap watch-strap-bottom" aria-hidden="true"></div>`;
     root.append(this.panel);
     this.label = this.panel.querySelector('.watch-label')!; this.timer = this.panel.querySelector('.watch-time')!;

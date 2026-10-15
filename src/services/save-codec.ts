@@ -4,6 +4,7 @@ import {PERKS} from '../game/perks.ts';
 import {ENEMIES} from '../game/enemies.ts';
 import {CITY_LIMIT} from '../game/city.ts';
 import {RARITIES} from '../game/weapons.ts';
+import {validDiscoveryIds} from '../game/discoveries.ts';
 import {restoreSurvival} from '../network/coop-world.ts';
 import type {PlayerRecord,WorldCheckpoint} from '../network/coop-world.ts';
 import {parseCheckpoint,validSavedPlayer,validSavedEnemy} from '../network/checkpoint.ts';
@@ -46,10 +47,11 @@ export function applyPlayerRecord(s:Simulation,p:PlayerRecord):void {
 }
 export interface PlayerPayload extends Omit<PlayerSaveRow,'updated_at'> {}
 export function serializePlayer(s:Simulation,worldId:string,userId:string,confirmed?:PlayerRecord):PlayerPayload {
+ const discoveries=[...s.discoveries];if(!validDiscoveryIds(discoveries))invalid();
  const record=confirmed?copy(confirmed):playerRecord(s);record.player.x=s.player.x;record.player.z=s.player.z;record.player.angle=s.player.angle;record.player.pitch=s.player.pitch;record.player.eyeY=s.player.eyeY;record.player.stamina=s.player.stamina;
  const value:PlayerPayload={world_id:worldId,user_id:userId,position:{x:record.player.x,y:record.player.eyeY,z:record.player.z},rotation:{x:record.player.pitch,y:record.player.angle,z:0},health:record.player.hp,max_health:s.maxHP,stamina:record.player.stamina,max_stamina:100,
   inventory:record.inventory,weapons:record.loadout,ammo:{ammo:record.inventory.ammo,shells:record.inventory.shells,rifleAmmo:record.inventory.rifleAmmo},perks:record.perks,stats:s.stats,
-  extra_data:{schema_version:SAVE_VERSION,record,kills:s.kills,pendingPerks:s.pendingPerks,discoveredSites:[...s.discoveredSites],discoveredWeapons:[...s.discoveredWeapons],seenEnemies:[...s.seenEnemies],gameOver:s.gameOver}};
+  extra_data:{schema_version:SAVE_VERSION,record,kills:s.kills,pendingPerks:s.pendingPerks,discoveries,discoveredSites:[...s.discoveredSites],discoveredWeapons:[...s.discoveredWeapons],seenEnemies:[...s.seenEnemies],gameOver:s.gameOver}};
  if(!safeSaveJSON(value)||!validSavedPlayer(record))invalid();return copy(value);
 }
 export function deserializePlayer(value:PlayerSaveRow|PlayerPayload,s:Simulation):PlayerRecord {
@@ -71,11 +73,12 @@ export function deserializePlayer(value:PlayerSaveRow|PlayerPayload,s:Simulation
  // Both representations are checked; never let invalid independent columns pass.
  if(!finite(value.health,0,115)||!finite(value.stamina,0,100)||!finite(value.max_health,1,115)||!finite(value.max_stamina,1,100)||!validSavedPlayer(record))invalid();
  if(extra.pendingPerks!==undefined&&(!Array.isArray(extra.pendingPerks)||extra.pendingPerks.length>12||!extra.pendingPerks.every(p=>typeof p==='string'&&Object.hasOwn(PERKS,p))))invalid();
+ if(extra.discoveries!==undefined&&!validDiscoveryIds(extra.discoveries))invalid();
  if(extra.discoveredSites!==undefined&&!stringList(extra.discoveredSites)||extra.discoveredWeapons!==undefined&&!numberList(extra.discoveredWeapons)||extra.seenEnemies!==undefined&&(!stringList(extra.seenEnemies)||!(extra.seenEnemies as string[]).every(k=>Object.hasOwn(ENEMIES,k))))invalid();
  if(extra.kills!==undefined&&!finite(extra.kills,0)||extra.gameOver!==undefined&&typeof extra.gameOver!=='boolean')invalid();
  if(!object(value.stats))invalid();const stats={...s.stats};for(const key of Object.keys(stats) as (keyof typeof stats)[]){const n=value.stats[key];if(n===undefined)continue;if(key==='bestRarity'){if(typeof n!=='string'||!Object.hasOwn(RARITIES,n))invalid();stats[key]=n as typeof stats.bestRarity;}else{if(!finite(n,0))invalid();stats[key]=n;}}
  applyPlayerRecord(s,record);s.stats=stats;s.kills=(extra.kills as number|undefined)??0;s.pendingPerks=copy(extra.pendingPerks??[]) as Simulation['pendingPerks'];
- s.discoveredSites=new Set((extra.discoveredSites??[]) as string[]);s.discoveredWeapons=new Set((extra.discoveredWeapons??[0]) as number[]);s.seenEnemies=new Set((extra.seenEnemies??[]) as Simulation['seenEnemies'] extends Set<infer T>?T[]:never);
+ s.discoveries=new Set((extra.discoveries??[]) as string[]);s.discoveredSites=new Set((extra.discoveredSites??[]) as string[]);s.discoveredWeapons=new Set((extra.discoveredWeapons??[0]) as number[]);s.seenEnemies=new Set((extra.seenEnemies??[]) as Simulation['seenEnemies'] extends Set<infer T>?T[]:never);
  s.gameOver=extra.gameOver===true||record.life==='dead';return record;
 }
 
@@ -102,12 +105,12 @@ export function validateWorldPayload(value:unknown):WorldPayload {
  return value as unknown as WorldPayload;
 }
 /** Read only layout metadata before preparing collision arrays; full validation follows. */
-export function savedLayoutVersion(value:unknown):0|1 {
+export function savedLayoutVersion(value:unknown):0|1|2 {
  if(!safeSaveJSON(value)||!object(value))invalid();
- if(Object.keys(value).length===0)return 1;
+ if(Object.keys(value).length===0)return 2;
  if(value.format!=='last-night'||value.schema_version!==SAVE_VERSION||!object(value.checkpoint)||!object(value.checkpoint.survival))invalid();
  const version=value.checkpoint.survival.layoutVersion;
- if(version!==undefined&&version!==0&&version!==1)invalid();
+ if(version!==undefined&&version!==0&&version!==1&&version!==2)invalid();
  return version??0;
 }
 export function deserializeWorld(value:unknown,s:Simulation):void {

@@ -1,0 +1,83 @@
+{
+  "description": "Node diagnostics, full footprints, no rendering or FPS benchmark",
+  "rows": [
+    {
+      "seed": 1,
+      "version": 1,
+      "buildings": 445,
+      "trees": 598,
+      "loot": 322,
+      "buildingStreetIntersections": 21,
+      "overlappingBuildingPairs": 0,
+      "treesOnStreets": 79,
+      "blockedLoot": 0,
+      "blockedEntrances": 0,
+      "generationMs": 6.62
+    },
+    {
+      "seed": 1,
+      "version": 2,
+      "buildings": 445,
+      "trees": 598,
+      "loot": 322,
+      "buildingStreetIntersections": 0,
+      "overlappingBuildingPairs": 0,
+      "treesOnStreets": 0,
+      "blockedLoot": 0,
+      "blockedEntrances": 0,
+      "generationMs": 279.07
+    },
+    {
+      "seed": 813,
+      "version": 1,
+      "buildings": 445,
+      "trees": 598,
+      "loot": 322,
+      "buildingStreetIntersections": 21,
+      "overlappingBuildingPairs": 0,
+      "treesOnStreets": 80,
+      "blockedLoot": 0,
+      "blockedEntrances": 0,
+      "generationMs": 3.25
+    },
+    {
+      "seed": 813,
+      "version": 2,
+      "buildings": 445,
+      "trees": 598,
+      "loot": 322,
+      "buildingStreetIntersections": 0,
+      "overlappingBuildingPairs": 0,
+      "treesOnStreets": 0,
+      "blockedLoot": 0,
+      "blockedEntrances": 0,
+      "generationMs": 320.15
+    },
+    {
+      "seed": 9021,
+      "version": 1,
+      "buildings": 445,
+      "trees": 598,
+      "loot": 322,
+      "buildingStreetIntersections": 21,
+      "overlappingBuildingPairs": 0,
+      "treesOnStreets": 80,
+      "blockedLoot": 0,
+      "blockedEntrances": 0,
+      "generationMs": 2.66
+    },
+    {
+      "seed": 9021,
+      "version": 2,
+      "buildings": 445,
+      "trees": 598,
+      "loot": 322,
+      "buildingStreetIntersections": 0,
+      "overlappingBuildingPairs": 0,
+      "treesOnStreets": 0,
+      "blockedLoot": 0,
+      "blockedEntrances": 0,
+      "generationMs": 327.02
+    }
+  ]
+}

@@ -1,10 +1,11 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createEconomy,planTrade,refreshEconomy,moneyDrop,collectCoins,validCoins,validTradeRequest,validEconomyWorld,safeMerchantSite,SHOP_CATALOGS,SELL_PRICES,MAX_COINS,merchantReachable} from '../src/game/economy.ts';
+import {createEconomy,planTrade,refreshEconomy,moneyDrop,collectCoins,validCoins,validTradeRequest,validEconomyWorld,safeMerchantSite,merchantApproach,SHOP_CATALOGS,SELL_PRICES,MAX_COINS,merchantReachable} from '../src/game/economy.ts';
 import type {TradeContext,TradeRequest} from '../src/game/economy.ts';
 import {emptyStock,Inventory,ITEMS} from '../src/game/inventory.ts';
 import {RECIPES} from '../src/game/crafting.ts';
-import {distance,BASE} from '../src/game/world.ts';
+import {distance,BASE,collides,TREE_TRUNKS} from '../src/game/world.ts';
+import {ROADS} from '../src/game/districts.ts';
 import {merchantObstacles} from '../src/game/merchant-collision.ts';
 
 const setup=(index=0)=>{const world=createEconomy(1977),m=world.merchants[index];const context:TradeContext={seed:1977,coins:1000,items:emptyStock(),capacity:16,player:{x:m.x,z:m.z-2,hp:100,eyeY:m.y+1.65},busy:false,groundWeaponCount:0,nextWeaponId:80};return {world,m,context};};
@@ -65,4 +66,14 @@ test('forged transactions and corrupted economy state fail closed',()=>{
  for(const value of [NaN,Infinity,-1,1.5,MAX_COINS+1,'10'])assert.equal(validCoins(value),false);
  const duplicate=structuredClone(world);duplicate.merchants[1]=duplicate.merchants[0];assert.equal(validEconomyWorld(duplicate),false);
  const corrupt=structuredClone(world);corrupt.merchants[0].stock.water=9999;assert.equal(validEconomyWorld(corrupt),false);
+});
+
+
+test('whole merchant stalls keep roads and sidewalks clear with a walkable front route',()=>{
+ for(const seed of [1,13,77,813,9021,123456789,0xffffffff])for(const m of createEconomy(seed).merchants){
+  const approach=merchantApproach(m);assert.ok(approach);assert.equal(m.angle,approach.angle);
+  for(const box of merchantObstacles(m))assert.equal(ROADS.some(r=>Math.abs(box.x-r.x)<(box.w+r.w)/2+2&&Math.abs(box.z-r.z)<(box.d+r.d)/2+2),false,`${seed} ${m.id}`);
+  const front={x:m.x+Math.sin(m.angle)*2.4,z:m.z+Math.cos(m.angle)*2.4};
+  for(let i=0;i<=30;i++){const p={x:front.x+(approach.road.x-front.x)*i/30,z:front.z+(approach.road.z-front.z)*i/30};assert.equal(collides(p,.45,TREE_TRUNKS),false,`${seed} blocked front ${m.id}`);}
+ }
 });

@@ -4,6 +4,12 @@
 
 Jogo de sobrevivência **FPS 3D com voxel detalhado** para navegador. Explore Santa Luz, vasculhe containers, escolha o que carregar e prepare as defesas do Abrigo 07. A noite termina quando a horda é eliminada. O amanhecer traz recursos, uma escolha de vantagem para a expedição e um próximo dia mais difícil. Há seis armas, loot de equipamento e quatro tipos de infectado especial. Santa Luz tem 312 × 312 unidades, com hospital distante, escola, motel, indústria e quarentena. A conversão para primeira pessoa está documentada em [FPS_REPORT.md](FPS_REPORT.md); a expansão anterior em [CITY_REPORT.md](CITY_REPORT.md).
 
+## Geração procedural validada
+
+Novas expedições usam o layout **v2**: sorteio por seed com reserva do terreno completo, incluindo fachadas, árvores e anexos; ruas, entradas e terreno do abrigo permanecem livres. Lotes inválidos são reposicionados em terreno próximo, sem excluir prédios, veículos ou suprimentos. Calçadas são recortadas nos cruzamentos. NPCs exigem espaço para o posto inteiro e uma aproximação livre; drops e reposições verificam ocupação.
+
+Saves **v0/v1 mantêm suas coordenadas**: não há migração automática que desloque construções ou invalide árvores e itens salvos. As correções de recorte de calçadas e de reposição também valem neles; para usar a organização completa v2, crie uma nova expedição. Solo, Photon e LAN compartilham a mesma seed e versão. A suíte `tests/procedural-placement.test.ts` cobre múltiplas seeds, acessos, persistência e troca entre versões. Evidências em `docs/procedural-generation/`.
+
 ## Executar
 
 Node.js **22.18+** ou **24+**, npm e navegador desktop com **WebGL 2**.
@@ -41,12 +47,19 @@ O build fica em `dist/`. Não abra `index.html` diretamente pelo sistema de arqu
 | H | Aplicar bandagem |
 | Tab | Mochila, armas e vantagens adquiridas |
 | M / F | Mapa / lanterna |
+| K / L | Livro Guia de sobrevivência / Enciclopédia de Santa Luz |
+| O | Consultar relógio de campo |
+| ← / → no livro | Passar páginas (fora da busca) |
 | B | Equipar ou guardar o martelo já fabricado |
 | 1–9 / roda com martelo na mão | Escolher peça na barra de construção |
 | R / botão direito com martelo na mão | Girar a peça 90° |
 | PgUp / PgDn com martelo na mão | Selecionar andar |
 | B / 0 / Esc durante construção | Guardar o martelo e sair do posicionamento |
 | Esc | Liberar mouse e pausar; fecha mapa/mochila antes da pausa |
+
+O Guia (**K**) explica os objetivos e os primeiros passos; a Enciclopédia (**L**) reúne recursos, infectados, alimentos, armas e comerciantes com busca e índice. Os dois livros estão sempre disponíveis, não pesam e também podem ser abertos pela mochila ou pausa. **Esc** guarda o livro antes de abrir a pausa; o mundo continua durante a leitura iniciada no gameplay, inclusive no coop. O relógio permanece em **O**.
+
+A enciclopédia começa com registros ocultos: silhueta preta e `???`. Obter itens/equipamento ou observar de perto infectados, construções e NPCs revela o registro e concede uma conquista de descoberta, uma vez por registro. Receitas, estoque das lojas e inventários de outros jogadores não desbloqueiam conhecimento. O kit inicial já é conhecido. NPCs só ganham marcador no mapa e minimapa depois de encontrados pelo próprio jogador, com proximidade e linha de visão. Esse progresso é individual por mundo e acompanha o save do jogador em `extra_data.discoveries`, inclusive no coop e na cópia de recuperação local; não requer migration nem altera tabelas/RLS. Saves antigos continuam compatíveis e reconhecem o equipamento carregado ao entrar.
 
 A mochila permite usar e descartar recursos. Para armazenar itens, fabrique um baú na mesa inteligente, posicione-o e abra com **E**. **O tempo continua com a mochila aberta.** No solo, o botão de pausa ou sair da janela pausa a simulação; no coop os companheiros e o mundo continuam. A pausa oferece qualidade **LEVE/MÉDIA/ALTA/ULTRA**, FOV 70–105 (padrão 88), sensibilidade, balanço da câmera, impacto visual e volumes separados de efeitos/ambiente. Não há salto: escadas construídas permitem circular entre os andares do abrigo. Som pode ser desativado no canto superior direito.
 

@@ -1,0 +1,35 @@
+{
+  "seed": 813,
+  "version": 2,
+  "players": 2,
+  "errors": [],
+  "facade": {
+    "site": "church",
+    "point": {
+      "x": -68.1,
+      "z": 183.5
+    }
+  },
+  "summary": {
+    "seed": 813,
+    "version": 2,
+    "epoch": 1,
+    "sites": 92,
+    "buildings": 350,
+    "obstacles": 1852,
+    "moved": 118
+  },
+  "websocketHosts": [
+    "127.0.0.1:5174",
+    "127.0.0.1:5174",
+    "0.peerjs.com",
+    "0.peerjs.com"
+  ],
+  "checks": [
+    "solo v2 shader loading completes",
+    "junction facade and map captured",
+    "solo to LAN preserves all static geometry",
+    "real WebRTC peer reconstructs identical buildings trees portals and loot",
+    "guest trades with E and host confirms inventory wallet and stock"
+  ]
+}

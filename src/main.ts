@@ -1,6 +1,11 @@
 import {configureWorld} from './game/world-layout';
 import {MerchantsView} from './render/merchants';
 import {TradeHUD} from './ui/trade';
+import {FieldBooks} from './ui/field-books';
+import {DiscoveryToast} from './ui/discovery-toast';
+import {scanDiscoveries} from './game/discoveries';
+import type {BookKind} from './ui/field-book-content';
+import './ui/book-access.css';
 import {focusedMerchant} from './game/trading';
 import {CloudController} from './services/cloud-controller';
 import type {CloudRun} from './services/cloud-controller';
@@ -61,7 +66,8 @@ let sim = new Simulation(), started = false, paused = false, openingLan=false;
 const merchantsView=new MerchantsView();view.scene.add(merchantsView.root);
 const sound = new Sound();
 const network=new NetworkManager();
-network.layoutVersion=import.meta.env.DEV&&new URLSearchParams(location.search).has('test')&&!new URLSearchParams(location.search).has('layout')?0:1;
+const testLayout=import.meta.env.DEV&&new URLSearchParams(location.search).has('test')?new URLSearchParams(location.search).get('layout'):undefined;
+network.layoutVersion=testLayout===null||testLayout==='0'?0:testLayout==='1'?1:2;
 let coop:CoopSession|undefined;
 const coopHUD=new CoopGameplayHUD(hud.root);
 // Reuse the already interpolated avatars; map refreshes never add network traffic.
@@ -69,6 +75,8 @@ hud.mapPeers=()=>view.remoteStates.flatMap(({snapshot,gameplay})=>snapshot?[{x:s
 const chestHUD=new ChestHUD(hud.root);
 const constructionHUD=new ConstructionHUD(hud.root);
 const tradeHUD=new TradeHUD(hud.root);
+const fieldBooks=new FieldBooks(hud.root);
+const discoveryToast=new DiscoveryToast(hud.root);let discoveryClock=0;
 const coopUI=new CoopUI(network,hud.root,()=>sound.event('select'));
 // The lobby subscription renders immediately, so apply the loading gate afterwards.
 hud.el('menu').inert=true;
@@ -81,7 +89,7 @@ network.onStart=async data=>{
  return startSession(data,await cloud.networkRun(data));
 };
 network.onEnded=()=>{
- const reason=network.state==='error'?network.message:'';
+ const reason=network.state==='error'?network.message:'';fieldBooks.close();
  if(started||loadingSession){
   paused=true;input.enabled=false;input.clear();input.release();
   if(coop)coop.error=reason||'Sessão encerrada.';
@@ -104,6 +112,20 @@ let buildPreview:{kind:StructureKind;rotation:0|1|2|3;level:number}|undefined;
 let hammerSelection={kind:'wall' as StructureKind,rotation:0 as 0|1|2|3,level:0},wasHammerEquipped=false;
 let hammerReturnSlot:0|1|2|3=1;
 function clearPlacement(){placingItem=undefined;furnitureMove=undefined;buildPreview=undefined;}
+function closeFieldBook(capture=true){fieldBooks.close();input.clear();hud.canvas.focus();syncCursor(capture);}
+function updateDiscoveries(observe=false,silent=false){
+ const found=scanDiscoveries(sim,observe);
+ if(found.length){if(!silent)discoveryToast.enqueue(found);cloud.touch(true);}
+ fieldBooks.setDiscoveries(sim.discoveries);
+}
+function toggleFieldBook(kind:BookKind){
+ if(!started||loadingSession||sim.gameOver||coop?.incapacitated||hud.settingsOpen||cloud.ui.opened||sim.pendingPerks.length)return;
+ if(fieldBooks.opened&&fieldBooks.kind===kind){closeFieldBook();return;}
+ tradeHUD.close();constructionHUD.close();chestHUD.close();hud.variety.craft.close();hud.inventory(false);hud.map(false);hud.watch.close();clearPlacement();
+ updateDiscoveries();fieldBooks.show(kind,paused);input.clear();syncCursor();sound.event('book-page');
+}
+fieldBooks.onClose=()=>closeFieldBook();fieldBooks.onTurn=()=>sound.event('book-page');
+for(const prefix of ['bag','pause'])for(const [book,kind] of [['guide','guide'],['wiki','encyclopedia']] as const)hud.el(`${prefix}-${book}`).onclick=()=>toggleFieldBook(kind);
 function closeConstruction(capture=true){constructionHUD.close();input.clear();syncCursor(capture);}
 function isPlacing(){return !!placingItem||!!buildPreview;}
 
@@ -132,9 +154,9 @@ function equipMelee(melee:MeleeId){
  if(melee==='hammer'){hud.inventory(false);hud.variety.craft.close();input.clear();syncCursor(true);}
 }
 
-const input = new Input(hud.canvas, () => { if(tradeHUD.opened){closeTrade();return;}if(constructionHUD.open){closeConstruction();return;}if(chestHUD.open){closeChest();return;}if(hud.variety.craft.open){closeWorkbench();return;}if(hud.settingsOpen){closeSettings();return;}if(hud.mapOpen){hud.map(false);input.clear();syncCursor(true);return;}if (hud.inventoryOpen) { hud.inventory(false); input.clear();syncCursor(true); } else togglePause(); }, toggleInventory,()=>{if(started&&!paused&&!hud.inventoryOpen&&!hud.variety.craft.open&&!chestHUD.open&&!constructionHUD.open&&!tradeHUD.opened&&!hud.mapOpen&&!sim.gameOver)togglePause();});
+const input = new Input(hud.canvas, () => { if(fieldBooks.opened){closeFieldBook();return;}if(tradeHUD.opened){closeTrade();return;}if(constructionHUD.open){closeConstruction();return;}if(chestHUD.open){closeChest();return;}if(hud.variety.craft.open){closeWorkbench();return;}if(hud.settingsOpen){closeSettings();return;}if(hud.mapOpen){hud.map(false);input.clear();syncCursor(true);return;}if (hud.inventoryOpen) { hud.inventory(false); input.clear();syncCursor(true); } else togglePause(); }, toggleInventory,()=>{if(started&&!paused&&!fieldBooks.opened&&!hud.inventoryOpen&&!hud.variety.craft.open&&!chestHUD.open&&!constructionHUD.open&&!tradeHUD.opened&&!hud.mapOpen&&!sim.gameOver)togglePause();});
 view.look=input.look;
-function syncCursor(capture=false):void {input.enabled=(started||loadingSession)&&!sim.gameOver;input.loading=loadingSession;input.blocked=loadingSession||!input.enabled||network.state==='loading'||paused||hud.inventoryOpen||hud.variety.craft.open||chestHUD.open||constructionHUD.open||hud.mapOpen||hud.settingsOpen||cloud.ui.opened||tradeHUD.opened||sim.pendingPerks.length>0;if(input.blocked&&!loadingSession)input.release();else if(capture)input.capture();}
+function syncCursor(capture=false):void {input.enabled=(started||loadingSession)&&!sim.gameOver;input.loading=loadingSession;input.blocked=loadingSession||!input.enabled||network.state==='loading'||paused||hud.inventoryOpen||hud.variety.craft.open||chestHUD.open||constructionHUD.open||hud.mapOpen||hud.settingsOpen||cloud.ui.opened||tradeHUD.opened||fieldBooks.opened||sim.pendingPerks.length>0;if(input.blocked&&!loadingSession)input.release();else if(capture)input.capture();}
 function applySettings():void {
   sound.configure(settings);view.setQuality(settings.quality);view.renderer.shadowMap.enabled=settings.shadows&&settings.quality!=='low';view.shake=settings.shake;input.look.sensitivity=settings.sensitivity;view.fov=settings.fov;view.headBob=settings.headBob;
   hud.root.style.setProperty('--ui-scale',String(settings.uiScale));hud.root.classList.toggle('reduce-motion',!settings.shake);hud.captions=settings.captions;
@@ -145,9 +167,10 @@ function applySettings():void {
 }
 function openSettings():void {settingsReturn=started?'pause':'menu';if(started&&!paused)togglePause();hud.settingsOpen=true;hud.el('settings-screen').hidden=false;hud.root.classList.add('paused');input.clear();}
 function closeSettings():void {hud.settingsOpen=false;hud.el('settings-screen').hidden=true;if(settingsReturn==='menu')hud.root.classList.remove('paused');input.clear();}
-function menu(disconnect=true):void {tradeHUD.close();openingLan=false;clearPlacement();constructionHUD.close();chestHUD.close();hud.variety.craft.close();loadGeneration++;loadingSession=false;sessionPrepared=false;loading.hide();coop?.dispose();coop=undefined;coopHUD.update(undefined);started=false;if(disconnect)network.leave();view.remoteStates=[];view.remoteView.clear();hud.root.classList.remove('coop-playing');input.enabled=false;input.loading=false;input.release();sound.reset();started=false;paused=false;sim=new Simulation();view.reset();hud.reset();hud.paused(false);hud.showMenu(true);hud.el('game-over').hidden=true;hud.el('settings-screen').hidden=true;hud.settingsOpen=false;input.clear();sound.suspend();}
-function toggleMap():void {if(tradeHUD.opened)closeTrade(false);if(constructionHUD.open)closeConstruction();if(chestHUD.open)closeChest();if(hud.variety.craft.open)closeWorkbench();clearPlacement();if(!started||paused||sim.gameOver||sim.pendingPerks.length)return;hud.map(!hud.mapOpen);input.clear();syncCursor(!hud.mapOpen);sound.event('inventory');}
+function menu(disconnect=true):void {fieldBooks.close();tradeHUD.close();openingLan=false;clearPlacement();constructionHUD.close();chestHUD.close();hud.variety.craft.close();loadGeneration++;loadingSession=false;sessionPrepared=false;loading.hide();coop?.dispose();coop=undefined;coopHUD.update(undefined);started=false;if(disconnect)network.leave();view.remoteStates=[];view.remoteView.clear();hud.root.classList.remove('coop-playing');input.enabled=false;input.loading=false;input.release();sound.reset();started=false;paused=false;sim=new Simulation();view.reset();hud.reset();hud.paused(false);hud.showMenu(true);hud.el('game-over').hidden=true;hud.el('settings-screen').hidden=true;hud.settingsOpen=false;input.clear();sound.suspend();}
+function toggleMap():void {if(fieldBooks.opened)fieldBooks.close();if(tradeHUD.opened)closeTrade(false);if(constructionHUD.open)closeConstruction();if(chestHUD.open)closeChest();if(hud.variety.craft.open)closeWorkbench();clearPlacement();if(!started||paused||sim.gameOver||sim.pendingPerks.length)return;hud.map(!hud.mapOpen);input.clear();syncCursor(!hud.mapOpen);sound.event('inventory');}
 function toggleInventory(): void {
+  if(fieldBooks.opened)return;
   if(tradeHUD.opened){closeTrade();return;}
   if(constructionHUD.open){closeConstruction();return;}if(chestHUD.open){closeChest();return;}if(hud.variety.craft.open){closeWorkbench();return;}clearPlacement();
   if (loadingSession || !started || paused || sim.gameOver || sim.pendingPerks.length || coop?.incapacitated) return;
@@ -156,7 +179,7 @@ function toggleInventory(): void {
   hud.inventory(opening); if(opening) hud.selectItem(sim.atBase?'wood':'ammo'); input.clear(); syncCursor(!opening);sound.event('inventory');
 }
 function togglePause(): void {
-  tradeHUD.close();
+  fieldBooks.close();tradeHUD.close();
   clearPlacement();constructionHUD.close();chestHUD.close();hud.variety.craft.close();
   if(loadingSession)return;
   hud.map(false);
@@ -172,6 +195,7 @@ function start():void {if(loadingSession||scenePreparing)return;void (async()=>{
 });}
 function finishSessionLoad():void {
   loadingSession=false;sessionPrepared=false;input.loading=false;started=true;
+  updateDiscoveries(false,true);discoveryClock=0;
   accumulator=0;last=performance.now();frames=0;statsTime=0;
   loading.hide();hud.canvas.focus();syncCursor();
 }
@@ -192,7 +216,7 @@ async function startSession(session?:StartData,cloudRun?:CloudRun): Promise<void
   if(session){let preserved:CoopWorld|undefined;if(cloudRun&&network.isHost){preserved=CoopWorld.fromSolo(sim,network.localActor);}else if(!cloudRun){Object.assign(sim.player,spawnFor(session.actors,network.localActor));sim.player.eyeY=floorHeight(sim.player)+1.72;}coop=new CoopSession(network,sim,session,preserved);}
   if(cloudRun){await cloud.attach(cloudRun,coop,session);input.look.yaw=sim.player.angle;input.look.pitch=sim.player.pitch;}
   hud.root.classList.toggle('coop-playing',!!session);
-  hud.reset(); hud.inventory(false); view.reset(); hud.showMenu(false); hud.paused(false); hud.el('game-over').hidden = true;
+  fieldBooks.reset();discoveryToast.reset();discoveryClock=0;fieldBooks.setDiscoveries(sim.discoveries);hud.reset(); hud.inventory(false); view.reset(); hud.showMenu(false); hud.paused(false); hud.el('game-over').hidden = true;
   if(session)view.remoteStates=network.players.filter(p=>!p.isLocal).map(identity=>({identity,snapshot:{...spawnFor(session.actors,identity.actorNumber),y:0,yaw:Math.PI,pitch:0,vx:0,vz:0,locomotion:0,sequence:0,time:0}}));
   try{
     scenePreparing=true;
@@ -275,7 +299,7 @@ chestHUD.onClose=closeChest;
 chestHUD.onMove=move=>{if(coop)coop.action({kind:'chest-move',move});else if(!moveChest(sim,move))hud.notice('TRANSFERÊNCIA INDISPONÍVEL','Confira o espaço e selecione a pilha novamente.');sound.event('inventory');};
 chestHUD.onReclaim=chest=>{if(coop)coop.action({kind:'reclaim-chest',chest});else reclaimChest(sim,chest);closeChest();};
 hud.el('place-chest').onclick=()=>startFurniture('chest');
-input.onCancel=()=>{if(constructionHUD.open){closeConstruction(false);return true;}if(chestHUD.open){closeChest(false);return true;}if(hud.variety.craft.open){closeWorkbench();return true;}if(hud.inventoryOpen||hud.mapOpen||paused||hud.settingsOpen)return false;return cancelPlacement();};
+input.onCancel=()=>{if(fieldBooks.opened){closeFieldBook();return true;}if(constructionHUD.open){closeConstruction(false);return true;}if(chestHUD.open){closeChest(false);return true;}if(hud.variety.craft.open){closeWorkbench();return true;}if(hud.inventoryOpen||hud.mapOpen||paused||hud.settingsOpen)return false;return cancelPlacement();};
 input.onPrimary=()=>{
  if(!isPlacing())return false;sim.player.angle=input.look.yaw;sim.player.pitch=input.look.pitch;
  if(buildPreview){const p=structurePlacement(sim,buildPreview.kind,buildPreview.rotation,buildPreview.level);if(p.valid){if(coop)coop.action({kind:'place-structure',placement:p});else placeStructure(sim,p);}else hud.notice('ENCAIXE INDISPONÍVEL',p.reason);return true;}
@@ -311,15 +335,24 @@ hud.variety.onPerk=id=>{if(started&&!paused&&sim.choosePerk(id)){input.clear();a
 hud.root.addEventListener('item-select',()=>sound.event('select'));
 for(const key of Object.keys(settings) as (keyof Settings)[]){const control=hud.el(`setting-${key}`) as HTMLInputElement;control.oninput=()=>{Object.assign(settings,{[key]:control.type==='checkbox'?control.checked:key==='quality'?control.value:Number(control.value)});applySettings();};}
 hud.el('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();hud.text('fullscreen-status','');}catch{hud.text('fullscreen-status','Tela cheia indisponível neste navegador.');}};
-window.addEventListener('keydown',e=>{if(e.code==='Escape'&&hud.settingsOpen&&(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)){closeSettings();return;}if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement||e.target instanceof HTMLTextAreaElement)return;if(!started||paused||sim.gameOver||hud.settingsOpen||e.repeat)return;if(e.code==='KeyK'&&!input.blocked){e.preventDefault();hud.watch.toggle(sim);}if(e.code==='KeyM'){e.preventDefault();toggleMap();}if(e.code==='KeyF'){view.flashlightOn=!view.flashlightOn;sound.event('select');if(settings.captions)hud.notice(view.flashlightOn?'Lanterna ligada':'Lanterna apagada','');}});
+window.addEventListener('keydown',e=>{
+ if(e.code==='Escape'&&hud.settingsOpen&&(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)){closeSettings();return;}
+ if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement||e.target instanceof HTMLTextAreaElement||e.target instanceof HTMLElement&&e.target.isContentEditable)return;
+ if(!started||sim.gameOver||hud.settingsOpen||e.repeat)return;
+ if(e.code==='KeyK'||e.code==='KeyL'){e.preventDefault();toggleFieldBook(e.code==='KeyK'?'guide':'encyclopedia');return;}
+ if(paused||fieldBooks.opened||cloud.ui.opened)return;
+ if(e.code==='KeyO'&&!input.blocked){e.preventDefault();hud.watch.toggle(sim);}
+ if(e.code==='KeyM'){e.preventDefault();toggleMap();}
+ if(e.code==='KeyF'){view.flashlightOn=!view.flashlightOn;sound.event('select');if(settings.captions)hud.notice(view.flashlightOn?'Lanterna ligada':'Lanterna apagada','');}
+});
 const cloud=new CloudController(hud.root,network,{launch:run=>startSession(undefined,run),lobby:()=>coopUI.open(),exit:()=>menu(),source:()=>({player:sim,world:coop?.owner?.sim??sim,checkpoint:coop?.checkpoint,confirmed:coop?.localRecord}),authority:()=>!coop||!!coop.owner,running:()=>started,pause:()=>{if(started&&!paused&&!sim.gameOver)togglePause();input.release();},name:name=>{if(name)coopUI.setAccountName(name);else coopUI.clearAccountName();}});
 coopUI.onCreateRoom=create=>cloud.beginCoop(create);
 applySettings();
 const inviteCode=new URLSearchParams(location.search).get('room');
 window.addEventListener('pagehide',()=>network.leave());
 window.addEventListener('resize', () => view.resize());
-window.addEventListener('blur', () => { if (started && !paused && !sim.gameOver) { hud.inventory(false); togglePause(); } });
-document.addEventListener('visibilitychange', () => { if (document.hidden && started && !paused && !sim.gameOver) { hud.inventory(false); togglePause(); } });
+window.addEventListener('blur', () => { if (started && !paused && !sim.gameOver && !(fieldBooks.opened&&network.inSession)) { hud.inventory(false); togglePause(); } });
+document.addEventListener('visibilitychange', () => { if (document.hidden && started && !paused && !sim.gameOver && !(fieldBooks.opened&&network.inSession)) { hud.inventory(false); togglePause(); } });
 hud.canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); if (started && !paused) togglePause(); hud.el('load-error').hidden = false; hud.text('error-detail', 'A conexão com a GPU foi interrompida. Recarregue para iniciar uma nova expedição.'); });
 hud.el('reload-page').onclick = () => location.reload();
 
@@ -374,13 +407,19 @@ function frame(now: number): void {
     coop.render();if(sim.gameOver&&hud.el('game-over').hidden){hud.end(sim);hud.text('end-title','Ninguém ficou de pé.');hud.text('end-reason','O grupo foi incapacitado. Volte ao menu para reunir os sobreviventes.');syncCursor();}
   }
   view.remoteStates=network.inSession?(coop?.decorate(network.remoteStates())??network.remoteStates()):[];
+  if(started&&!loadingSession&&!paused&&!sim.gameOver&&!coop?.incapacitated&&(!coop||coop.ready)){
+   discoveryClock+=dt;
+   if(discoveryClock>=.25){discoveryClock=0;updateDiscoveries(!input.blocked&&input.captured);}
+  }
+  discoveryToast.update(dt,started&&!loadingSession&&!paused&&!sim.gameOver&&!coop?.incapacitated&&!fieldBooks.opened&&!hud.mapOpen&&!cloud.ui.opened);
+  if(sim.gameOver||coop?.incapacitated||sim.pendingPerks.length){if(fieldBooks.opened)closeFieldBook(false);}
   if(sim.gameOver||coop?.incapacitated){clearPlacement();if(chestHUD.open)closeChest();if(hud.variety.craft.open)closeWorkbench();if(constructionHUD.open)closeConstruction();}
   if(sim.gameOver||coop?.incapacitated){if(tradeHUD.opened)closeTrade(false);}
   tradeHUD.update(sim);
   chestHUD.update(sim);view.openChest=chestHUD.id;syncBuildMode();
   view.craftPreview=placingItem;view.buildPreview=buildPreview;view.furnitureMove=furnitureMove;view.furnitureRotation=furnitureRotation;
   const build=buildPreview?structurePlacement(sim,buildPreview.kind,buildPreview.rotation,buildPreview.level):undefined;
-  const queryFocus=started&&!sim.gameOver&&(!paused||constructionHUD.open);
+  const queryFocus=started&&!fieldBooks.opened&&!sim.gameOver&&(!paused||constructionHUD.open);
   const focusedPiece=queryFocus&&sim.crafting.structures.length?focusedStructure(sim):undefined;
   constructionHUD.update(sim,build,paused||!started||sim.gameOver,focusedPiece??null);
   view.buildPlacement=build;
@@ -425,7 +464,7 @@ void (async()=>{
 if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   debugStats = document.createElement('div'); debugStats.id = 'debug-stats'; debugStats.style.cssText = 'position:absolute;right:34px;top:190px;color:#d7e0bb;font:10px monospace;pointer-events:none;z-index:9;background:#152b2bcc;padding:6px'; document.body.append(debugStats);
   Object.assign(window, { __LAST_NIGHT__: {
-    state: () => ({layoutVersion:sim.layoutVersion,coins:sim.coins,economy:sim.economy,tradeOpen:tradeHUD.opened,watchOpen:hud.watch.open,construction:{preview:buildPreview,furnitureMove,placingItem,furnitureRotation,focused:focusedStructure(sim),ground:sim.groundY},nutrition:{...sim.nutrition},consumption:sim.consumption,crafting:sim.crafting,gear:sim.gear,activeSlot:sim.activeSlot,capacity:sim.inventory.capacity,coop:coop?.debug(),network:{mode:network.mode,state:network.state,region:network.region,code:network.code,players:network.players,metrics:{...network.metrics},remotes:network.remoteStates(),avatars:view.remoteView.count,buffers:[...network.remotes.values()].map(b=>b.size)}, director:{state:sim.director.state,elapsed:sim.director.elapsed,transitions:sim.director.transitions,allowPressure:sim.director.allowPressure},escapeClues:[...sim.escapeClues],events:[...testEvents], camera:{fov:view.camera.fov,position:view.camera.position.toArray(),yaw:input.look.yaw,pitch:input.look.pitch,pointerLocked:input.captured},focus:sim.focus,player: { ...sim.player }, runSeed:sim.runSeed, portals:sim.portals, discoveredSites:[...sim.discoveredSites], activatedSites:[...sim.activatedSites], dormant:sim.dormantZombies.length, weaponStorage:sim.weaponStorage, weapon:sim.equipped, loadout:sim.loadout, groundWeapons:sim.groundWeapons, perks:[...sim.perks], pendingPerks:sim.pendingPerks, facilities:sim.facilities, worldEvent:sim.worldEvent, acids:sim.acids, switchTimer:sim.switchTimer, stats:{...sim.stats}, mapOpen:hud.mapOpen, settings:{...settings}, flashlight:view.flashlightOn, ui:{nodes:document.querySelectorAll('*').length,updates:hud.updates,mutations:hud.mutations}, ammo: sim.ammo, reserve: sim.reserve, phase: sim.phase, time: sim.time, day: sim.day, kills: sim.kills, corpses: sim.corpses.bodies, baseHP: sim.baseHP, inventory: { ...sim.inventory.items }, storage: { ...sim.storage.items }, weight: sim.inventory.weight, loot: sim.loot, barricades: sim.barricades, action: sim.action, horde: { budget: sim.horde.budget, spawned: sim.horde.spawned, complete: sim.horde.complete }, threat: sim.threat, phaseElapsed: sim.cycle.elapsed, inventoryOpen: hud.inventoryOpen, paused, gameOver: sim.gameOver, reloadTimer: sim.reloadTimer, shotTimer: sim.shotTimer, zombies: sim.zombies.filter(z => z.active).map(z => ({ id:z.id,x: z.x, z: z.z, hp: z.hp, kind:z.kind, windup:z.windup, spitTarget:z.spitTarget,screamTimer:z.screamTimer,screamCooldown:z.screamCooldown,siege:z.siege,patrol:z.patrol, zone:z.zone, wounds:z.wounds, hearing:z.hearing,heard:z.heard,awareness:z.awareness,lastSeen:z.lastSeen,memory:z.memory,reaction:z.reaction })), fps, calls: view.renderer.info.render.calls, triangles: view.renderer.info.render.triangles, audio: sound.metrics(), render: view.metrics() }),
+    state: () => ({discoveries:[...sim.discoveries],layoutVersion:sim.layoutVersion,coins:sim.coins,economy:sim.economy,tradeOpen:tradeHUD.opened,watchOpen:hud.watch.open,book:{open:fieldBooks.opened,kind:fieldBooks.kind},construction:{preview:buildPreview,furnitureMove,placingItem,furnitureRotation,focused:focusedStructure(sim),ground:sim.groundY},nutrition:{...sim.nutrition},consumption:sim.consumption,crafting:sim.crafting,gear:sim.gear,activeSlot:sim.activeSlot,capacity:sim.inventory.capacity,coop:coop?.debug(),network:{mode:network.mode,state:network.state,region:network.region,code:network.code,players:network.players,metrics:{...network.metrics},remotes:network.remoteStates(),avatars:view.remoteView.count,buffers:[...network.remotes.values()].map(b=>b.size)}, director:{state:sim.director.state,elapsed:sim.director.elapsed,transitions:sim.director.transitions,allowPressure:sim.director.allowPressure},escapeClues:[...sim.escapeClues],events:[...testEvents], camera:{fov:view.camera.fov,position:view.camera.position.toArray(),yaw:input.look.yaw,pitch:input.look.pitch,pointerLocked:input.captured},focus:sim.focus,player: { ...sim.player }, runSeed:sim.runSeed, portals:sim.portals, discoveredSites:[...sim.discoveredSites], activatedSites:[...sim.activatedSites], dormant:sim.dormantZombies.length, weaponStorage:sim.weaponStorage, weapon:sim.equipped, loadout:sim.loadout, groundWeapons:sim.groundWeapons, perks:[...sim.perks], pendingPerks:sim.pendingPerks, facilities:sim.facilities, worldEvent:sim.worldEvent, acids:sim.acids, switchTimer:sim.switchTimer, stats:{...sim.stats}, mapOpen:hud.mapOpen, settings:{...settings}, flashlight:view.flashlightOn, ui:{nodes:document.querySelectorAll('*').length,updates:hud.updates,mutations:hud.mutations}, ammo: sim.ammo, reserve: sim.reserve, phase: sim.phase, time: sim.time, day: sim.day, kills: sim.kills, corpses: sim.corpses.bodies, baseHP: sim.baseHP, inventory: { ...sim.inventory.items }, storage: { ...sim.storage.items }, weight: sim.inventory.weight, loot: sim.loot, barricades: sim.barricades, action: sim.action, horde: { budget: sim.horde.budget, spawned: sim.horde.spawned, complete: sim.horde.complete }, threat: sim.threat, phaseElapsed: sim.cycle.elapsed, inventoryOpen: hud.inventoryOpen, paused, gameOver: sim.gameOver, reloadTimer: sim.reloadTimer, shotTimer: sim.shotTimer, zombies: sim.zombies.filter(z => z.active).map(z => ({ id:z.id,x: z.x, z: z.z, hp: z.hp, kind:z.kind, windup:z.windup, spitTarget:z.spitTarget,screamTimer:z.screamTimer,screamCooldown:z.screamCooldown,siege:z.siege,patrol:z.patrol, zone:z.zone, wounds:z.wounds, hearing:z.hearing,heard:z.heard,awareness:z.awareness,lastSeen:z.lastSeen,memory:z.memory,reaction:z.reaction })), fps, calls: view.renderer.info.render.calls, triangles: view.renderer.info.render.triangles, audio: sound.metrics(), render: view.metrics() }),
     coopFixture: () => coop?.owner,
     simulationFixture: () => sim,
     infectedMotion: (id:number) => {const z=sim.zombies.find(z=>z.id===id);return z?{x:z.x,z:z.z,gait:z.gait}:null;},

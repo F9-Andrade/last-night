@@ -1,9 +1,10 @@
 import { CITY_SITES, CITY_PORTALS, CITY_LOOT } from './city.ts';
-import { BUILDINGS, GAS_STATION, URBAN, OBSTACLES, collides, rebuildWorldCaches } from './world.ts';
-import { REGIONS, OUTER_HOUSES, WAREHOUSES, ROADS } from './districts.ts';
+import { BUILDINGS, GAS_STATION, URBAN, OBSTACLES, CARS, TREE_TRUNKS, WORLD_LIMIT, collides, rebuildWorldCaches } from './world.ts';
+import { REGIONS, OUTER_HOUSES, WAREHOUSES, ROADS, CARGO_OBSTACLES, PLAZA_MONUMENT } from './districts.ts';
 import { FACILITIES, CACHE_STORIES, EVENT_POINTS } from './expedition.ts';
 import { BASE_LOOT_POINTS } from './base-loot.ts';
 import { LOOT_POINTS } from './loot.ts';
+import { PlacementIndex, findPlacement, withinWorld } from './placement.ts';
 
 type Point = {x:number;z:number};
 type Lot = Point & {w:number;d:number};
@@ -18,8 +19,8 @@ const anchors:Anchor[] = [
 ];
 const byId = new Map(anchors.map(a=>[a.id,a]));
 const originalUrban = structuredClone(URBAN);
-let version:0|1=0, seed=0, epoch=0;
-export const worldLayoutVersion=():0|1=>version;
+let version:0|1|2=0, seed=0, epoch=0;
+export const worldLayoutVersion=():0|1|2=>version;
 export const worldLayoutSeed=():number=>seed;
 export const worldLayoutEpoch=():number=>epoch;
 
@@ -83,24 +84,76 @@ function restoreUrban(random?:()=>number):void {
   }
   URBAN.obstacles.splice(0,URBAN.obstacles.length,...URBAN.buildings,...URBAN.vehicles);
 }
-function moveDependents():void {
-  for(const d of dependents){const a=d.owner?byId.get(d.owner):undefined;d.point.x=d.original.x+(a?a.object.x-a.original.x:0);d.point.z=d.original.z+(a?a.object.z-a.original.z:0);}
+function moveDependents(validated=false):void {
+  for(const d of dependents){const fixedDistrict=validated&&REGIONS.slice(5,12).includes(d.point as typeof REGIONS[number]);const a=d.owner&&!fixedDistrict?byId.get(d.owner):undefined;d.point.x=d.original.x+(a?a.object.x-a.original.x:0);d.point.z=d.original.z+(a?a.object.z-a.original.z:0);}
   OUTER_HOUSES.forEach((p,i)=>{p[0]=BUILDINGS[i+8].x;p[1]=BUILDINGS[i+8].z;});
   for(const point of LOOT_POINTS){const alley=URBAN.alleys.find(a=>a.id===point.id);if(alley){point.x=alley.x;point.z=alley.z;}}
+}
+
+/** The reserved parcel includes the exterior, not just the collision walls. */
+function parcel(a:Anchor):Lot {
+ const b=a.object,site=CITY_SITES.find(s=>s.id===a.id);
+ if(site){const rear=site.kind==='school'?13:4,front=8;return {x:b.x,z:b.z+(front-rear)/2,w:b.w+14,d:b.d+front+rear};}
+ if(a.id==='station')return {x:b.x+1.5,z:b.z-2,w:15,d:16};
+ if(a.id.startsWith('warehouse:'))return {x:b.x,z:b.z+3,w:b.w+3,d:b.d+8};
+ if(a.id.startsWith('building:')&&Number(a.id.slice(9))>=8)return {x:b.x+1.5,z:b.z,w:21,d:16};
+ return {x:b.x,z:b.z+.5,w:b.w+2,d:b.d+3};
+}
+const vehicleBox=(c:typeof CARS[number]):Lot=>({x:c.x,z:c.z,w:Math.abs(Math.sin(c.angle))*3.7+Math.abs(Math.cos(c.angle))*1.8,d:Math.abs(Math.cos(c.angle))*3.7+Math.abs(Math.sin(c.angle))*1.8});
+function validateParcels():void {
+ // Streets, the entire buildable shelter and authored roadside scenes have priority.
+ const fixed:Lot[]=[{x:1,z:1,w:14,d:20},...CARS.map(vehicleBox),...CARGO_OBSTACLES,PLAZA_MONUMENT];
+ const roads=new PlacementIndex(ROADS),occupied=new PlacementIndex(fixed);
+ for(const d of dependents)if(!d.owner&&!REGIONS.includes(d.point as typeof REGIONS[number]))occupied.add({...d.original,w:2,d:2});
+ // Keep services near the original town, then reserve the full grounds of landmarks.
+ const ordered=[...anchors.filter(a=>a.id.startsWith('building:')&&!a.fixed),...anchors.filter(a=>a.id==='station'||a.id.startsWith('warehouse:')),...anchors.filter(a=>CITY_SITES.some(s=>s.id===a.id))];
+ for(const a of ordered){
+  const desired=parcel(a),placed=findPlacement(desired,p=>withinWorld(p,WORLD_LIMIT,2)&&!roads.overlaps(p,.65)&&!occupied.overlaps(p,.7),160);
+  if(!placed)throw new Error(`Não foi possível reservar o terreno de ${a.id}.`);
+  a.object.x+=placed.x-desired.x;a.object.z+=placed.z-desired.z;occupied.add(placed);
+ }
+ // Infill keeps its IDs, style and population. Unsafe shuffled lots move to the
+ // nearest free parcel; a failed search never silently overlaps or deletes a house.
+ for(const b of URBAN.buildings){
+  const desired={x:b.x,z:b.z+b.front*.7,w:b.w+4,d:b.d+4},before={x:b.x,z:b.z};
+  const placed=findPlacement(desired,p=>withinWorld(p,WORLD_LIMIT,2)&&!roads.overlaps(p,.6)&&!occupied.overlaps(p,.6),160);
+  if(!placed)throw new Error(`Não foi possível reservar o terreno de ${b.id}.`);
+  b.x+=placed.x-desired.x;b.z+=placed.z-desired.z;occupied.add(placed);
+  const alley=URBAN.alleys.find(a=>a.id===b.id.replace('urban-','alley-'));if(alley){alley.x+=b.x-before.x;alley.z+=b.z-before.z;}
+ }
+ // Cars may occupy their authored road lane, but cannot intersect another solid.
+ for(const car of URBAN.vehicles){const placed=findPlacement(car,p=>withinWorld(p,WORLD_LIMIT,2)&&!occupied.overlaps(p,.65),48,.5);if(!placed)throw new Error(`Não foi possível estacionar ${car.id}.`);car.x=placed.x;car.z=placed.z;occupied.add(placed);}
+ URBAN.obstacles.splice(0,URBAN.obstacles.length,...URBAN.buildings,...URBAN.vehicles);
+}
+
+function validateSupplies():void {
+ const placed=new PlacementIndex();
+ // Copies in CITY_LOOT / BASE_LOOT_POINTS are kept in sync with the playable list.
+ for(const point of [...LOOT_POINTS,...FACILITIES]){
+  const desired={x:point.x,z:point.z,w:1.3,d:1.3};
+  const site='site'in point?CITY_SITES.find(s=>s.id===point.site):undefined;
+  const inside=site&&Math.abs(point.x-site.x)<site.w/2&&Math.abs(point.z-site.z)<site.d/2;
+  const found=findPlacement(desired,p=>!collides(p,.65,TREE_TRUNKS)&&!placed.overlaps(p,.25)&&!CITY_PORTALS.some(door=>Math.hypot(p.x-door.x,p.z-door.z)<1.6)&&(!inside||Math.abs(p.x-site.x)<site.w/2-1&&Math.abs(p.z-site.z)<site.d/2-1),inside?6:12,.5);
+  if(!found)throw new Error(`Não foi possível posicionar ${point.id}.`);
+  point.x=found.x;point.z=found.z;placed.add(found);
+  for(const source of [CITY_LOOT,BASE_LOOT_POINTS,URBAN.alleys]){const copy=source.find(p=>p.id===point.id);if(copy){copy.x=point.x;copy.z=point.z;}}
+ }
 }
 
 /** One layout per loaded browser world. Call BEFORE constructing/restoring its Simulation.
  * Actors and clones share this layout; never call this from an actor update or constructor.
  * Version 0 exactly restores legacy parcels; the version and run seed travel with saves. */
-export function configureWorld(worldSeed:number,layoutVersion:0|1=1):boolean {
-  if(!Number.isInteger(worldSeed)||worldSeed<0||worldSeed>0xffffffff||![0,1].includes(layoutVersion))throw new Error('Configuração da cidade inválida.');
+export function configureWorld(worldSeed:number,layoutVersion:0|1|2=2):boolean {
+  if(!Number.isInteger(worldSeed)||worldSeed<0||worldSeed>0xffffffff||![0,1,2].includes(layoutVersion))throw new Error('Configuração da cidade inválida.');
   if(version===layoutVersion&&(layoutVersion===0||seed===worldSeed))return false;
   for(const a of anchors){a.object.x=a.original.x;a.object.z=a.original.z;}
-  const random=randomStream(worldSeed);if(layoutVersion===1)transpose(random);
-  restoreUrban(layoutVersion===1?random:undefined);moveDependents();rebuildWorldCaches();
+  const random=randomStream(worldSeed);if(layoutVersion!==0)transpose(random);
+  restoreUrban(layoutVersion!==0?random:undefined);
+  if(layoutVersion===2){validateParcels();moveDependents(true);rebuildWorldCaches(true);validateSupplies();}
+  else{moveDependents();rebuildWorldCaches();}
   // Restore a unique landmark's original parcel if its small offset blocks a supply.
   // Never relocate loot independently from its room to conceal a collision.
-  for(const a of anchors){if(a.object.x===a.original.x&&a.object.z===a.original.z)continue;
+  for(const a of layoutVersion===2?[]:anchors){if(a.object.x===a.original.x&&a.object.z===a.original.z)continue;
     const small=Math.hypot(a.object.x-a.original.x,a.object.z-a.original.z)<2;
     if(small&&dependents.some(d=>d.owner===a.id&&'id'in d.point&&LOOT_POINTS.includes(d.point as typeof LOOT_POINTS[number])&&collides(d.point,.65))){a.object.x=a.original.x;a.object.z=a.original.z;moveDependents();rebuildWorldCaches();}
   }

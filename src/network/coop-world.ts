@@ -27,7 +27,7 @@ export interface PlayerRecord {
  reloadTimer:number;reloadDuration:number;shotTimer:number;switchTimer:number;action:Simulation['action'];weaponStorage:WeaponItem[];reviveTarget:number;reviveProgress:number;
 }
 export interface WorldCheckpoint {
- survival:{layoutVersion?:0|1;economy?:Simulation['economy'];crafting:Simulation['crafting'];barricades:Simulation['barricades'];baseHP:number;phase:Simulation['phase'];elapsed:number;day:number;silence:number;horde:{active:boolean;spawned:number;budget:number;wave:number;timer:number}};
+ survival:{layoutVersion?:0|1|2;economy?:Simulation['economy'];crafting:Simulation['crafting'];barricades:Simulation['barricades'];baseHP:number;phase:Simulation['phase'];elapsed:number;day:number;silence:number;horde:{active:boolean;spawned:number;budget:number;wave:number;timer:number}};
  v:2;revision:number;time:number;seed:number;contentSeed:number;nextId:number;nextWeaponId:number;nextAcidId:number;wipe:boolean;
  players:PlayerRecord[];infected:Omit<Walker,'path'>[];loot:Simulation['loot'];portals:{id:string;state:Simulation['portals'][number]['state'];hp:number}[];
  facilities:{id:string;state:Simulation['facilities'][number]['state']}[];ground:Simulation['groundWeapons'];corpses:Simulation['corpses']['bodies'];acids:Simulation['acids'];activated:string[];

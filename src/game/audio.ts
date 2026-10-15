@@ -212,6 +212,7 @@ export class Sound {
       else this.tone(1200, 350, .1, .15, 'square');
     }
     if (type === 'empty') {if(weapon==='pistol'&&this.samples.has('empty'))this.sample('empty');else this.tone(300, 150, .05, .13, 'square');}
+    if(type==='book-page')this.provisionNoise(2100,.18,.028);
     if(type==='select'||type==='ui')this.tone(420,310,.04,.04,'triangle');
     if (type === 'inventory') this.tone(340, 440, .06, .07, 'triangle');
     if (type === 'search') this.tone(180, 90, .25, .12, 'triangle');

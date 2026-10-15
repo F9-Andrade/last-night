@@ -37,7 +37,8 @@ export function createLanServer({root=resolve('dist'),port=8787,host='0.0.0.0'}=
    if(m.type==='name'){c.name=sanitizeName(m.name);c.ready=false;if(c.room)members(c.room);return;}
    if(m.type==='create'||m.type==='join'){
     if(c.room)return;if(!validName(c.name)){error(c,'Use um nome de 2 a 20 caracteres.');return;}
-    let r;if(m.type==='create'){if(rooms.size>=64){error(c,'Servidor LAN cheio.');return;}let code;do{code='L'+randomBytes(4).toString('hex').slice(0,5).toUpperCase();}while(rooms.has(code));r={code,layoutVersion:m.layoutVersion===0?0:1,seed:Number.isInteger(m.seed)&&m.seed>=0&&m.seed<=4294967295?m.seed:randomBytes(4).readUInt32LE(),...(typeof m.worldId==='string'&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(m.worldId)?{worldId:m.worldId}:{}),members:[],phase:'lobby',token:''};rooms.set(code,r);}else r=rooms.get(String(m.code).toUpperCase());
+    if(m.type==='create'&&m.layoutVersion!==undefined&&![0,1,2].includes(m.layoutVersion)){error(c,'Versão do mapa incompatível. Atualize o jogo.');return;}
+    let r;if(m.type==='create'){if(rooms.size>=64){error(c,'Servidor LAN cheio.');return;}let code;do{code='L'+randomBytes(4).toString('hex').slice(0,5).toUpperCase();}while(rooms.has(code));r={code,layoutVersion:m.layoutVersion===0?0:m.layoutVersion===1?1:2,seed:Number.isInteger(m.seed)&&m.seed>=0&&m.seed<=4294967295?m.seed:randomBytes(4).readUInt32LE(),...(typeof m.worldId==='string'&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(m.worldId)?{worldId:m.worldId}:{}),members:[],phase:'lobby',token:''};rooms.set(code,r);}else r=rooms.get(String(m.code).toUpperCase());
     if(!r){error(c,'Sala LAN não encontrada. Confira o código e o endereço.');return;}if(r.phase!=='lobby'||r.members.length>=4){error(c,'Sala cheia ou partida já iniciada.');return;}c.room=r;c.ready=false;r.members.push(c);members(r);return;
    }
    const r=c.room;if(!r)return;

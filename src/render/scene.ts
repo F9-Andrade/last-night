@@ -16,7 +16,6 @@ import {hasInterior} from '../game/interiors';
 import { RemotePlayers } from './remote-players';
 import type { RemotePlayerState } from '../network/protocol';
 import {UrbanView} from './urban-view';
-import { REGIONS } from '../game/districts';
 import { WEAPONS } from '../game/weapons';
 import { ExpeditionView } from './expedition-view';
 import { CityView } from './city-view';
@@ -33,6 +32,7 @@ import { voxelStats,voxelGeometry,voxelMaterial } from './voxel';
 import { SurvivalView } from './survival-view';
 import { BALANCE } from '../game/config';
 import { createTown } from './town';
+import {outdoorPlacement} from './outdoor-placement';
 import type { Town } from './town';
 import type { Simulation, GameEvent } from '../game/simulation';
 
@@ -48,7 +48,8 @@ export class GameScene {
   private projectionScratch=new THREE.Vector3();private directionScratch=new THREE.Vector3();
   private sunOffset=new THREE.Vector3(...VISUAL.sun.offset);
   private moonColor=new THREE.Color(VISUAL.sun.moon);private sunsetColor=new THREE.Color(0xf2aa7a);private nightAmbient=new THREE.Color(0x7894b4);
-  private lightPoints=[{x:-5.4,z:6},{x:9.6,z:8},{x:-15.9,z:-12},...REGIONS.slice(2).map(r=>({x:r.x-8.8,z:r.z}))].map((p,index)=>({...p,index,distance:0}));
+  private lightPoints:{x:number;z:number;index:number;distance:number}[]=[];
+  private layoutCamps='';
   private shadowCenter=new THREE.Vector3();private sunDirection=new THREE.Vector3(...VISUAL.sun.offset).normalize();
   private shadowRight=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),this.sunDirection).normalize();
   private shadowUp=new THREE.Vector3().crossVectors(this.sunDirection,this.shadowRight);
@@ -85,7 +86,7 @@ export class GameScene {
     this.torch.shadow.mapSize.set(512,512);this.torch.shadow.bias=-.00015;this.torch.shadow.normalBias=.02;this.torch.shadow.camera.near=.15;this.torch.shadow.camera.far=25;
     this.scene.add(this.sun, this.sun.target, this.ambient, this.flashLight,this.torch,this.torch.target);
     let existingRoots=new Set(this.scene.children);
-    this.town = createTown(this.scene);this.expedition=new ExpeditionView(this.scene);this.survival = new SurvivalView(this.scene);this.rememberLayoutRoots(existingRoots);
+    this.town = createTown(this.scene);this.lightPoints=outdoorPlacement(this.scene).lights.map((p,index)=>({...p,index,distance:0}));this.expedition=new ExpeditionView(this.scene);this.survival = new SurvivalView(this.scene);this.rememberLayoutRoots(existingRoots);
     this.corpses=new CorpseView(this.scene);this.scene.add(this.survivor.root);
     existingRoots=new Set(this.scene.children);this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);this.rememberLayoutRoots(existingRoots);
     this.craftingView=new CraftingView(this.scene);this.constructionView=new ConstructionView(this.scene);
@@ -126,8 +127,10 @@ export class GameScene {
   reset(): void {this.corpses.reset();this.impactDecals.reset();this.viewmodel.reset();this.casings.forEach(c=>{c.life=0;c.mesh.visible=false;}); this.particles.forEach(p => { p.life = 0; p.mesh.visible = false; }); this.tracers.forEach(t => { t.life = 0; t.mesh.visible = false; }); this.flashLight.intensity = 0;this.flashlightOn=false; }
   private rememberLayoutRoots(before:Set<THREE.Object3D>):void {for(const root of this.scene.children)if(!before.has(root))this.layoutRoots.add(root);}
   /** Only runs behind the existing load screen. Shared voxel assets and all actor/effect pools survive. */
-  private prepareWorldLayout():void {
-    if(this.layoutEpoch===worldLayoutEpoch())return;
+  private prepareWorldLayout(sim:Simulation):void {
+    const camps=sim.economy.merchants.map(m=>({x:m.x,z:m.z,w:10.6,d:10.6})),campKey=JSON.stringify(camps);
+    if(this.layoutEpoch===worldLayoutEpoch()&&this.layoutCamps===campKey)return;
+    outdoorPlacement(this.scene,camps);
     this.expedition.detachDroppedWeapons();
     const retired=[...this.layoutRoots];for(const root of retired)root.removeFromParent();
     const retainedGeometry=new Set<THREE.BufferGeometry>(),retainedMaterial=new Set<THREE.Material>();
@@ -138,13 +141,14 @@ export class GameScene {
     this.layoutRoots.clear();const before=new Set(this.scene.children);
     this.town=createTown(this.scene);this.expedition=new ExpeditionView(this.scene);this.survival=new SurvivalView(this.scene);
     this.city=new CityView(this.scene);this.urban=new UrbanView(this.scene);this.dressing=new EnvironmentalDressing(this.scene);this.rememberLayoutRoots(before);
-    this.lightPoints=[{x:-5.4,z:6},{x:9.6,z:8},{x:-15.9,z:-12},...REGIONS.slice(2).map(r=>({x:r.x-8.8,z:r.z}))].map((p,index)=>({...p,index,distance:0}));
+    this.lightPoints=outdoorPlacement(this.scene).lights.map((p,index)=>({...p,index,distance:0}));
+    this.layoutCamps=campKey;
     this.layoutEpoch=worldLayoutEpoch();this.renderer.renderLists.dispose();this.renderer.shadowMap.needsUpdate=true;
   }
   /** Prepare the actual HDR pipeline and FPS rig before the first playable frame.
    * Rendering the menu alone never visits the gun or all materials seen at spawn. */
   async prepare(sim:Simulation,progress:(message:string,value:number)=>void=()=>{}):Promise<void> {
-    this.prepareWorldLayout();
+    this.prepareWorldLayout(sim);
     const composer=this.post.composer,target=this.renderer.getRenderTarget(),toScreen=composer.renderToScreen;
     const yaw=this.look?.yaw,pitch=this.look?.pitch,flashlight=this.flashlightOn,interior=this.interior;
     composer.renderToScreen=false;

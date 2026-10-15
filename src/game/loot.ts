@@ -1,6 +1,6 @@
 import {BASE_LOOT_POINTS} from './base-loot.ts';
-import {URBAN} from './world.ts';
-import type { Vec2 } from './world.ts';
+import {URBAN, collides, distance, floorHeight, wallDistance} from './world.ts';
+import type { Vec2, Obstacle } from './world.ts';
 import type { Item, Stock } from './inventory.ts';
 import { emptyStock } from './inventory.ts';
 import type { FoodId } from './nutrition.ts';
@@ -44,3 +44,32 @@ export function rollLoot(area: LootArea, random: () => number): Stock {
   return result;
 }
 export function createLoot(): LootPoint[] { return LOOT_POINTS.map(p => ({ ...p, searched: false, contents: emptyStock(), lastFound: null })); }
+
+/** Validate the container body, a usable adjacent standing position and level ground. */
+export function lootPlacementClear(p:Vec2,extra:Obstacle[]=[]):boolean {
+  if(collides(p,.55,extra))return false;
+  const y=floorHeight(p);
+  if([[-.4,-.4],[.4,-.4],[-.4,.4],[.4,.4]].some(([x,z])=>Math.abs(floorHeight({x:p.x+x,z:p.z+z})-y)>.3))return false;
+  return [[0,1],[1,0],[0,-1],[-1,0]].some(([x,z])=>{
+    const approach={x:p.x+x*1.1,z:p.z+z*1.1};
+    return !collides(approach,.45,extra)&&Math.abs(floorHeight(approach)-y)<=.3&&wallDistance(p,{x,z},1.1,extra)>=1.05;
+  });
+}
+
+/** Bounded local search for corpse/timber/reward bags. It does not consume gameplay
+ * RNG or move drops through walls into another room; crowded drops may share the
+ * closest valid ground only when every separated candidate has been exhausted. */
+export function looseLootPosition(origin:Vec2,extra:Obstacle[]=[],occupied:readonly Vec2[]=[]):Vec2 {
+  let crowded:Vec2|undefined;
+  const pathObstacles=extra.filter(o=>(o.bottom??0)+(o.h??4)>floorHeight(origin)+.65);
+  for(let ring=0;ring<=6;ring++)for(let step=0;step<(ring?16:1);step++){
+    const angle=step*Math.PI/8,radius=ring*.6,p={x:origin.x+Math.sin(angle)*radius,z:origin.z+Math.cos(angle)*radius};
+    if(!lootPlacementClear(p,extra)||Math.abs(floorHeight(p)-floorHeight(origin))>.3)continue;
+    // A narrow check allows a bag to slide away from a contact edge without crossing a wall.
+    if(radius&&wallDistance(origin,{x:Math.sin(angle),z:Math.cos(angle)},radius,pathObstacles)<radius-.05)continue;
+    crowded??=p;
+    if(occupied.every(other=>distance(other,p)>=1.1))return p;
+  }
+  // Preserve earned items even in an exceptional fully enclosed death location.
+  return crowded??{x:origin.x,z:origin.z};
+}

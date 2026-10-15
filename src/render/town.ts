@@ -1,11 +1,15 @@
 import {StaticChunk} from './static-chunk';
 import {spatialBatch} from './spatial-batch';
-import { TREE_POSITIONS } from '../game/world';
+import { TREE_POSITIONS,TREE_TRUNKS } from '../game/world';
 import { hasInterior, ROOM_PROPS } from '../game/interiors';
 import { createDistricts } from './districts';
-import { ROADS } from '../game/districts';
+import { ROADS,WAREHOUSES,OUTER_HOUSES,REGIONS } from '../game/districts';
+import { CITY_SITES } from '../game/city';
+import { groundSurface } from './ground-surface';
+import {outdoorPlacement} from './outdoor-placement';
+import type {OutdoorPlacement} from './outdoor-placement';
 import * as THREE from 'three';
-import { BUILDINGS, CARS, collides, WORLD_LIMIT } from '../game/world';
+import { BUILDINGS, CARS, GAS_STATION, URBAN, WORLD_LIMIT } from '../game/world';
 import type { Building } from '../game/world';
 import { box, textSign, batch } from './models';
 import { voxelGeometry, voxelMesh, voxelMaterial } from './voxel';
@@ -18,10 +22,10 @@ export interface Town { chunks: THREE.Group[]; buildings: { group: THREE.Group; 
 let seed = 85;
 function random(): number { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; }
 
-function building(parent: THREE.Object3D, b: Building): THREE.Group {
+function building(parent: THREE.Object3D, b: Building, placement:OutdoorPlacement): THREE.Group {
   const g = new StaticChunk(); g.name = `building:${b.kind}:${b.x}:${b.z}`; g.position.set(b.x, 0, b.z); parent.add(g);
   const { w, d, h } = b;
-  box(g, 0, hasInterior(b)?.02:.15, 0, w + .6, hasInterior(b)?.08:.3, d + .6, 0x6b766e, 'paving');
+  groundSurface(g, 0, hasInterior(b)?.02:.15, 0, w + .6, hasInterior(b)?.08:.3, d + .6, 0x6b766e, 'paving');
   for (const recipe of buildingRecipes(b)) { const kind = recipe.id.includes(':shell:') ? 'plaster' : recipe.id.endsWith(':roof') ? 'roof' : 'voxel'; g.add(voxelMesh(recipe, surfaceBatchMaterial(kind))); }
   if (b.kind === 'market') {
     g.add(voxelMesh({ id: 'market:awning:v1', unit: .1, build(grid) {
@@ -29,7 +33,7 @@ function building(parent: THREE.Object3D, b: Building): THREE.Group {
       for (let i = 0; i < 24; i++) voxelBox(grid, -w / 2 + i * .5 + .25, 3.1, d / 2 + 2.2, .5, .4, .1, i % 2 ? 0xc4b998 : 0xa46b4e);
     } }));
     textSign(g, b.label, 0, 4.14, d / 2 + .25, 6, .82, '#415c4c');
-    for (const x of [-4.5, 4.5]) { const crate = voxelMesh(propRecipe('crate')); crate.position.set(x, 0, d / 2 + 1); g.add(crate); }
+    for (const x of [-4.5, 4.5]) { const crate = voxelMesh(propRecipe('crate')); crate.position.set(x, 0, d / 2 + 1); placement.place(crate,b);g.add(crate); }
   } else if (b.kind === 'hospital') textSign(g, b.label, 1, 4.8, d / 2 + .25, 6, .85, '#b5b89e', '#3c605c');
   else if (b.kind === 'police') {
     textSign(g, b.label, 1, 3.95, d / 2 + .25, 5, .8, '#344e5c');
@@ -56,6 +60,7 @@ function building(parent: THREE.Object3D, b: Building): THREE.Group {
 
 export function createTown(scene: THREE.Scene): Town {
   seed = 85;
+  const placement=outdoorPlacement(scene);
   const staticWorld = new THREE.Group(); scene.add(staticWorld);
   const town: Town = { chunks: [], buildings: [], lamps: new THREE.MeshStandardMaterial({ color: 0xf5cc83, emissive: 0xffc77c, emissiveIntensity: .1 }), lights: [], emergency: new THREE.MeshStandardMaterial({ color: 0xb58b6c, emissive: 0xe39b65, emissiveIntensity: 0 }), supplies: [] };
   town.chunks=createDistricts(scene,town.lamps);
@@ -65,38 +70,42 @@ export function createTown(scene: THREE.Scene): Town {
   box(staticWorld, -12, -.055, 0, 9, .14, 80, 0x535b60,'asphalt'); box(staticWorld, 15, -.055, 0, 7, .14, 80, 0x535b60,'asphalt');
   box(staticWorld, 0, -.04, 13, 80, .16, 8, 0x535b60,'asphalt'); box(staticWorld, 0, -.04, -16, 80, .16, 5, 0x535b60,'asphalt');
   const lots = [{ x: -26, z: -5, w: 16, d: 16 }, { x: 1.5, z: -3, w: 18, d: 24 }, { x: 27, z: -3, w: 17, d: 18 }, { x: 26, z: -27, w: 18, d: 18 }, { x: -26, z: -28, w: 16, d: 17 }, { x: 1.5, z: -28, w: 18, d: 17 }, { x: 1, z: 28, w: 19, d: 18 }, { x: 26, z: 28, w: 18, d: 18 }, { x: -26, z: 28, w: 17, d: 18 }];
+  const groundExclusions=[...ROADS,...BUILDINGS.filter(b=>b.kind!=='base'),...CITY_SITES,...WAREHOUSES,...URBAN.buildings,{...GAS_STATION,w:10,d:5}];
   for (const lot of lots) {
-    box(staticWorld, lot.x, .03, lot.z, lot.w + 1, .22, lot.d + 1, 0xaaa992,'paving');
-    box(staticWorld, lot.x, .15, lot.z, lot.w - .8, .07, lot.d - .8, 0x7c8c6c,'earth');
+    groundSurface(staticWorld, lot.x, .03, lot.z, lot.w + 1, .22, lot.d + 1, 0xaaa992,'paving',staticWorld.position,groundExclusions);
+    groundSurface(staticWorld, lot.x, .15, lot.z, lot.w - .8, .07, lot.d - .8, 0x7c8c6c,'earth',staticWorld.position,groundExclusions);
   }
   for (let z = -36; z <= 38; z += 5) if (Math.abs(z - 13) > 6 && Math.abs(z + 16) > 4) box(staticWorld, -12, .035, z, .15, .02, 2.1, 0xc2b781);
   for (let x = -37; x < 39; x += 5) if (Math.abs(x + 12) > 6 && Math.abs(x - 15) > 5) box(staticWorld, x, .055, 13, 2.1, .02, .14, 0xc2b781);
   for (const center of [-12, 15]) for (let i = 0; i < 6; i++) { box(staticWorld, center - 2.8 + i * 1.1, .06, 7.8, .65, .03, 2, 0xc6c5ae); box(staticWorld, center - 2.8 + i * 1.1, .06, 18.3, .65, .03, 2, 0xc6c5ae); }
-  for (const b of BUILDINGS.filter(b=>b.kind!=='base')) { const group = building(scene, b); const mats: THREE.Material[] = []; group.traverse(o => { if (o instanceof THREE.Mesh) mats.push(o.material as THREE.Material); }); town.buildings.push({ group, data: b, materials: mats }); }
+  for (const b of BUILDINGS.filter(b=>b.kind!=='base')) { const group = building(scene, b,placement); const mats: THREE.Material[] = []; group.traverse(o => { if (o instanceof THREE.Mesh) mats.push(o.material as THREE.Material); }); town.buildings.push({ group, data: b, materials: mats }); }
   // Courtyard: clear approach, prepared barricade anchors and a recognisable safe-house path.
-  box(staticWorld, 1, .21, 4.7, 3.5, .05, 9, 0xb1ab8b,'paving');
+  groundSurface(staticWorld, 1, .21, 4.7, 3.5, .05, 9, 0xb1ab8b,'paving');
   CARS.forEach((c, i) => {
     const variants = ['sedan', 'wreck', 'pickup', 'sedan', 'police', 'wreck'] as const;
     const car = voxelMesh(carRecipe(variants[i]??(i===8||i===9?'police':i%3===0?'pickup':'wreck'), c.color),surfaceBatchMaterial('metal')); car.position.set(c.x, .1, c.z); car.rotation.y = c.angle; staticWorld.add(car);
   });
   // The same gas-station footprint and pumps, now built from small voxel parts.
-  const shop = voxelMesh(gasShopRecipe()); shop.position.set(-27, 0, 29); staticWorld.add(shop);
-  textSign(staticWorld, 'ÚLTIMA PARADA', -27, 3, 31.76, 7, .65, '#8b5f45');
-  for (const x of [-30, -20]) { box(staticWorld, x, 2.3, 22, .2, 4.6, .2, 0x78938a); box(staticWorld, x, .4, 22, .4, .8, .4, 0xa29f80); }
-  box(staticWorld, -25, 4.6, 22, 13, .4, 5.6, 0xbdb794); box(staticWorld, -25, 4.55, 24.85, 13.2, .5, .1, 0xa57555);
-  for (let x = -31; x < -18; x += .4) box(staticWorld, x, 4.84, 22, .1, .08, 5.2, 0xc9c1a0);
-  for (const x of [-25, -21]) { box(staticWorld, x, .2, 22, 1.6, .3, 1.7, 0x929c86); const pump = voxelMesh(propRecipe('pump')); pump.position.set(x, .35, 22); staticWorld.add(pump); }
+  const station=new THREE.Group();station.position.set(GAS_STATION.x+27,0,GAS_STATION.z-29);staticWorld.add(station);
+  const shop = voxelMesh(gasShopRecipe()); shop.position.set(-27, 0, 29); station.add(shop);
+  textSign(station, 'ÚLTIMA PARADA', -27, 3, 31.76, 7, .65, '#8b5f45');
+  for (const x of [-30, -20]) { box(station, x, 2.3, 22, .2, 4.6, .2, 0x78938a); box(station, x, .4, 22, .4, .8, .4, 0xa29f80); }
+  box(station, -25, 4.6, 22, 13, .4, 5.6, 0xbdb794); box(station, -25, 4.55, 24.85, 13.2, .5, .1, 0xa57555);
+  for (let x = -31; x < -18; x += .4) box(station, x, 4.84, 22, .1, .08, 5.2, 0xc9c1a0);
+  for (const x of [-25, -21]) { box(station, x, .2, 22, 1.6, .3, 1.7, 0x929c86); const pump = voxelMesh(propRecipe('pump')); pump.position.set(x, .35, 22); station.add(pump); }
   const pricePylon = voxelMesh({ id: 'gas:pylon:v1', unit: .1, build(grid) { grid.fill(-1, 0, -1, 2, 32, 2, 0x667962).fill(-8, 24, -2, 16, 13, 4, 0xb5b48f).fill(-7, 25, 2, 14, 11, 1, 0x486c5b); } });
-  pricePylon.position.set(-33, .1, 20); staticWorld.add(pricePylon);
-  textSign(staticWorld, 'SEM COMBUSTÍVEL', -33, 3.1, 20.31, 1.4, .5, '#486c5b', '#d5b78c');
+  pricePylon.position.set(-33, .1, 20); station.add(pricePylon);
+  textSign(station, 'SEM COMBUSTÍVEL', -33, 3.1, 20.31, 1.4, .5, '#486c5b', '#d5b78c');
   // Street lights: emissive bulbs everywhere, only three real point lights near the action.
   for (const [x, z] of [[-6.5, 6], [8.5, 8], [-17, -12], [-17, 20], [19, 18], [10, -18], [34, 6]]) {
-    box(staticWorld, x, 2.5, z, .2, 5, .2, 0x405452); box(staticWorld, x, .3, z, .4, .6, .4, 0x647664); box(staticWorld, x + .6, 5, z, 1.3, .1, .2, 0x405452); box(staticWorld, x + .2, 4.85, z, .3, .2, .2, 0x405452);
-    const bulb = box(staticWorld, x + 1.1, 4.95, z, .55, .11, .33, 0xf5cc83); bulb.material = town.lamps;
-    if (town.lights.length < 3) { const light = new THREE.PointLight(0xffc783, 0, 15, 1.6); light.position.set(x + 1.1, 4.4, z); scene.add(light); town.lights.push(light); }
+    const fixture=new THREE.Group();
+    box(fixture, x, 2.5, z, .2, 5, .2, 0x405452); box(fixture, x, .3, z, .4, .6, .4, 0x647664); box(fixture, x + .6, 5, z, 1.3, .1, .2, 0x405452); box(fixture, x + .2, 4.85, z, .3, .2, .2, 0x405452);
+    const bulb = box(fixture, x + 1.1, 4.95, z, .55, .11, .33, 0xf5cc83); bulb.material = town.lamps;placement.place(fixture,staticWorld.position,true);staticWorld.add(fixture);placement.lights.push({x:x+1.1+fixture.position.x,z:z+fixture.position.z});
+    if (town.lights.length < 3) { const light = new THREE.PointLight(0xffc783, 0, 15, 1.6); light.position.set(x + 1.1+fixture.position.x, 4.4, z+fixture.position.z); scene.add(light); town.lights.push(light); }
   }
   // Cached voxel trees: one instanced draw per variant, with original placements retained.
-  const treePositions = TREE_POSITIONS;
+  const treeStart=OUTER_HOUSES.length+REGIONS.slice(2,12).filter(r=>r.icon==='E'||r.name==='TRIAGEM EXTERNA').length*4;
+  const treePositions = TREE_TRUNKS.slice(treeStart,treeStart+TREE_POSITIONS.length).map(t=>[t.x,t.z]);
   const dummy = new THREE.Object3D();
   for (let variant = 0; variant < 3; variant++) {
     const cells=new Map<string,THREE.Matrix4[]>();
@@ -114,27 +123,26 @@ export function createTown(scene: THREE.Scene): Town {
   }
   const grass = new THREE.InstancedMesh(voxelGeometry(grassRecipe()), voxelMaterial, 650); grass.name = 'voxel-grass';
   for (let i = 0; i < 650; i++) {
-    let x = random() * 78 - 39, z = random() * 78 - 39;
-    if (collides({ x, z }, .2)) { x = 38 + random(); z = random() * 78 - 39; }
-    dummy.position.set(x, .2, z); dummy.rotation.set(0, random() * Math.PI, 0); dummy.scale.setScalar(.6 + random()); dummy.updateMatrix(); grass.setMatrixAt(i, dummy.matrix);
+    const x = random() * 78 - 39, z = random() * 78 - 39;
+    dummy.position.set(x, .2, z); dummy.rotation.set(0, random() * Math.PI, 0); dummy.scale.setScalar(.6 + random());
+    const target=placement.position({x,z,w:.65*dummy.scale.x,d:.65*dummy.scale.x});dummy.position.set(target.x,.2,target.z);dummy.updateMatrix(); grass.setMatrixAt(i, dummy.matrix);
   }
   scene.add(grass);
   const shrubPositions = [[-4, -9], [6, -9], [-18.5, 1], [-31, 1], [20.5, -16], [33, -18], [33, 2], [8, 1], [8, 2], [7, 23], [-4, 24], [-20, 30]];
   const shrubs = new THREE.InstancedMesh(voxelGeometry(shrubRecipe()), voxelMaterial, shrubPositions.length); shrubs.castShadow = true;
-  shrubPositions.forEach(([x, z], i) => { dummy.position.set(x, .2, z); dummy.rotation.set(0, random() * 6.28, 0); dummy.scale.setScalar(1); dummy.updateMatrix(); shrubs.setMatrixAt(i, dummy.matrix); }); scene.add(shrubs);
+  shrubPositions.forEach(([x, z], i) => { const target=placement.position({x,z,w:1.9,d:1.9},true);dummy.position.set(target.x, .2, target.z); dummy.rotation.set(0, random() * 6.28, 0); dummy.scale.setScalar(1); dummy.updateMatrix(); shrubs.setMatrixAt(i, dummy.matrix); }); scene.add(shrubs);
   // Ground clutter: cracks, discarded boards, paper, trash bags, bins and crates.
   for (let i = 0; i < 110; i++) {
     const x = random() * 76 - 38, z = random() * 76 - 38;
-    if (collides({ x, z }, .6)) continue;
-    const debris = box(staticWorld, x, .2, z, .18 + random() * .45, .03, .15 + random() * .45, i % 4 === 0 ? 0xc2bea3 : 0x65745f); debris.rotation.y = random() * 6;
+    const debris = box(staticWorld, x, .2, z, .18 + random() * .45, .03, .15 + random() * .45, i % 4 === 0 ? 0xc2bea3 : 0x65745f); debris.rotation.y = random() * 6;placement.place(debris,staticWorld.position);
   }
   for (const [x, z] of [[-18.5, 2], [20, 3], [-6, 22], [33, -18]]) {
     for (const [kind, dx, dz] of [['bin', 0, 0], ['bag', 1, 0], ['crate', 1.5, 1], ['pallet', 2, 2], ['rubble', -1, .3]] as const) {
-      const prop = voxelMesh(propRecipe(kind)); prop.position.set(x + dx, .18, z + dz); staticWorld.add(prop);
+      const prop = voxelMesh(propRecipe(kind)); prop.position.set(x + dx, .18, z + dz);placement.place(prop,staticWorld.position); staticWorld.add(prop);
     }
   }
   for (const [kind, x, z, angle] of [['mailbox', -4.3, 8.6, 0], ['hydrant', -7, 18.3, 0], ['bench', 8.5, -3, Math.PI / 2], ['bench', 20, -17, 0], ['cone', -19, 19, .1], ['cone', -18, 20, -.1], ['cone', 20, 19, .2], ['pallet', -20, 1.5, .3], ['bag', 32, 22, 0]] as const) {
-    const prop = voxelMesh(propRecipe(kind)); prop.position.set(x, .18, z); prop.rotation.y = angle; staticWorld.add(prop);
+    const prop = voxelMesh(propRecipe(kind)); prop.position.set(x, .18, z); prop.rotation.y = angle;placement.place(prop,staticWorld.position); staticWorld.add(prop);
   }
   // Emergency fixtures are emissive geometry: no new shadow-casting lights.
   for (const [x, y, z] of [[23.5, 2.7, -18.2], [26.5, 2.7, -18.2], [25, 3, 31.3], [1, 2.3, .6]]) {
@@ -142,9 +150,9 @@ export function createTown(scene: THREE.Scene): Town {
   }
   // Stop signs and overhead cable emphasize a lived-in street, without costly lights.
   for (const x of [-17.8, 19.8]) {
-    box(staticWorld, x, 1.4, 8.5, .1, 2.8, .1, 0x566e66);
-    box(staticWorld, x, 2.55, 8.5, .6, .8, .1, 0xb27353); box(staticWorld, x, 2.55, 8.5, .8, .6, .1, 0xb27353);
-    textSign(staticWorld, 'PARE', x, 2.55, 8.55, .65, .24, '#b27353');
+    const sign=new THREE.Group();box(sign, x, 1.4, 8.5, .1, 2.8, .1, 0x566e66);
+    box(sign, x, 2.55, 8.5, .6, .8, .1, 0xb27353); box(sign, x, 2.55, 8.5, .8, .6, .1, 0xb27353);
+    textSign(sign, 'PARE', x, 2.55, 8.55, .65, .24, '#b27353');placement.place(sign,staticWorld.position,true);staticWorld.add(sign);
   }
   spatialBatch(staticWorld);
   return town;

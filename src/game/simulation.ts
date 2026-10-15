@@ -28,7 +28,7 @@ import { MatchCycle } from './cycle.ts';
 import type { Phase } from './cycle.ts';
 import { Inventory, ITEMS, itemKeys, emptyStock } from './inventory.ts';
 import type { Item } from './inventory.ts';
-import { createLoot, rollLoot, LOOT_POINTS } from './loot.ts';
+import { createLoot, rollLoot, LOOT_POINTS, lootPlacementClear, looseLootPosition } from './loot.ts';
 import { createDefenses, obstacleDistance } from './defenses.ts';
 import type { Barricade } from './defenses.ts';
 import { Horde } from './horde.ts';
@@ -46,7 +46,7 @@ export type GameEvent = { type: 'shot'; from: Vec2; to: Vec2; hit: boolean; y?: 
 export interface Action { kind: 'search' | 'heal' | 'build' | 'repair' | 'dismantle' | 'base' | 'facility' | 'silence' | 'event' | 'portal' | 'board'; target: string; elapsed: number; duration: number; origin: Vec2 }
 export interface Acid extends Vec2 {id:number;from:Vec2;age:number;tick:number}
 export class Simulation {
-  layoutVersion:0|1=worldLayoutVersion();
+  layoutVersion:0|1|2=worldLayoutVersion();
   coins=0; economy:EconomyWorld;
   foundationMode=false;
   /** Solo stays unchanged. Replicas predict presentation; actor runs only survivor rules. */
@@ -70,6 +70,7 @@ export class Simulation {
   private emptyHands=createWeapon('pistol',0);
   groundWeapons:GroundWeapon[]=[]; nextWeaponId=1; equipmentRolled=new Set<string>(); discoveredWeapons=new Set<number>([0]);
   portals:(Portal&Barricade)[]=CITY_PORTALS.map(p=>({...p,label:p.kind==='window'?'Janela':'Porta',built:true,flash:0}));
+  discoveries=new Set<string>();
   discoveredSites=new Set<string>(); activatedSites=new Set<string>(); weaponStorage:WeaponItem[]=[];
   dormantZombies:Walker[]=[]; cityTimer=0; roamTimer=65; outsideTimer=20;
   perks=new Set<PerkId>(); pendingPerks:PerkId[]=[]; builderUsed=false; openingReady=false;
@@ -154,7 +155,7 @@ export class Simulation {
     const result=planTrade(this.economy,{seed:this.runSeed,coins:this.coins,items:this.inventory.items,capacity:this.inventory.capacity,player:this.player,busy:this.gameOver||!!this.action||!!this.consumption||this.reloadTimer>0||this.switchTimer>0,groundWeaponCount:this.groundWeapons.length,nextWeaponId:this.nextWeaponId,obstacles:this.solidDefenses},request);
     if(!result.ok){this.notice('TROCA NÃO CONCLUÍDA',result.reason);return false;}
     this.economy=result.world;this.coins=result.coins;this.inventory.items=result.items;this.nextWeaponId=result.nextWeaponId;
-    if(result.weapon)this.groundWeapons.push(result.weapon);
+    if(result.weapon)this.groundWeapons.push({...result.weapon,...looseLootPosition(result.weapon,this.solidDefenses,[...this.loot,...this.groundWeapons])});
     this.events.push({type:'pickup'});this.notice('TROCA CONCLUÍDA',result.message);return true;
   }
   spawn(p?: Vec2, kind:EnemyKind='walker'): Walker | undefined {
@@ -190,12 +191,11 @@ export class Simulation {
     this.cancelReload();this.action=null;this.activeSlot=slot;this.switchTimer=.32;this.recoil=0;this.events.push({type:'switch',weapon:this.equipped.type});
   }
   private equipmentPosition(center:Vec2):Vec2 {
-    const candidates=[{x:center.x+1.35,z:center.z},{x:center.x-1.35,z:center.z},{x:center.x,z:center.z+1.35},{x:center.x,z:center.z-1.35}];
-    return candidates.filter(p=>!collides(p,.6)&&distance(p,this.player)>.8&&this.canReach(p)).sort((a,b)=>distance(a,this.player)-distance(b,this.player))[0]??{...center};
+    return looseLootPosition(center,this.solidDefenses,[...this.loot,...this.groundWeapons,this.player]);
   }
   dropWeapon(type:WeaponId,position:Vec2,rarity:Rarity='common',source='Equipamento abandonado'):GroundWeapon|undefined {
     if(this.groundWeapons.length>=48)return;
-    const g={...position,item:createWeapon(type,this.nextWeaponId++,rarity,this.contentRandom),source};this.groundWeapons.push(g);return g;
+    const g={...looseLootPosition(position,this.solidDefenses,[...this.loot,...this.groundWeapons]),item:createWeapon(type,this.nextWeaponId++,rarity,this.contentRandom),source};this.groundWeapons.push(g);return g;
   }
   equipGround(uid:number):boolean {
     this.cancelConsumption();
@@ -318,7 +318,7 @@ export class Simulation {
       if(area==='gas'){contents.scrap=8;contents.wood=6;}else contents.ammo+=12;
     }
     for(const k of itemKeys){const n=this.inventory.add(k,contents[k]);this.stats.loot+=n;contents[k]-=n;}
-    if(itemKeys.some(k=>contents[k]))this.loot.push({...position,id:`reward-${this.nextWeaponId}-${this.nextEventId}`,area:'outside',label:'Suprimentos restantes',searched:true,contents,lastFound:null});
+    if(itemKeys.some(k=>contents[k]))this.loot.push({...looseLootPosition(position,this.solidDefenses,this.loot),id:`reward-${this.nextWeaponId}-${this.nextEventId}`,area:'outside',label:'Suprimentos restantes',searched:true,contents,lastFound:null});
     this.events.push({type:'rare-pickup'});this.notice('RESERVA ABERTA','Suprimentos recolhidos. Confira o equipamento antes de sair.');
   }
   private hurt(damage:number,position?:Vec2):void {
@@ -402,7 +402,7 @@ export class Simulation {
   retrieveWeapon(_uid:number):boolean { return false; }
   grantItems(item:Item,amount:number,position:Vec2=this.player):void {
     const accepted=this.inventory.add(item,amount),left=amount-accepted;
-    if(left)this.loot.push({id:`reward-${this.crafting.next++}`,x:position.x,z:position.z,area:'outside',label:'Suprimentos recuperados',searched:true,lastFound:null,contents:{...emptyStock(),[item]:left}});
+    if(left)this.loot.push({id:`reward-${this.crafting.next++}`,...looseLootPosition(position,this.solidDefenses,this.loot),area:'outside',label:'Suprimentos recuperados',searched:true,lastFound:null,contents:{...emptyStock(),[item]:left}});
   }
   private begin(kind: Action['kind'], target: string, duration: number): void {
     this.cancelConsumption();
@@ -524,7 +524,8 @@ export class Simulation {
       const empty = this.loot.filter(l => l.searched && !(l.coins??0) && !itemKeys.some(k => l.contents[k]) && l.area !== 'base'&&!l.site&&!l.restocked&&LOOT_POINTS.some(p=>p.id===l.id));
       // Refill only a subset; leftovers are never overwritten and the opening cache stays exhausted.
       for (let i = empty.length - 1; i > 0; i--) { const j = Math.floor(this.random() * (i + 1)); [empty[i], empty[j]] = [empty[j], empty[i]]; }
-      empty.slice(0, Math.ceil(empty.length * BALANCE.reward.restock)).forEach(l => { l.searched = false; l.guaranteed = undefined;l.restocked=true; });
+      const blockers=this.solidDefenses;
+      empty.filter(l=>lootPlacementClear(l,blockers)).slice(0, Math.ceil(empty.length * BALANCE.reward.restock)).forEach(l => { l.searched = false; l.guaranteed = undefined;l.restocked=true; });
       this.spawnTimer = 2; this.notice('MAIS UM DIA', 'Alguns locais têm novos recursos. A próxima noite será mais forte.');
     }
   }

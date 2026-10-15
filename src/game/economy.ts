@@ -6,7 +6,7 @@ import { BASE, BUILDINGS, TREE_TRUNKS, URBAN, WORLD_LIMIT, collides, distance, f
 import type { Obstacle, Vec2 } from './world.ts';
 import { CITY_SITES } from './city.ts';
 import { ROADS } from './districts.ts';
-import { BASE_LOOT_POINTS } from './base-loot.ts';
+import { LOOT_POINTS } from './loot.ts';
 import { EVENT_POINTS, FACILITIES } from './expedition.ts';
 
 /** Currency lives beside the inventory, never inside its weighted item stock. */
@@ -87,28 +87,50 @@ export function collectCoins(wallet:number,remaining:number):{coins:number;remai
 export function safeMerchantSite(p:Vec2):boolean {
  if(distance(p,BASE)<36||Math.abs(p.x)>WORLD_LIMIT-10||Math.abs(p.z)>WORLD_LIMIT-10||collides(p,5.2,TREE_TRUNKS)||surfaceAt(p)==='asphalt')return false;
  if([...BUILDINGS,...CITY_SITES,...URBAN.buildings].some(b=>Math.abs(p.x-b.x)<b.w/2+6&&Math.abs(p.z-b.z)<b.d/2+6))return false;
- if([...BASE_LOOT_POINTS,...FACILITIES,...EVENT_POINTS].some(v=>distance(v,p)<7))return false;
+ // The camp roof, side stock and a pedestrian margin must all stay off the road.
+ // Testing only surfaceAt(center) allowed a valid NPC to place half its stall on asphalt.
+ if(ROADS.some(r=>Math.abs(p.x-r.x)<r.w/2+5.3&&Math.abs(p.z-r.z)<r.d/2+5.3))return false;
+ if([...LOOT_POINTS,...FACILITIES,...EVENT_POINTS].some(v=>distance(v,p)<7))return false;
  return [-4,0,4].every(x=>[-4,0,4].every(z=>Math.abs(floorHeight({x:p.x+x,z:p.z+z})-floorHeight(p))<.1));
 }
-function chooseSite(random:()=>number,placed:Merchant[],near:boolean):Vec2 {
+/** Face the closest usable road approach, keeping the stall behind the NPC.
+ * A clear camp alone does not guarantee that a player can reach its entrance. */
+export function merchantApproach(p:Vec2):{angle:number;road:Vec2}|undefined {
+ const roads=ROADS.map(r=>({x:Math.max(r.x-r.w/2,Math.min(r.x+r.w/2,p.x)),z:Math.max(r.z-r.d/2,Math.min(r.z+r.d/2,p.z))})).sort((a,b)=>distance(a,p)-distance(b,p));
+ for(const road of roads){
+  const length=distance(road,p);if(length>24)break;
+  if(length<.01)continue;
+  const angle=Math.round(Math.atan2(road.x-p.x,road.z-p.z)/(Math.PI/2))*Math.PI/2;
+  const approach={x:p.x+Math.sin(angle)*2.4,z:p.z+Math.cos(angle)*2.4};
+  const steps=Math.ceil(distance(approach,road)/.4);let clear=true,previousHeight=floorHeight(approach);
+  for(let i=0;i<=steps;i++){
+   const point={x:approach.x+(road.x-approach.x)*i/Math.max(1,steps),z:approach.z+(road.z-approach.z)*i/Math.max(1,steps)},height=floorHeight(point);
+   if(collides(point,.55,TREE_TRUNKS)||Math.abs(height-previousHeight)>.3){clear=false;break;}previousHeight=height;
+  }
+  if(clear)return {angle:(angle+Math.PI*2)%(Math.PI*2),road};
+ }
+ return undefined;
+}
+function chooseSite(random:()=>number,placed:Merchant[],near:boolean):Vec2 & {angle:number} {
  // Sample sidewalks beside real roads; the first supplier stays within a short expedition of the shelter.
  for(let attempt=0;attempt<4000;attempt++){
   const road=ROADS[Math.floor(random()*ROADS.length)],horizontal=road.w>road.d,side=random()<.5?-1:1;
   const along=(random()-.5)*(horizontal?road.w:road.d),offset=(horizontal?road.d:road.w)/2+7+random()*6;
   const p={x:Math.round((road.x+(horizontal?along:side*offset))*2)/2,z:Math.round((road.z+(horizontal?side*offset:along))*2)/2};
   if(near&&distance(p,BASE)>105||placed.some(v=>distance(v,p)<55))continue;
-  if(safeMerchantSite(p))return p;
+  if(safeMerchantSite(p)){const approach=merchantApproach(p);if(approach)return {...p,angle:approach.angle};}
  }
  // A bounded deterministic fallback keeps generation independent of any gameplay RNG.
  for(let radius=44;radius<WORLD_LIMIT-12;radius+=10)for(let step=0;step<72;step++){
   const angle=step*Math.PI/36,p={x:Math.round(Math.sin(angle)*radius),z:Math.round(Math.cos(angle)*radius)};
-  if(!placed.some(v=>distance(v,p)<55)&&safeMerchantSite(p))return p;
+  if(near&&distance(p,BASE)>105)continue;
+  if(!placed.some(v=>distance(v,p)<55)&&safeMerchantSite(p)){const approach=merchantApproach(p);if(approach)return {...p,angle:approach.angle};}
  }
  throw new Error('Nenhum terreno livre para o posto de troca.');
 }
 export function createEconomy(seed:number):EconomyWorld {
  const random=stream(seed^0x25b46c71),merchants:Merchant[]=[];
- for(const profile of MERCHANT_PROFILES){const p=chooseSite(random,merchants,merchants.length===0);merchants.push({id:profile.id,kind:profile.kind,name:profile.name,title:profile.title,...p,y:floorHeight(p),angle:Math.floor(random()*4)*Math.PI/2,revision:0,coins:profile.budget,stock:Object.fromEntries(SHOP_CATALOGS[profile.kind].map(o=>[o.id,o.stock]))});}
+ for(const profile of MERCHANT_PROFILES){const p=chooseSite(random,merchants,merchants.length===0);random();merchants.push({id:profile.id,kind:profile.kind,name:profile.name,title:profile.title,...p,y:floorHeight(p),angle:p.angle,revision:0,coins:profile.budget,stock:Object.fromEntries(SHOP_CATALOGS[profile.kind].map(o=>[o.id,o.stock]))});}
  return {version:1,day:1,merchants};
 }
 /** Dawn replenishes a bounded catalogue once. Reopening the menu never refreshes stock or funds. */

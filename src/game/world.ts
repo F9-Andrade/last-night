@@ -2,7 +2,8 @@ import {planUrban} from './urban-layout.ts';
 import {BASE_LOOT_POINTS} from './base-loot.ts';
 import {FACILITIES,EVENT_POINTS} from './expedition.ts';
 import { hasInterior, roomObstacles } from './interiors.ts';
-import { CITY_LIMIT, CITY_SITES, siteObstacles } from './city.ts';
+import { CITY_LIMIT, CITY_SITES, CITY_PORTALS, siteObstacles } from './city.ts';
+import {PlacementIndex,findPlacement,withinWorld} from './placement.ts';
 import { REGIONS, ENCOUNTERS, OUTER_TREE_OFFSET, OUTER_HOUSES, OUTER_CARS, WAREHOUSES, ROADS, CARGO_OBSTACLES, PLAZA_MONUMENT } from './districts.ts';
 export interface Vec2 { x: number; z: number }
 export interface Obstacle { x: number; z: number; w: number; d: number; h?:number; bottom?:number }
@@ -83,9 +84,19 @@ function nearbyObstacles(minX:number,minZ:number,maxX:number,maxZ:number,bins=ob
   return [...found];
 }
 /** Called only when opening a world: rebuild every static query from the same layout. */
-export function rebuildWorldCaches():void {
+export function rebuildWorldCaches(validatePlacement=false):void {
  TREE_TRUNKS.splice(0,TREE_TRUNKS.length,...createTreeTrunks());
  OBSTACLES.splice(0,OBSTACLES.length,...createObstacles(),...URBAN.obstacles);
+ if(validatePlacement){
+  const occupied=new PlacementIndex([...OBSTACLES,...BUILDINGS,...CITY_SITES,...URBAN.buildings]);
+  const roads=new PlacementIndex(ROADS),trees=new PlacementIndex();
+  for(const p of [...BASE_LOOT_POINTS,...FACILITIES,...CITY_PORTALS,...URBAN.alleys])occupied.add({x:p.x,z:p.z,w:2.5,d:2.5});
+  for(const tree of TREE_TRUNKS){
+   const placed=findPlacement({...tree,w:2.4,d:2.4},p=>withinWorld(p,WORLD_LIMIT,1)&&!occupied.overlaps(p,.25)&&!roads.overlaps(p,.3)&&!trees.overlaps(p,.3),64,.5);
+   if(!placed)throw new Error('Não foi possível reservar terreno livre para uma árvore.');
+   tree.x=placed.x;tree.z=placed.z;trees.add(placed);
+  }
+ }
  obstacleBins=indexObstacles(OBSTACLES);roofBins=indexObstacles(createRoofs());
  staticLinks.clear();staticWalkable.clear();dynamicMasks.clear();
 }

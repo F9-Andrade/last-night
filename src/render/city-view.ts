@@ -3,11 +3,14 @@ import * as THREE from 'three';
 import {CITY_SITES,CITY_PORTALS,activeCityChunks} from '../game/city';
 import type {CitySite,CityProp} from '../game/city';
 import type {Simulation} from '../game/simulation';
+import {TREE_TRUNKS} from '../game/world';
 import {box,batch,textSign} from './models';
 import {voxelMesh} from './voxel';
 import {treeRecipe,propRecipe,carRecipe} from './environment-assets';
 import {weatherSurface,surfaceBatchMaterial} from './surface-materials';
 import {facadeWeathering} from './facade-weathering';
+import {groundSurface} from './ground-surface';
+import {outdoorPlacement} from './outdoor-placement';
 
 /** Static district batches, independently hidden roofs and a small mutable portal layer. */
 export class CityView {
@@ -16,9 +19,10 @@ export class CityView {
  private lights=[new THREE.PointLight(0xe6d6ba,0,19,2),new THREE.PointLight(0xb7c5d2,0,19,2)];
  active=0;
  constructor(scene:THREE.Scene){
-  for(const site of CITY_SITES){
+  const placement=outdoorPlacement(scene);
+  for(const [siteIndex,site] of CITY_SITES.entries()){
    const root=new StaticChunk();root.name=`city:${site.id}`;root.position.set(site.x,0,site.z);scene.add(root);
-   const floor=new THREE.Group();root.add(floor);box(floor,0,.08,0,site.w+7,.16,site.d+7,0x8c947d,'paving');box(floor,0,.19,0,site.w,.06,site.d,site.kind==='hospital'?0xb3b9a4:0x7d8a79,'paving');
+   const floor=new THREE.Group();root.add(floor);groundSurface(floor,0,.08,0,site.w+7,.16,site.d+7,0x8c947d,'paving',site);box(floor,0,.19,0,site.w,.06,site.d,site.kind==='hospital'?0xb3b9a4:0x7d8a79,'paving');
    const walls=new THREE.Group();root.add(walls);const roof=new THREE.Group();root.add(roof);
    const h=site.kind==='cemetery'?1.7:site.h;
    const segment=(x:number,z:number,w:number,d:number)=>{box(walls,x,h/2,z,w,h,d,site.color);box(walls,x,.45,z,w+.08,.25,d+.08,0x687c6b);box(walls,x,h-.14,z,w+.08,.28,d+.08,0xb4baa0);};
@@ -38,7 +42,7 @@ export class CityView {
     for(const x of [-site.w/2+.3,site.w/2-.3])box(walls,x,site.h/2,site.d/2+.25,.18,site.h,.2,0x61786c);
     // Floor seams and a central circulation strip make rooms readable without textures.
     if(site.kind==='hospital'||site.kind==='school'){box(floor,0,.225,0,5,.018,site.d-.5,0x83998b);for(let z=-site.d/2+1;z<site.d/2;z+=2)box(floor,0,.23,z,site.w-.5,.01,.028,0x758a7a);}
-    for(let x=-site.w/2+2;x<site.w/2;x+=3)box(floor,x,.095,site.d/2+5.4,.09,.025,3,0xb6b69b);
+    for(let x=-site.w/2+2;x<site.w/2;x+=3)groundSurface(floor,x,.095,site.d/2+5.4,.09,.025,3,0xb6b69b,'paving',site);
    }
 
    if(site.kind!=='cemetery'){
@@ -49,8 +53,8 @@ export class CityView {
    // Large quiet signs and one specific landmark identify each place at street level.
    textSign(walls,site.kind==='house'?site.name.split(' · ')[0]:site.name,site.kind==='house'?3.8:0,h-.55,site.d/2+.27,site.kind==='house'?1.7:Math.min(18,site.w-3),site.kind==='house'?.4:.8,site.kind==='hospital'?'#a9b29a':'#40594f');
    this.landmark(floor,site);this.dressing(floor,site);facadeWeathering(walls,site.w,site.d,h,1,Math.round(site.x+site.z));
-   for(let i=0;i<6;i++){const tree=voxelMesh(treeRecipe(i%3));tree.position.set((i%2?1:-1)*(site.w/2+5),0,-site.d/2+i*(site.d/5));root.add(tree);}
-   for(let i=0;i<5;i++){const prop=voxelMesh(propRecipe(i%2?'bag':'rubble'));prop.position.set(-site.w/2+2+i*2,.2,site.d/2+2.3);floor.add(prop);}
+   for(let i=0;i<6;i++){const t=TREE_TRUNKS[TREE_TRUNKS.length-CITY_SITES.length*6+siteIndex*6+i],tree=voxelMesh(treeRecipe(i%3));tree.position.set(t.x-site.x,0,t.z-site.z);root.add(tree);}
+   for(let i=0;i<5;i++){const prop=voxelMesh(propRecipe(i%2?'bag':'rubble'));prop.position.set(-site.w/2+2+i*2,.2,site.d/2+2.3);placement.place(prop,site);floor.add(prop);}
    if(site.kind!=='house'){const car=voxelMesh(carRecipe(site.kind==='police'?'police':'wreck',site.kind==='hospital'?0xc3c3ac:0x8e8770));car.position.set(-site.w/2+3,.1,site.d/2+5.8);car.rotation.y=Math.PI/2;root.add(car);}
    for(const x of [-site.w/2-2,site.w/2+2]){box(floor,x,2.5,site.d/2,.14,5,.14,0x536e5f);const bulb=box(floor,x,5,site.d/2,.5,.18,.5,0xd2c38d);bulb.material=new THREE.MeshStandardMaterial({color:0xd2c38d,emissive:0xc7bc86,emissiveIntensity:1.2});}
    batch(floor);batch(roof);batch(walls);const paint=surfaceBatchMaterial('plaster');walls.traverse(o=>{if(o instanceof THREE.Mesh&&!(o.material as THREE.MeshStandardMaterial).map)o.material=paint;});
@@ -93,7 +97,7 @@ export class CityView {
  }
  private landmark(g:THREE.Group,s:CitySite):void {
   if(s.kind==='hospital'){for(const [w,h]of [[1,4],[4,1]])box(g,-s.w/2+3,s.h+1,s.d/2+.5,w,h,.35,0xb87a61);for(let i=0;i<3;i++){box(g,6+i*2,1.3,-s.d/2+2,1.4,.2,3,0x8d9c88);box(g,6+i*2,1.7,-s.d/2+1,.8,.6,.4,0xd1cab0);}}
-  else if(s.kind==='school'){box(g,0,.18,-s.d/2-8,20,.05,9,0x6f8a72);box(g,0,.22,-s.d/2-8,.1,.03,9,0xc7c6a5);for(const x of [-9,9]){box(g,x,2,-s.d/2-8,.14,4,.14,0x687e71);box(g,x,3.8,-s.d/2-8,1.4,1,.1,0xc2bea0);}}
+  else if(s.kind==='school'){groundSurface(g,0,.18,-s.d/2-8,20,.05,9,0x6f8a72,'paving',s);groundSurface(g,0,.22,-s.d/2-8,.1,.03,9,0xc7c6a5,'paving',s);for(const x of [-9,9]){box(g,x,2,-s.d/2-8,.14,4,.14,0x687e71);box(g,x,3.8,-s.d/2-8,1.4,1,.1,0xc2bea0);}}
   else if(s.kind==='industry'){box(g,-s.w/2+3,6,-s.d/2-2,2,12,2,0x837b65);for(const y of [3,6,9])box(g,-s.w/2+3,y,-s.d/2-2,2.2,.3,2.2,0x697b6d);}
   else if(s.kind==='quarantine'){for(const side of [-1,1]){box(g,side*(s.w/2-2),3,-s.d/2,1,6,1,0x6e8372);box(g,side*(s.w/2-2),6,-s.d/2,2,.5,1,0xcecda8);}for(const x of [-8,8]){box(g,x,2,-4,6,.3,5,0xa6aa88);for(const sign of [-1,1])box(g,x+sign*2.7,1,-4,.14,2,5,0x72866c);}for(const z of [-s.d/2,s.d/2])for(let x=-s.w/2;x<s.w/2;x+=2)box(g,x,4,z,.08,.5,.08,0x4c6456);}
   else if(s.kind==='fire'){box(g,0,2.1,-s.d/2+3,9,.2,1,0x9a7c5c);for(let i=0;i<4;i++){box(g,-3+i*2,1.5,-s.d/2+3,1,1,.6,0xc1a265);box(g,-3+i*2,2.3,-s.d/2+3,1.2,.3,.8,0xab7957);}}

@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createClient} from '@supabase/supabase-js';
 import {Simulation} from '../src/game/simulation.ts';
-import {serializeWorld,deserializeWorld,serializePlayer,deserializePlayer,safeSaveJSON} from '../src/services/save-codec.ts';
+import {serializeWorld,deserializeWorld,serializePlayer,deserializePlayer,safeSaveJSON,savedLayoutVersion} from '../src/services/save-codec.ts';
 import {SaveService} from '../src/services/save-service.ts';
 import {WorldService} from '../src/services/world-service.ts';
 import {cloudConfig} from '../src/services/cloud-config.ts';
@@ -16,6 +16,14 @@ import {CloudError} from '../src/services/cloud-types.ts';
 import {CoopAccountBridge} from '../src/services/coop-account.ts';
 const user='10000000-0000-4000-8000-000000000001',worldId='20000000-0000-4000-8000-000000000002';
 const world={id:worldId,owner_id:user,name:'Teste',seed:1977,difficulty:'normal' as const,current_day:1,game_time:8,schema_version:1,is_active:true,created_at:'2026-10-07T12:00:00Z',updated_at:'2026-10-07T12:00:00Z'};
+
+test('empty worlds select corrected generation while old saves retain their layout',()=>{
+ assert.equal(savedLayoutVersion({}),2);
+ const metadata=(layoutVersion?:unknown)=>({format:'last-night',schema_version:1,checkpoint:{survival:layoutVersion===undefined?{}:{layoutVersion}}});
+ assert.equal(savedLayoutVersion(metadata()),0);
+ for(const version of [0,1,2])assert.equal(savedLayoutVersion(metadata(version)),version);
+ for(const version of [-1,3,1.5,'2',null])assert.throws(()=>savedLayoutVersion(metadata(version)));
+});
 
 test('world creation waits for the membership trigger before SELECT, using authenticated SDK requests',async()=>{
  const calls:string[]=[],rows=new Map<string,typeof world>();let membership=false;

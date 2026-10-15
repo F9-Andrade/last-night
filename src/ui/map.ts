@@ -35,9 +35,11 @@ export class FieldMap {
   const c=canvas.getContext('2d');if(!c||!canvas.width||!canvas.height)return;
   for(let index=0;index<REGIONS.length;index++){const r=REGIONS[index];if(index===0||Math.hypot(r.x-sim.player.x,r.z-sim.player.z)<18||index>=12&&sim.discoveredSites.has(CITY_SITES[index-12].id))this.visited.add(index);}
   const event=sim.worldEvent;
-  // Do not repaint an identical atlas/marker image. Inputs remain exact (no
-  // quantization or reduced cadence), so movement still updates on every call.
-  const key=`${sim.runSeed}:${canvas.width}:${canvas.height}:${full}:${sim.player.x}:${sim.player.z}:${sim.player.angle}:${[...this.visited].join(',')}:${event&&!event.triggered?`${event.kind},${event.name},${event.x},${event.z}`:''}:${peers.filter(p=>p!==sim.player&&p.hp>0).map(p=>`${p.x},${p.z},${p.angle}`).join(';')}`;
+  const merchants=sim.economy.merchants.filter(merchant=>sim.discoveries.has(`npc-${merchant.id}`));
+  // Do not repaint an identical atlas/marker image. Include known traders so
+  // discovery and relocated camps appear even when the survivor stands still.
+  // Inputs remain exact, so movement still updates on every call.
+  const key=`${sim.runSeed}:${canvas.width}:${canvas.height}:${full}:${sim.player.x}:${sim.player.z}:${sim.player.angle}:${[...this.visited].join(',')}:${event&&!event.triggered?`${event.kind},${event.name},${event.x},${event.z}`:''}:${peers.filter(p=>p!==sim.player&&p.hp>0).map(p=>`${p.x},${p.z},${p.angle}`).join(';')}:${merchants.map(m=>`${m.id},${m.x},${m.z},${m.name},${m.title}`).join(';')}`;
   if(this.frames.get(canvas)===key)return;
   const w=canvas.width,h=canvas.height,unit=Math.min(w,h)/(full?600:240);
   // Preserve metres and directions if a layout supplies a rectangular canvas.
@@ -72,7 +74,7 @@ export class FieldMap {
    occupied.push({...box,x:box.x-2*unit,y:box.y-2*unit,w:box.w+4*unit,h:box.h+4*unit});drawn.push(m);
   }
 
-  for(const merchant of sim.economy.merchants){
+  for(const merchant of merchants){
    const x=sx(merchant.x),y=sy(merchant.z);if(x<9*unit||y<9*unit||x>w-9*unit||y>h-24*unit)continue;
    c.save();c.translate(x,y);c.beginPath();c.arc(0,0,8*unit,0,Math.PI*2);c.fillStyle='#302c20';c.fill();c.strokeStyle='#e8bf72';c.lineWidth=1.5*unit;c.stroke();
    c.fillStyle='#efcd8b';c.font=`bold ${11*unit}px "Field Sans", sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('$',0,.5*unit);c.restore();

@@ -81,7 +81,7 @@ export class CloudController {
   this.ui.form([{key:'name',label:'Nome do mundo',max:40}],mode==='solo'?'Criar mundo e jogar':'Criar mundo e sala',async v=>{
    if(mode==='coop'&&this.network.state!=='connected')throw new Error('A conexão do coop mudou. Volte ao lobby e conecte novamente.');
    const world=await this.worlds!.create(v.name);
-   if(mode==='coop'){this.pending=world;this.network.persistentWorld={id:world.id,seed:world.seed,layoutVersion:1};this.ui.close();createRoom?.();}
+   if(mode==='coop'){this.pending=world;this.network.persistentWorld={id:world.id,seed:world.seed,layoutVersion:2};this.ui.close();createRoom?.();}
    else await this.launch(await this.prepare(world.id),false);
   });
  }

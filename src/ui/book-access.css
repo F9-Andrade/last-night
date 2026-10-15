@@ -1,0 +1,13 @@
+.field-book-access{margin:17px 0 4px;padding-top:13px;border-top:1px solid #b1a68a38;text-align:left}
+.field-book-access>small{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;color:#bdb29d;font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.field-book-access>small>span{color:#948b7f;font-size:8px;letter-spacing:0;text-transform:none}
+.field-book-access>div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field-book-shortcut{display:flex;align-items:center;gap:9px;min-width:0;padding:10px 8px!important;background:linear-gradient(140deg,#272921,#181915)!important;border:1px solid #9c98734d!important;color:#eadfcb!important;text-align:left;cursor:pointer}
+.field-book-shortcut.wiki{background:linear-gradient(140deg,#2c211b,#191512)!important;border-color:#b0805b50!important}
+.field-book-shortcut:hover,.field-book-shortcut:focus-visible{border-color:#cab893!important;outline:1px solid #d3c09a;outline-offset:2px}
+.field-book-shortcut>span:nth-child(2){flex:1;min-width:0}.field-book-shortcut strong{display:block;font-size:11px;font-weight:800}.field-book-shortcut small{display:block;color:#b1a592;font-size:9px;line-height:1.4;margin-top:3px}.field-book-shortcut kbd{align-self:flex-start;background:transparent;font-size:9px;padding:1px 3px;border:1px solid #a7977955;color:#c8b590}
+.field-book-cover{position:relative;flex:none;width:29px;height:40px;border:1px solid #9b997459;border-left:4px solid #272d20;background:linear-gradient(110deg,#656445,#394333);box-shadow:2px 2px #d0b88988,3px 4px 5px #0008;transform:rotate(-5deg);display:flex;align-items:center;justify-content:center}
+.wiki .field-book-cover{background:linear-gradient(110deg,#79513b,#4c2d21);border-left-color:#33241b;transform:rotate(4deg)}
+.field-book-cover:before,.field-book-cover:after{content:'';position:absolute;left:3px;right:3px;border-top:1px solid #cbb68c80;top:6px}.field-book-cover:after{top:auto;bottom:7px}.field-book-cover b{font:700 10px Georgia,serif;color:#ddcda4}.field-book-cover i{position:absolute;top:1px;bottom:1px;left:0;border-left:1px dashed #a3987159}
+.field-books-open #crosshair,.field-books-open .capture-mouse,.field-books-open #interaction,.field-books-open #bench-interact,.field-books-open #placement-help{display:none!important}
+@media(max-width:600px){.field-book-access>div{grid-template-columns:1fr}.field-book-shortcut small{font-size:10px}.field-book-access>small{letter-spacing:.4px}}

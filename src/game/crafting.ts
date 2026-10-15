@@ -1,14 +1,14 @@
 import {moneyDrop} from './economy.ts';
 import type {Chest} from './chests.ts';
 import {bodyHit} from './combat.ts';
-import {LOOT_POINTS} from './loot.ts';
+import {LOOT_POINTS, lootPlacementClear, looseLootPosition} from './loot.ts';
 import type {WeaponId} from './weapons.ts';
 import type {Simulation, Walker} from './simulation.ts';
 import {ITEMS, itemKeys, emptyStock} from './inventory.ts';
 import type {Item} from './inventory.ts';
 import {BASE, TREE_TRUNKS, collides, distance, floorHeight, rayWorld} from './world.ts';
 import {lookDirection} from './first-person.ts';
-import type {Vec2} from './world.ts';
+import type {Vec2,Obstacle} from './world.ts';
 import {defenseMaxHP,obstacleDistance} from './defenses.ts';
 import type {Structure,StructureKind} from './construction.ts';
 const renewableLoot=new Set(LOOT_POINTS.filter(l=>l.area!=='base'&&l.id!=='base-wood').map(l=>l.id));
@@ -107,19 +107,22 @@ export function absorb(s:Simulation,damage:number){const blocked=Math.min(s.gear
 export function infectedLoot(s:Simulation,z:Walker){const id=`infected-${z.id}`;if(s.loot.some(l=>l.id===id))return;
  // Bags outlive the cosmetic ragdoll; evict the oldest only when the bounded pool fills.
  const bags=s.loot.filter(l=>l.id.startsWith('infected-'));if(bags.length>=80){const oldest=bags[0];s.loot.splice(s.loot.indexOf(oldest),1);}
- s.loot.push({id,x:z.x,z:z.z,area:'outside',label:'Restos do infectado',coins:moneyDrop(s.runSeed,id,z.kind==='walker'?'infected':'special'),searched:true,lastFound:null,contents:{...emptyStock(),hide:1+(z.kind==='tank'?1:0),cloth:z.id%3===0?1:0,scrap:z.id%2===0?1:0,ammo:z.id%5===0?3:0}});
+ s.loot.push({id,...looseLootPosition(z,s.solidDefenses,s.loot),area:'outside',label:'Restos do infectado',coins:moneyDrop(s.runSeed,id,z.kind==='walker'?'infected':'special'),searched:true,lastFound:null,contents:{...emptyStock(),hide:1+(z.kind==='tank'?1:0),cloth:z.id%3===0?1:0,scrap:z.id%2===0?1:0,ammo:z.id%5===0?3:0}});
 }
 export function harvest(s:Simulation):boolean {
  if(s.meleeId==='hammer')return false;
  const stats=MELEE[s.meleeId],dir=lookDirection(s.player.angle,s.player.pitch),origin={x:s.player.x,y:s.player.eyeY,z:s.player.z};
  const t=s.crafting.trees.filter(t=>t.hp>0&&distance(t,s.player)<=stats.reach+.4).sort((a,b)=>distance(a,s.player)-distance(b,s.player)).find(t=>{const dx=t.x-s.player.x,dz=t.z-s.player.z,along=dx*dir.x+dz*dir.z;return along>0&&Math.abs(dx*dir.z-dz*dir.x)<.65&&origin.y+dir.y*along<4&&origin.y+dir.y*along>floorHeight(t)&&rayWorld(origin,dir,Math.max(0,along-.5),s.solidDefenses)>=along-.55;});
- if(!t)return false;const horizontal={x:Math.sin(s.player.angle),z:Math.cos(s.player.angle)};if(s.zombies.some(z=>z.active&&bodyHit(s.player,horizontal,Math.tan(s.player.pitch),z,Math.max(0,distance(s.player,t)-.3),s.player.eyeY)))return false;t.hp=Math.max(0,t.hp-stats.wood);s.events.push({type:'barricade-hit',position:t});if(!t.hp){s.crafting.revision++;t.ready=s.crafting.clock+240+s.contentRandom()*240;const wood=4+Math.floor(s.contentRandom()*3);const accepted=s.inventory.add('wood',wood);if(accepted<wood)s.loot.push({id:`timber-${t.id}-${s.crafting.next++}`,x:t.x,z:t.z,area:'outside',label:'Madeira cortada',searched:true,lastFound:null,contents:{...emptyStock(),wood:wood-accepted}});s.notice('ÁRVORE CORTADA',`${wood} madeiras. O que não coube ficou no chão.`);}return true;
+ if(!t)return false;const horizontal={x:Math.sin(s.player.angle),z:Math.cos(s.player.angle)};if(s.zombies.some(z=>z.active&&bodyHit(s.player,horizontal,Math.tan(s.player.pitch),z,Math.max(0,distance(s.player,t)-.3),s.player.eyeY)))return false;t.hp=Math.max(0,t.hp-stats.wood);s.events.push({type:'barricade-hit',position:t});if(!t.hp){s.crafting.revision++;t.ready=s.crafting.clock+240+s.contentRandom()*240;const wood=4+Math.floor(s.contentRandom()*3);const accepted=s.inventory.add('wood',wood);if(accepted<wood)s.loot.push({id:`timber-${t.id}-${s.crafting.next++}`,...looseLootPosition(t,s.solidDefenses,s.loot),area:'outside',label:'Madeira cortada',searched:true,lastFound:null,contents:{...emptyStock(),wood:wood-accepted}});s.notice('ÁRVORE CORTADA',`${wood} madeiras. O que não coube ficou no chão.`);}return true;
 }
 export function updateCraftWorld(s:Simulation,dt:number,players:Vec2[]=[s.player]){
  const w=s.crafting;w.clock+=dt;
+ let solids:Obstacle[]|undefined;const blockers=()=>solids??=s.solidDefenses;
  const timber=s.loot.filter(l=>l.id.startsWith('timber-'));for(const l of timber.slice(0,Math.max(0,timber.length-80)))s.loot.splice(s.loot.indexOf(l),1);
- for(const t of w.trees)if(!t.hp&&w.clock>=t.ready&&players.every(p=>distance(p,t)>12)&&!s.zombies.some(z=>z.active&&distance(z,t)<1.5)&&![...s.crafting.tables,...s.crafting.chests].some(p=>distance(p,t)<2)){t.hp=100;t.ready=0;w.revision++;}
- for(const l of s.loot){if(!renewableLoot.has(l.id))continue;if(l.searched&&!(l.coins??0)&&!itemKeys.some(k=>l.contents[k])){if(w.refills[l.id]===undefined&&Object.keys(w.refills).length<64)w.refills[l.id]=w.clock+360+s.contentRandom()*300;if(w.clock>=w.refills[l.id]&&players.every(p=>distance(p,l)>18)){l.searched=false;l.guaranteed=undefined;l.restocked=true;delete w.refills[l.id];}}}
+ // Delay regrowth at an occupied location; do not grow a trunk through a new
+ // wall, a merchant stall, or the wood pile that the player has not collected.
+ for(const t of w.trees)if(!t.hp&&w.clock>=t.ready&&players.every(p=>distance(p,t)>12)&&!s.zombies.some(z=>z.active&&distance(z,t)<1.5)&&![...s.crafting.tables,...s.crafting.chests].some(p=>distance(p,t)<2)&&!collides(t,.85,blockers())&&!s.loot.some(l=>distance(l,t)<1.15&&(renewableLoot.has(l.id)||!l.searched||(l.coins??0)>0||itemKeys.some(k=>l.contents[k])))){t.hp=100;t.ready=0;w.revision++;solids=undefined;}
+ for(const l of s.loot){if(!renewableLoot.has(l.id))continue;if(l.searched&&!(l.coins??0)&&!itemKeys.some(k=>l.contents[k])){if(w.refills[l.id]===undefined&&Object.keys(w.refills).length<64)w.refills[l.id]=w.clock+360+s.contentRandom()*300;if(w.clock>=w.refills[l.id]&&players.every(p=>distance(p,l)>18)&&lootPlacementClear(l,blockers())){l.searched=false;l.guaranteed=undefined;l.restocked=true;delete w.refills[l.id];}}}
 }
 
 export function reclaimBench(s:Simulation,id?:number):boolean{if(s.gameOver||s.action||s.player.hp<=0)return false;const t=s.crafting.tables.find(t=>(id===undefined||t.id===id)&&distance(t,s.player)<=3&&clear(s,t));if(!t)return false;if(t.hp<200){s.notice('MESA DANIFICADA','Não é possível recolher uma mesa danificada.');return false;}if(!s.inventory.add('bench',1)){s.notice('MOCHILA CHEIA','Libere 3 kg para recolher a mesa.');return false;}s.crafting.tables.splice(s.crafting.tables.indexOf(t),1);s.crafting.revision++;return true;}

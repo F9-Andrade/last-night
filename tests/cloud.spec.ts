@@ -9,7 +9,7 @@ async function layout(p:Page){return p.evaluate(async()=>{
  const sim=(window as any).__LAST_NIGHT__.simulationFixture(),summary=worldLayoutSummary();
  return {seed:summary.seed,version:summary.version,runSeed:sim.runSeed,simulationVersion:sim.layoutVersion,sites:CITY_SITES.map(s=>[s.id,s.x,s.z]),buildings:BUILDINGS.map(s=>[s.kind,s.x,s.z]),portals:sim.portals.map((p:any)=>[p.id,p.x,p.z]),merchants:sim.economy.merchants.map((m:any)=>[m.id,m.x,m.z])};
 });}
-async function expectSavedLayout(p:Page,version=1){const current=await layout(p);expect(current.runSeed).toBe(savedWorldSeed);expect(current.version).toBe(version);expect(current.simulationVersion).toBe(version);if(version===1)expect(current.seed).toBe(savedWorldSeed);return current;}
+async function expectSavedLayout(p:Page,version=2){const current=await layout(p);expect(current.runSeed).toBe(savedWorldSeed);expect(current.version).toBe(version);expect(current.simulationVersion).toBe(version);if(version>0)expect(current.seed).toBe(savedWorldSeed);return current;}
 function backend(hosting=false){
  const grants=new Set<string>();
  let createdWorldId=worldId;

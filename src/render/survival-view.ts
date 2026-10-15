@@ -5,7 +5,7 @@ import { DEFENSE_POINTS, damageStage, defenseMaxHP, gateStep } from '../game/def
 import { itemKeys } from '../game/inventory';
 import type { Item } from '../game/inventory';
 import type { Simulation } from '../game/simulation';
-import { distance } from '../game/world';
+import { distance,floorHeight } from '../game/world';
 import { voxelGeometry, voxelMesh, voxelMaterial } from './voxel';
 import { defenseRecipe, containerRecipe, itemRecipe } from './survival-assets';
 /** Persistent visual instances. State changes swap cached geometry; retries allocate nothing here. */
@@ -19,7 +19,7 @@ export class SurvivalView {
     for (const key of itemKeys) voxelGeometry(itemRecipe(key));
     const markerGeo = new THREE.OctahedronGeometry(.11), markerPaint = new THREE.MeshBasicMaterial({ color: 0xdab67b });
     for (const point of LOOT_POINTS) {
-      const root = new VisibleGroup(); root.position.set(point.x, .18, point.z); root.add(voxelMesh(containerRecipe(point.area, false)));
+      const root = new VisibleGroup(); root.position.set(point.x, floorHeight(point)+.015, point.z); root.add(voxelMesh(containerRecipe(point.area, false)));
       const lid = new THREE.Group(); lid.position.set(0, .74, -.4); lid.add(voxelMesh(containerRecipe(point.area, true))); root.add(lid);
       const marker = new THREE.Mesh(markerGeo, markerPaint); marker.position.y = 1.45; root.add(marker);
       const key: Item = point.area === 'hospital' ? 'med' : point.area === 'police' || point.area === 'base' ? 'ammo' : point.area === 'gas' ? 'scrap' : 'wood';
@@ -35,7 +35,7 @@ export class SurvivalView {
   }
   update(sim: Simulation, dt: number, elapsed: number, menu: boolean): void {
     this.containers.forEach((view, i) => {
-      const loot = sim.loot[i]; view.root.visible=distance(sim.player,loot)<55;
+      const loot = sim.loot[i]; view.root.position.set(loot.x,floorHeight(loot)+.015,loot.z);view.root.visible=distance(sim.player,loot)<55;
       if (loot.searched && !view.searched) { view.reveal = loot.lastFound ? 2 : 0; if (loot.lastFound) view.found.geometry = voxelGeometry(itemRecipe(loot.lastFound)); }
       if (!loot.searched) view.reveal = 0;
       view.searched = loot.searched; view.reveal = Math.max(0, view.reveal - dt);
@@ -47,7 +47,7 @@ export class SurvivalView {
       view.marker.position.y = 1.45 + Math.sin(elapsed * 2 + i) * .08;
       view.found.visible = view.reveal > 0; view.found.position.y = 1.1 + (2 - view.reveal) * .25;
     });
-    let dropCount=0;for(const loot of sim.loot.slice(LOOT_POINTS.length)){if(dropCount>=512||!(loot.coins??0)&&!itemKeys.some(k=>loot.contents[k])||distance(sim.player,loot)>55)continue;this.dropPose.position.set(loot.x,.18,loot.z);this.dropPose.scale.setScalar(.8);this.dropPose.updateMatrix();this.drops.setMatrixAt(dropCount++,this.dropPose.matrix);}this.drops.count=dropCount;this.drops.instanceMatrix.needsUpdate=true;
+    let dropCount=0;for(const loot of sim.loot.slice(LOOT_POINTS.length)){if(dropCount>=512||!(loot.coins??0)&&!itemKeys.some(k=>loot.contents[k])||distance(sim.player,loot)>55)continue;this.dropPose.position.set(loot.x,floorHeight(loot)+.015,loot.z);this.dropPose.scale.setScalar(.8);this.dropPose.updateMatrix();this.drops.setMatrixAt(dropCount++,this.dropPose.matrix);}this.drops.count=dropCount;this.drops.instanceMatrix.needsUpdate=true;
     this.defenses.forEach((view, i) => {
       const b = sim.barricades[i], stage = damageStage(b.hp,defenseMaxHP(b));
       const key=`${stage}:${b.tier??0}`;

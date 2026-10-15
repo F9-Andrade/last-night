@@ -1,16 +1,21 @@
 import {StaticChunk} from './static-chunk';
 import * as THREE from 'three';
-import {CITY_LIMIT} from '../game/city';
+import {CITY_LIMIT,CITY_SITES} from '../game/city';
+import {BUILDINGS,URBAN,GAS_STATION,TREE_TRUNKS} from '../game/world';
+import {groundSurface} from './ground-surface';
+import {outdoorPlacement} from './outdoor-placement';
 import { box, batch, textSign } from './models';
 import { voxelMesh } from './voxel';
 import { propRecipe, treeRecipe, voxelBox } from './environment-assets';
 import {surfaceBatchMaterial} from './surface-materials';
-import { WAREHOUSES, REGIONS, OUTER_TREE_OFFSET, OUTER_HOUSES } from '../game/districts';
+import { WAREHOUSES, REGIONS, OUTER_HOUSES, ROADS, CARGO_OBSTACLES, PLAZA_MONUMENT } from '../game/districts';
 export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Group[] {
-  const chunks:THREE.Group[]=[];
+  const chunks:THREE.Group[]=[],placement=outdoorPlacement(scene);
+  const groundExclusions=[...ROADS,...BUILDINGS.filter(b=>b.kind!=='base'),...CITY_SITES,...WAREHOUSES,...URBAN.buildings,{...GAS_STATION,w:10,d:5}];
+  let regionTreeIndex=OUTER_HOUSES.length;
   for(const region of REGIONS.slice(2,12)) {
     const g=new StaticChunk();g.position.set(region.x,0,region.z);g.name=region.name;scene.add(g);chunks.push(g);
-    const prop=(kind:Parameters<typeof propRecipe>[0],x:number,z:number,angle=0)=>{const m=voxelMesh(propRecipe(kind));m.position.set(x,.15,z);m.rotation.y=angle;g.add(m);};
+    const prop=(kind:Parameters<typeof propRecipe>[0],x:number,z:number,angle=0)=>{const m=voxelMesh(propRecipe(kind));m.position.set(x,.15,z);m.rotation.y=angle;placement.place(m,g.position);g.add(m);};
     for(let i=0;i<6;i++){prop(i%3===0?'rubble':i%3===1?'bag':'pallet',-7+i*2,8+Math.sin(i*2)*2,i*.8);}
     if(region.icon==='I'||region.icon==='S') {
       for(let i=0;i<3;i++){
@@ -18,21 +23,21 @@ export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Gr
           voxelBox(v,0,1.2,0,2.7,2.4,6,[0x778d88,0x9c7154,0x838768][i]);
           for(let z=-2.8;z<3;z+=.45)for(const x of [-1.4,1.4])voxelBox(v,x,1.2,z,.12,2.4,.15,0x556c65);
           for(const x of [-.7,.7])voxelBox(v,x,1.2,3.04,.08,2.1,.1,0xb0ab8e);
-        }});container.position.set(-7+i*4,.1,region.icon==='I'?-8:-4);g.add(container);
+        }});const cargo=CARGO_OBSTACLES[(region.icon==='I'?0:3)+i];container.position.set(cargo.x-region.x,.1,cargo.z-region.z);g.add(container);
         prop('pallet',-7+i*3,9);prop('crate',-7+i*3,10.5);
       }
     }
     if(region.icon==='E'||region.name==='TRIAGEM EXTERNA') {
-      box(g,0,.02,0,25,.1,24,0x9b9f89,'paving');
-      for(const [x,z] of [[-9,-8],[9,-8],[-9,9],[9,9]]){const tree=voxelMesh(treeRecipe(1));tree.position.set(x,.15,z);g.add(tree);prop('bench',x*.7,z*.7);}
+      groundSurface(g,0,.02,0,25,.1,24,0x9b9f89,'paving',g.position,groundExclusions);
+      for(const [x,z] of [[-9,-8],[9,-8],[-9,9],[9,9]]){const t=TREE_TRUNKS[regionTreeIndex++],tree=voxelMesh(treeRecipe(1));tree.position.set(t.x-region.x,.15,t.z-region.z);g.add(tree);prop('bench',x*.7,z*.7);}
       if(region.icon==='E'){
-        box(g,0,.3,0,5,.6,5,0x797f73);box(g,0,.65,0,4,.15,4,0x536e6b);box(g,0,1.6,0,.8,2,.8,0xa8aa92);box(g,0,2.8,0,1.5,.4,1.5,0x929b86);
+        const monument=new THREE.Group();monument.position.set(PLAZA_MONUMENT.x-region.x,0,PLAZA_MONUMENT.z-region.z);g.add(monument);box(monument,0,.3,0,5,.6,5,0x797f73);box(monument,0,.65,0,4,.15,4,0x536e6b);box(monument,0,1.6,0,.8,2,.8,0xa8aa92);box(monument,0,2.8,0,1.5,.4,1.5,0x929b86);
       }
       for(let i=0;i<3;i++){
         const tent=voxelMesh({id:`evacuation-tent:${i%2}`,unit:.15,build(v){
           for(let x=-12;x<=12;x++){const h=1.8-Math.abs(x)*.12;voxelBox(v,x*.15,h,0,.15,.15,3.6,i%2?0x8a9479:0xb9b9a0);}
           voxelBox(v,0,.05,0,3.6,.1,3.6,0x596b60);
-        }});tent.position.set(-7+i*6,.15,5);g.add(tent);
+        }});tent.position.set(-7+i*6,.15,5);placement.place(tent,g.position,true);g.add(tent);
       }
       textSign(g,'EVACUAÇÃO →',0,1.3,-8,3,.6,'#536b61');
     }
@@ -48,11 +53,11 @@ export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Gr
     }
     if(region.icon==='C'){
       for(const [label,z,color] of [['FARMÁCIA',-20.8,'#647c6b'],['ARMAZÉM',1.2,'#85664f'],['OFICINA',25.2,'#4c6567']] as const){textSign(g,label,-2,3,z,6,.7,color);box(g,-2,2.5,z,8,.15,1.5,0xb4a27b);prop('bin',4,z);}
-      const cart=voxelMesh({id:'cart:fallen:v1',unit:.1,build(v){for(let y=2;y<10;y+=2)voxelBox(v,0,y*.1,0,1,.07,.6,0x7f9691);for(const x of [-.5,.5])voxelBox(v,x,.6,0,.08,1,.6,0x9da796);}});cart.position.set(5,.2,4);cart.rotation.z=Math.PI/2;g.add(cart);
+      const cart=voxelMesh({id:'cart:fallen:v1',unit:.1,build(v){for(let y=2;y<10;y+=2)voxelBox(v,0,y*.1,0,1,.07,.6,0x7f9691);for(const x of [-.5,.5])voxelBox(v,x,.6,0,.08,1,.6,0x9da796);}});cart.position.set(5,.2,4);cart.rotation.z=Math.PI/2;placement.place(cart,g.position);g.add(cart);
     }
     // Authored pools of street litter, old stains and abandoned furniture.
-    for(let i=0;i<12;i++){const x=Math.sin(i*7+region.x)*11,z=Math.cos(i*11+region.z)*10;const debris=box(g,x,.12,z,.2+(i%3)*.2,.025,.25,i%4===0?0x614b3e:0x9d9e87);debris.rotation.y=i;}
-    box(g,-10,2.5,0,.16,5,.16,0x536c65);box(g,-9.4,5,0,1.4,.14,.2,0x68796b);box(g,-8.8,4.9,0,.4,.12,.3,0xd4b583).material=lamps;
+    for(let i=0;i<12;i++){const x=Math.sin(i*7+region.x)*11,z=Math.cos(i*11+region.z)*10;const debris=box(g,x,.12,z,.2+(i%3)*.2,.025,.25,i%4===0?0x614b3e:0x9d9e87);debris.rotation.y=i;placement.place(debris,g.position);}
+    const fixture=new THREE.Group();box(fixture,-10,2.5,0,.16,5,.16,0x536c65);box(fixture,-9.4,5,0,1.4,.14,.2,0x68796b);box(fixture,-8.8,4.9,0,.4,.12,.3,0xd4b583).material=lamps;placement.place(fixture,g.position,true);g.add(fixture);placement.lights.push({x:region.x-8.8+fixture.position.x,z:region.z+fixture.position.z});
     batchDistrict(g);
   }
   for(const w of WAREHOUSES){
@@ -64,16 +69,16 @@ export function createDistricts(scene:THREE.Scene,lamps:THREE.Material):THREE.Gr
       voxelBox(v,0,w.h+.7,-w.d/4,2,1.4,2,0x596e68);
       for(let i=0;i<20;i++){const x=-w.w/2+1+i*(w.w-2)/20;voxelBox(v,x,.5+(i%4)*.5,w.d/2+.21,.2,.5+(i%3)*.2,.12,i%2?0x96795b:0x92997e);}
     }},surfaceBatchMaterial('metal'));g.add(m);
-    box(g,0,.04,w.d/2+3,w.w+2,.1,6,0x777e6e,'paving');
-    for(let i=0;i<8;i++){const prop=voxelMesh(propRecipe(i%3===0?'pallet':i%3===1?'bag':'rubble'));prop.position.set(-w.w/2+1+i*2.4,.15,w.d/2+2+(i%2)*1.2);g.add(prop);}
+    groundSurface(g,0,.04,w.d/2+3,w.w+2,.1,6,0x777e6e,'paving',g.position,groundExclusions);
+    for(let i=0;i<8;i++){const prop=voxelMesh(propRecipe(i%3===0?'pallet':i%3===1?'bag':'rubble'));prop.position.set(-w.w/2+1+i*2.4,.15,w.d/2+2+(i%2)*1.2);placement.place(prop,g.position);g.add(prop);}
     textSign(g,'SANTA LUZ / CARGAS',0,w.h-.8,w.d/2+.4,8,.8,'#536b63');batchDistrict(g);
   }
-  for(const [x,z] of OUTER_HOUSES){
+  for(const [houseIndex,[x,z]] of OUTER_HOUSES.entries()){
     const g=new StaticChunk();g.position.set(x,0,z);scene.add(g);chunks.push(g);
-    box(g,0,.02,1,13,.12,12,0x999e87,'paving');box(g,0,.1,1,11.7,.06,10.7,0x75876b,'earth');box(g,0,.14,5.5,2,.05,3,0xa5a38a,'paving');
-    for(let i=0;i<8;i++) {box(g,-6+i*1.6,.6,-6,.12,1.2,.12,0x8a8e72);box(g,-6+i*1.6,.75,-6,1.5,.12,.12,0x9a9b7d);}
-    for(const kind of ['pallet','bin'] as const){const m=voxelMesh(propRecipe(kind));m.position.set(kind==='bin'?6:-6,.15,3);g.add(m);}
-    const tree=voxelMesh(treeRecipe(0));tree.position.set(OUTER_TREE_OFFSET.x,0,OUTER_TREE_OFFSET.z);g.add(tree);batchDistrict(g);
+    groundSurface(g,0,.02,1,13,.12,12,0x999e87,'paving',g.position,groundExclusions);groundSurface(g,0,.1,1,11.7,.06,10.7,0x75876b,'earth',g.position,groundExclusions);groundSurface(g,0,.14,5.5,2,.05,3,0xa5a38a,'paving',g.position,groundExclusions);
+    const fence=new THREE.Group();for(let i=0;i<8;i++) {box(fence,-6+i*1.6,.6,-6,.12,1.2,.12,0x8a8e72);box(fence,-6+i*1.6,.75,-6,1.5,.12,.12,0x9a9b7d);}placement.place(fence,g.position,true);g.add(fence);
+    for(const kind of ['pallet','bin'] as const){const m=voxelMesh(propRecipe(kind));m.position.set(kind==='bin'?6:-6,.15,3);placement.place(m,g.position);g.add(m);}
+    const tree=voxelMesh(treeRecipe(0));tree.position.set(TREE_TRUNKS[houseIndex].x-x,0,TREE_TRUNKS[houseIndex].z-z);g.add(tree);batchDistrict(g);
   }
   const edge=new StaticChunk();scene.add(edge);
   for(let i=0;i<40;i++){const tree=voxelMesh(treeRecipe(i%3));const side=i%4,offset=-CITY_LIMIT+Math.floor(i/4)*(CITY_LIMIT*2/9);tree.position.set(side<2?(side===0?-CITY_LIMIT-6:CITY_LIMIT+6):offset,0,side>=2?(side===2?-CITY_LIMIT-6:CITY_LIMIT+6):offset);tree.castShadow=false;edge.add(tree);}

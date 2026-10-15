@@ -139,3 +139,40 @@ test('coop crafts hammer once, rejects hammer attacks and preserves all seven to
  const promoted=CoopWorld.fromSolo(copy.actors.get(1)!.sim,1);assert.equal(promoted.actors.get(1)!.sim.buildingHammerEquipped,true);assert.ok(parseCheckpoint(promoted.checkpoint()));
  const bad=structuredClone(snapshot);bad.players[0].gear.owned=bad.players[0].gear.owned.filter(k=>k!=='hammer');assert.equal(parseCheckpoint(bad),null);
 });
+
+test('regrowth waits for new construction and uncollected drops instead of overlapping them',()=>{
+ const s=clean(),t=s.crafting.trees.find(t=>t.x===-7&&t.z===-10)!;t.hp=0;t.ready=1;s.crafting.revision++;Object.assign(s.player,{x:30,z:13});
+ s.barricades.push({id:'regrowth-wall',label:'Wall',x:t.x,z:t.z,w:2,d:.3,h:3,hp:100,built:true,flash:0});
+ updateCraftWorld(s,2);assert.equal(t.hp,0);assert.equal(t.ready,1);
+ s.barricades=s.barricades.filter(b=>b.id!=='regrowth-wall');
+ s.loot.push({id:'timber-regrowth',x:t.x,z:t.z,area:'outside',label:'Madeira cortada',searched:true,lastFound:null,contents:{...emptyStock(),wood:4}});
+ updateCraftWorld(s,1);assert.equal(t.hp,0);
+ s.loot.find(l=>l.id==='timber-regrowth')!.contents=emptyStock();updateCraftWorld(s,1);assert.equal(t.hp,100);assert.equal(t.ready,0);
+});
+
+test('cache respawn preserves cooldown while occupied and retries once space is free',()=>{
+ const s=clean(),l=s.loot.find(l=>l.id==='market-locker')!;l.searched=true;l.contents=emptyStock();s.crafting.refills[l.id]=1;
+ s.crafting.tables.push({id:s.crafting.next++,x:l.x,z:l.z,y:.22,angle:0,hp:200});s.crafting.revision++;
+ updateCraftWorld(s,2);assert.equal(l.searched,true);assert.equal(s.crafting.refills[l.id],1);
+ s.crafting.tables=[];s.crafting.revision++;updateCraftWorld(s,1);assert.equal(l.searched,false);assert.equal(s.crafting.refills[l.id],undefined);
+});
+
+test('loose supplies separate locally, never cross walls, and escape low traps without losing contents',async()=>{
+ const {looseLootPosition,lootPlacementClear}=await import('../src/game/loot.ts');
+ const origin={x:1,z:14},wall={x:2,z:14,w:.2,d:7,h:3},occupied=[origin,{x:1,z:15.1}];
+ const p=looseLootPosition(origin,[wall],occupied);assert.ok(lootPlacementClear(p,[wall]));assert.ok(p.x<wall.x);assert.ok(occupied.every(q=>Math.hypot(q.x-p.x,q.z-p.z)>=1.1));
+ assert.deepEqual(looseLootPosition(origin,[wall],occupied),p);
+ const trap={x:origin.x,z:origin.z,w:1.4,d:1.4,h:.45};const escaped=looseLootPosition(origin,[trap]);assert.ok(lootPlacementClear(escaped,[trap]));assert.ok(Math.hypot(escaped.x-origin.x,escaped.z-origin.z)<3.7);
+ const s=clean();s.inventory.capacity=0;s.grantItems('scrap',4,origin);s.grantItems('wood',3,origin);const drops=s.loot.filter(l=>l.id.startsWith('reward-'));assert.equal(drops.length,2);assert.equal(drops[0].contents.scrap,4);assert.equal(drops[1].contents.wood,3);assert.ok(Math.hypot(drops[0].x-drops[1].x,drops[0].z-drops[1].z)>=1.1);
+});
+
+test('weapon drops avoid supplies, other weapons and constructed walls without losing equipment',async()=>{
+ const {lootPlacementClear}=await import('../src/game/loot.ts');
+ const s=clean(),origin={x:1,z:14};s.inventory.capacity=0;
+ s.barricades.push({id:'drop-wall',label:'Wall',x:2,z:14,w:.2,d:7,h:3,hp:100,built:true,flash:0});
+ s.grantItems('scrap',4,origin);const supply=s.loot.find(l=>l.id.startsWith('reward-'))!;
+ const a=s.dropWeapon('pistol',origin)!,b=s.dropWeapon('shotgun',origin)!;
+ assert.equal(a.item.type,'pistol');assert.equal(b.item.type,'shotgun');assert.equal(s.groundWeapons.length,2);assert.equal(supply.contents.scrap,4);
+ for(const item of [a,b]){assert.ok(lootPlacementClear(item,s.solidDefenses));assert.ok(item.x<2);assert.ok(Math.hypot(item.x-supply.x,item.z-supply.z)>=1.1);}
+ assert.ok(Math.hypot(a.x-b.x,a.z-b.z)>=1.1);
+});

@@ -11,7 +11,7 @@ const validMembers=(v:unknown):v is Member[]=>Array.isArray(v)&&v.length>0&&v.le
 export class BrowserLanTransport {
  actor=0;master=0;seed=0;ping=0;
  private peer:Peer;private stopped=false;private members:Member[]=[];private links=new Map<string,Link>();
- private layoutVersion:0|1=0;private worldId?:string;private token='';private roomCode='';private joining='';private nextActor=2;private loaded=false;
+ private layoutVersion:0|1|2=0;private worldId?:string;private token='';private roomCode='';private joining='';private nextActor=2;private loaded=false;
  private heartbeat:ReturnType<typeof setInterval>;private reconnect?:ReturnType<typeof setTimeout>;
  constructor(private name:string,private receive:(message:any)=>void,private fail:(message:string)=>void){
   const options={debug:0 as const,config:{iceServers:[]}};
@@ -71,7 +71,7 @@ export class BrowserLanTransport {
   if(m.type==='room'){
    const host=this.members.find(p=>p.actorNumber===this.master)?.playerId;
    if(c.peer!==(host||this.joining)||!validMembers(m.players)||!Number.isInteger(m.seed)||m.seed<0||m.seed>4294967295||typeof m.token!=='string'||! /^[a-zA-Z0-9-]{8,40}$/.test(m.token))return;
-   if(m.layoutVersion!==undefined&&m.layoutVersion!==0&&m.layoutVersion!==1)return;
+   if(m.layoutVersion!==undefined&&m.layoutVersion!==0&&m.layoutVersion!==1&&m.layoutVersion!==2)return;
    const own=m.players.find(p=>p.playerId===this.peer.id);if(!own)return;
    const leader=m.players.reduce((a,b)=>a.actorNumber<b.actorNumber?a:b);if(leader.playerId!==c.peer)return;
    const first=!this.actor;this.actor=own.actorNumber;this.master=leader.actorNumber;this.seed=m.seed;this.layoutVersion=m.layoutVersion??0;this.token=m.token;this.worldId=typeof m.worldId==='string'?m.worldId:undefined;this.members=m.players;this.nextActor=Math.max(this.nextActor,Number.isSafeInteger(m.nextActor)&&m.nextActor>0?m.nextActor:1,...this.members.map(p=>p.actorNumber+1));this.roomCode=leader.playerId.slice(PREFIX.length);
@@ -102,7 +102,7 @@ export class BrowserLanTransport {
   if(!this.actor&&c.peer===this.joining){this.fail('Não foi possível estabelecer a conexão local. Confirme a mesma rede e verifique o isolamento de dispositivos no Wi-Fi.');return;}
   this.drop(c.peer);
  }
- host(seed:number,worldId?:string,layoutVersion:0|1=1){
+ host(seed:number,worldId?:string,layoutVersion:0|1|2=2){
   if(this.stopped||this.actor)return;this.actor=1;this.master=1;this.seed=seed;this.layoutVersion=layoutVersion;this.worldId=worldId;this.token=sessionToken();this.roomCode=this.peer.id.slice(PREFIX.length);this.members=[{actorNumber:1,playerId:this.peer.id,displayName:this.name,ready:true}];this.publishRoom();
   this.receive({type:'start',data:{ownerActor:1,layoutVersion:this.layoutVersion,seed,actors:[1],token:this.token,...(this.worldId?{worldId:this.worldId}:{})}});
  }

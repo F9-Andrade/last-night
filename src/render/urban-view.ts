@@ -1,11 +1,15 @@
 import {StaticChunk} from './static-chunk.ts';
 import * as THREE from 'three';
 import {ROADS} from '../game/districts';
-import {URBAN} from '../game/world';
+import {URBAN,BUILDINGS,GAS_STATION} from '../game/world';
+import {CITY_SITES} from '../game/city';
+import {WAREHOUSES} from '../game/districts';
 import type {UrbanBuilding,UrbanVehicle,StreetScene} from '../game/urban-layout';
 import {box,batch,textSign} from './models';
 import type {Simulation} from '../game/simulation';
 import {facadeWeathering} from './facade-weathering';
+import {groundSurface} from './ground-surface';
+import {outdoorPlacement} from './outdoor-placement';
 interface Chunk {root:StaticChunk;detail:THREE.Group;x:number;z:number}
 /** One static batch per layer per 32 m cell. Distant skyline survives detail culling. */
 export class UrbanView {
@@ -13,15 +17,17 @@ export class UrbanView {
  private smoke:THREE.InstancedMesh;private dummy=new THREE.Object3D();
  private smokeScenes=URBAN.scenes.filter(s=>s.kind==='crash'||s.kind==='delivery');
  constructor(scene:THREE.Scene){
+  const placement=outdoorPlacement(scene);
   const chunk=(x:number,z:number)=>{const key=`${Math.floor(x/32)}:${Math.floor(z/32)}`;let c=this.chunks.get(key);if(!c){const root=new StaticChunk(),detail=new THREE.Group();root.position.set(Math.floor(x/32)*32+16,0,Math.floor(z/32)*32+16);root.add(detail);scene.add(root);c={root,detail,x:root.position.x,z:root.position.z};this.chunks.set(key,c);}return c;};
   for(const b of URBAN.buildings){const c=chunk(b.x,b.z),g=new THREE.Group(),detail=new THREE.Group();g.position.set(b.x-c.x,0,b.z-c.z);detail.position.copy(g.position);c.root.add(g);c.detail.add(detail);this.building(g,detail,b);}
   for(const v of URBAN.vehicles){const c=chunk(v.x,v.z),g=new THREE.Group();g.position.set(v.x-c.x,0,v.z-c.z);g.rotation.y=v.angle;c.root.add(g);this.vehicle(g,v);}
-  for(const s of URBAN.scenes){const c=chunk(s.x,s.z),g=new THREE.Group();g.position.set(s.x-c.x,0,s.z-c.z);c.detail.add(g);this.story(g,s);}
+  for(const s of URBAN.scenes){const c=chunk(s.x,s.z),g=new THREE.Group();g.position.set(s.x-c.x,0,s.z-c.z);c.detail.add(g);this.story(g,s);placement.place(g,c);}
+  const pavementExclusions=[...ROADS,...BUILDINGS.filter(b=>b.kind!=='base'),...CITY_SITES,...WAREHOUSES,...URBAN.buildings,{...GAS_STATION,w:10,d:5}];
   for(const road of ROADS)for(let n=-Math.max(road.w,road.d)/2+8;n<Math.max(road.w,road.d)/2-8;n+=16)for(const side of [-1,1]){
    const horizontal=road.w>road.d,x=horizontal?road.x+n:road.x+side*(road.w/2+1),z=horizontal?road.z+side*(road.d/2+1):road.z+n;
-   if(ROADS.some(r=>r!==road&&Math.abs(x-r.x)<r.w/2+.5&&Math.abs(z-r.z)<r.d/2+.5))continue;
    const c=chunk(x,z),px=x-c.x,pz=z-c.z;
-   box(c.root,px,.035,pz,horizontal?15.9:1.85,.07,horizontal?1.85:15.9,0x899181,'paving');
+   groundSurface(c.root,px,.035,pz,horizontal?15.9:1.85,.07,horizontal?1.85:15.9,0x899181,'paving',c,pavementExclusions);
+   if(ROADS.some(r=>Math.abs(x-r.x)<r.w/2+.5&&Math.abs(z-r.z)<r.d/2+.5)||pavementExclusions.slice(ROADS.length).some(r=>Math.abs(x-r.x)<r.w/2+.8&&Math.abs(z-r.z)<r.d/2+.8))continue;
    if(Math.abs(x)<9&&Math.abs(z)<12)continue;
    for(let i=0;i<3;i++)box(c.detail,px+(horizontal?i*.5:.65),.13,pz+(horizontal?.65:i*.5),.15,.18,.3,i%2?0x8e9076:0x53664c);
   }
@@ -30,7 +36,7 @@ export class UrbanView {
  }
  private building(g:THREE.Group,p:THREE.Group,b:UrbanBuilding){
   const {w,d,h,front:f}=b;
-  box(g,0,.08,0,w+2,.16,d+2,0x9a9c89,'paving');box(g,0,h/2,0,w,h,d,b.color,'plaster');
+  groundSurface(g,0,.08,0,w+2,.16,d+2,0x9a9c89,'paving',b);box(g,0,h/2,0,w,h,d,b.color,'plaster');
   box(g,0,h+.12,0,w+.35,.24,d+.35,b.style==='house'?0x97785d:0x657773,'roof');
   for(const x of [-w/2,w/2])box(g,x,h/2,0,.2,h,d+.12,0xc2b89e);
   // Residential and commercial ground floors have deliberately different frontage.

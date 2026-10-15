@@ -1,5 +1,6 @@
 /** LAST NIGHT field marks: original 24-unit silhouettes and 1.65-unit cut lines. */
 const paths = {
+  search: '<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/>',
   hunger: '<path d="M4 3v6m3-6v6M2 3v8l3 3v7m3-18v8l-3 3M17 3l-4 8h5m0-8v18"/>',
   thirst: '<path d="m12 2-7 10a8 8 0 1 0 14 0zM8 14v2l2 2"/>',
   cannedBeans: '<path d="m5 4 3-2h8l3 2v16l-3 2H8l-3-2zM5 6h14M5 18h14m-9-6 1-3 4 1 1 3-2 2-4-1z"/>',
